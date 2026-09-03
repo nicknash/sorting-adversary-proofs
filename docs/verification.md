@@ -40,9 +40,11 @@ must prove that its final state has at least one realizing ranking.
 
 The trusted development is built by Lean and checked again by the configured
 independent checks.  Exact rational arithmetic is used for potential bounds;
-floating-point optimization output is not trusted.  The finite Boolean replay
-uses `native_decide`, whose generated evaluator axiom is named explicitly in
-the CI allowlist; the interval checker's soundness is an ordinary Lean proof.
+floating-point optimization output is not trusted.  The 7,315-leaf
+strengthened certificate covers all 22 schedule segments and all normalized
+positive energies in `[0,1]`.  Its finite Boolean replay uses `native_decide`,
+whose generated evaluator axiom is named explicitly in the CI allowlist; the
+interval checker's soundness is an ordinary Lean proof.
 The source check rejects `sorry`, `admit`, `sorryAx`, and project-specific
 `axiom` declarations in every trusted Lean module.
 

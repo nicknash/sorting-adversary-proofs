@@ -8,9 +8,9 @@ import SortingAdversary.StrengthenedCurvature.DirectedInterval
 This module freezes the exact theorem proved in
 *A Curvature/Volumetric Sorting Adversary*.
 
-The determinant-ratio certificate is the rational number 7361 / 1000. Since
+The determinant-ratio certificate is the rational number 347 / 50. Since
 the potential is one half of a base-two logarithm, the resulting leading
-constant is exactly 2 / log₂ (7361 / 1000).
+constant is exactly 2 / log₂ (347 / 50).
 
 In particular, the source theorem does **not** prove the formerly advertised
 constant 18 / 25.
@@ -20,9 +20,9 @@ namespace SortingAdversary
 
 /-- The exact certified determinant ratio for the efficient one-dimensional
 curvature schedule. -/
-noncomputable def strengthenedDeterminantRatio : ℝ := 7361 / 1000
+noncomputable def strengthenedDeterminantRatio : ℝ := 347 / 50
 
-/-- The exact leading constant 2 / log₂(7361/1000). -/
+/-- The exact leading constant 2 / log₂(347/50). -/
 noncomputable def strengthenedCurvatureConstant : ℝ :=
   2 * Real.log 2 / Real.log strengthenedDeterminantRatio
 
@@ -68,11 +68,11 @@ evaluation. -/
 theorem strengthenedCurvatureConstant_lt_eighteen_twentyfive :
     strengthenedCurvatureConstant < (18 : ℝ) / 25 := by
   let qTwo : ℚ := ((2 : ℚ) - 1) / (2 + 1)
-  let qRatio : ℚ := (((7361 : ℚ) / 1000) - 1) / ((7361 / 1000) + 1)
+  let qRatio : ℚ := (((347 : ℚ) / 50) - 1) / ((347 / 50) + 1)
   have htwo := StrengthenedCurvature.RationalInterval.log_rational_mem 20 (2 : ℚ)
     (by norm_num)
   have hratio := StrengthenedCurvature.RationalInterval.log_rational_mem 100
-    ((7361 : ℚ) / 1000) (by norm_num)
+    ((347 : ℚ) / 50) (by norm_num)
   have hseparate :
       (50 : ℝ) * StrengthenedCurvature.RationalInterval.logRatioUpper 20 qTwo <
         18 * StrengthenedCurvature.RationalInterval.logRatioLower 100 qRatio := by
@@ -95,35 +95,41 @@ theorem strengthenedCurvatureConstant_lt_eighteen_twentyfive :
   apply (div_lt_iff₀ (Real.log_pos (by norm_num [strengthenedDeterminantRatio]))).2
   nlinarith
 
-/-- A simple exact lower enclosure for the certified decimal coefficient. -/
-theorem sixty_nine_hundredths_lt_strengthenedCurvatureConstant :
-    (69 : ℝ) / 100 < strengthenedCurvatureConstant := by
+/-- An exact four-decimal lower enclosure for the certified coefficient. -/
+theorem seven_one_five_five_ten_thousandths_lt_strengthenedCurvatureConstant :
+    (7155 : ℝ) / 10000 < strengthenedCurvatureConstant := by
   let qTwo : ℚ := ((2 : ℚ) - 1) / (2 + 1)
-  let qRatio : ℚ := (((7361 : ℚ) / 1000) - 1) / ((7361 / 1000) + 1)
+  let qRatio : ℚ := (((347 : ℚ) / 50) - 1) / ((347 / 50) + 1)
   have htwo := StrengthenedCurvature.RationalInterval.log_rational_mem 20 (2 : ℚ)
     (by norm_num)
   have hratio := StrengthenedCurvature.RationalInterval.log_rational_mem 100
-    ((7361 : ℚ) / 1000) (by norm_num)
+    ((347 : ℚ) / 50) (by norm_num)
   have hseparate :
-      (69 : ℝ) * StrengthenedCurvature.RationalInterval.logRatioUpper 100 qRatio <
-        200 * StrengthenedCurvature.RationalInterval.logRatioLower 20 qTwo := by
+      (7155 : ℝ) * StrengthenedCurvature.RationalInterval.logRatioUpper 100 qRatio <
+        20000 * StrengthenedCurvature.RationalInterval.logRatioLower 20 qTwo := by
     norm_num [qTwo, qRatio, StrengthenedCurvature.RationalInterval.logRatioUpper,
       StrengthenedCurvature.RationalInterval.logRatioLower,
       StrengthenedCurvature.RationalInterval.atanhPartial]
-  have hlogs : (69 : ℝ) * Real.log strengthenedDeterminantRatio <
-      200 * Real.log 2 := by
+  have hlogs : (7155 : ℝ) * Real.log strengthenedDeterminantRatio <
+      20000 * Real.log 2 := by
     have hleft :
-        (69 : ℝ) * Real.log strengthenedDeterminantRatio ≤
-          69 * StrengthenedCurvature.RationalInterval.logRatioUpper 100 qRatio := by
+        (7155 : ℝ) * Real.log strengthenedDeterminantRatio ≤
+          7155 * StrengthenedCurvature.RationalInterval.logRatioUpper 100 qRatio := by
       simpa [strengthenedDeterminantRatio, qRatio] using
-        mul_le_mul_of_nonneg_left hratio.2 (by norm_num : (0 : ℝ) ≤ 69)
+        mul_le_mul_of_nonneg_left hratio.2 (by norm_num : (0 : ℝ) ≤ 7155)
     have hright :
-        200 * StrengthenedCurvature.RationalInterval.logRatioLower 20 qTwo ≤
-          (200 : ℝ) * Real.log 2 := by
+        20000 * StrengthenedCurvature.RationalInterval.logRatioLower 20 qTwo ≤
+          (20000 : ℝ) * Real.log 2 := by
       exact mul_le_mul_of_nonneg_left htwo.1 (by norm_num)
     exact hleft.trans_lt (hseparate.trans_le hright)
   rw [strengthenedCurvatureConstant]
   apply (lt_div_iff₀ (Real.log_pos (by norm_num [strengthenedDeterminantRatio]))).2
   nlinarith
+
+/-- A coarser compatibility corollary of the strengthened decimal bound. -/
+theorem sixty_nine_hundredths_lt_strengthenedCurvatureConstant :
+    (69 : ℝ) / 100 < strengthenedCurvatureConstant := by
+  exact (by norm_num : (69 : ℝ) / 100 < 7155 / 10000) |>.trans
+    seven_one_five_five_ten_thousandths_lt_strengthenedCurvatureConstant
 
 end SortingAdversary

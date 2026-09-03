@@ -8,8 +8,8 @@ import Mathlib.Tactic.Ring
 # From the one-comparison theorem to the asymptotic constant
 
 This module performs the global telescoping and the exact algebra which turns
-the determinant ratio `7361 / 1000` into the leading coefficient
-`2 / log₂ (7361 / 1000)`.  The remaining geometric development has one explicit
+the determinant ratio `347 / 50` into the leading coefficient
+`2 / log₂ (347 / 50)`.  The remaining geometric development has one explicit
 interface to instantiate: `CertifiedRuleFamily`.
 -/
 
@@ -30,7 +30,7 @@ noncomputable def terminalPotentialLower (n : ℕ) : ℝ :=
   nLog2n n
 
 theorem strengthenedDeterminantRatio_eq :
-    strengthenedDeterminantRatio = (7361 : ℝ) / 1000 := rfl
+    strengthenedDeterminantRatio = (347 : ℝ) / 50 := rfl
 
 theorem one_lt_strengthenedDeterminantRatio :
     (1 : ℝ) < strengthenedDeterminantRatio := by
@@ -54,7 +54,7 @@ theorem strengthenedCurvatureConstant_eq_invBudget :
 
 For each input size this contains one history-dependent potential rule.  Its
 initial value is at most `3n/2`; every local increase is at most half the
-base-two logarithm of `7361/1000`; and correctness forces the terminal path
+base-two logarithm of `347/50`; and correctness forces the terminal path
 potential to reach the path-determinant endpoint.
 -/
 structure CertifiedRuleFamily where
