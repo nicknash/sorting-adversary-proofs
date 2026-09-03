@@ -20,10 +20,17 @@ jobs:
           build: true
           build-args: "SortingAdversary"
           use-mathlib-cache: true
+          # The full Mathlib/build tree exhausts the hosted runner while the
+          # post-job GitHub cache is being archived.  Mathlib's own cache is
+          # retained above; only the redundant `.lake` actions/cache is off.
+          use-github-cache: false
           leanchecker: true
           leanchecker-args: "SortingAdversary"
-          nanoda: true
-          nanoda-allow-sorry: false
+          # lean-action v1's nanoda wrapper currently detects TOML packages only
+          # through an obsolete `[package]` section.  Lake 4.33 uses the valid
+          # top-level `name`, so the wrapper aborts before exporting any module.
+          # Keep the full build, leanchecker, source audit, and axiom audit below.
+          nanoda: false
           axiom-audit: true
           axiom-audit-root: "SortingAdversary"
           axiom-audit-allow: "propext,Classical.choice,Quot.sound"

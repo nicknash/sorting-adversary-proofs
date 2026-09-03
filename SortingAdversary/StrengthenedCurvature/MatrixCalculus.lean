@@ -2,6 +2,7 @@ import Mathlib.Analysis.Calculus.Deriv.Add
 import Mathlib.Analysis.Calculus.Deriv.Mul
 import Mathlib.Analysis.Calculus.Deriv.Inv
 import Mathlib.Analysis.Calculus.Deriv.Polynomial
+import Mathlib.Analysis.Calculus.Deriv.Prod
 import Mathlib.Analysis.SpecialFunctions.Log.Deriv
 import Mathlib.LinearAlgebra.Matrix.Charpoly.Coeff
 import Mathlib.LinearAlgebra.Matrix.NonsingularInverse
@@ -145,6 +146,133 @@ theorem hasDerivAt_log_det {M : ℝ → Matrix ι ι ℝ}
     rw [mul_div_cancel_left₀ _ hdet.ne']
   rw [hcoef] at h
   exact h
+
+/-- Nonsingular matrix inversion differentiated entrywise.  This formulation
+avoids choosing one of the several norm structures available on finite
+matrices: differentiability is established from the adjugate formula, and the
+derivative is identified by differentiating `M M⁻¹ = I` in a neighborhood of
+the nonsingular point. -/
+theorem differentiableAt_nonsingInv_entry {M : ℝ → Matrix ι ι ℝ}
+    {M' : Matrix ι ι ℝ} {s : ℝ}
+    (hM : ∀ i j, HasDerivAt (fun t => M t i j) (M' i j) s)
+    (hdet : (M s).det ≠ 0) (i j : ι) :
+    DifferentiableAt ℝ (fun t => (M t)⁻¹ i j) s := by
+  have hdetCurve := hasDerivAt_det_of_entrywise hM
+  have hadj : DifferentiableAt ℝ (fun t => (M t).adjugate i j) s := by
+    rw [show (fun t => (M t).adjugate i j) =
+        (fun t => ((M t).updateRow j (Pi.single i 1)).det) by
+      funext t
+      exact Matrix.adjugate_apply (M t) i j]
+    apply (hasDerivAt_det_of_entrywise
+      (M := fun t => (M t).updateRow j (Pi.single i 1))
+      (M' := (M' : Matrix ι ι ℝ).updateRow j 0) (s := s) ?_).differentiableAt
+    intro u v
+    by_cases hu : u = j
+    · subst u
+      simp only [Matrix.updateRow_self, Pi.zero_apply]
+      exact hasDerivAt_const (x := s) (c := Pi.single i 1 v)
+    · simpa only [Matrix.updateRow_ne hu] using hM u v
+  rw [show (fun t => (M t)⁻¹ i j) =
+      (fun t => ((M t).det)⁻¹ * (M t).adjugate i j) by
+    funext t
+    simp [Matrix.inv_def, Ring.inverse_eq_inv]]
+  exact hdetCurve.differentiableAt.inv hdet |>.mul hadj
+
+/-- The entrywise derivative formula `(M⁻¹)' = -M⁻¹ M' M⁻¹`. -/
+theorem hasDerivAt_nonsingInv_entry {M : ℝ → Matrix ι ι ℝ}
+    {M' : Matrix ι ι ℝ} {s : ℝ}
+    (hM : ∀ i j, HasDerivAt (fun t => M t i j) (M' i j) s)
+    (hunit : IsUnit (M s).det) (i j : ι) :
+    HasDerivAt (fun t => (M t)⁻¹ i j)
+      ((-((M s)⁻¹ * M' * (M s)⁻¹)) i j) s := by
+  let N' : Matrix ι ι ℝ := fun u v => deriv (fun t => (M t)⁻¹ u v) s
+  have hN' (u v : ι) : HasDerivAt (fun t => (M t)⁻¹ u v) (N' u v) s :=
+    (differentiableAt_nonsingInv_entry hM
+      (isUnit_iff_ne_zero.mp hunit) u v).hasDerivAt
+  have hdetCurve := hasDerivAt_det_of_entrywise hM
+  have hnear : ∀ᶠ t in nhds s, (M t).det ≠ 0 :=
+    hdetCurve.continuousAt.eventually_ne (isUnit_iff_ne_zero.mp hunit)
+  have hmatrix : M' * (M s)⁻¹ + M s * N' = 0 := by
+    ext u v
+    have hprod : HasDerivAt (fun t => (M t * (M t)⁻¹) u v)
+        ((M' * (M s)⁻¹ + M s * N') u v) s := by
+      have hsum := HasDerivAt.sum (u := (Finset.univ : Finset ι))
+        (fun k _ => (hM u k).mul (hN' k v))
+      have hfun :
+          (∑ k : ι, (fun t => M t u k) * fun t => (M t)⁻¹ k v) =
+            (fun t => ∑ k : ι, M t u k * (M t)⁻¹ k v) := by
+        funext t
+        exact Finset.sum_apply t Finset.univ
+          (fun k t => M t u k * (M t)⁻¹ k v)
+      rw [hfun] at hsum
+      simpa only [Matrix.mul_apply, Matrix.add_apply,
+        Finset.sum_add_distrib] using hsum
+    have heq : (fun _ : ℝ => (1 : Matrix ι ι ℝ) u v) =ᶠ[nhds s]
+        (fun t => (M t * (M t)⁻¹) u v) := by
+      filter_upwards [hnear] with t ht
+      have hm := Matrix.mul_nonsing_inv (M t) (isUnit_iff_ne_zero.mpr ht)
+      exact (congrArg (fun A : Matrix ι ι ℝ => A u v) hm).symm
+    have hzero : HasDerivAt (fun t => (M t * (M t)⁻¹) u v) 0 s :=
+      (hasDerivAt_const (x := s) (c := (1 : Matrix ι ι ℝ) u v)).congr_of_eventuallyEq
+        heq.symm
+    exact hprod.unique hzero
+  have hMN : M s * N' = -(M' * (M s)⁻¹) := by
+    rw [eq_neg_iff_add_eq_zero]
+    simpa [add_comm] using hmatrix
+  have hInv : (M s)⁻¹ * M s = (1 : Matrix ι ι ℝ) :=
+    Matrix.nonsing_inv_mul _ hunit
+  have hN'eq : N' = -((M s)⁻¹ * M' * (M s)⁻¹) := by
+    calc
+      N' = (1 : Matrix ι ι ℝ) * N' := by simp
+      _ = ((M s)⁻¹ * M s) * N' := by rw [hInv]
+      _ = (M s)⁻¹ * (M s * N') := by rw [Matrix.mul_assoc]
+      _ = (M s)⁻¹ * (-(M' * (M s)⁻¹)) := by rw [hMN]
+      _ = -((M s)⁻¹ * M' * (M s)⁻¹) := by noncomm_ring
+  rw [← hN'eq]
+  exact hN' i j
+
+/-- Jacobi's first-derivative expression along a matrix curve. -/
+noncomputable def logDetFirstDerivative
+    (M M1 : ℝ → Matrix ι ι ℝ) (t : ℝ) : ℝ :=
+  ((M t)⁻¹ * M1 t).trace
+
+/-- Derivative of the Jacobi expression.  Together with
+`hasDerivAt_log_det`, this is the second-derivative formula
+
+`(log det M)'' = tr (-M⁻¹ M' M⁻¹ M' + M⁻¹ M'')`.
+-/
+theorem hasDerivAt_logDetFirstDerivative {M M1 : ℝ → Matrix ι ι ℝ}
+    {M' M'' : Matrix ι ι ℝ} {s : ℝ}
+    (hM : ∀ i j, HasDerivAt (fun t => M t i j) (M' i j) s)
+    (hM1 : ∀ i j, HasDerivAt (fun t => M1 t i j) (M'' i j) s)
+    (hvalue : M1 s = M') (hunit : IsUnit (M s).det) :
+    HasDerivAt (fun t => logDetFirstDerivative M M1 t)
+      ((-((M s)⁻¹ * M' * (M s)⁻¹) * M' + (M s)⁻¹ * M'').trace) s := by
+  have hinv (i j : ι) := hasDerivAt_nonsingInv_entry hM hunit i j
+  have hdiag (i : ι) : HasDerivAt
+      (fun t => ((M t)⁻¹ * M1 t) i i)
+      ((-((M s)⁻¹ * M' * (M s)⁻¹) * M' + (M s)⁻¹ * M'') i i) s := by
+    have hsum := HasDerivAt.sum (u := (Finset.univ : Finset ι))
+      (fun k _ => (hinv i k).mul (hM1 k i))
+    have hfun :
+        (∑ k : ι, (fun t => (M t)⁻¹ i k) * fun t => M1 t k i) =
+          (fun t => ∑ k : ι, (M t)⁻¹ i k * M1 t k i) := by
+      funext t
+      exact Finset.sum_apply t Finset.univ
+        (fun k t => (M t)⁻¹ i k * M1 t k i)
+    rw [hfun] at hsum
+    simpa only [Matrix.mul_apply, Matrix.add_apply, hvalue,
+      Finset.sum_add_distrib] using hsum
+  have hsum := HasDerivAt.sum (u := (Finset.univ : Finset ι))
+    (fun i _ => hdiag i)
+  have hfun :
+      (∑ i : ι, fun t => ((M t)⁻¹ * M1 t) i i) =
+        (fun t => ((M t)⁻¹ * M1 t).trace) := by
+    funext t
+    rw [Finset.sum_apply]
+    rfl
+  rw [hfun] at hsum
+  simpa only [logDetFirstDerivative, Matrix.trace, Matrix.diag_apply] using hsum
 
 end StrengthenedCurvature
 end SortingAdversary

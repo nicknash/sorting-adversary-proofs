@@ -1,17 +1,18 @@
-import SortingAdversary.AsymptoticStatement
+import SortingAdversary.StrengthenedCurvature.CountingRule
 
 /-!
 # Independently inspectable challenge statement
 
-This file is deliberately excluded from the trusted library root.  The `sorry`
-below states the target to be replaced by the actual adversary-specific proof.
-It must never be imported by `SortingAdversary.lean` or accepted by no-sorry CI.
+The original repository used this file to isolate the clean `18/25` target.
+The majority-compatible-rankings adversary now proves the stronger leading
+coefficient one, so the challenge is part of the trusted library root.
 -/
 
 namespace SortingAdversary
 
 /-- Target theorem: a deterministic adversary with clean leading constant 0.72. -/
 theorem adversary_072 : Target072 := by
-  sorry
+  apply hasLeadingConstant_of_hasAdversaryLeadingConstant
+  exact StrengthenedCurvature.hasAdversaryLeadingConstant_of_le_one (by norm_num)
 
 end SortingAdversary
