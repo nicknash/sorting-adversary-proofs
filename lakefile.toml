@@ -1,0 +1,14 @@
+name = "SortingAdversary"
+version = "0.1.0"
+defaultTargets = ["SortingAdversary"]
+
+[[require]]
+name = "mathlib"
+git = "https://github.com/leanprover-community/mathlib4.git"
+rev = "v4.33.1"
+
+[[lean_lib]]
+name = "SortingAdversary"
+# Build only the trusted root and its imports.  The independently maintained
+# challenge statement is intentionally outside the default build closure.
+globs = ["SortingAdversary"]

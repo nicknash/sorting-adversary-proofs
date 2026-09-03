@@ -1,0 +1,29 @@
+name: Lean audit
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  trusted-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reject placeholders and project-specific axioms in trusted sources
+        run: ./scripts/check-trusted-no-sorry.sh
+      - uses: leanprover/lean-action@v1
+        with:
+          auto-config: false
+          build: true
+          build-args: "SortingAdversary"
+          use-mathlib-cache: true
+          leanchecker: true
+          leanchecker-args: "SortingAdversary"
+          nanoda: true
+          nanoda-allow-sorry: false
+          axiom-audit: true
+          axiom-audit-root: "SortingAdversary"
+          axiom-audit-allow: "propext,Classical.choice,Quot.sound"
