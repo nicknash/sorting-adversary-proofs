@@ -5,32 +5,16 @@ import SortingAdversary.Knowledge
 import SortingAdversary.Potential
 import SortingAdversary.PotentialAdversary
 import SortingAdversary.AsymptoticStatement
-import SortingAdversary.Challenge
 import SortingAdversary.Examples.TwoItems
-import SortingAdversary.StrengthenedCurvature.AdversaryPotential
-import SortingAdversary.StrengthenedCurvature.AugmentedCurvature
-import SortingAdversary.StrengthenedCurvature.Barrier
-import SortingAdversary.StrengthenedCurvature.CenterExistence
-import SortingAdversary.StrengthenedCurvature.CenterStationarity
-import SortingAdversary.StrengthenedCurvature.CountingRule
-import SortingAdversary.StrengthenedCurvature.DirectedInterval
-import SortingAdversary.StrengthenedCurvature.EnergySplit
-import SortingAdversary.StrengthenedCurvature.GeometricRule
-import SortingAdversary.StrengthenedCurvature.GlobalBound
-import SortingAdversary.StrengthenedCurvature.HistoryPolytope
-import SortingAdversary.StrengthenedCurvature.InformativeHistory
-import SortingAdversary.StrengthenedCurvature.ProjectionCurvature
-import SortingAdversary.StrengthenedCurvature.ScalarEnvelope
+import SortingAdversary.StrengthenedCurvature.ApproximateRule
+import SortingAdversary.StrengthenedCurvature.EfficientRule
 import SortingAdversary.StrengthenedCurvature.Schedule
-import SortingAdversary.StrengthenedCurvature.SignImbalance
-import SortingAdversary.StrengthenedCurvature.SourceSpecification
-import SortingAdversary.StrengthenedCurvature.Whitening
 import SortingAdversary.Audit
 
 /-!
 # Sorting-adversary formalization
 
-This is the trusted, placeholder-free library root.  Both the exact
-strengthened-curvature target and the original clean `18/25` challenge are
-kernel checked.
+This is the trusted, placeholder-free library root.  Its exported lower bound
+is proved by the efficient deterministic curvature/volumetric adversary, not
+by compatible-ranking counting.
 -/

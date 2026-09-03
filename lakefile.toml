@@ -9,6 +9,5 @@ rev = "v4.33.1"
 
 [[lean_lib]]
 name = "SortingAdversary"
-# Build only the trusted root and its imports.  The independently maintained
-# challenge statement is intentionally outside the default build closure.
+# Build the trusted root and the complete efficient-adversary proof closure.
 globs = ["SortingAdversary"]

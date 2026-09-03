@@ -1,38 +1,25 @@
-# Source-freeze checklist for the 0.72 adversary
+# Source-freeze checklist
 
-Before adversary-specific Lean code is treated as a formalization of the
-mathematical result, one immutable source document or commit must provide all
-of the following.
+Before a stronger adversary is exported, one immutable source bundle must
+provide the exact theorem, state, deterministic response rule, feasibility
+invariant, potential, local transition bound, terminal estimate, and an exact
+certificate for every numerical inequality.
 
-## Mathematical data
+For the current `7361/1000` result the repository additionally requires:
 
-- Exact theorem statement, including the quantifiers over algorithms and `n`.
-- Whether efficiency of the adversary is part of the theorem or a separate
-  implementation claim.
-- Exact state representation and initial state.
-- A total deterministic response rule for every reachable comparison type.
-- The realization invariant connecting every reachable state to at least one
-  total ranking.
-- The potential, including every history-dependent or tracked-point term.
-- The one-comparison potential-increase lemma, with a complete case split.
-- The terminal potential lower bound.
-- Treatment of arbitrary `n`, rounding, incomplete blocks, and small values.
-- Exact rational or algebraic parameters certifying a coefficient above
-  `18/25`; decimal output from an optimizer is not a certificate.
+- a Lean theorem connecting each analytic reduction to the scalar envelope;
+- a proof-producing exact-rational interval checker;
+- a checked cover of the full normalized-offset interval;
+- an overlap proof between the small- and large-offset regimes;
+- a total rule for repeated and transitively implied queries; and
+- a global theorem connecting the adversarial transcript to a genuine ranking.
 
-## Formalization correspondence
+For the stronger `347/50` checkpoint, decimal output or an `mpmath.iv` pass is
+not by itself a Lean certificate.  The complete `(delta,r,lambda)` box cover,
+including directed square-root, logarithm, and saving bounds, must be replayed
+by a sound checker before that constant replaces the exported one.
 
-For each definition and lemma in the source, record the Lean declaration that
-implements it.  Conversely, every nontrivial adversary-specific Lean declaration
-should identify the source definition, lemma, or finite certificate it realizes.
-
-## Acceptance conditions
-
-- `lake build` succeeds on the pinned toolchain.
-- No trusted module uses `sorry` or a project-specific axiom.
-- `#print axioms SortingAdversary.adversary_072` reports only the explicitly
-  permitted foundational axioms.
-- Comparator confirms that `Main.lean` proves exactly the theorem in
-  `Challenge.lean`.
-- Any generated finite certificate is reproducible and its checker is proved
-  sound inside Lean.
+Acceptance requires `lake build SortingAdversary`, the trusted-source
+placeholder scan, and an axiom audit allowing `propext`, `Classical.choice`,
+`Quot.sound`, and only the explicitly named `native_decide` evaluator used by
+the finite exact-rational certificate replay.

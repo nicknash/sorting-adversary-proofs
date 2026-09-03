@@ -73,6 +73,13 @@ def nonnegativeMul (I J : RationalInterval) : RationalInterval :=
 def positiveReciprocal (I : RationalInterval) : RationalInterval :=
   ⟨1 / I.upper, 1 / I.lower⟩
 
+/-- Directed square, using the general multiplication rule. -/
+def square (I : RationalInterval) : RationalInterval := I.mul I
+
+/-- Directed division by an interval known to be strictly positive. -/
+def div (I J : RationalInterval) : RationalInterval :=
+  I.mul J.positiveReciprocal
+
 @[simp] theorem contains_point (q : ℚ) : (point q).Contains (q : ℝ) := by
   simp [Contains, point]
 
@@ -176,6 +183,16 @@ theorem Contains.positiveReciprocal {I : RationalInterval} {x : ℝ}
       one_div_le_one_div_of_le hx0 hx.2
   · simpa [Contains, RationalInterval.positiveReciprocal] using
       one_div_le_one_div_of_le hlo hx.1
+
+theorem Contains.square {I : RationalInterval} {x : ℝ}
+    (hx : I.Contains x) : I.square.Contains (x ^ 2) := by
+  simpa [RationalInterval.square, pow_two] using hx.mul hx
+
+theorem Contains.div {I J : RationalInterval} {x y : ℝ}
+    (hx : I.Contains x) (hy : J.Contains y) (hJ : 0 < J.lower) :
+    (I.div J).Contains (x / y) := by
+  simpa [RationalInterval.div, div_eq_mul_inv] using
+    hx.mul (hy.positiveReciprocal hJ)
 
 /-- Rational conditions which certify an enclosure of the square root of
 every nonnegative member of `I`. -/

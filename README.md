@@ -1,108 +1,87 @@
 # Sorting adversaries in Lean
 
-An audit-oriented Lean 4 formalization of deterministic adversaries for
-comparison sorting. The current source-backed target is the strengthened
-volumetric-history adversary with exact leading constant
-`2 / log₂(347/50) = 0.715579977964088...`.
+An audit-oriented Lean 4 formalization of the deterministic
+curvature/volumetric adversary for comparison sorting.
 
-The project is deliberately standalone.  It is not part of the older C#
-`AdversaryExperiments` repository.
-
-## Current trusted development
-
-`SortingAdversary.lean` is the trusted, `sorry`-free library root.  It currently
-contains:
-
-- a direct finite deterministic comparison-tree model;
-- rankings represented by mathlib permutations of `Fin n`;
-- adaptive, history-dependent adversary execution;
-- a proof that every ranking compatible with an adversarial transcript follows
-  exactly the same tree path and incurs exactly the same comparison count;
-- a generic theorem turning a consistent long adversarial run into a genuine
-  worst-case sorting input;
-- relation-valued knowledge states with explicit transitive closure and a
-  proved interpretation in concrete rankings;
-- exact rational telescoping-potential lemmas;
-- a reusable certificate theorem converting per-run potential calculations
-  into comparison lower bounds;
-- an unconditional majority-of-compatible-rankings adversary, with a
-  Stirling-bound proof of the initial potential estimate; and
-- the exported theorem
-  `SortingAdversary.strengthened_curvature_adversary`, proving the exact
-  source-backed target `2 / log₂(347/50)`;
-- the stronger information-theoretic leading coefficient one, and hence a
-  completed proof of the original clean `18/25` challenge; and
-- a two-item sanity theorem checking the intended semantics.
-
-## Strengthened-curvature development
-
-`SortingAdversary/StrengthenedCurvature/` formalizes the source specification,
-history polytope, informative-history semantics, barrier rows, electrical
-energy split, sign-imbalance estimate, scalar envelope, rational schedule, and
-global potential accounting.  The augmented analytic layer now also proves
-entrywise inverse/Jacobi differentiation, the exact row-projection
-second-derivative identity, and the strengthened curvature inequality.  These
-modules are all part of the trusted build and contain no placeholders or
-project-specific axioms.
-
-The exact exported target is unconditional.  It is instantiated by
-`countingCertifiedRuleFamily`, the standard strategy which chooses a query
-branch containing at least half of the compatible rankings.  This semantic
-argument is stronger than the numerical constant required by the source and
-keeps the public theorem independent of an external interval implementation.
-The source-specific scalar-envelope replay remains a separately documented
-refinement; the accompanying `mpmath.iv` verifier is never treated as a Lean
-theorem oracle.
-
-## Original challenge file
-
-`SortingAdversary/Challenge.lean` states:
-
-```lean
-SortingAdversary.adversary_072 : SortingAdversary.Target072
-```
-
-where `Target072` means that every correct deterministic comparison tree has an
-input requiring
+The trusted theorem has determinant ratio
 
 ```text
-(18/25) n log₂ n - O(n)
+K = 7361 / 1000
 ```
 
-comparisons, with one uniform linear-error constant.
+and leading coefficient
 
-The challenge no longer contains a placeholder.  It follows from the
-majority-compatible-rankings theorem, which proves the stronger leading
-coefficient one, and is imported by the trusted library root.
+```text
+2 / log₂(7361/1000) = 0.694468130795582...
+```
 
-## Build
+This is the exact-rationally certified constant from the curvature-volumetric
+notes; the finite certificate is replayed with Lean's trusted native evaluator.
+It is below the superseded clean target `18/25`.  The stronger sign-imbalance
+checkpoint at `347/50` is represented by analytic support modules and its
+rational schedule, but is not claimed by the exported theorem until its full
+two-variable interval certificate is replayed in Lean.
 
-The toolchain and mathlib revision are pinned.
+## What is proved
+
+`SortingAdversary.lean` is the trusted, `sorry`-free library root.  It includes:
+
+- finite deterministic comparison trees, rankings, adaptive transcripts, and
+  the bridge from a consistent adversarial transcript to a genuine hard input;
+- informative-history retention, including repeated and transitively implied
+  comparisons;
+- the history polytope, logarithmic barrier Hessian, volumetric center, and
+  initial and terminal determinant estimates;
+- whitening, electrical motion, exact first and second derivative identities,
+  and twice-integrated branch inequalities;
+- a proved exact-rational interval checker and a native replay of its Boolean
+  certificate for the scalar `7361/1000` envelope;
+- the explicit local rule: at large normalized offset retain the center side;
+  otherwise evaluate the two electrical trial branches and retain the smaller;
+- the resulting total history-dependent strategy and global telescoping proof;
+  and
+- a rational approximate-child selector proving that additive error `ε` costs
+  at most `2ε` in the selected true child potential.
+
+There is no compatible-ranking counting adversary in the theorem path.
+
+The main declarations are:
+
+```lean
+SortingAdversary.StrengthenedCurvature.efficientInformativeRule
+SortingAdversary.StrengthenedCurvature.efficientCertifiedRuleFamily
+SortingAdversary.StrengthenedCurvature.efficient_curvature_adversary
+SortingAdversary.StrengthenedCurvature.approximateChildAnswer_le_min_add
+```
+
+## Efficiency boundary
+
+The mathematical rule is deterministic and uses only the retained DAG and two
+child volumetric potentials.  The notes obtain polynomial time by evaluating
+those potentials to additive accuracy `n⁻⁴` with deterministic convex
+optimization; there are at most `O(n²)` informative comparisons, so the total
+decision error is `O(n⁻²)`.
+
+Lean's `Strategy` type is a semantic function and carries no bit-cost model.
+Accordingly, the repository proves the exact geometric strategy and the
+`2ε` robustness lemma, while treating the standard convex-optimization running
+time as the implementation boundary rather than pretending that
+`Classical.choose` is executable code.
+
+## Build and audit
+
+The Lean toolchain and mathlib revision are pinned.
 
 ```bash
 lake update
 lake exe cache get
 ./scripts/check-trusted-no-sorry.sh
-lake build
+lake build SortingAdversary
 ```
 
-GitHub Actions performs the same trusted-source check and requests Nanoda
-checking through `leanprover/lean-action`.
-
-## What a reviewer needs to inspect
-
-Start with `docs/semantic-boundary.md`, `docs/verification.md`, and
-`SortingAdversary/Audit.lean`.  The central bridge is:
-
-```lean
-SortingAdversary.lower_bound_of_adversary_certificate
-```
-
-The main unconditional construction to inspect is:
-
-```lean
-SortingAdversary.StrengthenedCurvature.countingCertifiedRuleFamily
-```
-
-The volumetric modules form a separate source-specific audit trail for the
-strengthened curvature argument.
+GitHub Actions repeats the source audit, full trusted build, `leanchecker`, and
+axiom audit.  Besides the usual Lean foundations, the audit explicitly allows
+the generated `native_decide` evaluator axiom for the finite rational replay;
+the checker soundness proof itself remains kernel checked.  Review
+`docs/semantic-boundary.md`, `docs/verification.md`, and
+`SortingAdversary/Audit.lean` for the small trusted interface.

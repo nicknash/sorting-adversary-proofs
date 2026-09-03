@@ -185,6 +185,40 @@ noncomputable def scaledLogDet (V : Matrix ρ κ ℝ) (d : ρ → ℝ) (s : ℝ)
 noncomputable def scaledLogDetFirst (V : Matrix ρ κ ℝ) (d : ρ → ℝ) (s : ℝ) : ℝ :=
   logDetFirstDerivative (scaledGram V d) (scaledGramFirst V d) s
 
+/-- The first derivative is the leverage-weighted sum of the instantaneous
+row-scale speeds.  This is the trace form used at the old center. -/
+theorem scaledLogDetFirst_eq_projectionDiagonal
+    (V : Matrix ρ κ ℝ) (d : ρ → ℝ) (s : ℝ)
+    (hden : ∀ i, rowDenominator d s i ≠ 0) :
+    scaledLogDetFirst V d s =
+      -2 * ∑ i, rowProjection (scaledRows V d s) i i * scaledRate d s i := by
+  rw [scaledLogDetFirst, logDetFirstDerivative,
+    scaledGramFirst_eq V d s hden]
+  simp only [Matrix.mul_smul, Matrix.trace_smul, smul_eq_mul]
+  congr 1
+  let W := scaledRows V d s
+  let D := Matrix.diagonal (scaledRate d s)
+  let G := scaledGram V d s
+  calc
+    (G⁻¹ * (W.transpose * D * W)).trace =
+        ((G⁻¹ * W.transpose * D) * W).trace := by
+          congr 1
+          simp only [Matrix.mul_assoc]
+    _ = (W * (G⁻¹ * W.transpose * D)).trace := Matrix.trace_mul_comm _ _
+    _ = ((W * G⁻¹ * W.transpose) * D).trace := by
+          congr 1
+          simp only [Matrix.mul_assoc]
+    _ = ∑ i, rowProjection W i i * scaledRate d s i := by
+          simp only [rowProjection, D, Matrix.trace, Matrix.diag_apply,
+            Matrix.mul_apply, Matrix.diagonal_apply]
+          apply Finset.sum_congr rfl
+          intro i _
+          rw [Finset.sum_eq_single i]
+          · simp [G, W, scaledGram]
+          · intro j _ hji
+            simp [hji]
+          · simp
+
 theorem hasDerivAt_scaledLogDet (V : Matrix ρ κ ℝ) (d : ρ → ℝ)
     (s : ℝ) (hden : ∀ i, rowDenominator d s i ≠ 0)
     (hdet : 0 < (scaledGram V d s).det) :
