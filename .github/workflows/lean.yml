@@ -27,3 +27,18 @@ jobs:
           axiom-audit: true
           axiom-audit-root: "SortingAdversary"
           axiom-audit-allow: "propext,Classical.choice,Quot.sound"
+      # Temporary bootstrap for local kernel-checked development in the Codex
+      # workspace.  This step is removed before the formalization is merged.
+      - name: Package pinned Lean development environment
+        if: always()
+        run: |
+          tar --zstd -cf lean-dev-env.tar.zst \
+            -C "$HOME" .elan \
+            -C "$GITHUB_WORKSPACE" .lake lake-manifest.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lean-dev-env
+          path: lean-dev-env.tar.zst
+          compression-level: 0
+          retention-days: 1
