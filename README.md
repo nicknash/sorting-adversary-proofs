@@ -15,7 +15,8 @@ and leading coefficient
 2 / log₂(7361/1000) = 0.694468130795582...
 ```
 
-This is the fully kernel-checked constant from the curvature-volumetric notes.
+This is the exact-rationally certified constant from the curvature-volumetric
+notes; the finite certificate is replayed with Lean's trusted native evaluator.
 It is below the superseded clean target `18/25`.  The stronger sign-imbalance
 checkpoint at `347/50` is represented by analytic support modules and its
 rational schedule, but is not claimed by the exported theorem until its full
