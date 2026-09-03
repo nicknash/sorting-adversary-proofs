@@ -16,7 +16,9 @@ jobs:
         run: ./scripts/check-trusted-no-sorry.sh
       - uses: leanprover/lean-action@v1
         with:
-          auto-config: false
+          # Generate lake-manifest.json on a fresh checkout before restoring
+          # mathlib's cache and building the trusted root.
+          auto-config: true
           build: true
           build-args: "SortingAdversary"
           use-mathlib-cache: true
