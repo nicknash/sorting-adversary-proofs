@@ -14,11 +14,16 @@ jobs:
       - uses: actions/checkout@v4
       - name: Reject placeholders and project-specific axioms in trusted sources
         run: ./scripts/check-trusted-no-sorry.sh
+      - name: Generate pinned Lake manifest
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          "$HOME/.elan/bin/lake" update
       - uses: leanprover/lean-action@v1
         with:
-          # Generate lake-manifest.json on a fresh checkout before restoring
-          # mathlib's cache and building the trusted root.
-          auto-config: true
+          auto-config: false
           build: true
           build-args: "SortingAdversary"
           use-mathlib-cache: true
@@ -37,10 +42,75 @@ jobs:
           tar --zstd -cf lean-dev-env.tar.zst \
             -C "$HOME" .elan \
             -C "$GITHUB_WORKSPACE" .lake lake-manifest.json
-      - uses: actions/upload-artifact@v4
+          split -b 300M -d -a 2 lean-dev-env.tar.zst lean-dev-env.part-
+      - name: Upload environment part 00
+        uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: lean-dev-env
-          path: lean-dev-env.tar.zst
+          name: lean-dev-env-00
+          path: lean-dev-env.part-00
           compression-level: 0
           retention-days: 1
+      - name: Upload environment part 01
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lean-dev-env-01
+          path: lean-dev-env.part-01
+          compression-level: 0
+          retention-days: 1
+          if-no-files-found: ignore
+      - name: Upload environment part 02
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lean-dev-env-02
+          path: lean-dev-env.part-02
+          compression-level: 0
+          retention-days: 1
+          if-no-files-found: ignore
+      - name: Upload environment part 03
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lean-dev-env-03
+          path: lean-dev-env.part-03
+          compression-level: 0
+          retention-days: 1
+          if-no-files-found: ignore
+      - name: Upload environment part 04
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lean-dev-env-04
+          path: lean-dev-env.part-04
+          compression-level: 0
+          retention-days: 1
+          if-no-files-found: ignore
+      - name: Upload environment part 05
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lean-dev-env-05
+          path: lean-dev-env.part-05
+          compression-level: 0
+          retention-days: 1
+          if-no-files-found: ignore
+      - name: Upload environment part 06
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lean-dev-env-06
+          path: lean-dev-env.part-06
+          compression-level: 0
+          retention-days: 1
+          if-no-files-found: ignore
+      - name: Upload environment part 07
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lean-dev-env-07
+          path: lean-dev-env.part-07
+          compression-level: 0
+          retention-days: 1
+          if-no-files-found: ignore
