@@ -148,7 +148,7 @@ theorem hasDerivAt_rowCurvatureSum' (d : ρ → ℝ) (s : ℝ)
     rowCurvatureSum' d 0 = 0 := by
   simp [rowCurvatureSum']
 
-private theorem rowCurvatureSum''_eq_scaledRate (d : ρ → ℝ) (s : ℝ) :
+theorem rowCurvatureSum''_eq_scaledRate (d : ρ → ℝ) (s : ℝ) :
     rowCurvatureSum'' d s = 3 * ∑ i, scaledRate d s i ^ 2 := by
   rw [rowCurvatureSum'', Finset.sum_apply, Finset.mul_sum]
   apply Finset.sum_congr rfl

@@ -1,45 +1,26 @@
-import SortingAdversary.StrengthenedCurvature.FirstDerivative
+import SortingAdversary.StrengthenedCurvature.BranchBounds
+import SortingAdversary.StrengthenedCurvature.RateSaving
 
 /-!
-# Integrated bounds for the two deterministic trial branches
+# Trial-branch bounds with the sign-imbalance saving retained
 
-This file turns the matrix curvature theorem into equations (46) and (48) of
-the strengthened note (and equations (32) and (33) of the earlier curvature
-note).  The stronger sign saving can be subtracted later; the bounds here are
-already sufficient for the fully efficient `7.361` certificate.
+These are equations (45) and (47) of the strengthened-curvature note.
 -/
 
 namespace SortingAdversary
 namespace StrengthenedCurvature
 
+open Set intervalIntegral
 open scoped BigOperators
+
+set_option maxHeartbeats 2000000
 
 variable {n : ℕ}
 
-theorem scaledLogDet_zero_sub_old {h : History n} {x : Placement n}
-    (hx : InHistoryPolytope h x) (o : Observation n) {t : ℝ} (ht : t ≠ 0) :
-    scaledLogDet (augmentedRows h x o t) (augmentedMotions h x o) 0 -
-        Real.log (barrierHessian h x).det =
-      Real.log (1 + 1 / t ^ 2) := by
-  rw [scaledLogDet, scaledGram_augmented_det_zero hx o ht]
-  have hdet : 0 < (barrierHessian h x).det := (barrierHessian_posDef hx).det_pos
-  have hfactor : 0 < 1 + 1 / t ^ 2 := by positivity
-  rw [Real.log_mul hdet.ne' hfactor.ne']
-  ring
-
-theorem augmented_rowCurvatureSum {h : History n} {x : Placement n}
-    (o : Observation n) (s : ℝ) :
-    rowCurvatureSum (augmentedMotions h x o) s =
-      ∑ i : OldRowIndex h,
-        3 * (s * electricalMotion h x o (indexedBarrierRow h i) -
-          Real.log (1 + s * electricalMotion h x o (indexedBarrierRow h i))) := by
-  rw [rowCurvatureSum, Finset.sum_apply, Fintype.sum_option]
-  simp [augmentedMotions, rowCurvaturePrimitive]
-
-/-- Equation (46) without the optional strengthened-curvature saving. -/
-theorem positive_scaledLogDet_bound {h : History n} {x : Placement n}
-    (hc : IsVolumetricCenter h x) (o : Observation n) {delta a : ℝ}
-    (ho : 0 ≤ (BarrierRow.ofObservation o).slack x)
+/-- Equation (45), including the certified `Γ₊` saving. -/
+theorem positive_scaledLogDet_bound_strengthened {h : History n}
+    {x : Placement n} (hc : IsVolumetricCenter h x) (o : Observation n)
+    {delta a : ℝ} (ho : 0 ≤ (BarrierRow.ofObservation o).slack x)
     (hdelta : delta = queryOffset h x o) (ha0 : 0 < a) (ha1 : a < 1) :
     scaledLogDet (augmentedRows h x o (delta + a))
           (augmentedMotions h x o) a -
@@ -47,11 +28,14 @@ theorem positive_scaledLogDet_bound {h : History n} {x : Placement n}
       Real.log (1 + 1 / (delta + a) ^ 2) +
         ∑ i : OldRowIndex h,
           phiPlus delta a
-            (electricalMotion h x o (indexedBarrierRow h i)) := by
+            (electricalMotion h x o (indexedBarrierRow h i)) -
+        gammaPlus a
+          (electricalNormalizedMotions h x o hc.1).positiveEnergy := by
   subst delta
-  have ht : queryOffset h x o + a ≠ 0 := by
-    exact ne_of_gt (add_pos_of_nonneg_of_pos (queryOffset_nonneg hc.1 ho) ha0)
-  have hcurve := scaledLogDet_endpoint_sub_tangent_le
+  let motion := electricalNormalizedMotions h x o hc.1
+  have ht : queryOffset h x o + a ≠ 0 :=
+    ne_of_gt (add_pos_of_nonneg_of_pos (queryOffset_nonneg hc.1 ho) ha0)
+  have hcurve := scaledLogDet_endpoint_sub_tangent_le_strengthened
     (V := augmentedRows h x o (queryOffset h x o + a))
     (d := augmentedMotions h x o) ha0
     (fun s hs => augmented_rowDenominator_ne hc.1 o (by
@@ -60,7 +44,33 @@ theorem positive_scaledLogDet_bound {h : History n} {x : Placement n}
     (fun s hs => scaledGram_augmented_det_pos hc.1 o _ (by
       rw [abs_of_nonneg hs.1]
       exact hs.2.trans_lt ha1))
-  rw [scaledLogDetFirst_augmented_zero hc o ht] at hcurve
+  have hintegral :
+      (∫ s in (0 : ℝ)..a, (a - s) *
+          scaledRateGap (augmentedMotions h x o) s ^ 2) =
+        ∫ s in (0 : ℝ)..a, (a - s) *
+          (motion.positiveRateNorm s - motion.negativeRateNorm s) ^ 2 := by
+    apply intervalIntegral.integral_congr
+    intro s hs
+    have hs' : s ∈ Set.Icc (0 : ℝ) a := by
+      simpa [Set.uIcc_of_le ha0.le] using hs
+    change (a - s) * scaledRateGap (augmentedMotions h x o) s ^ 2 =
+      (a - s) * (motion.positiveRateNorm s - motion.negativeRateNorm s) ^ 2
+    rw [scaledRateGap_augmented_eq o hc.1 hs'.1 (hs'.2.trans_lt ha1)]
+  rw [hintegral] at hcurve
+  have hgamma := motion.gammaPlus_le_integratedRateGap ha0.le ha1
+  have hcurveSave :
+      scaledLogDet
+            (augmentedRows h x o (queryOffset h x o + a))
+            (augmentedMotions h x o) a -
+          scaledLogDet
+            (augmentedRows h x o (queryOffset h x o + a))
+            (augmentedMotions h x o) 0 -
+          a * scaledLogDetFirst
+            (augmentedRows h x o (queryOffset h x o + a))
+            (augmentedMotions h x o) 0 ≤
+        rowCurvatureSum (augmentedMotions h x o) a -
+          gammaPlus a motion.positiveEnergy := by
+    linarith
   have hzero := scaledLogDet_zero_sub_old hc.1 o ht
   calc
     scaledLogDet (augmentedRows h x o (queryOffset h x o + a))
@@ -79,16 +89,19 @@ theorem positive_scaledLogDet_bound {h : History n} {x : Placement n}
         a * scaledLogDetFirst
           (augmentedRows h x o (queryOffset h x o + a))
           (augmentedMotions h x o) 0 := by ring
-    _ ≤ rowCurvatureSum (augmentedMotions h x o) a +
+    _ ≤ rowCurvatureSum (augmentedMotions h x o) a -
+        gammaPlus a motion.positiveEnergy +
         Real.log (1 + 1 / (queryOffset h x o + a) ^ 2) +
         a * (2 * electricalCubeMoment h x o /
           (1 + (queryOffset h x o + a) ^ 2)) := by
       rw [hzero, scaledLogDetFirst_augmented_zero hc o ht]
+      rw [scaledLogDetFirst_augmented_zero hc o ht] at hcurveSave
       linarith
     _ = Real.log (1 + 1 / (queryOffset h x o + a) ^ 2) +
         ∑ i : OldRowIndex h,
           phiPlus (queryOffset h x o) a
-            (electricalMotion h x o (indexedBarrierRow h i)) := by
+            (electricalMotion h x o (indexedBarrierRow h i)) -
+        gammaPlus a motion.positiveEnergy := by
       rw [augmented_rowCurvatureSum]
       unfold electricalCubeMoment phiPlus
       have hcubic :
@@ -106,73 +119,27 @@ theorem positive_scaledLogDet_bound {h : History n} {x : Placement n}
       rw [hcubic, Finset.sum_add_distrib]
       ring
 
-section Reflection
-
-variable {ρ κ : Type*} [Fintype ρ] [Fintype κ]
-  [DecidableEq ρ] [DecidableEq κ]
-
-theorem scaledRows_neg (V : Matrix ρ κ ℝ) (d : ρ → ℝ) (s : ℝ) :
-    scaledRows V (-d) s = scaledRows V d (-s) := by
-  ext i j
-  simp only [scaledRows, Pi.neg_apply, rowDenominator]
-  congr 1
-  ring
-
-theorem scaledGram_neg (V : Matrix ρ κ ℝ) (d : ρ → ℝ) (s : ℝ) :
-    scaledGram V (-d) s = scaledGram V d (-s) := by
-  simp only [scaledGram, scaledRows_neg]
-
-theorem scaledLogDet_neg (V : Matrix ρ κ ℝ) (d : ρ → ℝ) (s : ℝ) :
-    scaledLogDet V (-d) s = scaledLogDet V d (-s) := by
-  simp only [scaledLogDet, scaledGram_neg]
-
-theorem scaledLogDetFirst_neg_zero
-    (V : Matrix ρ κ ℝ) (d : ρ → ℝ) :
-    scaledLogDetFirst V (-d) 0 = -scaledLogDetFirst V d 0 := by
-  rw [scaledLogDetFirst_eq_projectionDiagonal V (-d) 0 (by
-      intro i
-      simp [rowDenominator]),
-    scaledLogDetFirst_eq_projectionDiagonal V d 0 (by
-      intro i
-      simp [rowDenominator])]
-  rw [scaledRows_neg]
-  simp only [neg_zero, scaledRate, rowDenominator, Pi.neg_apply, zero_mul,
-    add_zero, div_one]
-  simp_rw [mul_neg]
-  rw [Finset.sum_neg_distrib]
-  ring
-
-end Reflection
-
-theorem rowCurvatureSum_neg_augmented {h : History n}
-    {x : Placement n} (o : Observation n) (b : ℝ) :
-    rowCurvatureSum (-(augmentedMotions h x o)) b =
-      ∑ i : OldRowIndex h,
-        3 * (-b * electricalMotion h x o (indexedBarrierRow h i) -
-          Real.log (1 - b * electricalMotion h x o (indexedBarrierRow h i))) := by
-  rw [rowCurvatureSum, Finset.sum_apply, Fintype.sum_option]
-  simp [augmentedMotions, rowCurvaturePrimitive]
-  apply Finset.sum_congr rfl
-  intro i _
-  congr 2 <;> ring
-
-/-- Equation (48) without the optional strengthened-curvature saving. -/
-theorem negative_scaledLogDet_bound {h : History n} {x : Placement n}
-    (hc : IsVolumetricCenter h x) (o : Observation n) {delta b : ℝ}
-    (hdelta : delta = queryOffset h x o) (hb0 : 0 < b) (hb1 : b < 1)
-    (hcross : delta < b) :
+/-- Equation (47), including the reflected `Γ₋` saving. -/
+theorem negative_scaledLogDet_bound_strengthened {h : History n}
+    {x : Placement n} (hc : IsVolumetricCenter h x) (o : Observation n)
+    {delta b : ℝ} (hdelta : delta = queryOffset h x o)
+    (hb0 : 0 < b) (hb1 : b < 1) (hcross : delta < b) :
     scaledLogDet (augmentedRows h x o (b - delta))
           (augmentedMotions h x o) (-b) -
         Real.log (barrierHessian h x).det ≤
       Real.log (1 + 1 / (b - delta) ^ 2) +
         ∑ i : OldRowIndex h,
           phiMinus delta b
-            (electricalMotion h x o (indexedBarrierRow h i)) := by
+            (electricalMotion h x o (indexedBarrierRow h i)) -
+        gammaMinus b
+          (electricalNormalizedMotions h x o hc.1).positiveEnergy := by
   subst delta
   have ht : b - queryOffset h x o ≠ 0 := ne_of_gt (sub_pos.2 hcross)
   let V := augmentedRows h x o (b - queryOffset h x o)
   let d := augmentedMotions h x o
-  have hcurve := scaledLogDet_endpoint_sub_tangent_le
+  let motion := electricalNormalizedMotions h x o hc.1
+  let reflected := motion.neg
+  have hcurve := scaledLogDet_endpoint_sub_tangent_le_strengthened
     (V := V) (d := -d) hb0
     (fun s hs i => by
       rw [show rowDenominator (-d) s i = rowDenominator d (-s) i by
@@ -185,13 +152,36 @@ theorem negative_scaledLogDet_bound {h : History n} {x : Placement n}
       apply scaledGram_augmented_det_pos hc.1 o
       rw [abs_neg, abs_of_nonneg hs.1]
       exact hs.2.trans_lt hb1)
-  rw [scaledLogDet_neg] at hcurve
+  have hintegral :
+      (∫ s in (0 : ℝ)..b, (b - s) * scaledRateGap (-d) s ^ 2) =
+        ∫ s in (0 : ℝ)..b, (b - s) *
+          (reflected.positiveRateNorm s - reflected.negativeRateNorm s) ^ 2 := by
+    apply intervalIntegral.integral_congr
+    intro s hs
+    have hs' : s ∈ Set.Icc (0 : ℝ) b := by
+      simpa [Set.uIcc_of_le hb0.le] using hs
+    change (b - s) * scaledRateGap (-(augmentedMotions h x o)) s ^ 2 =
+      (b - s) * (reflected.positiveRateNorm s - reflected.negativeRateNorm s) ^ 2
+    rw [scaledRateGap_neg_augmented_eq o hc.1 hs'.1 (hs'.2.trans_lt hb1)]
+  dsimp only [d] at hintegral
+  rw [hintegral] at hcurve
+  have hgamma := reflected.gammaPlus_le_integratedRateGap hb0.le hb1
+  have hgammaMinus : gammaMinus b motion.positiveEnergy ≤
+      (1 / 2 : ℝ) * ∫ s in (0 : ℝ)..b, (b - s) *
+        (reflected.positiveRateNorm s - reflected.negativeRateNorm s) ^ 2 := by
+    have henergy : reflected.positiveEnergy = 1 - motion.positiveEnergy := by
+      rw [show reflected = motion.neg by rfl, NormalizedMotions.positiveEnergy_neg,
+        motion.negativeEnergy_eq]
+    simpa [gammaMinus, henergy] using hgamma
+  have hcurveSave :
+      scaledLogDet V (-d) b - scaledLogDet V (-d) 0 -
+          b * scaledLogDetFirst V (-d) 0 ≤
+        rowCurvatureSum (-d) b - gammaMinus b motion.positiveEnergy := by
+    linarith
+  rw [scaledLogDet_neg] at hcurveSave
   rw [show scaledLogDet V (-d) 0 = scaledLogDet V d 0 by
-    simpa using scaledLogDet_neg V d 0] at hcurve
-  rw [scaledLogDetFirst_neg_zero V d] at hcurve
-  have hfirst := scaledLogDetFirst_augmented_zero hc o ht
-  have hzero := scaledLogDet_zero_sub_old hc.1 o ht
-  dsimp only [V, d] at hcurve
+    simpa using scaledLogDet_neg V d 0] at hcurveSave
+  rw [scaledLogDetFirst_neg_zero V d] at hcurveSave
   have hcurve' :
       scaledLogDet (augmentedRows h x o (b - queryOffset h x o))
             (augmentedMotions h x o) (-b) -
@@ -200,8 +190,12 @@ theorem negative_scaledLogDet_bound {h : History n} {x : Placement n}
           b * scaledLogDetFirst
             (augmentedRows h x o (b - queryOffset h x o))
             (augmentedMotions h x o) 0 ≤
-        rowCurvatureSum (-(augmentedMotions h x o)) b := by
-    linarith [hcurve]
+        rowCurvatureSum (-(augmentedMotions h x o)) b -
+          gammaMinus b motion.positiveEnergy := by
+    dsimp only [V, d] at hcurveSave ⊢
+    convert hcurveSave using 1 <;> ring
+  have hfirst := scaledLogDetFirst_augmented_zero hc o ht
+  have hzero := scaledLogDet_zero_sub_old hc.1 o ht
   calc
     scaledLogDet (augmentedRows h x o (b - queryOffset h x o))
           (augmentedMotions h x o) (-b) -
@@ -219,17 +213,19 @@ theorem negative_scaledLogDet_bound {h : History n} {x : Placement n}
         b * scaledLogDetFirst
           (augmentedRows h x o (b - queryOffset h x o))
           (augmentedMotions h x o) 0 := by ring
-    _ ≤ rowCurvatureSum (-(augmentedMotions h x o)) b +
+    _ ≤ rowCurvatureSum (-(augmentedMotions h x o)) b -
+        gammaMinus b motion.positiveEnergy +
         Real.log (1 + 1 / (b - queryOffset h x o) ^ 2) -
         b * (2 * electricalCubeMoment h x o /
           (1 + (b - queryOffset h x o) ^ 2)) := by
       rw [hzero, hfirst]
       rw [hfirst] at hcurve'
-      linarith [hcurve']
+      linarith
     _ = Real.log (1 + 1 / (b - queryOffset h x o) ^ 2) +
         ∑ i : OldRowIndex h,
           phiMinus (queryOffset h x o) b
-            (electricalMotion h x o (indexedBarrierRow h i)) := by
+            (electricalMotion h x o (indexedBarrierRow h i)) -
+        gammaMinus b motion.positiveEnergy := by
       rw [rowCurvatureSum_neg_augmented]
       unfold electricalCubeMoment phiMinus
       have hcubic :

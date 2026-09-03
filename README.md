@@ -6,21 +6,19 @@ curvature/volumetric adversary for comparison sorting.
 The trusted theorem has determinant ratio
 
 ```text
-K = 7361 / 1000
+K = 347 / 50
 ```
 
 and leading coefficient
 
 ```text
-2 / log₂(7361/1000) = 0.694468130795582...
+2 / log₂(347/50) = 0.715579977964088...
 ```
 
-This is the exact-rationally certified constant from the curvature-volumetric
-notes; the finite certificate is replayed with Lean's trusted native evaluator.
-It is below the superseded clean target `18/25`.  The stronger sign-imbalance
-checkpoint at `347/50` is represented by analytic support modules and its
-rational schedule, but is not claimed by the exported theorem until its full
-two-variable interval certificate is replayed in Lean.
+This is the strengthened exact-rationally certified constant from the
+curvature-volumetric notes; the full two-variable finite certificate is
+replayed with Lean's native evaluator.  Lean proves the exact enclosure
+`0.7155 < 2 / log₂(347/50) < 18/25`.
 
 ## What is proved
 
@@ -33,9 +31,9 @@ two-variable interval certificate is replayed in Lean.
 - the history polytope, logarithmic barrier Hessian, volumetric center, and
   initial and terminal determinant estimates;
 - whitening, electrical motion, exact first and second derivative identities,
-  and twice-integrated branch inequalities;
-- a proved exact-rational interval checker and a native replay of its Boolean
-  certificate for the scalar `7361/1000` envelope;
+  sign-sensitive rate savings, and twice-integrated branch inequalities;
+- a proved exact-rational interval checker and a native replay of all 7,315
+  leaves of its Boolean certificate for the two-variable `347/50` envelope;
 - the explicit local rule: at large normalized offset retain the center side;
   otherwise evaluate the two electrical trial branches and retain the smaller;
 - the resulting total history-dependent strategy and global telescoping proof;

@@ -25,6 +25,7 @@ should inspect before relying on the kernel-checked proof beneath it.
 #print SortingAdversary.HasLeadingConstant
 #print SortingAdversary.strengthenedCurvatureConstant
 #check SortingAdversary.strengthenedCurvatureConstant_lt_eighteen_twentyfive
+#check SortingAdversary.seven_one_five_five_ten_thousandths_lt_strengthenedCurvatureConstant
 #check SortingAdversary.sixty_nine_hundredths_lt_strengthenedCurvatureConstant
 #print SortingAdversary.StrengthenedCurvature.PotentialRule
 #print SortingAdversary.StrengthenedCurvature.InformativePotentialRule
@@ -41,6 +42,9 @@ should inspect before relying on the kernel-checked proof beneath it.
 #check SortingAdversary.StrengthenedCurvature.exists_volumetricCenter
 #check SortingAdversary.StrengthenedCurvature.IsVolumetricCenter.leverage_balance
 #check SortingAdversary.StrengthenedCurvature.electricalMotion_energy_one
+#check SortingAdversary.StrengthenedCurvature.strengthened_certificate_check
+#check SortingAdversary.StrengthenedCurvature.strengthened_segment_certificate
+#check SortingAdversary.StrengthenedCurvature.min_trial_scaledLogDet_le_scalarEnvelope
 
 #print axioms SortingAdversary.lower_bound_of_adversary_certificate
 #print axioms SortingAdversary.PotentialCertificate.target_le_length_mul
@@ -53,9 +57,11 @@ should inspect before relying on the kernel-checked proof beneath it.
 #print axioms SortingAdversary.StrengthenedCurvature.IsVolumetricCenter.leverage_balance
 #print axioms SortingAdversary.StrengthenedCurvature.electricalMotion_energy_one
 #print axioms SortingAdversary.strengthenedCurvatureConstant_lt_eighteen_twentyfive
+#print axioms SortingAdversary.seven_one_five_five_ten_thousandths_lt_strengthenedCurvatureConstant
 #print axioms SortingAdversary.sixty_nine_hundredths_lt_strengthenedCurvatureConstant
 #print axioms SortingAdversary.StrengthenedCurvature.CertifiedRuleFamily.target
-#print axioms SortingAdversary.StrengthenedCurvature.legacy_certificate_check
+#print axioms SortingAdversary.StrengthenedCurvature.strengthened_certificate_check
+#print axioms SortingAdversary.StrengthenedCurvature.strengthened_segment_certificate
 #print axioms SortingAdversary.StrengthenedCurvature.efficient_curvature_adversary
 #print axioms SortingAdversary.StrengthenedCurvature.approximateChildAnswer_le_min_add
 #print axioms SortingAdversary.StrengthenedCurvature.projection_curvature_upper

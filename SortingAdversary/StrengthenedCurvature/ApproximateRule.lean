@@ -81,8 +81,8 @@ twice the requested approximation accuracy. -/
 noncomputable def approximateInformativeRule
     (oracle : InformativeApproximationOracle n) : InformativePotentialRule n where
   potential := historyPotential
-  maxIncrease := legacyComparisonBudget + 2 * oracle.error
-  maxIncrease_nonneg := add_nonneg legacyComparisonBudget_nonneg
+  maxIncrease := strengthenedComparisonBudget + 2 * oracle.error
+  maxIncrease_nonneg := add_nonneg strengthenedComparisonBudget_nonneg
     (mul_nonneg (by norm_num) oracle.error_nonneg)
   informativeStep := by
     intro h q hh hless hgreater
@@ -98,7 +98,7 @@ noncomputable def approximateInformativeRule
     have hmin :
         min (historyPotential (answerHistory h q .less))
             (historyPotential (answerHistory h q .greater)) -
-              historyPotential h ≤ legacyComparisonBudget := by
+              historyPotential h ≤ strengthenedComparisonBudget := by
       cases w with
       | less => exact (sub_le_sub_right (min_le_left _ _) _).trans hw
       | greater => exact (sub_le_sub_right (min_le_right _ _) _).trans hw

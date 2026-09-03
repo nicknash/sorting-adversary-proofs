@@ -8,16 +8,16 @@ import SortingAdversary.StrengthenedCurvature.GlobalBound
 This file closes the global proof.  `efficientInformativeRule` is the local
 volumetric rule from the notes.  `toPotentialRule` answers repeated and
 transitively implied queries for free, while retaining only informative rows.
-The endpoint determinant estimate then converts the local `7361 / 1000`
+The endpoint determinant estimate then converts the local `347 / 50`
 determinant ratio into the final comparison lower bound.
 -/
 
 namespace SortingAdversary
 namespace StrengthenedCurvature
 
-theorem legacyComparisonBudget_eq_comparisonBudget :
-    legacyComparisonBudget = comparisonBudget := by
-  simp [legacyComparisonBudget, comparisonBudget, legacyK,
+theorem strengthenedComparisonBudget_eq_comparisonBudget :
+    strengthenedComparisonBudget = comparisonBudget := by
+  simp [strengthenedComparisonBudget, comparisonBudget, strengthenedK,
     strengthenedDeterminantRatio]
 
 /-- The geometric rule, together with its initial and terminal potential
@@ -26,7 +26,7 @@ noncomputable def efficientCertifiedRuleFamily : CertifiedRuleFamily where
   rule := efficientPotentialRule
   maxIncrease_eq := by
     intro n
-    exact legacyComparisonBudget_eq_comparisonBudget
+    exact strengthenedComparisonBudget_eq_comparisonBudget
   initial_upper := by
     intro n
     simpa [efficientPotentialRule, InformativePotentialRule.toPotentialRule,
@@ -41,7 +41,7 @@ noncomputable def efficientCertifiedRuleFamily : CertifiedRuleFamily where
     exact retained_terminal_potential_lower t (efficientPotentialRule n).strategy ht π hπ
 
 /-- The source-backed online adversary theorem.  Its leading coefficient is
-`2 / log₂(7361/1000)`, approximately `0.694468`. -/
+`2 / log₂(347/50)`, approximately `0.7155799779`. -/
 theorem efficient_curvature_adversary : StrengthenedCurvatureTarget :=
   efficientCertifiedRuleFamily.target
 

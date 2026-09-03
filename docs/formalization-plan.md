@@ -6,10 +6,10 @@ The completed theorem uses the efficient deterministic curvature/volumetric
 adversary with exact determinant ratio
 
 ```text
-K = 7361 / 1000
+K = 347 / 50
 ```
 
-and coefficient `2 / log₂ K = 0.694468130795582...`.  The theorem records one
+and coefficient `2 / log₂ K = 0.715579977964088...`.  The theorem records one
 online history-dependent strategy for every input size, feasibility after
 every answer, and a compatible concrete ranking at the generated leaf.
 
@@ -23,11 +23,11 @@ every answer, and a compatible concrete ranking at the generated leaf.
 4. Barrier-Hessian positivity, whitening, electrical normalization, and the
    leverage-balance stationarity equation.
 5. Rank-one determinant identities and exact augmented-Gram differentiation.
-6. Projection curvature and the twice-integrated positive and negative branch
-   inequalities.
-7. Convex endpoint reduction to the one-dimensional scalar envelope.
+6. Projection curvature, the sign-imbalance rate-saving inequalities, and the
+   twice-integrated positive and negative branch inequalities.
+7. Convex endpoint reduction to the two-variable scalar envelope.
 8. Exact rational interval arithmetic, proved logarithm bounds, and the
-   recursive `7361/1000` certificate.
+   recursive `347/50` certificate (7,315 terminal boxes).
 9. The small-offset electrical trial rule and large-offset center-side rule.
 10. Completion to arbitrary repeated or implied queries, initial/terminal
     endpoints, and global telescoping.
@@ -47,14 +47,15 @@ at most `2ε` in true potential.  Polynomial-time production of `n⁻⁴`-accura
 values is the notes' standard deterministic convex-optimization ingredient;
 the repository's semantic decision-tree model does not define bit complexity.
 
-## Stronger sign-imbalance checkpoint
+## Strengthened sign-imbalance certificate
 
-The later note's `K = 347/50` argument is an efficient adversary of the same
-kind.  `SignImbalance.lean`, `ProjectionCurvature.lean`,
-`ScalarEnvelope.lean`, `RhoConvexity.lean`, and `Schedule.lean` formalize much
-of its symbolic reduction.  The exported theorem deliberately does not use
-that constant: its 27,166-box two-variable saving certificate has not yet been
-replayed by the Lean interval checker.
+The exported theorem uses the later note's `K = 347/50` argument.
+`RateSaving.lean`, `StrengthenedIntegration.lean`,
+`StrengthenedBranchBounds.lean`, and `StrengthenedEnvelope.lean` prove the
+symbolic saving reduction.  `StrengthenedInterval.lean` proves the directed
+square-root, logarithm, crossover, and saving bounds; the generated tree in
+`StrengthenedCertificateData.lean` is then replayed exactly for the full
+`(delta,r,lambda)` cover.
 
 ## Acceptance conditions
 

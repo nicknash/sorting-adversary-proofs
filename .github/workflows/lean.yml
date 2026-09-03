@@ -33,4 +33,4 @@ jobs:
           nanoda: false
           axiom-audit: true
           axiom-audit-root: "SortingAdversary"
-          axiom-audit-allow: "propext,Classical.choice,Quot.sound,SortingAdversary.StrengthenedCurvature.legacy_certificate_check._native.native_decide.ax_1_1"
+          axiom-audit-allow: "propext,Classical.choice,Quot.sound,SortingAdversary.StrengthenedCurvature.strengthened_certificate_check._native.native_decide.ax_1_1"
