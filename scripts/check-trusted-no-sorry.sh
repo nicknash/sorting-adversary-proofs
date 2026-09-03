@@ -3,7 +3,7 @@ set -euo pipefail
 
 files=(SortingAdversary.lean)
 while IFS= read -r -d '' file; do
-  [[ "$file" == "SortingAdversary/Challenge.lean" ]] || files+=("$file")
+  files+=("$file")
 done < <(find SortingAdversary -name '*.lean' -print0)
 
 # Comments may discuss these words, so inspect only source lines whose first

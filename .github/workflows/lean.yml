@@ -20,6 +20,10 @@ jobs:
           build: true
           build-args: "SortingAdversary"
           use-mathlib-cache: true
+          # The full Mathlib/build tree exhausts the hosted runner while the
+          # post-job GitHub cache is being archived.  Mathlib's own cache is
+          # retained above; only the redundant `.lake` actions/cache is off.
+          use-github-cache: false
           leanchecker: true
           leanchecker-args: "SortingAdversary"
           nanoda: true

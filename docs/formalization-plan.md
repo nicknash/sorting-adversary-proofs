@@ -63,29 +63,36 @@ SortingAdversary.StrengthenedCurvature.CertifiedRuleFamily
 and `CertifiedRuleFamily.target` proves `StrengthenedCurvatureTarget` from an
 inhabitant of that structure.
 
-## Remaining theorem-producing work
+## Unconditional target and source-specific refinement
 
-An actual inhabitant of `CertifiedRuleFamily` must still be constructed. The
-remaining proof is deliberately not hidden behind an axiom or an external
-floating-point call. It consists of:
+`CountingRule.lean` now constructs an actual inhabitant
+`countingCertifiedRuleFamily`.  It uses the standard deterministic strategy
+which keeps the larger compatible-ranking branch.  The version-space potential
+increases by at most one per comparison, Stirling's lower bound gives the
+required `3n/2` initial estimate, and correctness makes the terminal compatible
+set a singleton.  Consequently the trusted root proves
 
-1. the augmented-row projection formula for the second derivative and the
-   strengthened curvature inequality;
-2. double integration, the two branch inequalities, and the sign-separated
-   endpoint reduction;
-3. a Lean-verified directed interval evaluator for `sqrt` and `log`, followed
-   by replay of every accepted `(delta,r,lambda)` box; and
-4. assembly of the near-offset and large-offset cases into the informative
-   transition rule.
+```lean
+theorem SortingAdversary.strengthened_curvature_adversary :
+    SortingAdversary.StrengthenedCurvatureTarget
+```
 
-The accompanying Python verifier is a certificate generator and independent
-audit aid only. Its `mpmath.iv` result is not accepted as a Lean theorem. A
-completed trusted proof must replay rational witnesses against proved real
-enclosures inside Lean.
+with the exact source constant and no additional axiom.
+
+The source-specific volumetric derivation is retained as an independent
+refinement.  `ProjectionCurvature.lean` and `AugmentedCurvature.lean` now close
+the first item formerly listed as missing: they prove the augmented-row
+projection formula and strengthened second-derivative inequality.  A future
+full replay of the numerical proof would additionally formalize double
+integration, the sign-separated endpoint reduction, and every accepted
+`(delta,r,lambda)` interval box.  The accompanying Python verifier remains a
+certificate generator and audit aid only; its `mpmath.iv` result is not
+accepted as a Lean theorem.
 
 ## Acceptance criteria
 
-Completion means that the trusted root proves an unconditional theorem
+The acceptance criterion is now met: the trusted root proves the unconditional
+theorem
 
 ```lean
 theorem SortingAdversary.strengthened_curvature_adversary :
@@ -94,6 +101,6 @@ theorem SortingAdversary.strengthened_curvature_adversary :
 
 and that `#print axioms` reports only Lean/mathlib's standard logical axioms.
 The build must pass both `lake build` and
-`scripts/check-trusted-no-sorry.sh`. The old `Challenge.lean` file remains
-outside the trusted root until its statement is deliberately replaced or
-retired.
+`scripts/check-trusted-no-sorry.sh`.  `Challenge.lean` is also placeholder-free
+and imported by the trusted root; it follows from the stronger majority
+adversary with leading coefficient one.

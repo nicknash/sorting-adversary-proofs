@@ -3,12 +3,16 @@ import SortingAdversary.Knowledge
 import SortingAdversary.Potential
 import SortingAdversary.PotentialAdversary
 import SortingAdversary.AsymptoticStatement
+import SortingAdversary.Challenge
 import SortingAdversary.StrengthenedCurvature.Barrier
 import SortingAdversary.StrengthenedCurvature.CenterExistence
 import SortingAdversary.StrengthenedCurvature.CenterStationarity
+import SortingAdversary.StrengthenedCurvature.CountingRule
 import SortingAdversary.StrengthenedCurvature.DirectedInterval
 import SortingAdversary.StrengthenedCurvature.GeometricRule
 import SortingAdversary.StrengthenedCurvature.GlobalBound
+import SortingAdversary.StrengthenedCurvature.AugmentedCurvature
+import SortingAdversary.StrengthenedCurvature.ProjectionCurvature
 import SortingAdversary.StrengthenedCurvature.SignImbalance
 import SortingAdversary.StrengthenedCurvature.Whitening
 
@@ -30,6 +34,7 @@ should inspect before relying on the kernel-checked proof beneath it.
 #print SortingAdversary.PotentialCertificate.target_le_length_mul
 #print SortingAdversary.HasLeadingConstant
 #print SortingAdversary.Target072
+#check SortingAdversary.adversary_072
 #print SortingAdversary.strengthenedCurvatureConstant
 #check SortingAdversary.strengthenedCurvatureConstant_lt_eighteen_twentyfive
 #check SortingAdversary.five_sevenths_lt_strengthenedCurvatureConstant
@@ -37,6 +42,9 @@ should inspect before relying on the kernel-checked proof beneath it.
 #print SortingAdversary.StrengthenedCurvature.InformativePotentialRule
 #print SortingAdversary.StrengthenedCurvature.CertifiedRuleFamily
 #check SortingAdversary.StrengthenedCurvature.CertifiedRuleFamily.target
+#check SortingAdversary.strengthened_curvature_adversary
+#check SortingAdversary.StrengthenedCurvature.projection_curvature_upper
+#check SortingAdversary.StrengthenedCurvature.hasDerivAt_scaledLogDetFirst_projection
 #check SortingAdversary.StrengthenedCurvature.doublySubstochastic_quadratic_lower
 #check SortingAdversary.StrengthenedCurvature.RationalInterval.log_rational_mem
 #check SortingAdversary.StrengthenedCurvature.exists_volumetricCenter
@@ -56,3 +64,7 @@ should inspect before relying on the kernel-checked proof beneath it.
 #print axioms SortingAdversary.strengthenedCurvatureConstant_lt_eighteen_twentyfive
 #print axioms SortingAdversary.five_sevenths_lt_strengthenedCurvatureConstant
 #print axioms SortingAdversary.StrengthenedCurvature.CertifiedRuleFamily.target
+#print axioms SortingAdversary.strengthened_curvature_adversary
+#print axioms SortingAdversary.adversary_072
+#print axioms SortingAdversary.StrengthenedCurvature.projection_curvature_upper
+#print axioms SortingAdversary.StrengthenedCurvature.hasDerivAt_scaledLogDetFirst_projection

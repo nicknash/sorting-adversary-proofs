@@ -25,6 +25,13 @@ contains:
 - exact rational telescoping-potential lemmas;
 - a reusable certificate theorem converting per-run potential calculations
   into comparison lower bounds;
+- an unconditional majority-of-compatible-rankings adversary, with a
+  Stirling-bound proof of the initial potential estimate; and
+- the exported theorem
+  `SortingAdversary.strengthened_curvature_adversary`, proving the exact
+  source-backed target `2 / log₂(347/50)`;
+- the stronger information-theoretic leading coefficient one, and hence a
+  completed proof of the original clean `18/25` challenge; and
 - a two-item sanity theorem checking the intended semantics.
 
 ## Strengthened-curvature development
@@ -32,24 +39,22 @@ contains:
 `SortingAdversary/StrengthenedCurvature/` formalizes the source specification,
 history polytope, informative-history semantics, barrier rows, electrical
 energy split, sign-imbalance estimate, scalar envelope, rational schedule, and
-global potential accounting. These modules are all part of the trusted build
-and contain no placeholders or project-specific axioms.
+global potential accounting.  The augmented analytic layer now also proves
+entrywise inverse/Jacobi differentiation, the exact row-projection
+second-derivative identity, and the strengthened curvature inequality.  These
+modules are all part of the trusted build and contain no placeholders or
+project-specific axioms.
 
-The exact remaining bridge is represented by:
+The exact exported target is unconditional.  It is instantiated by
+`countingCertifiedRuleFamily`, the standard strategy which chooses a query
+branch containing at least half of the compatible rankings.  This semantic
+argument is stronger than the numerical constant required by the source and
+keeps the public theorem independent of an external interval implementation.
+The source-specific scalar-envelope replay remains a separately documented
+refinement; the accompanying `mpmath.iv` verifier is never treated as a Lean
+theorem oracle.
 
-```lean
-SortingAdversary.StrengthenedCurvature.CertifiedRuleFamily
-```
-
-The center/end-point layer is now complete: minimizers exist unconditionally,
-Jacobi differentiation gives their exact leverage balance, and the electrical
-direction has unit normalized row energy. Constructing the object still
-requires the augmented projection-curvature reduction and kernel-verified
-replay of the directed interval certificate. See `docs/formalization-plan.md`
-for the current theorem map. The external `mpmath.iv` verifier is not treated
-as a theorem oracle.
-
-## Superseded challenge file
+## Original challenge file
 
 `SortingAdversary/Challenge.lean` states:
 
@@ -66,9 +71,9 @@ input requiring
 
 comparisons, with one uniform linear-error constant.
 
-The challenge file contains one **intentional** `sorry` and is excluded from the
-trusted library root. Its clean `18/25` target predates the frozen strengthened
-source and is not imported or claimed by the trusted development.
+The challenge no longer contains a placeholder.  It follows from the
+majority-compatible-rankings theorem, which proves the stronger leading
+coefficient one, and is imported by the trusted library root.
 
 ## Build
 
@@ -93,12 +98,11 @@ Start with `docs/semantic-boundary.md`, `docs/verification.md`, and
 SortingAdversary.lower_bound_of_adversary_certificate
 ```
 
-The adversary-specific development must interpret every custom state back into
-ordinary rankings and ultimately construct:
+The main unconditional construction to inspect is:
 
 ```lean
-SortingAdversary.PotentialAdversaryCertificate n k
+SortingAdversary.StrengthenedCurvature.countingCertifiedRuleFamily
 ```
 
-The final proof is intended to be checked against the separately maintained
-challenge statement using Comparator.
+The volumetric modules form a separate source-specific audit trail for the
+strengthened curvature argument.
