@@ -1,4 +1,7 @@
-import Mathlib
+import Mathlib.GroupTheory.Perm.Basic
+import Mathlib.Data.Fin.Basic
+import Mathlib.Data.List.Basic
+import Mathlib.Order.Fin.Basic
 
 /-!
 # Basic comparison-sorting objects

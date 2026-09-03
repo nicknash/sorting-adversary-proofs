@@ -1,8 +1,9 @@
 # Sorting adversaries in Lean
 
 An audit-oriented Lean 4 formalization of deterministic adversaries for
-comparison sorting, with the strongest new adversary (clean target constant
-`18/25 = 0.72`) as the main target.
+comparison sorting. The current source-backed target is the strengthened
+volumetric-history adversary with exact leading constant
+`2 / log₂(347/50) = 0.715579977964088...`.
 
 The project is deliberately standalone.  It is not part of the older C#
 `AdversaryExperiments` repository.
@@ -26,7 +27,29 @@ contains:
   into comparison lower bounds;
 - a two-item sanity theorem checking the intended semantics.
 
-## Open target
+## Strengthened-curvature development
+
+`SortingAdversary/StrengthenedCurvature/` formalizes the source specification,
+history polytope, informative-history semantics, barrier rows, electrical
+energy split, sign-imbalance estimate, scalar envelope, rational schedule, and
+global potential accounting. These modules are all part of the trusted build
+and contain no placeholders or project-specific axioms.
+
+The exact remaining bridge is represented by:
+
+```lean
+SortingAdversary.StrengthenedCurvature.CertifiedRuleFamily
+```
+
+The center/end-point layer is now complete: minimizers exist unconditionally,
+Jacobi differentiation gives their exact leverage balance, and the electrical
+direction has unit normalized row energy. Constructing the object still
+requires the augmented projection-curvature reduction and kernel-verified
+replay of the directed interval certificate. See `docs/formalization-plan.md`
+for the current theorem map. The external `mpmath.iv` verifier is not treated
+as a theorem oracle.
+
+## Superseded challenge file
 
 `SortingAdversary/Challenge.lean` states:
 
@@ -44,11 +67,8 @@ input requiring
 comparisons, with one uniform linear-error constant.
 
 The challenge file contains one **intentional** `sorry` and is excluded from the
-trusted library root.  The connected source repositories do not contain a
-frozen, complete statement of the claimed `0.72...` construction.  Accordingly,
-this repository does not pretend that the final theorem has already been
-proved.  The exact missing proof obligations are listed in
-`docs/formalization-plan.md`.
+trusted library root. Its clean `18/25` target predates the frozen strengthened
+source and is not imported or claimed by the trusted development.
 
 ## Build
 

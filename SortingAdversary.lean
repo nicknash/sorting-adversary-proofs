@@ -1,10 +1,3 @@
-/-!
-# Sorting-adversary formalization
-
-This is the trusted, placeholder-free library root.  The open 0.72 target is kept in
-`SortingAdversary/Challenge.lean` and is deliberately not imported here.
--/
-
 import SortingAdversary.Basic
 import SortingAdversary.DecisionTree
 import SortingAdversary.Strategy
@@ -13,4 +6,27 @@ import SortingAdversary.Potential
 import SortingAdversary.PotentialAdversary
 import SortingAdversary.AsymptoticStatement
 import SortingAdversary.Examples.TwoItems
+import SortingAdversary.StrengthenedCurvature.AdversaryPotential
+import SortingAdversary.StrengthenedCurvature.Barrier
+import SortingAdversary.StrengthenedCurvature.CenterExistence
+import SortingAdversary.StrengthenedCurvature.CenterStationarity
+import SortingAdversary.StrengthenedCurvature.DirectedInterval
+import SortingAdversary.StrengthenedCurvature.EnergySplit
+import SortingAdversary.StrengthenedCurvature.GeometricRule
+import SortingAdversary.StrengthenedCurvature.GlobalBound
+import SortingAdversary.StrengthenedCurvature.HistoryPolytope
+import SortingAdversary.StrengthenedCurvature.InformativeHistory
+import SortingAdversary.StrengthenedCurvature.ScalarEnvelope
+import SortingAdversary.StrengthenedCurvature.Schedule
+import SortingAdversary.StrengthenedCurvature.SignImbalance
+import SortingAdversary.StrengthenedCurvature.SourceSpecification
+import SortingAdversary.StrengthenedCurvature.Whitening
 import SortingAdversary.Audit
+
+/-!
+# Sorting-adversary formalization
+
+This is the trusted, placeholder-free library root.  The superseded open 0.72
+target remains in `SortingAdversary/Challenge.lean` and is deliberately not
+imported here.
+-/
