@@ -40,13 +40,16 @@ must prove that its final state has at least one realizing ranking.
 
 The trusted development is built by Lean and checked again by the configured
 independent checks.  Exact rational arithmetic is used for potential bounds;
-floating-point optimization output is not trusted.  The source check rejects
-`sorry`, `admit`, `sorryAx`, and project-specific `axiom` declarations in every
-trusted Lean module.
+floating-point optimization output is not trusted.  The finite Boolean replay
+uses `native_decide`, whose generated evaluator axiom is named explicitly in
+the CI allowlist; the interval checker's soundness is an ordinary Lean proof.
+The source check rejects `sorry`, `admit`, `sorryAx`, and project-specific
+`axiom` declarations in every trusted Lean module.
 
-The final result will use a separately controlled `Challenge.lean` statement
-and Comparator configuration so that the large solution cannot weaken or alter
-the theorem it claims to prove.
+The final result is exposed through the fixed source specification
+`StrengthenedCurvatureTarget` and the closing theorem
+`StrengthenedCurvature.efficient_curvature_adversary`.  `Audit.lean` prints
+both the target and the proof's axiom dependencies.
 
 ## Trust base
 
@@ -55,6 +58,7 @@ The intended trust base is:
 - the human reading of the small semantic interface;
 - Lean's logic and kernel;
 - the pinned mathlib definitions and theorems;
+- Lean's native evaluator for the exact rational certificate Boolean; and
 - optionally, an independent exported-proof checker through the CI pipeline.
 
 Tactics, generated code, search scripts, numerical optimizers, and certificate
