@@ -31,7 +31,7 @@ def run : DecisionTree n → Strategy n → History n → RunResult n
   | .leaf output, _, _ =>
       { output := output, observations := [], comparisons := 0 }
   | .compare q onLess onGreater, strategy, past =>
-      match hanswer : strategy past q with
+      match strategy past q with
       | .less =>
           let o : Observation n := ⟨q, .less⟩
           let sub := onLess.run strategy (o :: past)
@@ -89,7 +89,7 @@ theorem run_matches_compatible_ranking (t : DecisionTree n) (strategy : Strategy
           have ih := ihLess (past := o :: past) hparts.2
           constructor
           · simpa [evaluate, run, hanswer, o, houtcome] using ih.1
-          · simpa [cost, run, hanswer, o, houtcome] using congrArg (· + 1) ih.2
+          · simpa [cost, run, hanswer, o, houtcome] using ih.2
       | greater =>
           let o : Observation n := ⟨q, .greater⟩
           have hcompat' : Compatible π
@@ -106,7 +106,7 @@ theorem run_matches_compatible_ranking (t : DecisionTree n) (strategy : Strategy
           have ih := ihGreater (past := o :: past) hparts.2
           constructor
           · simpa [evaluate, run, hanswer, o, houtcome] using ih.1
-          · simpa [cost, run, hanswer, o, houtcome] using congrArg (· + 1) ih.2
+          · simpa [cost, run, hanswer, o, houtcome] using ih.2
 
 end DecisionTree
 

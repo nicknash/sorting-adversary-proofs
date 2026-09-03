@@ -1,4 +1,6 @@
-import Mathlib
+import Mathlib.Algebra.BigOperators.Group.List.Basic
+import Mathlib.Algebra.Order.Field.Rat
+import Mathlib.Tactic.Linarith
 
 /-!
 # Exact potential accounting

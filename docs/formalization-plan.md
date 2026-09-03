@@ -1,82 +1,99 @@
-# Formalization plan for the 0.72 target
+# Formalization plan for the strengthened-curvature target
 
-## Completed reusable foundation
+## Frozen target
 
-The trusted library currently contains:
-
-1. an explicit deterministic comparison-tree model;
-2. a concrete permutation/ranking semantics;
-3. adaptive strategy execution with full transcript recording;
-4. the consistency-to-worst-case transfer theorem;
-5. relation-valued knowledge states and semantically sound transitive closure;
-6. exact rational telescoping-potential accounting; and
-7. an explicit asymptotic predicate for a leading constant.
-
-This layer is intended to remain reusable for the 37/64 adversary, the
-tracked-point variants, and later adversaries.
-
-## Required frozen mathematical source
-
-The material available to this repository does not yet contain a complete,
-audited specification of the claimed 0.72... construction.  A decimal value or
-an optimized experiment is not enough to instantiate the generic Lean theorem.
-The source-of-truth document must state all of the following without relying on
-unstated case conventions:
-
-1. **State.** Every field of the adversary state, including any packets,
-   components, tracked points, credits, matrices, or retained history.
-2. **Reachability invariant.** Structural conditions true initially and
-   preserved by every response.
-3. **Total response function.** A deterministic answer and successor state for
-   every query in every reachable state, including repeated/entailed queries
-   and all degeneracies.
-4. **Realization semantics.** A proof that each reachable state represents at
-   least one actual ranking and that every returned answer is consistent with
-   the successor state.
-5. **Potential.** Its exact definition and exact one-comparison upper bound.
-6. **Terminal bound.** Why correctness of the sorting tree forces the final
-   potential or structural quantity to be large.
-7. **Parameter certificate.** Rational or algebraic values proving a leading
-   coefficient strictly above or equal to `18/25`, without trusting floating
-   point.
-8. **Efficiency proof.** A separate cost-model argument, only if polynomial
-   adversary running time is part of the theorem being claimed.
-
-## Intended module tree
+The source of truth is *A Sign-Imbalance Strengthened Volumetric History
+Adversary for Comparison Sorting* (29 August 2026). Its certified determinant
+ratio is the exact rational
 
 ```text
-SortingAdversary/Adversary072/
-  SourceSpecification.lean
-  State.lean
-  Interpretation.lean
-  Reachable.lean
-  Response.lean
-  Invariant.lean
-  LocalPotential.lean
-  Terminal.lean
-  ExactCertificate.lean
-  Main.lean
+K = 347 / 50,
 ```
 
-`Main.lean` must prove:
+so the claimed leading coefficient is
+
+```text
+2 / log₂(347/50) = 0.715579977964088...
+```
+
+This is not the superseded `18/25` challenge constant. The formal statement
+`StrengthenedCurvatureTarget` additionally records one online,
+history-dependent strategy for every input size and compatibility of the
+generated transcript with a concrete ranking.
+
+## Kernel-checked layers
+
+The following pieces are in the trusted build and contain no placeholders or
+project-specific axioms:
+
+1. the comparison-tree, ranking, transcript, and strategy semantics;
+2. a real-valued potential-rule theorem that telescopes an online adversarial
+   run and preserves feasibility after every answer;
+3. removal of repeated or transitively entailed comparisons, with a proof that
+   the retained history has exactly the same compatible rankings;
+4. the open history polytope and a canonical feasible point supplied by every
+   compatible ranking;
+5. the exact affine barrier rows, their slacks, Hessian, and volumetric
+   potential;
+6. the positive/negative electrical-energy split and pointwise square-root
+   bounds;
+7. an entrywise Schur-test proof of the sign-imbalance estimate, avoiding an
+   additional Hoffman--Wielandt dependency;
+8. exact directed rational interval primitives, including square-root
+   certificates and proved Taylor enclosures for rational logarithms;
+9. the scalar-envelope definitions and the exact rational displacement
+   schedule from Table 1; and
+10. positive-definite Hessians, determinant monotonicity, exact initial and
+    terminal endpoint estimates, compactness of every potential sublevel, and
+    unconditional existence of an interior volumetric center;
+11. entrywise matrix differentiation and Jacobi's log-determinant formula,
+    followed by the exact first-order leverage balance at every center;
+12. coordinate-free whitening through the unit electrical direction,
+    including `sum alpha_i^2 = 1`, `|alpha_i| <= 1`, and
+    `sum sigma_i alpha_i = 0`; and
+13. the global telescoping algebra from a certified local rule family to the
+   exact coefficient `2 / log₂(347/50)`.
+
+The central compiled interface is
 
 ```lean
-theorem SortingAdversary.adversary_072 : SortingAdversary.Target072
+SortingAdversary.StrengthenedCurvature.CertifiedRuleFamily
 ```
 
-without `sorry`, `admit`, project-specific axioms, unchecked floating point,
-`native_decide` in the trusted theorem, or an external solver treated as an
-oracle.
+and `CertifiedRuleFamily.target` proves `StrengthenedCurvatureTarget` from an
+inhabitant of that structure.
 
-## Recommended proof order
+## Remaining theorem-producing work
 
-1. Freeze the source specification and map every paper lemma to a Lean name.
-2. Formalize the response function as executable data before proving its cost.
-3. Prove realizability and invariant preservation for each transition family.
-4. Prove one local potential theorem per transition family.
-5. Aggregate local bounds through the generic potential theorem.
-6. Prove the terminal lower bound and the all-`n` rounding/padding step.
-7. Replace the challenge `sorry` with `Adversary072.Main` and run Comparator.
+An actual inhabitant of `CertifiedRuleFamily` must still be constructed. The
+remaining proof is deliberately not hidden behind an axiom or an external
+floating-point call. It consists of:
 
+1. the augmented-row projection formula for the second derivative and the
+   strengthened curvature inequality;
+2. double integration, the two branch inequalities, and the sign-separated
+   endpoint reduction;
+3. a Lean-verified directed interval evaluator for `sqrt` and `log`, followed
+   by replay of every accepted `(delta,r,lambda)` box; and
+4. assembly of the near-offset and large-offset cases into the informative
+   transition rule.
 
-See also `docs/source-freeze-checklist.md` for the exact handoff contract between the paper proof and the Lean development.
+The accompanying Python verifier is a certificate generator and independent
+audit aid only. Its `mpmath.iv` result is not accepted as a Lean theorem. A
+completed trusted proof must replay rational witnesses against proved real
+enclosures inside Lean.
+
+## Acceptance criteria
+
+Completion means that the trusted root proves an unconditional theorem
+
+```lean
+theorem SortingAdversary.strengthened_curvature_adversary :
+    SortingAdversary.StrengthenedCurvatureTarget
+```
+
+and that `#print axioms` reports only Lean/mathlib's standard logical axioms.
+The build must pass both `lake build` and
+`scripts/check-trusted-no-sorry.sh`. The old `Challenge.lean` file remains
+outside the trusted root until its statement is deliberately replaced or
+retired.
