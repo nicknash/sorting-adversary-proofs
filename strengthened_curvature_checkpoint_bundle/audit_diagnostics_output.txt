@@ -1,0 +1,9 @@
+DIAGNOSTIC PASS
+max F'' identity error 7.993605777301127e-15
+minimum sign-imbalance slack 0.17207026510214357
+minimum strengthened-curvature slack 0.25403334365639907
+max cross-formula/quadrature error 7.806255641895632e-17
+dense-grid max log envelope 1.936432446199729
+dense-grid max determinant envelope 6.9339694830956
+dense-grid location (0.2154757281553398, 0.936, 0.5466609697436893, 0.6457448276941747, 0.6252885438966971)
+target log 1.937301774518713
