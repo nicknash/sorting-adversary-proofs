@@ -1,27 +1,32 @@
-# An optimal deterministic sorting adversary
+# An Optimal Deterministic Adversary for Sorting
 
-Initial human-readable paper draft, 7 November 2026.
+Nicholas Nash · 7 November 2026 · ORCID [0009-0003-0475-7852](https://orcid.org/0009-0003-0475-7852)
 
-- `paper.tex` is the entry point; the exposition is split across `sections/`.
-- `references.bib` contains the bibliography.
-- `REVIEW_NOTES.txt` records provenance, editorial questions, and the boundary
-  between the manuscript and the current Lean development.
+The paper now follows *Deferred separation: positions, refinement, and prefix
+codes*. It uses continuous positions, dyadic anchors, a prefix-code bound for
+refinement costs, and an exact largest-coordinate volume recurrence.
 
-Build with a TeX Live installation providing `latexmk`, BibTeX, TikZ, and
-`algpseudocode`:
+- [Compiled paper](output/pdf/paper.pdf)
+- `paper.tex`: entry point, abstract, and methodological disclosure
+- `sections/deferred-separation.tex`: mathematical exposition and references
+- `anc/check_local_volume.py`: exact numerical diagnostics
+- `anc/check_local_volume.json`: recorded results
+- `REVIEW_NOTES.txt`: provenance and verification scope
+
+Build with TeX Live and `latexmk`:
 
 ```sh
 cd for-humans
 make
+make checks
+make submission
 ```
 
-The [compiled paper](output/pdf/paper.pdf) is versioned alongside the sources.
-Build intermediates and local rendering checks are ignored.
-The algorithm is specified before the detailed proofs. The opening connects
-Atallah--Kosaraju, Borodin--Guibas--Lynch--Yao, Richards--Vaidya, and
-Brodal--Chaudhuri--Radhakrishnan; it distinguishes the new ordered multiway
-recursion from the classical binary token tree.
+The submission command creates `output/submission/hexagon-source.zip`, containing
+only the TeX source and permitted ancillary checks. Figures and references are
+embedded in the TeX. Build intermediates and rendering checks are ignored;
+the compiled PDF is versioned.
 
-This draft presents the mathematical construction in the supplied manuscript.
-It does not claim that the complete leading-one, polynomial-time adversary has
-already been formalized in Lean. See `../docs/optimal-adversary-formalization.md`.
+The related Lean development elsewhere in this repository follows the earlier
+recursive integer-colour construction. The paper distinguishes that formalization
+from the continuous presentation used here.

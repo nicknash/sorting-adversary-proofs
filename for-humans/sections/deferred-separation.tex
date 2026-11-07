@@ -1,0 +1,990 @@
+\section{From Brodal's tree to unfinished comparisons}\label{sec:classical}
+
+There are \(n\) distinct labelled keys. A sorting algorithm asks which of two keys is smaller. Its next question can depend on previous answers. An adversary answers the questions, always consistently with some strict total order. A sorter correct on every input can stop only when its comparison transcript determines that order uniquely.
+
+Throughout, \(\log=\log_2\), while \(\ln\) denotes the natural logarithm. The cases \(n\le1\) are immediate; assume \(n\ge2\), and put
+\[
+T=n\log n.
+\]
+The objective is an efficient deterministic adversary that forces almost \(T\) comparisons.
+
+\subsection{Brodal: a comparison makes a spatial commitment}
+
+The binary-tree adversary described by Brodal, Chaudhuri, and Radhakrishnan~\cite{brodal}, and reviewed by Kaplan, Zamir, and Zwick~\cite{kzz}, keeps items at nodes of a binary tree. In the basic same-node case, comparing \(A\) and \(B\) sends one to the left child and the other to the right. Dyadic intervals give an equivalent picture: halve the common interval and assign opposite halves.
+
+After answering \(A<B\) and \(C<D\) at the same node, this rule can place \(A,C\) on the left and \(B,D\) on the right. That representation also commits to the cross-relations \(A<D\) and \(C<B\). These extra commitments are the cost of a simple representation.
+
+There is an elegant coding proof of its bound. Once sorting is complete, the occupied nodes are distinct leaves: an occupied ancestor and descendant, or two items at the same node, would leave an unresolved pair. The tree's partial order contains all answered comparisons, so such an incomparable pair admits total orders in both directions consistent with the transcript. The root-to-leaf binary addresses are therefore \emph{prefix-free}: no address begins with another complete address.
+
+If their lengths are \(d_1,\ldots,d_n\), the corresponding dyadic subintervals are disjoint, so
+\[
+\sum_{i=1}^n2^{-d_i}\le1.
+\]
+This is Kraft's inequality. Convexity of \(2^{-x}\) gives
+\[
+2^{-\frac1n\sum_i d_i}
+\le\frac1n\sum_i2^{-d_i}\le\frac1n,
+\qquad\text{hence}\qquad
+\sum_i d_i\ge n\log n.
+\]
+Each query increases total depth by at most two. Thus at least \(\tfrac12 n\log n\) queries are needed. The tree and its prefix code make the proof transparent.
+
+\subsection{Kaplan--Zamir--Zwick: retain a pair before separating it}
+
+Kaplan, Zamir, and Zwick (KZZ) already postpone some spatial commitments. Their nodes can retain ordered pairs, together with carefully specified interval and intermediate-node states. Thus \(A<B\) and \(C<D\) can remain as two pairs without immediately imposing the cross-relations. Their rules eventually resolve interactions between such structures by moving items; their best adversary gives the coefficient \(37/64\)~\cite{kzz}.
+
+The idea of going further is also present in their paper. Section~6 discusses continuous intervals and richer dependent structures, and asks whether maintaining suitable small dependencies could yield an efficient adversary with coefficient tending to one. The present construction follows that program. Its task is to make more general retained dependencies both computationally manageable and inexpensive to simplify.
+
+\subsection{The next step: keep an evolving graph inside a node}
+
+After
+\[
+A<B,\qquad C<D,\qquad A<C,
+\]
+we can retain all four items in one node, with just the indicated constraints and their consequences:
+
+\begin{center}
+\begin{tikzpicture}[>=Latex, every node/.style={font=\small}, x=1cm,y=1cm]
+\node[draw=accent!50,fill=pale,rounded corners,minimum width=8.8cm,minimum height=1.9cm] (box) at (0,0) {};
+\node[circle,draw=accent,fill=white,minimum size=7mm] (a) at (-2.8,0) {$A$};
+\node[circle,draw=accent,fill=white,minimum size=7mm] (b) at (-0.8,.5) {$B$};
+\node[circle,draw=accent,fill=white,minimum size=7mm] (c) at (.3,-.4) {$C$};
+\node[circle,draw=accent,fill=white,minimum size=7mm] (d) at (2.7,-.4) {$D$};
+\draw[->,thick,accent] (a)--(b);
+\draw[->,thick,accent] (a)--(c);
+\draw[->,thick,accent] (c)--(d);
+\node[anchor=south,font=\small\bfseries,text=ink] at (0,1.05) {One group; no spatial separation yet};
+\end{tikzpicture}
+\end{center}
+
+Each item has a tentative real position. An arrow \(A\to B\) means \(X_A<X_B\). The adversary chooses answers by estimating what fraction of the allowed position assignments survives. When the graph becomes difficult to handle, it fixes one item's position and moves that item's unresolved order into a child.
+
+The structure can retain more than a pair, but it does not retain arbitrary complexity indefinitely. Bounded degree, bounded directed-path length, and controlled interval widths are the conditions that make its calculations local.
+
+\begin{theorem}[Main result]\label{thm:main}
+There is one deterministic legal adversary, initialized using only \(n\), with a fixed polynomial bound on the number of bit operations per comparison, that forces every correct comparison sorter to make
+\[
+(1-o(1))n\log n
+\]
+comparisons. The term \(o(1)\) tends to zero as \(n\to\infty\).
+\end{theorem}
+
+Merge sort uses at most \(n\ceil{\log n}\) comparisons, so the leading coefficient is optimal. The construction below has very large asymptotic thresholds; this is an existence result, not a claim of practical performance.
+
+\section{The algorithm before its proofs}\label{sec:algorithm}
+
+\subsection{What one node stores}
+
+A node is a group of items whose relative order is still being resolved there. Some items have a free real coordinate \(X_x\) in an open interval \((a_x,b_x)\). Directed arrows between free items impose \(X_x<X_y\). Other items have already been assigned a fixed parent position and delegated to a child at that position. Call that position the child's \emph{anchor}. Each child has its own fresh coordinate system.
+
+Every original item has exactly one free coordinate, at exactly one node. Its appearances at ancestors are fixed anchors, not additional free coordinates. Different children of one parent have distinct anchors.
+
+At a node \(v\), the intervals and arrows define
+\[
+K_v=\{X:\ a_x<X_x<b_x\text{ for all free }x,\quad
+                 X_u<X_w\text{ for every arrow }u\to w\}.
+\]
+Write \(V_v=\vol(K_v)\). This is the volume of a constrained region, not generally the product of interval lengths. For example, two coordinates in \((0,2)\) give a square of area \(4\); the constraint \(X_A<X_B\) leaves a triangle of area \(2\).
+
+Our auxiliary quantity is
+\begin{equation}\label{eq:Z}
+Z=\prod_v V_v.
+\end{equation}
+Different nodes have separate coordinates, so their volumes multiply. A node with no free coordinates contributes \(1\). Initially there is only the root, all \(n\) intervals are \((0,n)\), and \(Z=n^n\). The adversary does not need to calculate the global product.
+
+\subsection{An answer restricts one node}
+
+To compare two original items, descend while they belong to the same child. At the first node where their representations differ, each is either a free coordinate or a child anchor. Different anchors decide the answer directly. Otherwise at least one coordinate is free.
+
+For example, if the representations are \(X_A\) and \(X_B\), consider
+\[
+p=\Prb(X_A<X_B)=
+\frac{\vol\{X\in K_v:X_A<X_B\}}{V_v}.
+\]
+The probability notation means a ratio of volumes. It introduces no random choice into the algorithm. Equality has zero volume, so the reverse answer has probability \(1-p\).
+
+An estimate \(\widehat p\) with \(|\widehat p-p|\le\eta<1/4\) suffices. Answer \(A<B\) if \(\widehat p\ge1/2\), and \(B<A\) otherwise. The chosen region has at least \(1/2-\eta\) of the old volume. When one representation is an anchor \(c\), use the same rule with a threshold event \(X_A<c\).
+
+\guide{Subroutine 1: estimate}{On a suitably maintained graph, return a deterministic additive-\(\eta\) estimate of a comparison or threshold probability. Section~\ref{sec:oracle} states the precise conditions; Appendices~\ref{app:local} and~\ref{app:table} prove the procedure.}
+
+\subsection{A refinement fixes a position and renews its coordinate}
+
+Suppose we choose an interior feasible position \(c\) for a free item \(x\). Fix \(X_x=c\), remove \(x\) from the parent's free graph, and turn its incident arrows into interval restrictions on their other endpoints. For instance,
+\[
+X_C<X_x<X_D
+\quad\longrightarrow\quad
+X_C<c<X_D.
+\]
+The strict comparisons remain true.
+
+Then admit \(x\) to the child anchored at \(c\), creating that child if necessary. If this is the child's \(j\)-th admission, give \(x\) a fresh, independent coordinate in \((0,j)\). Leave every old child coordinate, interval, arrow, and anchor unchanged.
+
+\begin{center}
+\begin{tikzpicture}[>=Latex,font=\small,x=1cm,y=1cm]
+\node[draw=accent!60,fill=pale,rounded corners,minimum width=8cm,minimum height=1.75cm] (p) at (0,0) {};
+\node[font=\bfseries,text=ink] at (0,.6) {Parent};
+\draw[thick] (-3,-.28)--(3,-.28);
+\fill[accent] (0,-.28) circle(2pt);
+\node[below] at (0,-.31) {$c$};
+\node[above,font=\small] at (-1.6,-.21) {$C$ lies to the left};
+\node[above,font=\small] at (1.6,-.21) {$D$ lies to the right};
+\node[draw=accent!60,fill=white,rounded corners,minimum width=8cm,minimum height=1.3cm] (ch) at (0,-2.15) {};
+\node[font=\bfseries,text=ink] at (0,-1.87) {Child at \(c\)};
+\node at (0,-2.33) {old items \(\quad+\quad x\) with fresh coordinate in \((0,j)\)};
+\draw[->,thick,accent] (0,-.875)--(0,-1.48);
+\end{tikzpicture}
+\end{center}
+
+Here \(j\) counts \emph{all admissions}, including items that later move to grandchildren. If \(f_x(c)\) is the density of the parent coordinate at \(c\), this operation satisfies the exact identity
+\begin{equation}\label{eq:refine}
+\boxed{\frac{Z_{\rm after}}{Z_{\rm before}}=j f_x(c).}
+\end{equation}
+The parent loses one dimension by taking a section; the child gains one dimension of length \(j\). Thus total dimension remains \(n\).
+
+For intuition, in the triangle \(0<X_A<X_B<2\), the section at \(X_A=c\) has length \(2-c\), so \(f_A(c)=(2-c)/2\). If a child at position \(1\) already contains one item, fixing \(A\) there and admitting it as the second item gives factor \(2\cdot(1/2)=1\): the child's new freedom exactly pays for the parent restriction.
+
+\guide{Subroutine 2: choose a position}{Find an interval on which the item's density has a guaranteed lower bound, and select a prescribed dyadic midpoint inside it. The ordinary choice needs the local estimate; an emergency central-interval choice works before the width conditions are restored. The guarantees are stated in Section~\ref{sec:oracle}.}
+
+\subsection{The two procedures}
+
+All choices and ties use fixed label order. The top-level algorithm is:
+
+\begin{quote}\ttfamily\small
+COMPARE(A, B):\\
+\hspace*{1em}Descend through common children to the responsible node.\\
+\hspace*{1em}If both representations are different anchors, return their order.\\
+\hspace*{1em}Estimate one direction; choose the estimated larger side.\\
+\hspace*{1em}Store its arrow or interval bound.\\
+\hspace*{1em}RESTORE the conditions needed by the numerical subroutines.\\
+\hspace*{1em}Return the chosen answer.
+\end{quote}
+
+Its central private operation is:
+
+\begin{quote}\ttfamily\small
+REFINE(x, node, reason):\\
+\hspace*{1em}Obtain a good interval by the method appropriate to the reason.\\
+\hspace*{1em}Choose its prescribed dyadic midpoint c.\\
+\hspace*{1em}Fix x at c; replace incident arrows by permanent interval bounds.\\
+\hspace*{1em}Admit x as an isolated free coordinate to the child at c.
+\end{quote}
+
+\guide{Subroutine 3: restore}{Cut a cheap problematic edge, or refine selected troublesome vertices. Restore the numerical hypotheses, preserve all public answers, and perform sufficiently few refinements. Section~\ref{sec:repairs} specifies every rule and proves these promises.}
+
+The remainder discharges these contracts. Legality comes first. Then we prove that rare refinements are affordable \emph{before} specifying which ones the algorithm makes.
+
+\section{Why the representation is legal}\label{sec:legal}
+
+\subsection{Reading an actual order}
+
+Choose a feasible point at every node, avoiding equalities between free coordinates and between a free coordinate and an anchor. These exceptional equalities have volume zero. Read positions from left to right; replace each child anchor by the order read recursively inside that child.
+
+\Needspace{6\baselineskip}
+The invariant is:
+\begin{quote}
+Every order represented in this way respects every comparison already answered.
+\end{quote}
+We do not require the converse. Private repairs may discard compatible orders. Their cost is accounted for through \(Z\). A positive-volume state always represents at least one order, so the invariant proves legality.
+
+An actual comparison restricts one node to a positive-volume side. It therefore preserves the invariant and imposes the requested order. An answer contradicting an earlier implied relation would have probability zero, and cannot be chosen by an additive-\(\eta\) majority estimate with \(\eta<1/4\). No separate public-order safety test is needed.
+
+\subsection{Effective intervals}
+
+Propagate lower bounds along arrows and upper bounds against them. Writing \(y\preceq x\) when \(y=x\) or a directed path leads from \(y\) to \(x\), define
+\[
+\ell_x=\max_{y\preceq x}a_y,\qquad
+r_x=\min_{y\succeq x}b_y,\qquad W_x=r_x-\ell_x.
+\]
+The interval \((\ell_x,r_x)\) is the coordinate's \emph{effective interval}. Store these tightened bounds permanently, including after arrows are removed. Along \(x\to y\), both \(\ell_x\le\ell_y\) and \(r_x\le r_y\).
+
+\begin{lemma}[Interior fixing]\label{lem:interior}
+For an acyclic arrow graph, the feasible region has positive volume if and only if every \(W_x>0\). Every \(c\in(\ell_x,r_x)\) is feasible for \(X_x\), and fixing it leaves a positive-volume section in the remaining coordinates.
+\end{lemma}
+\begin{proof}
+Necessity is immediate. For sufficiency, choose numbers \(0<\theta_x<1\) increasing in a topological order, a listing in which every arrow points forward, and put
+\[
+X_x=(1-\theta_x)\ell_x+\theta_xr_x.
+\]
+This expression increases with either endpoint and strictly with \(\theta_x\) when \(W_x>0\). All arrows are therefore strict, and a small open neighborhood is feasible. A topological order exists by repeatedly removing a vertex with no incoming arrow.
+
+After fixing \(x\) at interior \(c\), only predecessors get smaller upper bounds and only successors get larger lower bounds. A predecessor \(y\) still has upper bound at least \(\min(r_y,c)>\ell_y\), since \(\ell_y\le\ell_x<c\). The successor argument is symmetric. Apply the same positive-volume criterion to the remaining coordinates.
+\end{proof}
+
+\begin{lemma}[Legal admission and the refinement identity]\label{lem:admission}
+An item fixed at an interior position \(c\) is incomparable in the public transcript with every existing item in the child at \(c\). It may enter that child as an isolated coordinate, and \eqref{eq:refine} holds.
+\end{lemma}
+\begin{proof}
+Choose a point in the positive-volume parent section \(X_x=c\) at which every other free coordinate is distinct from \(c\) and from all anchors. Move \(x\) a little to the left, or a little to the right, keeping everything else fixed. Strict inequalities permit both changes. The two represented orders put \(x\) immediately before or immediately after the entire old child block. Both respect the transcript. Thus no old item in that child has a publicly determined relation to \(x\).
+
+Any new position of \(x\) among the old child items is legal: comparisons among old labels are unchanged, there were no answered comparisons between \(x\) and those child labels, and \(x\)'s relations to all outside blocks are the same as in the two surrounding orders.
+
+Let \(S_x(c)\) be the parent section volume. By the definition of coordinate density, \(f_x(c)=S_x(c)/V_v\). Fixing replaces \(V_v\) by \(S_x(c)\); the new independent child coordinate multiplies its volume by \(j\). This proves \eqref{eq:refine}.
+\end{proof}
+
+A real point has probability zero, but its section has a well-defined lower-dimensional volume. The identity compares that section with the original volume and then restores the missing dimension. A density can exceed one; a refinement can increase \(Z\). These gains must not be discarded in the accounting.
+
+\subsection{A fixed rule for the anchor}\label{sec:grid}
+
+Suppose a closed interval \(I=[a,a+m]\) has density at least \(1/(\beta m)\) throughout. Choose the unique power of two \(b\) such that
+\[
+\frac m4<b\le\frac m2,
+\qquad k=\ceil{a/b},
+\qquad c=(k+\half)b.
+\]
+The cell \([kb,(k+1)b]\) lies inside \(I\); its midpoint is strictly inside \(I\). Consequently
+\begin{equation}\label{eq:round-density}
+f_x(c)\ge\frac1{4\beta b}.
+\end{equation}
+Finding the scale uses the binary length of a rational number, not a search through arbitrarily fine grids.
+
+One midpoint determines one cell and one scale: equality of \((2k+1)2^{z-1}\) at two different powers \(2^z\) would equate an odd integer with an even one. This uniqueness lets repeated choices reuse the same child, and lets us count all possible destinations.
+
+\section{A numerical theorem independent of sorting}\label{sec:oracle}
+
+This section's objects are just an acyclic directed graph and intervals. It has no children, refinements, or sorting transcript. For the algorithms, endpoints and queried thresholds are dyadic rationals; the geometric facts apply also to arbitrary real endpoints.
+
+The graph's \emph{degree} is the largest number of neighbors, ignoring arrow directions. Its \emph{height} is the maximum number of vertices on a directed path. Components and distances also ignore directions. Two vertices are comparable if a directed path joins them in either direction.
+
+\begin{theorem}[Local interval probabilities]\label{thm:local}
+Fix integers \(d,h\ge1\), a rational ratio \(R\ge1\), and rational \(0<\varepsilon<1/4\). There is a computable radius \(\rho=\rho(d,h,R,\varepsilon)\) with the following property.
+
+Let \(K\) be a positive-volume interval-and-arrow region whose graph has degree at most \(d\) and height at most \(h\). In every component, suppose the largest effective width is at most \(R\) times the smallest. For one or two queried coordinates, retain the induced graph within distance \(\rho\), together with the \emph{original effective intervals}.
+
+The resulting local probabilities approximate \(\Prb(X_x<c)\) and \(\Prb(X_x<X_y)\) to additive error at most \(\varepsilon\). The same local region works for every threshold \(c\). It has at most
+\[
+b\le2(d+1)^{\rho+1}
+\]
+vertices. Its probabilities are calculated exactly using \(O(b^3 2^b)\) arithmetic operations on rational numbers. No minimum positive width is required.
+\end{theorem}
+
+The radius is independent of the total graph size. The local calculation is exact; using it in place of the full probability introduces the error. Appendix~\ref{app:local} proves locality and gives explicit constants. Appendix~\ref{app:table} gives the calculation.
+
+\Needspace{8\baselineskip}
+\begin{lemma}[Two density windows]\label{lem:windows}
+Suppose \(x\) has at most \(B\) other comparable vertices and effective interval \((\ell_x,r_x)\) of width \(W\).
+\begin{enumerate}
+\item Its density satisfies \(f_x(t)\le(B+1)/W\). On
+\[
+I_x=[\ell_x+W/4,\ r_x-W/4]
+\]
+it satisfies \(f_x(t)\ge4^{-B}/W\). This window needs no probability calculation.
+\item Given local cumulative probabilities accurate to \(1/32\), one can find dyadic \(a<b\), strictly inside the effective interval, with \(m=b-a\) and
+\[
+f_x(t)\ge\frac1{16m}\qquad(a\le t\le b).
+\]
+If the local region contains \(b_0\) vertices, each endpoint requires at most \(\ceil{\log(32b_0)}+1\) bisections.
+\end{enumerate}
+\end{lemma}
+
+Appendix~\ref{app:geometry} proves this lemma. Applied to the rounding rule, the quantile window gives
+\[
+-\log f_x(c)\le\log(64b).
+\]
+The central window gives \(W/8<b\le W/4\), and hence
+\[
+-\log f_x(c)\le\log(64b)+2B.
+\]
+The central window is more expensive, but it is available even when width ratios prevent a local calculation. This avoids a circular repair rule.
+
+\paragraph{Relation to linear extensions.}
+When all intervals are \((0,1)\), each coordinate order occupies volume \(1/m!\), where \(m\) is the graph size. Thus the region's volume is \(e(G)/m!\), and comparison probabilities agree with those under a uniformly random linear extension~\cite{stanley}. With unequal intervals, different orders can have different volumes. The theorem concerns those interval-constrained probabilities. It is not a general deterministic counting theorem for linear extensions, nor a claim of a fully polynomial approximation scheme.
+
+\section{Why rare refinements are affordable: a coding proof}\label{sec:accounting}
+
+We now set aside the implementation of repairs. Consider any completed legal run using \(q\) comparisons and \(P\) refinements. Index the refinement events by \(i=1,\ldots,P\); one item can be refined several times. If event \(i\) fixes \(x\) at \(c\) in a cell of length \(b\), assume
+\begin{equation}\label{eq:tariff}
+f_x(c)\ge\frac1{64b\,2^{\gamma_i}},
+\qquad \gamma_i\ge0,
+\qquad \Gamma=\sum_{i=1}^P\gamma_i.
+\end{equation}
+The ordinary window has \(\gamma_i=0\); the emergency central window has \(\gamma_i=2B\).
+
+\begin{theorem}[Rare refinements suffice]\label{thm:rare}
+Suppose each comparison retains at least \(1/2-\eta\) of \(Z\), or loses nothing, and there are at most \(q\) further private cuts, each retaining at least \(1-\eta\), where \(0<\eta\le1/32\). Then
+\begin{equation}\label{eq:master}
+\boxed{
+T\le(1+10\eta)q+\Gamma+10P+3n+
+          2P\log\!\left(2+\frac TP\right).
+}
+\end{equation}
+For \(P=0\), the last term means zero. In particular,
+\[
+\eta=o(1),\qquad P=o(T),\qquad\Gamma=o(T)
+\quad\Longrightarrow\quad q\ge(1-o(1))T.
+\]
+\end{theorem}
+
+The proof's meaning is that rare refinements have a small \emph{average} cost. It does not require every refinement to be cheap. The coding argument pays for the many possible child destinations; the admission factorial pays for their repeated use.
+
+\subsection{The tree's finite budget}
+
+Let \(s_v\) be the final number of items ever admitted to node \(v\), and \(r_v\) the number remaining free there. For a child \(c\) of \(v\), write \(k_c=s_c\). Every label visits a node at most once. Consequently
+\[
+s_v=r_v+\sum_{c\text{ child of }v}k_c,\qquad
+\sum_vr_v=n,\qquad \sum_vs_v=n+P,\qquad\sum_{v,c}k_c=P.
+\]
+All coordinates at \(v\) lie in \((0,s_v)\): root intervals started in \((0,n)\), and later admissions received \((0,j)\) with \(j\le s_v\).
+
+Define the group-size budget
+\begin{equation}\label{eq:budget}
+\mathcal B=\sum_{v,c}k_c\log(s_v/k_c).
+\end{equation}
+For one original label visiting nodes of final sizes \(n,s_1,\ldots,s_*\), its terms telescope to \(\log(n/s_*)\le\log n\). Therefore
+\begin{equation}\label{eq:entropy}
+\mathcal B\le T.
+\end{equation}
+
+This has a direct coding interpretation. Add a terminal leaf for each free item at its last node. A branch to a child of size \(k\) has ideal information cost \(\log(s/k)\), and a branch to an individual terminal item costs \(\log s\). Every full item path then has cost exactly \(\log n\). Thus
+\[
+T=\mathcal B+\sum_v r_v\log s_v.
+\]
+These are fractional information costs, not a claim that a binary codeword has noninteger length.
+
+\begin{lemma}[Distinct destinations spend the budget]\label{lem:batch}
+A batch of \(g\) refinements at one parent, entering \(g\) distinct children, contributes at least \(g\log g\) through its own refinement events to \(\mathcal B\).
+\end{lemma}
+\begin{proof}
+If the children's final sizes are \(k_1,\ldots,k_g\), then \(\sum_i k_i\le s\). The arithmetic--geometric mean inequality gives \(\prod_i k_i\le(s/g)^g\), or \(\sum_i\log(s/k_i)\ge g\log g\).
+\end{proof}
+
+\subsection{Why the raw binary addresses need a header}
+
+In Brodal's finished tree, leaf addresses are already prefix-free. Here children are anchored at midpoints of dyadic cells at many scales. Those cells can nest. For example, in a parent span \([0,8]\), cells \([0,4]\) and \([0,2]\) have addresses \(0\) and \(00\), and distinct anchors \(2\) and \(1\). These raw addresses are not prefix-free.
+
+We must also describe the scale: where the address stops. This can be done with only a logarithmic overhead in the scale number. The following weights express that observation without integer rounding.
+
+For a child with cell length \(b_c\) in a parent of final size \(s\), put
+\begin{equation}\label{eq:codeweight}
+t_c=\floor{\log(s/b_c)},\qquad
+\pi_c=\frac{b_c/s}{(t_c+1)(t_c+2)}.
+\end{equation}
+There is one dyadic cell length at each scale number \(t\). At that length, at most \(s/b\) cells fit in \([0,s]\). Hence
+\[
+\sum_{c:t_c=t}\pi_c\le\frac1{(t+1)(t+2)},
+\qquad
+\sum_c\pi_c\le
+\sum_{t\ge0}\left(\frac1{t+1}-\frac1{t+2}\right)=1.
+\]
+Thus the weights satisfy Kraft's inequality. The ideal description length is
+\[
+-\log\pi_c
+=\underbrace{\log(s/b_c)}_{\text{location at this scale}}
++\underbrace{\log((t_c+1)(t_c+2))}_{\text{scale header}}.
+\]
+
+For a literal prefix-free code on the finite set of used children, set \(\ell_c=\ceil{-\log\pi_c}\). Their Kraft sum is at most one. Sort these integers increasingly and place consecutive dyadic intervals of lengths \(2^{-\ell_c}\) inside \([0,1]\). Each new left endpoint is aligned because previous intervals were at least as long; the total length is at most one. Their disjoint binary addresses realize the code. The proof below uses the weights directly and saves the rounding bit. These proof weights depend on final sizes; the online adversary never needs to know them.
+
+\subsection{The factorial pays for reuse}
+
+At the \(j\)-th admission to a child, the refinement identity supplies a factor \(j\). Across its \(k_c\) admissions this is \(k_c!\), even if that child answers comparisons between arrivals. Therefore the total logarithmic refinement loss \(L_{\rm ref}\) satisfies
+\begin{equation}\label{eq:ref-cost-start}
+\begin{aligned}
+L_{\rm ref}
+&\le\Gamma+\sum_{v,c}\bigl(k_c\log(64b_c)-\log(k_c!)\bigr)\\
+&\le\Gamma+8P+S,\qquad
+S=\sum_{v,c}k_c\log(b_c/k_c).
+\end{aligned}
+\end{equation}
+Here \(k!\ge(k/e)^k\), obtained by comparing \(\sum_{j=1}^k\ln j\) with \(\int_1^k\ln u\,du\), and \(6+\log e<8\).
+
+Set \(w_c=s_v\pi_c=b_c/((t_c+1)(t_c+2))\). Kraft gives
+\[
+W:=\sum_{v,c}w_c\le\sum_vs_v=n+P.
+\]
+For \(P>0\), concavity of \(\log\), with weights \(k_c/P\), yields
+\begin{align}
+\sum_{v,c}k_c\log(w_c/k_c)
+&\le P\log(W/P)\nonumber\\
+&\le P\log(1+n/P)\le n\log e.\label{eq:logsum}
+\end{align}
+Consequently
+\begin{equation}\label{eq:header-cost}
+S\le n\log e+\sum_{v,c}k_c\log((t_c+1)(t_c+2)).
+\end{equation}
+
+If \(S<0\), it already improves our desired upper bound. Otherwise, observe that
+\[
+\sum_{v,c}k_ct_c
+\le\sum_{v,c}k_c\log(s_v/b_c)
+=\mathcal B-S\le T.
+\]
+The average scale number, over refinement events, is therefore at most \(T/P\). A second use of concavity bounds all scale headers:
+\[
+\sum_{v,c}k_c\log((t_c+1)(t_c+2))
+\le2P\log\!\left(2+\frac{\sum k_ct_c}{P}\right)
+\le2P\log(2+T/P).
+\]
+This and \eqref{eq:header-cost} cover both signs of \(S\). Substituting into \eqref{eq:ref-cost-start} proves
+\begin{equation}\label{eq:ref-cost}
+L_{\rm ref}\le
+\Gamma+8P+n\log e+2P\log(2+T/P).
+\end{equation}
+
+One way to read this proof is \(S=\mathcal B-\mathcal A\), where \(\mathcal A=\sum k_c\log(s_v/b_c)\) is the binary location information. The cost left after factorial recovery is the excess of group separation information over location information. Kraft bounds that excess by the short scale headers, plus \(O(n)\).
+
+\subsection{The endpoint is now a one-line estimate}
+
+When the transcript determines a total order, the \(r_v\) free coordinates at a node must occur in one prescribed order. They all lie in \((0,s_v)\). Thus
+\begin{equation}\label{eq:terminal}
+V_v\le\frac{s_v^{r_v}}{r_v!}\le e^{s_v},
+\qquad
+\boxed{\log Z_{\rm final}\le(n+P)\log e.}
+\end{equation}
+The second inequality uses one term of the exponential series. Multiplication over nodes uses \(\sum s_v=n+P\). No multinomial calculation is needed.
+
+Each comparison costs at most \(-\log(1/2-\eta)\), and each private cut at most \(-\log(1-\eta)\). For \(\eta\le1/32\), their combined cost is at most \((1+10\eta)q\), using \(-\ln(1-u)\le2u\) for \(0\le u\le1/2\).
+
+Starting at \(\log Z=T\), add these costs, \eqref{eq:ref-cost}, and \eqref{eq:terminal}. The inequalities \(8+\log e<10\) and \(2\log e<3\) prove \eqref{eq:master}. When \(P=0\), the endpoint estimate alone gives the stated weaker bound.
+
+Finally, with \(p=P/T\),
+\[
+\frac{2P\log(2+T/P)}T=2p\log(2+1/p)\longrightarrow0
+\quad\text{as }p\downarrow0.
+\]
+This proves Theorem~\ref{thm:rare} directly. There is no auxiliary parameter to send to zero later.
+
+\paragraph{What the coding argument does, and what it still needs.}
+It explains the cost of choosing and reusing child positions. Our current item paths are not themselves Brodal-style terminal codewords: several free items may remain at an internal node. The endpoint-volume estimate handles that residual freedom. The coding argument also does not calculate comparison probabilities; that is the separate task of the numerical theorem.
+
+\section{How to keep the graphs calculable}\label{sec:repairs}
+
+The numerical theorem asks for three properties: few neighbors, short directed paths, and controlled width ratios. The repair routine has two stages. First repair widths, so the numerical theorem can be used. Then remove excessive degree or height using the ordinary, inexpensive density window.
+
+Fix integers \(D,H,J\ge4\) and \(0<\eta\le1/32\). Between queries, require degree below \(D\) and height below \(H\). One new arrow raises degree by at most one and joins at most two old directed paths. No repair adds an arrow. Thus throughout repairs we may use
+\[
+d=D,\qquad h=2H,\qquad
+B=(d+1)^{h+1},\qquad C=B+1,\qquad \sigma=2B.
+\]
+The distance-\(h\) ball contains at most \(B\) vertices, so in particular each vertex has at most \(B\) comparable vertices. Set
+\begin{equation}\label{eq:parameters}
+L=\max\{4,\ceil{C/\eta}\},\qquad A=L^{2h+2},\qquad R=A^J.
+\end{equation}
+All propagation permanently stores the tightened intervals. Fixed label order resolves every choice of vertex, edge, or path.
+
+\subsection{Width repair: cut an edge when one side is much wider}
+
+Suppose an arrow \(u\to v\) has \(W_u>LW_v\). Impose the stronger bound \(X_u<\ell_v\), and remove the arrow. Since \(X_v>\ell_v\), every remaining assignment still satisfies \(X_u<X_v\).
+
+How much is lost? Along the arrow, \(r_u\le r_v\). The discarded part of \(u\)'s effective interval therefore has length at most \(W_v\). By the density upper bound, its probability is at most
+\[
+\frac{C W_v}{W_u}<\eta.
+\]
+The new interval is positive, because
+\[
+\ell_v-\ell_u=W_u-W_v+(r_v-r_u)>0.
+\]
+A predecessor whose upper bound decreases still has lower bound at most \(\ell_u<\ell_v\); propagation stays feasible.
+
+Symmetrically, when \(W_v>LW_u\), impose \(X_v>r_u\) and remove the arrow. These are permanent interval bounds. A deleted arrow is replaced by a stronger restriction, not forgotten. Each such cut removes an edge introduced by a comparison, so the entire run has at most \(q\) cuts.
+
+\subsection{Width repair: separate a batch of very different scales}
+
+Suppose no edge cut applies, but one component's largest width exceeds \(R\) times its smallest width \(w\). Adjacent widths have ratio at most \(L\). Along a path from a minimum-width vertex to a maximum-width vertex, mark the first vertex reaching width \(A^i w\), for \(i=0,\ldots,J-1\). The marked widths lie in
+\[
+[A^i w,\ LA^i w].
+\]
+Successive marked widths therefore differ by a factor at least
+\[
+A/L=L^{2h+1}.
+\]
+Any two marked vertices have distance greater than \(2h\): a path of length at most \(2h\) would bound their width ratio by \(L^{2h}\).
+
+Refine these \(J\) vertices in increasing width, using the central interval and without interrupting the batch. Fixing a coordinate changes effective intervals only along directed paths to or from that coordinate, hence within distance \(h\). The chosen vertices' widths are therefore unchanged until they are processed.
+
+Their selected cell lengths belong to \((W/8,W/4]\). The marked widths differ by more than a factor four, so the cell lengths differ. Distinct scales have distinct midpoints. Thus the batch enters \(J\) distinct children.
+
+Call these \emph{scale refinements}. Each pays surcharge \(\sigma=2B\). Their advantage is that they require no local probability calculation.
+
+Repeat the two width rules, always giving the edge cut priority, until neither applies. Each cut deletes an edge, and each scale refinement removes a nonisolated vertex. The process terminates. Every remaining component then has width ratio at most \(R\).
+
+\subsection{Graph repair: high degree or a long directed path}
+
+After width repair, the numerical theorem is available with the safe bounds \(d,h,R\).
+
+If a vertex has degree at least \(D\), refine it using its quantile window. Then repair widths again. This is an \emph{ordinary refinement}, with zero surcharge.
+
+\Needspace{8\baselineskip}
+Otherwise, if a directed path has at least \(H\) vertices, mark \(H\) consecutive vertices. Finish this marked batch before selecting another path:
+\begin{enumerate}
+\item Repair widths before each ordinary refinement.
+\item If a marked item remains free, refine it using its quantile window.
+\item If an intervening width repair already refined it, skip it.
+\end{enumerate}
+The marked items are pairwise comparable in the public transcript. Lemma~\ref{lem:admission} therefore forces their departures from this parent into \(H\) distinct children, including departures caused by intervening scale repairs.
+
+Continue until degree and height are below their thresholds. No repair adds an edge. A child admission adds only an isolated coordinate, with no change to its old distributions. It therefore requires no further child repair.
+
+\guide{Why the order matters}{Width repair can operate without the local estimator. Once widths are controlled, ordinary refinement may use it. The algorithm never calls the estimator in order to repair the very condition needed to justify that call.}
+
+\subsection{The complete restoration routine}
+
+The pseudocode hides no additional operation:
+
+\begin{quote}\ttfamily\small
+RESTORE(node):\\
+\hspace*{1em}Repeat:\\
+\hspace*{2em}Repair widths, giving edge cuts priority over scale batches.\\
+\hspace*{2em}If a degree is at least D, ordinarily refine that item; continue.\\
+\hspace*{2em}If there is an H-vertex directed path, finish its marked batch;\\
+\hspace*{3em}continue.\\
+\hspace*{2em}Return.
+\end{quote}
+
+The four rules have two different purposes. Edge cuts remove negligible dependencies. Refinements remove a variable while returning freedom in a child. The following count shows why the costly operations are infrequent.
+
+\section{Why there cannot be too many refinements}\label{sec:rarity}
+
+Let \(N_o\) and \(N_s\) count ordinary and scale refinements. Then
+\[
+P=N_o+N_s,\qquad\Gamma=\sigma N_s.
+\]
+
+\paragraph{High degree is paid for by already asked comparisons.}
+A degree refinement deletes at least \(D\) current edges. Deleted edges cannot be deleted again; every edge was introduced by an actual query at that node. Thus there are at most \(q/D\) degree refinements.
+
+\paragraph{Long paths and separated scales spend the tree budget.}
+Each marked path sends \(H\) items into different children. By Lemma~\ref{lem:batch}, its refinement events contribute at least \(H\log H\) to \(\mathcal B\). Different marked paths at one node use disjoint refinement events, so at most \(T/\log H\) ordinary path refinements occur.
+
+Each scale batch similarly contributes at least \(J\log J\), and scale batches use disjoint refinement events. Hence
+\begin{equation}\label{eq:rarity}
+\boxed{
+N_o\le\frac qD+\frac T{\log H},
+\qquad
+N_s\le\frac T{\log J}.
+}
+\end{equation}
+A path batch can overlap a scale batch. This causes no double charge in either separate estimate: each family uses its own application of \(\mathcal B\le T\). A marked item consumed by a scale repair is charged only for the refinement it actually makes.
+
+\paragraph{A rough finite bound for implementation.}
+We also have
+\begin{equation}\label{eq:incidence}
+P\le2q.
+\end{equation}
+Charge each refinement to one incident edge endpoint at the node it leaves. Degree and scale refinements have such an endpoint when selected. For a marked path item, reserve an original incident path endpoint even if another repair removes that edge before the item moves. A label leaves a node only once, so an endpoint cannot be charged twice. There are at most \(2q\) introduced endpoints in total.
+
+This last estimate is not the asymptotic rarity argument. It is useful for bounding the amount of state and the number of binary digits created.
+
+\section{Choosing the parameters and proving polynomial time}\label{sec:runtime}
+
+\subsection{First choose any fixed accuracy stage}
+
+For each integer \(k\ge4\), use
+\[
+D=k+4,\qquad H=2^k,\qquad \eta=\frac1{100k}.
+\]
+Compute \(B,\sigma\) as above, and set
+\[
+J=2^{k\sigma}.
+\]
+Then compute \(L,A,R\) from \eqref{eq:parameters}, and the radius \(\rho_k\) supplied by Theorem~\ref{thm:local}. Since \(\eta<1/32\), the same radius is sufficient for the quantile calculations. Let
+\[
+b_k=2(d+1)^{\rho_k+1}
+\]
+be the corresponding neighborhood-size bound.
+
+On a completed run with \(q\le2T\), \eqref{eq:rarity} gives
+\[
+N_o\le\frac{3T}{k},\qquad
+N_s\le\frac{T}{k\sigma},\qquad
+P\le\frac{4T}{k},\qquad\Gamma\le\frac Tk.
+\]
+Thus, as the selected stage tends to infinity, \(\eta=o(1)\), \(P=o(T)\), and \(\Gamma=o(T)\). The coding bound \eqref{eq:master} then gives \(q\ge(1-o(1))T\). Runs with \(q>2T\) already exceed the target.
+
+\subsection{Make one algorithm, with one polynomial exponent}
+
+Allowing the running-time exponent to depend on a desired accuracy would not establish Theorem~\ref{thm:main}. We instead let the stage grow extremely slowly with \(n\).
+
+During initialization, spend at most \(n\) bit operations computing successive stages. Keep the largest fully computed stage satisfying
+\[
+b_k\le\floor{\log(n+1)}.
+\]
+If none fits, answer using a fixed total order of the labels. Every fixed stage is a finite computation and eventually meets both the initialization and neighborhood budgets. Therefore the stage \(k(n)\) selected in this way tends to infinity.
+
+Every local calculation then uses \(b\le\log(n+1)\) coordinates. Appendix~\ref{app:table} uses \(O(b^3 2^b)\) arithmetic operations, which is a polynomial with a fixed exponent. Constructing a neighborhood, propagating intervals, and finding paths use ordinary polynomial-time graph operations.
+
+\subsection{Binary precision is also polynomial}
+
+All endpoints and anchors are dyadic rationals, meaning integers divided by powers of two. Suppose the current denominators divide \(2^\Lambda\). A quantile search adds only \(O(\log(b+1))\) binary digits; the grid rounding adds a constant number. A central-window refinement adds only a constant number. Propagation and cuts use existing bounds and add no digits.
+
+Before \(q=O(n\log n)\) queries, \eqref{eq:incidence} therefore gives
+\[
+\Lambda=O\bigl(n\log(n+1)\log\log(n+4)\bigr).
+\]
+All coordinates lie in \([0,n]\). The exact local table uses integers with
+\[
+O\bigl(b(\Lambda+\log(n+1)+\log(b+1))\bigr)
+\]
+bits. Thus the arithmetic bit cost is polynomial as well. There are at most \(P+1\) nodes and at most \(q\) edge introductions. Stage descriptions have at most \(n\) bits, by the initialization budget.
+
+After \(2n\ceil{\log(n+1)}\) queries, the adversary may freeze a total order compatible with its saved public comparison graph, found by topological sorting, and answer from it thereafter. This threshold is already beyond the lower bound. It prevents repeated gratuitous queries from enlarging the state indefinitely.
+
+The representation proves legality, the rarity estimates and coding theorem prove the lower bound, and the local computation and precision bounds prove the fixed polynomial running time. This establishes Theorem~\ref{thm:main}.
+
+\section{Computational checks and related formalization}\label{sec:revision}
+
+The exact local-volume recurrence of Appendix~\ref{app:table} was compared
+with an independent rational implementation of the segment-assignment method
+on 630 seeded acyclic interval systems with one to seven vertices. The two
+implementations agree in every case, including infeasible systems and mixed
+dyadic precisions. A further 27 analytic checks cover independent boxes,
+chains, empty and cyclic cases, an unequal-interval comparison probability
+of $3/4$, triangle densities, and the refinement identity $j f_x(c)$.
+The accompanying source includes the script and its results. These finite
+checks verify the numerical implementation and selected identities; the
+locality and asymptotic guarantees follow from the proofs in this paper.
+
+A related Lean~4 development is available in the sorting-adversary-proofs
+repository~\cite{formalization}. That development follows the earlier
+recursive integer-colour construction. The continuous-position formulation,
+prefix-code accounting, and exact-volume recurrence presented here are given
+as mathematical arguments; citing the repository does not assert a
+line-by-line formalization of this presentation.
+
+\appendix
+\section{Density windows from elementary geometry}\label{app:geometry}
+
+\subsection{Sections of a convex region}
+
+A region is \emph{convex} if it contains the segment joining any two of its points. Our regions are convex because every defining condition is a linear inequality.
+
+\begin{lemma}[The two-cone bound]\label{lem:cone}
+Let a point be uniform in a positive-volume bounded convex region in $m$ dimensions. Suppose a nonconstant linear coordinate $Y$ ranges over $(L,U)$, of width $W=U-L$. Its probability density $g$ satisfies
+\begin{equation}\label{eq:cone-upper}
+g(t)\le\frac mW.
+\end{equation}
+For every $0<\theta\le1/2$, it also satisfies
+\begin{equation}\label{eq:cone-lower}
+g(t)\ge\frac{\theta^{m-1}}W
+\qquad(L+\theta W\le t\le U-\theta W).
+\end{equation}
+\end{lemma}
+\begin{proof}
+Use a linear change of variables making $Y$ the first coordinate. Its constant volume factor cancels in densities. Write $A(t)$ for section volume and $V=\int_L^U A(t)\,dt$ for total volume.
+
+Join the section at $t$ to feasible points with first coordinates approaching $L$ and $U$. Convexity puts both cones inside the region. A section of a cone shrinks in its $m-1$ free directions by a common factor, so the two cone volumes tend to
+\[
+\frac{t-L}{m}A(t)+\frac{U-t}{m}A(t)=\frac Wm A(t).
+\]
+Thus $V\ge WA(t)/m$, proving \eqref{eq:cone-upper}. For $m=1$ the distribution is uniform and both assertions are immediate.
+
+There is an interior $t_0$ with $A(t_0)\ge V/W$, or a sequence approaching this bound. For $t\ge t_0$, join this section toward the upper endpoint. At $t$, the scale factor tends to $(U-t)/(U-t_0)\ge\theta$. Hence $A(t)\ge\theta^{m-1}A(t_0)$. Use the lower endpoint when $t\le t_0$ and take limits if needed. This proves \eqref{eq:cone-lower}.
+\end{proof}
+
+This proof uses only convexity and the integral $\int_0^1 u^{m-1}\,du=1/m$, not a general theorem about log-concave measures.
+
+\subsection{Why the relevant dimension is small}
+
+\begin{lemma}[Condition on the incomparable labels]\label{lem:fiber}
+Let $x$ have $c$ other comparable labels in the active graph and effective interval $(\ell_x,r_x)$ of width $W_x$. Then
+\begin{align}
+f_x(t)&\le\frac{c+1}{W_x},\label{eq:fiber-upper}\\
+f_x(t)&\ge\frac{4^{-c}}{W_x}
+\quad(\ell_x+W_x/4\le t\le r_x-W_x/4).\label{eq:fiber-lower}
+\end{align}
+For another coordinate $X_y$, or a fixed number $Y$, and any fixed interval $I$ of length $a$,
+\begin{equation}\label{eq:gap}
+\Prb(X_x-Y\in I)\le\frac{(c+1)a}{W_x}.
+\end{equation}
+In the coordinate case $Y=X_y$, independence is not assumed.
+\end{lemma}
+\begin{proof}
+Fix all coordinates incomparable with $x$. For almost every feasible fixing, the remaining region is a positive-volume convex region on $x$ and its $c$ comparable labels, and the conditional law is uniform there.
+
+Crucially, the available interval of $x$ is still $(\ell_x,r_x)$. A new lower bound from a fixed outside label could reach $x$ only along a directed path from that label to $x$; a new upper bound would require the reverse path. Both contradict incomparability. This is also seen directly by propagating the new fixed bounds. Apply \cref{lem:cone} in dimension $c+1$, then average over the fixed outside coordinates. This gives \eqref{eq:fiber-upper}--\eqref{eq:fiber-lower}.
+
+If $y$ is incomparable with $x$, it was fixed in this conditioning, so the projection $X_x-X_y$ has width $W_x$. The same is true for a fixed number $Y$.
+
+If $y$ is a successor of $x$, its upper endpoint $r_y$ is unchanged by fixing the outside labels: an outside upper bound propagating to $y$ would also make that outside label a successor of $x$. Fix $y$ at a feasible value within $\delta$ of $r_y$. By \cref{lem:interior}, $x$ can then range over
+\[
+(\ell_x,\min(r_x,X_y)),
+\]
+of width at least $W_x-\delta$, since $r_y\ge r_x$. Thus the projection $X_x-X_y$ of the conditional region has width at least $W_x$, on letting $\delta\downarrow0$. For a predecessor, fix $y$ within $\delta$ of its unchanged lower endpoint and argue symmetrically. The upper part of \cref{lem:cone}, now for the linear coordinate $X_x-X_y$, bounds its conditional density by $(c+1)/W_x$. Integrate over $I$ and then over the outside coordinates to obtain \eqref{eq:gap}.
+\end{proof}
+
+Taking $I=[-z,z]$ gives $\Prb(|X_x-X_y|\le z)\le2(c+1)z/W_x$. The claim is for a difference of coordinates or a fixed threshold. It does not assert the same bound for an arbitrary interval chosen as an arbitrary function of all other coordinates.
+
+\subsection{A useful interval between middle quantiles}
+
+We need one shape fact. A positive function $f$ is \emph{log-concave} if
+\[
+f((1-\lambda)a+\lambda b)\ge f(a)^{1-\lambda}f(b)^\lambda
+\quad(0\le\lambda\le1).
+\]
+It has no downward valley between two values. The following specialized proof keeps the argument self-contained.
+
+\begin{lemma}[Shape of a coordinate density]\label{lem:shape}
+A coordinate density in our interval-and-arrow region is positive and continuous on its effective interval and is log-concave there.
+\end{lemma}
+\begin{proof}
+Let $S(t)$ be its unnormalized section volume at $X_x=t$. Positivity follows from \cref{lem:interior}. Take feasible assignments $p,q$ with $p_x=t-\delta$, $q_x=t+\delta$, and put $h=q-\delta$ in every coordinate. Both $p,h$ satisfy the strict arrows, although $h$ need not satisfy the original intervals.
+
+Join the endpoints of an arrow $u\to v$ in an undirected graph when
+\[
+\max(p_u,h_u)\ge\min(p_v,h_v).
+\]
+On any such edge, $h-p$ is nonzero and has the same sign at both ends. Otherwise strict increase of $p$ or $h$ would give the reverse inequality. At $x$ the sign is positive, so $h>p$ throughout its connected component. Swap $p,h$ on this component, and then add $\delta$ back to the second assignment. Both resulting assignments have coordinate $t$ at $x$.
+
+Within the swapped component, $a_u<p_u<h_u=q_u-\delta<b_u-\delta$, so both outputs obey the original intervals. Across its boundary, either choice at either endpoint obeys the arrow by the definition of the component. Internal arrows are preserved as well.
+
+The map is injective: subtract $\delta$ from the second output. The unordered coordinate pairs are unchanged, so they reconstruct the same graph and component and tell us which swap to reverse. On each piece of its domain the map permutes coordinates and adds constants, preserving volume in the two sections. Hence
+\[
+S(t-\delta)S(t+\delta)\le S(t)^2.
+\]
+Section volume is continuous in the interior: moving $t$ changes feasibility only in finitely many slabs whose widths tend to zero, inside a bounded box. Iterating the midpoint inequality and using continuity gives log-concavity. Normalization by the fixed total volume preserves it.
+\end{proof}
+
+\begin{lemma}[Middle mass gives a reliable interval]\label{lem:quartile}
+Suppose a local cumulative probability $\widehat F$ is within $1/32$ of the true cumulative probability $F$ at every threshold. Choose $a,b$ with
+\[
+\widehat F(a)\in[7/32,9/32],\qquad
+\widehat F(b)\in[23/32,25/32].
+\]
+Then $a<b$ are strictly interior, and, with $m=b-a$,
+\[
+f_x(t)\ge\frac1{16m}\qquad(a\le t\le b).
+\]
+\end{lemma}
+\begin{proof}
+The true cumulative values lie respectively in $[3/16,5/16]$ and $[11/16,13/16]$. The local and full supports at $x$ are the same: the local region retains the effective interval and contains every restriction of a full feasible assignment. Thus $a,b$ are interior. The mass between them is at least $3/8$, so some $t\in[a,b]$ has $f_x(t)\ge3/(8m)$.
+
+Suppose $f_x(a)<1/(16m)$. Then $t>a$, and the secant slope of $\ln f_x$ from $a$ to $t$ exceeds $\ln6/m$. Concavity implies, for $u<a$ in the support,
+\[
+f_x(u)\le f_x(a)\exp\bigl(-(a-u)\ln6/m\bigr).
+\]
+Integration gives $F(a)\le mf_x(a)/\ln6<1/(16\ln6)<3/16$, a contradiction. Reflecting the coordinate proves the same lower bound at $b$. Log-concavity gives at least the smaller endpoint density throughout $[a,b]$.
+\end{proof}
+
+This argument needs no separate log-concavity theorem for cumulative probabilities or tails.
+
+For the stated bisection bound in Lemma~\ref{lem:windows}, apply \cref{lem:cone} directly to the $b_0$-dimensional local region. Its marked density is at most $b_0/W_x$. Bisect the original effective interval, stopping when the reported cumulative value is within $1/32$ of the target $1/4$ or $3/4$. Until success, bracket endpoints have cumulative difference greater than $1/16$. After $r$ failures, their distance is $W_x/2^r$, so the difference is at most $b_0/2^r$. This is impossible for $r=\ceil{\log(32b_0)}+1$. Each bisection adds at most one binary fractional digit. This proves Lemma~\ref{lem:windows} in full.
+
+
+\section{Why distant constraints have a small effect}\label{app:local}
+
+We prove Theorem~\ref{thm:local} independently of the recursive adversary. The proof uses random variables to compare two distributions; the algorithm itself executes only the finite table of Appendix~\ref{app:table}.
+
+There are two ingredients. First, repeatedly refreshing a coordinate from its permitted interval causes two copies of the system to draw closer. Second, the density bound shows that small coordinate errors rarely change a comparison sign.
+
+\subsection{Two stationary experiments with shared random numbers}
+
+Start one experiment uniformly in the full feasible region and another uniformly in the retained neighborhood. These are mathematical distributions, not samples that the algorithm has to produce. The two starting points may have any joint coupling.
+
+Visit vertices in a topological order. With all other coordinates fixed, the permitted values of \(X_x\) form an interval \((a,b)\), where
+\[
+a=\max\{\ell_x,\ X_y:y\to x\},\qquad
+b=\min\{r_x,\ X_z:x\to z\}.
+\]
+Replace \(X_x\) by \((1-U_x)a+U_xb\), where \(U_x\) is a fresh uniform number in \((0,1)\). This is precisely the coordinate's conditional uniform distribution. Resampling from a conditional distribution preserves the joint uniform law, so each experiment remains in its own original uniform distribution after every update.
+
+Use the same fresh \(U_x\) in both experiments at a shared vertex. Restrict the full topological order to the neighborhood. Write \(\Delta_x\) for the absolute discrepancy between the two copies. If every incident edge is retained, then
+\begin{equation}\label{eq:coupling}
+\Delta_x^{\rm new}
+\le(1-U_x)\max_{y\to x}\Delta_y^{\rm new}
+  +U_x\max_{x\to z}\Delta_z^{\rm old}.
+\end{equation}
+An empty maximum is zero. Taking a maximum with a common lower bound, or a minimum with a common upper bound, cannot increase a discrepancy.
+
+The predecessor terms refer to new values because the sweep is topological. Expand them backward within that sweep. A predecessor chain contains at most \(h\) vertices and eventually reaches a common fixed lower bound, whose discrepancy is zero.
+
+Let \(A_x\) be the minimum of the fresh \(1-U\) values at \(x\) and all its ancestors. The coefficient reaching the zero-discrepancy boundary is at least \(A_x^h\). The coefficients of all remaining old discrepancies sum to at most \(1-A_x^h\), and those old discrepancies occur within distance \(h\). Thus
+\begin{equation}\label{eq:one-sweep}
+\boxed{
+\Delta_x^{\rm new}\le
+(1-A_x^h)\max_{y\in B_h(x)}\Delta_y^{\rm old}.
+}
+\end{equation}
+Here \(B_h(x)\) is the undirected distance-\(h\) ball. This expansion can follow whichever predecessor maximizes the discrepancy; \(A_x\) bounds all possible choices.
+
+\subsection{One moment contracts}
+
+Put
+\[
+M=(d+1)^{h+1},\qquad
+a=\frac1{4M^2},\qquad
+p=(4M^2)^h\ceil{\log(4M)}.
+\]
+Both the ball and the set of clocks defining \(A_x\) contain at most \(M\) vertices. A union bound gives
+\[
+\Prb(A_x<a)\le Ma=\frac1{4M}.
+\]
+On the complementary event,
+\[
+(1-A_x^h)^p\le(1-a^h)^p
+\le e^{-pa^h}
+\le\frac1{4M}.
+\]
+The last step uses \(pa^h=\ceil{\log_2(4M)}\ge\ln(4M)\). It follows that
+\[
+\E\bigl[(1-A_x^h)^p\bigr]\le\frac1{2M}.
+\]
+
+Crucially, \(A_x\) uses only fresh clocks from this sweep; it is independent of the whole vector of old discrepancies. Raise \eqref{eq:one-sweep} to the integer power \(p\), bound a maximum by a sum, and use that independence:
+\begin{align}
+\E\bigl[(\Delta_x^{\rm new})^p\bigr]
+&\le\frac1{2M}
+   \sum_{y\in B_h(x)}\E\bigl[(\Delta_y^{\rm old})^p\bigr]\nonumber\\
+&\le\frac12\max_{y\in B_h(x)}
+                  \E\bigl[(\Delta_y^{\rm old})^p\bigr].\label{eq:moment}
+\end{align}
+This is the whole contraction argument. The large power \(p\) makes near-failures of contraction sufficiently rare to compensate for the possible neighbors.
+
+\subsection{Choose the radius so the boundary cannot interfere}
+
+Use the explicit constants
+\begin{gather*}
+C=M+1,\qquad u=\frac{\varepsilon}{16C},\\
+\lambda=\ceil{\log(R/u)},\qquad
+\mu=\ceil{\log(8/\varepsilon)},\\
+t=p\lambda+\mu,\qquad \rho=ht.
+\end{gather*}
+These are computable using integer comparisons with powers of two.
+
+For a marked vertex \(x_*\), apply \eqref{eq:moment} at sweep \(j\) only to vertices within distance \(h(t-j)\) of \(x_*\). Their required \(h\)-balls lie in the preceding interior. The predecessor expansion uses at most \(h-1\) predecessor edges followed by one incident edge, so all needed edges are retained. This explains the radius \(ht\).
+
+Both copies of an initially retained coordinate lie in its original effective interval. In the marked vertex's original component, initial discrepancies are therefore at most \(R W_{x_*}\). Induction using \eqref{eq:moment} gives
+\[
+\E\bigl[\Delta_{x_*}(t)^p\bigr]\le 2^{-t}(R W_{x_*})^p.
+\]
+For a nonnegative random variable \(Y\), the inequality
+\(\Prb(Y>a)\le\E[Y^p]/a^p\) follows by integrating \(Y^p\ge a^p\) on that event. Apply it here:
+\begin{equation}\label{eq:coordinate-error}
+\Prb(\Delta_{x_*}(t)>uW_{x_*})
+\le2^{-t}(R/u)^p
+\le2^{-\mu}\le\varepsilon/8.
+\end{equation}
+For two marked vertices, use this estimate for each one's component and width. The components may differ; independence of the two error events is unnecessary. An isolated coordinate can simply start at the same uniform value in both experiments.
+
+\subsection{From coordinate error to comparison error}
+
+Every mark has at most \(M\) comparable vertices. The dependent-difference estimate \eqref{eq:gap} therefore applies with the constant \(C=M+1\).
+
+Outside the two exceptional events in \eqref{eq:coordinate-error}, different signs of \(X_x-X_y\) in the two experiments require
+\[
+|X_x-X_y|
+\le u(W_x+W_y)\le 2u\max(W_x,W_y).
+\]
+Use \eqref{eq:gap} at the endpoint of larger width. The interval for the difference has length at most \(4u\max(W_x,W_y)\), so its probability is at most \(4Cu=\varepsilon/4\). The two exceptional events have total probability at most \(\varepsilon/4\). Thus sign disagreement has probability at most \(\varepsilon/2\), which is more than sufficient. A threshold comparison uses one exceptional event and a shorter interval.
+
+Because both experiments preserve their original laws, a bound on disagreement is a bound on the difference of their probabilities. This proves locality.
+
+The local region has positive volume: restricting any full feasible assignment gives a local one. Its marked effective support is unchanged, because the old effective interval is retained explicitly and every value in it occurs in some full assignment. A degree-\(d\) radius-\(\rho\) neighborhood of two marks contains at most \(2(d+1)^{\rho+1}\) vertices. This completes the geometric part of Theorem~\ref{thm:local}.
+
+\section{Exact local calculation: which coordinate comes last?}\label{app:table}
+
+The local problem has \(b\) coordinates. We give a finite exact calculation that uses just subsets, polynomial integration, and integer arithmetic. It does not first count linear extensions.
+
+\subsection{A recurrence for every subset}
+
+For each subset \(S\) of the local vertices, let \(F_S(t)\) be the volume of assignments to \(S\) that respect their own intervals, the arrows with both endpoints in \(S\), and \(X_x<t\) for all \(x\in S\). Set \(F_\varnothing(t)=1\).
+
+For nonempty \(S\), almost every assignment has a unique largest coordinate. If it belongs to \(v\), there can be no arrow \(v\to w\) with \(w\in S\setminus\{v\}\). Call such a \(v\) a \emph{sink of the induced graph on \(S\)}. Once \(X_v=u\) is the largest value, every incoming arrow to \(v\) holds automatically. The remaining assignments have volume \(F_{S\setminus\{v\}}(u)\). Therefore
+\begin{equation}\label{eq:last-integral}
+F_S(t)=
+\sum_{\substack{v\in S\\v\ {\rm a\ sink\ in}\ S}}
+\int_{a_v}^{\min(t,b_v)}
+  F_{S\setminus\{v\}}(u)\,du,
+\end{equation}
+where a term is zero when \(t\le a_v\).
+
+Sort all interval endpoints. On an open segment between consecutive endpoints, the set of intervals containing that segment is fixed. Differentiating \eqref{eq:last-integral} on this segment gives
+\begin{equation}\label{eq:last-derivative}
+\boxed{
+F'_S(t)=
+\sum_{\substack{v\ {\rm a\ sink\ in}\ S\\
+                 (a_v,b_v)\ {\rm contains\ the\ segment}}}
+F_{S\setminus\{v\}}(t).
+}
+\end{equation}
+This is the whole recurrence. At the smallest endpoint, every nonempty subset has volume zero. On each segment, compute the polynomials in increasing subset size and carry their values to the next segment. Their degrees are at most \(|S|\). At the largest endpoint, \(F_V\) is the required full volume.
+
+Computing all subsets avoids extra terminology or data structures: no downward-closed-set test and no transitive closure are required. Each subset is simply its own induced-graph problem.
+
+\subsection{An all-integer implementation}
+
+Scale all dyadic endpoints by \(2^\Lambda\), making them integers. At a segment's left endpoint \(a\), store
+\[
+Q_S=|S|!\,F_S(a).
+\]
+These values start as integers. For \(r=|S|\), compute coefficients
+\begin{align}
+C_{S,0}&=Q_S,\nonumber\\
+C_{S,k}
+&=\sum_{\substack{v\ {\rm a\ sink\ in}\ S\\
+                 v\ {\rm accepts\ this\ segment}}}
+ C_{S\setminus\{v\},\,k-1},
+\qquad 1\le k\le r.\label{eq:coeff}
+\end{align}
+The invariant is
+\[
+C_{S,k}=(r-k)!\,F_S^{(k)}(a+).
+\]
+It follows inductively from \eqref{eq:last-derivative}. If the segment length is the integer \(\Delta\), the update to its right endpoint is
+\begin{equation}\label{eq:integer-table}
+\boxed{
+Q_S^{\rm new}
+=\sum_{k=0}^r\binom rk C_{S,k}\Delta^k.
+}
+\end{equation}
+Thus all operations are integer additions and multiplications. At the end, the original unscaled volume is
+\[
+\frac{Q_V}{b!\,2^{\Lambda b}}.
+\]
+
+There are at most \(2^b\) subsets, \(b\) coefficients per subset, \(b\) summands per coefficient, and \(O(b)\) endpoint segments. Precompute outgoing-neighbor masks to test sinks, binomial coefficients, and the powers of each segment length. The total is \(O(b^3 2^b)\) arithmetic operations.
+
+If original endpoints lie in \([0,K]\), put \(N=\max\{1,2^\Lambda K\}\). Expanding the deletion recurrence bounds
+\[
+0\le C_{S,k}\le r!\,N^{r-k},\qquad
+0\le Q_S\le r!\,N^r.
+\]
+The entries therefore have
+\[
+O\bigl(b(\Lambda+\log(K+1)+\log(b+1))\bigr)
+\]
+bits. This justifies the bit bound used in Section~\ref{sec:runtime}.
+
+For a comparison numerator, add its arrow and repeat the table; a directed cycle gives zero. For a threshold numerator, shorten the marked coordinate's upper interval bound and repeat. Use a common coordinate scale for numerator and denominator; it cancels in their ratio. For all thresholds use the same original local region as denominator. The estimates then form one actual cumulative distribution, as required for quantile bisection.
+
+\subsection{A small example}
+
+With two independent coordinates in \((0,1)\),
+\[
+F_{\{A\}}(t)=F_{\{B\}}(t)=t,\qquad
+F'_{\{A,B\}}(t)=2t,
+\]
+so the area is \(F_{\{A,B\}}(1)=1\). With the arrow \(A\to B\), only \(B\) can be last:
+\[
+F'_{\{A,B\}}(t)=F_{\{A\}}(t)=t,
+\qquad F_{\{A,B\}}(1)=\tfrac12.
+\]
+The recurrence is the elementary triangle calculation repeated over subsets and interval segments.
+
+\begin{thebibliography}{9}
+\bibitem{brodal}
+Gerth St{\o}lting Brodal, Shiva Chaudhuri, and Jaikumar Radhakrishnan.
+\emph{The randomized complexity of maintaining the minimum.}
+Nordic Journal of Computing 3(4), 337--351, 1996.
+The binary adversary and its interval interpretation are reviewed in Section~2 and the introduction of~\cite{kzz}.
+
+\bibitem{kzz}
+Haim Kaplan, Or Zamir, and Uri Zwick.
+\emph{A sort of an adversary.}
+Proceedings of the Thirtieth Annual ACM--SIAM Symposium on Discrete Algorithms (SODA), 1291--1310, 2019.
+\href{https://doi.org/10.1137/1.9781611975482.79}{doi:10.1137/1.9781611975482.79}.
+The discussion of continuous intervals and richer dependencies is in Section~6.
+
+\bibitem{stanley}
+Richard P. Stanley.
+\emph{Two poset polytopes.}
+Discrete \& Computational Geometry 1, 9--23, 1986.
+\href{https://doi.org/10.1007/BF02187680}{doi:10.1007/BF02187680}.
+\href{https://math.mit.edu/~rstan/pubs/pubfiles/66.pdf}{Author's copy}.
+
+\bibitem{formalization}
+Nicholas Nash.
+\emph{Sorting adversaries in Lean.}
+Lean~4 source repository, 2026.
+\url{https://github.com/nicknash/sorting-adversary-proofs}.
+Source snapshot \texttt{15d93dd}, accessed 7 November 2026.
+
+\end{thebibliography}
