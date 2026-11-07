@@ -40,9 +40,22 @@ materializes source/active rows and both palette-permutation directions.
 can discard its physical clock after freezing, keeping subsequent answers
 from growing an unnecessary unbounded integer.
 
-These are checked implementation components. The measured repair loops,
-recursive routing, and complete polynomial bit-cost composition remain under
-construction; the primitive bounds alone do not establish that final theorem.
+The measured W1/W2/W3 width executor, calibrated ordinary promotion,
+reserved-path loop, and outer degree/path normalizer now execute their actual
+counted selectors and updates. Their complete returned results agree with
+the reference normalizers, and their work is bounded in terms of their
+concrete numerical kernels. The stopping-sign computation and physical
+comparison update are also measured and proved exact. Tree admission and
+promotion have explicit counted representations.
+
+`RepresentationCacheShape` and `RepresentationShape` pass the actual palette
+and member set explicitly, keeping the semantic target state erased. This
+avoids evaluating a reference state update merely to supply a dependent
+index. Generated-code inspection complements the Lean erasure equalities.
+
+Recursive routing, uniform parameter/counter bounds, and complete polynomial
+bit-cost composition remain under construction. The checked local executor
+bounds alone do not establish the final whole-program runtime theorem.
 
 ## What has been checked
 

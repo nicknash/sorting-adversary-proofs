@@ -1,4 +1,5 @@
 import SortingAdversary.Optimal.RepresentationPromoteWork
+import SortingAdversary.Optimal.RepresentationCacheShape
 
 /-!
 # Measured strict cuts of primitive walls
@@ -131,34 +132,34 @@ theorem upperCut_work_le (a : LocalAccess s) {A : ℕ} (h : AccessBound a A)
 def lowerCutCached (a : LocalAccess s) (u v : Fin n) (live : s.rows.active u v = true)
     (ratio : 2 * s.width v < s.width u) : Result (LocalAccess (s.lowerCut u v live ratio)) :=
   let updated := a.lowerCut u v live ratio
-  let cached := updated.value.cache
+  let cached := updated.value.cacheWith s.pool.palette rfl
   ⟨cached.value, updated.work + cached.work⟩
 
 def upperCutCached (a : LocalAccess s) (u v : Fin n) (live : s.rows.active u v = true)
     (ratio : 2 * s.width u < s.width v) : Result (LocalAccess (s.upperCut u v live ratio)) :=
   let updated := a.upperCut u v live ratio
-  let cached := updated.value.cache
+  let cached := updated.value.cacheWith s.pool.palette rfl
   ⟨cached.value, updated.work + cached.work⟩
 
 theorem lowerCutCached_access (a : LocalAccess s) (u v : Fin n)
     (live : s.rows.active u v = true) (ratio : 2 * s.width v < s.width u) :
-    AccessBound (a.lowerCutCached u v live ratio).value 2 := cache_access _
+    AccessBound (a.lowerCutCached u v live ratio).value 2 := cacheWith_access _ _ rfl
 
 theorem upperCutCached_access (a : LocalAccess s) (u v : Fin n)
     (live : s.rows.active u v = true) (ratio : 2 * s.width u < s.width v) :
-    AccessBound (a.upperCutCached u v live ratio).value 2 := cache_access _
+    AccessBound (a.upperCutCached u v live ratio).value 2 := cacheWith_access _ _ rfl
 
 theorem lowerCutCached_work_le (a : LocalAccess s) {A : ℕ} (h : AccessBound a A)
     (u v : Fin n) (live : s.rows.active u v = true) (ratio : 2 * s.width v < s.width u) :
     (a.lowerCutCached u v live ratio).work ≤ WindowWork.endpointWorkBound n A A + 16 +
       cacheBound n s.pool.palette (2 * A + 16) :=
-  Nat.add_le_add (lowerCut_work_le a h u v live ratio) (cache_work_le _ (lowerCut_access a h u v live ratio))
+  Nat.add_le_add (lowerCut_work_le a h u v live ratio) (cacheWith_work_le _ _ rfl (lowerCut_access a h u v live ratio))
 
 theorem upperCutCached_work_le (a : LocalAccess s) {A : ℕ} (h : AccessBound a A)
     (u v : Fin n) (live : s.rows.active u v = true) (ratio : 2 * s.width u < s.width v) :
     (a.upperCutCached u v live ratio).work ≤ WindowWork.endpointWorkBound n A A + 16 +
       cacheBound n s.pool.palette (2 * A + 16) :=
-  Nat.add_le_add (upperCut_work_le a h u v live ratio) (cache_work_le _ (upperCut_access a h u v live ratio))
+  Nat.add_le_add (upperCut_work_le a h u v live ratio) (cacheWith_work_le _ _ rfl (upperCut_access a h u v live ratio))
 
 end LocalAccess
 

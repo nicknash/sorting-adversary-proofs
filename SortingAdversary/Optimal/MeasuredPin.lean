@@ -1,4 +1,5 @@
 import SortingAdversary.Optimal.RepresentationTrace
+import SortingAdversary.Optimal.RepresentationCacheShape
 
 /-!
 # A measured physical pin with its actual replayable update
@@ -103,8 +104,8 @@ def pin (a : LocalAccess s) (v : Fin n) (hv : s.pool.pins v = none)
       simpa only [lower, WindowWork.effectiveLower_value, LocalAccess.windows_system] using hl
     let update := fromResult s v hv c hc hm charge retained
       (lowerResult s v hv c hl') (lowerResult_actual s v hv c hc hl') (lowerData s v hv c hl')
-    let cached := (lowerPromotionAccess a v hv c hl').cache
-    ⟨⟨update, cached.value, fromResult_eq .., LocalAccess.cache_access _⟩, lower.work + upper.work + cached.work + 32⟩
+    let cached := (lowerPromotionAccess a v hv c hl').cacheWith (s.pool.palette + 1) rfl
+    ⟨⟨update, cached.value, fromResult_eq .., LocalAccess.cacheWith_access _ _ rfl⟩, lower.work + upper.work + cached.work + 32⟩
   else if hu : upper.value = c then
     have hl' : s.pool.system.effectiveLower v ≠ c := by
       simpa only [lower, WindowWork.effectiveLower_value, LocalAccess.windows_system] using hl
@@ -112,8 +113,8 @@ def pin (a : LocalAccess s) (v : Fin n) (hv : s.pool.pins v = none)
       simpa only [upper, WindowWork.effectiveUpper_value, LocalAccess.windows_system] using hu
     let update := fromResult s v hv c hc hm charge retained
       (upperResult s v hv c hu') (upperResult_actual s v hv c hc hl' hu') (upperData s v hv c hu')
-    let cached := (upperPromotionAccess a v hv c hu').cache
-    ⟨⟨update, cached.value, fromResult_eq .., LocalAccess.cache_access _⟩, lower.work + upper.work + cached.work + 32⟩
+    let cached := (upperPromotionAccess a v hv c hu').cacheWith (s.pool.palette + 1) rfl
+    ⟨⟨update, cached.value, fromResult_eq .., LocalAccess.cacheWith_access _ _ rfl⟩, lower.work + upper.work + cached.work + 32⟩
   else
     have hl' : s.pool.system.effectiveLower v ≠ c := by
       simpa only [lower, WindowWork.effectiveLower_value, LocalAccess.windows_system] using hl
@@ -123,8 +124,8 @@ def pin (a : LocalAccess s) (v : Fin n) (hv : s.pool.pins v = none)
       ⟨lt_of_le_of_ne hc.1 hl', lt_of_le_of_ne hc.2 hu'.symm⟩
     let update := fromResult s v hv c hc hm charge retained
       (s.interiorResult v c interior) (s.interiorResult_actual v hv c interior) (interiorData s v c interior)
-    let cached := (interiorPromotionAccess a v hv c interior).cache
-    ⟨⟨update, cached.value, fromResult_eq .., LocalAccess.cache_access _⟩, lower.work + upper.work + cached.work + 32⟩
+    let cached := (interiorPromotionAccess a v hv c interior).cacheWith s.pool.palette rfl
+    ⟨⟨update, cached.value, fromResult_eq .., LocalAccess.cacheWith_access _ _ rfl⟩, lower.work + upper.work + cached.work + 32⟩
 
 theorem pin_access (a : LocalAccess s) (v : Fin n) (hv : s.pool.pins v = none)
     (c : Fin (s.pool.palette + 1))
@@ -148,7 +149,7 @@ theorem pin_work_le (a : LocalAccess s) {A : ℕ} (h : AccessBound a A)
   have hl := WindowWork.effectiveLower_work_le a.windows v A A (fun u => h.publicRow u v) h.lower
   have hu := WindowWork.effectiveUpper_work_le a.windows v A A (h.publicRow v) h.upper
   unfold pin
-  dsimp only
+  simp only [LocalAccess.cacheWith_eq]
   split
   · rename_i hlow
     have hlow' : s.pool.system.effectiveLower v = c := by

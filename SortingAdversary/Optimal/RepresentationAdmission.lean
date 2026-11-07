@@ -1,6 +1,7 @@
 import SortingAdversary.Optimal.RepresentationPromoteWork
 import SortingAdversary.Optimal.PassiveLocalState
 import SortingAdversary.Optimal.FiniteLoopWork
+import SortingAdversary.Optimal.RepresentationCacheShape
 
 /-!
 # Measured child admission and eager caching
@@ -66,17 +67,17 @@ def sizedAccess (p : Pool n) (d : LocalData p) (a : LocalAccess (PassiveLocalSta
   publicRow := a.publicRow
   source := a.source
   active := a.active
-  lower := admitLower a.lower v
-  upper := admitUpper a.upper v
-  pin := admitPin a.pin v
-  member := admitMember a.member v
+  lower x := admitLower (K := p.palette) a.lower v x
+  upper x := admitUpper (K := p.palette) a.upper v x
+  pin x := admitPin (K := p.palette + 1) a.pin v x
+  member x := admitMember a.member v x
   order := a.order
   inverse := a.inverse
   publicRow_value := a.publicRow_value
   source_value := a.source_value
   active_value := a.active_value
   lower_value := by intro x; simp [admitLower, a.lower_value, sizedState, sizedData,
-    PassiveLocalState.state, Pool.admitSized, FreshAdmission.admit]; rfl
+    PassiveLocalState.state, Pool.admitSized, FreshAdmission.admit]
   upper_value := by intro x; simp [admitUpper, a.upper_value, sizedState, sizedData,
     PassiveLocalState.state, Pool.admitSized, FreshAdmission.admit]
   pin_value := by intro x; simp [admitPin, a.pin_value, sizedState, sizedData,
@@ -99,8 +100,8 @@ def appendAccess (p : Pool n) (d : LocalData p) (a : LocalAccess (PassiveLocalSt
   upper x := let old := a.upper x; ⟨old.value.castSucc, old.work + 1⟩
   pin x := let old := a.pin x; ⟨old.value.map Fin.castSucc, old.work + 2⟩
   member := a.member
-  order := extendForward a.order (Fin.last (p.palette + 1))
-  inverse := extendInverse a.inverse (Fin.last (p.palette + 1))
+  order x := extendForward (K := p.palette + 1) a.order (Fin.last (p.palette + 1)) x
+  inverse x := extendInverse (K := p.palette + 1) a.inverse (Fin.last (p.palette + 1)) x
   publicRow_value := a.publicRow_value
   source_value := a.source_value
   active_value := by intro x y; rw [a.active_value]; exact congrFun (congrFun (append_active p d).symm x) y
@@ -249,19 +250,49 @@ theorem admit_work (p : Pool n) (d : LocalData p) (a : LocalAccess (PassiveLocal
 
 def admitCached (p : Pool n) (d : LocalData p) (a : LocalAccess (PassiveLocalState.state p d))
     (v : Fin n) (hv : v ∉ p.members) : Result (LocalAccess (admissionState p d v hv)) :=
-  let updated := a.admit p d v hv
-  let cached := updated.value.cache
-  ⟨cached.value, updated.work + cached.work⟩
+  let size := a.population
+  if hcap : size.value + 1 ≤ p.palette + 1 then
+    have actual : p.members.card + 1 ≤ p.palette + 1 := by
+      have hs : size.value = p.members.card := population_value a
+      rwa [hs] at hcap
+    let updated := sizedAccess p d a v hv actual
+    let cached := updated.cacheWith p.palette rfl
+    ⟨cached.value.transport (sizedState_actual p d v hv actual), size.work + 40 + cached.work⟩
+  else
+    have actual : ¬ p.members.card + 1 ≤ p.palette + 1 := by
+      have hs : size.value = p.members.card := population_value a
+      rwa [hs] at hcap
+    let enlarged := appendAccess p d a
+    let updated := sizedAccess p.append (appendData p d) enlarged v (by simpa using hv)
+      (Nat.succ_le_succ p.capacity)
+    let cached := updated.cacheWith (p.palette + 1) rfl
+    ⟨cached.value.transport (appendSized_actual p d v hv actual), size.work + 40 + cached.work⟩
+
+theorem cache_transport {s t : State n} (he : s = t) (a : LocalAccess s) :
+    (a.transport he).cache =
+      ⟨a.cache.value.transport he, a.cache.work⟩ := by
+  cases he
+  rfl
+
+theorem admitCached_eq (p : Pool n) (d : LocalData p) (a : LocalAccess (PassiveLocalState.state p d))
+    (v : Fin n) (hv : v ∉ p.members) :
+    a.admitCached p d v hv =
+      ⟨(a.admit p d v hv).value.cache.value, (a.admit p d v hv).work + (a.admit p d v hv).value.cache.work⟩ := by
+  unfold admitCached admit
+  dsimp only
+  split <;> simp only [cache_transport] <;> rfl
 
 theorem admitCached_access (p : Pool n) (d : LocalData p) (a : LocalAccess (PassiveLocalState.state p d))
-    (v : Fin n) (hv : v ∉ p.members) : AccessBound (a.admitCached p d v hv).value 2 :=
-  cache_access _
+    (v : Fin n) (hv : v ∉ p.members) : AccessBound (a.admitCached p d v hv).value 2 := by
+  rw [admitCached_eq]
+  exact cache_access _
 
 theorem admitCached_work (p : Pool n) (d : LocalData p) (a : LocalAccess (PassiveLocalState.state p d))
     {A : ℕ} (cost : AccessBound a A) (v : Fin n) (hv : v ∉ p.members) :
     (a.admitCached p d v hv).work ≤ n * (A + 6) + 42 +
-      cacheBound n (p.admission v hv).next.palette (A + 15) :=
-  Nat.add_le_add (admit_work p d a cost v hv) (cache_work_le _ (admit_access p d a cost v hv))
+      cacheBound n (p.admission v hv).next.palette (A + 15) := by
+  rw [admitCached_eq]
+  exact Nat.add_le_add (admit_work p d a cost v hv) (cache_work_le _ (admit_access p d a cost v hv))
 
 end LocalAccess
 
