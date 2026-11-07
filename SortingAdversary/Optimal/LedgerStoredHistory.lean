@@ -149,7 +149,7 @@ theorem Recorded.materialize {calls : List (Option (Row n))} {t : StoredTree n}
     rw [StoredTree.materialize]
     refine .node _ _ _ _ ?_ ?_
     · rw [mpr_active (Materialize.pool_eq p).symm]
-      exact here
+      simpa only [LocalData.materialize_eq] using here
     · intro a ha
       obtain ⟨b, hb, rfl⟩ := List.mem_map.mp ha
       exact ih b hb

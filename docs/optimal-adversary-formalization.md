@@ -22,6 +22,28 @@ The source used for this development is the eleven-page manuscript dated
 The new construction is different from the curvature construction already in
 the repository. None of its main lemmas is inferred from that older theorem.
 
+## Measured implementation checkpoint
+
+The measured primitive implementations now include exact local subset counting,
+integer-size bounds, Euclidean normalization of rational probabilities, sparse
+walk and longest-path tables, window and repair selectors, hub enumeration and
+sorting, final-ranking construction, and finite stage-radius evaluation.
+Their costs include the input callbacks they actually evaluate.
+
+`RepresentationWork` through `RepresentationRealize` give cached, counted
+representations of the actual local state. Both endpoint promotion branches,
+interior promotion, cuts, fresh admissions, and cache rebuilds have exact
+state-erasure proofs and explicit work bounds. `MeasuredPin` constructs the
+actual pin update from measured window scans. The stored controller now also
+materializes source/active rows and both palette-permutation directions.
+`BoundedControllerMachine` proves that an equivalent executable controller
+can discard its physical clock after freezing, keeping subsequent answers
+from growing an unnecessary unbounded integer.
+
+These are checked implementation components. The measured repair loops,
+recursive routing, and complete polynomial bit-cost composition remain under
+construction; the primitive bounds alone do not establish that final theorem.
+
 ## What has been checked
 
 All paths below are under `SortingAdversary/Optimal/`.

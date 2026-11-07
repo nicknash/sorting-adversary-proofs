@@ -33,6 +33,22 @@ def pins (f : Fin n → Option (Fin K)) : Fin n → Option (Fin K) :=
   funext x
   simp [pins]
 
+/-- Cache both directions, so a later lookup never replays the history of
+palette insertions. The inverse laws remain proof-only fields. -/
+def permutation (order : Equiv.Perm (Fin K)) : Equiv.Perm (Fin K) :=
+  let forward := Vector.ofFn order
+  let backward := Vector.ofFn order.symm
+  { toFun := fun x => forward[x]
+    invFun := fun x => backward[x]
+    left_inv := by intro x; simp [forward, backward]
+    right_inv := by intro x; simp [forward, backward] }
+
+@[simp] theorem permutation_eq (order : Equiv.Perm (Fin K)) :
+    permutation order = order := by
+  apply Equiv.ext
+  intro x
+  simp [permutation]
+
 def pool (p : Pool n) : Pool n where
   palette := p.palette
   positive := p.positive

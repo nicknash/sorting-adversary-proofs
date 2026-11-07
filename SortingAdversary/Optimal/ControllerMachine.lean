@@ -28,6 +28,7 @@ theorem materialize_eq (t : StoredTree n) : t.materialize = t := by
   cases t with
   | node identity p d children =>
     rw [StoredTree.materialize]
+    simp only [LocalData.materialize_eq]
     apply (node_mpr (Materialize.pool_eq p) identity d _).trans
     congr 1
     have he : children.map (fun a => (a.1, a.2.materialize)) = children.map id := by

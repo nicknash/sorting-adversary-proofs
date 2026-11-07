@@ -23,6 +23,27 @@ structure LocalData (p : Pool n) where
   rows : SourcePartition p.system p.pins
   order : Equiv.Perm (Fin (p.palette + 1))
 
+/-- Materialize the primitive sparse metadata as well as both directions of
+the chronological palette permutation. This resets lookup depth after each
+physical answer while preserving every source-row identity. -/
+def LocalData.materialize {p : Pool n} (d : LocalData p) : LocalData p where
+  rows := {
+    source := SparseClosure.lookup (SparseClosure.tabulate d.rows.source)
+    active := SparseClosure.lookup (SparseClosure.tabulate d.rows.active)
+    proper := by simpa only [SparseClosure.lookup_tabulate] using d.rows.proper
+    public_eq := by simpa only [SparseClosure.lookup_tabulate] using d.rows.public_eq
+    active_source := by simpa only [SparseClosure.lookup_tabulate] using d.rows.active_source
+    active_free := by simpa only [SparseClosure.lookup_tabulate] using d.rows.active_free
+    covered := by simpa only [SparseClosure.lookup_tabulate] using d.rows.covered }
+  order := Materialize.permutation d.order
+
+@[simp] theorem LocalData.materialize_eq {p : Pool n} (d : LocalData p) :
+    d.materialize = d := by
+  cases d with
+  | mk rows order =>
+    cases rows
+    simp only [LocalData.materialize, SparseClosure.lookup_tabulate, Materialize.permutation_eq]
+
 theorem false_closure (n : ℕ) :
     SparseClosure.closure (fun _ _ : Fin n => false) = fun x y => decide (x = y) := by
   funext x y
@@ -146,12 +167,12 @@ def freshChild (n identity : ℕ) (v : Fin n) : StoredTree n :=
     (freshChild n identity v).erase = PoolTree.Tree.freshChild n identity v := by
   simp only [freshChild, erase_admitRoot, erase_empty, PoolTree.Tree.freshChild]
 
-/-- The public matrices and primitive endpoints are cached after a physical
-answer. The sparse metadata retain exactly their original source identities. -/
+/-- Public rows, primitive endpoints, pins, sparse metadata, and palette
+permutations are cached after a physical answer. Source identities are exact. -/
 def materialize : StoredTree n → StoredTree n
   | .node identity p d children =>
     .node identity (Materialize.pool p)
-      (by rw [Materialize.pool_eq]; exact d)
+      (by rw [Materialize.pool_eq]; exact d.materialize)
       (children.map (fun a => (a.1, materialize a.2)))
 decreasing_by
   have h := List.sizeOf_lt_of_mem ‹a ∈ children›
