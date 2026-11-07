@@ -1,0 +1,6 @@
+build/
+tmp/
+output/*
+!output/pdf/
+output/pdf/*
+!output/pdf/paper.pdf

@@ -1,0 +1,128 @@
+\section{Legality and recursive independence}
+\label{sec:legality}
+
+The auxiliary inequalities are weak, but the public answers are strict.
+Nonempty auxiliary counts alone would not establish legality: a strict
+directed cycle can still admit a constant weak assignment. We instead prove
+that the public order remains acyclic and that the recursive restrictions
+can always be realized together.
+
+\begin{lemma}[Effective support]
+\label{lem:support}
+The interval system is feasible exactly when $\ell_x\leq r_x$ for every item.
+In a feasible system every integer in $[\ell_x,r_x]$ is attained by $X_x$.
+Along an active edge $x\to y$, $\ell_x\leq\ell_y$ and $r_x\leq r_y$.
+\end{lemma}
+\begin{proof}
+Every assignment respects propagated bounds. Conversely the lower-endpoint
+vector $(\ell_x)_x$ respects every interval and inequality if
+$\ell_x\leq r_x$. To obtain $X_x=t$, add the bound $[t,t]$ at $x$ and
+propagate again. No predecessor lower bound exceeds $t$, and no successor
+upper bound is below $t$, so the result is feasible. The final monotonicity
+statements follow from the definitions of the propagated endpoints.
+\end{proof}
+
+\begin{lemma}[Interior fixing and endpoint insertion]
+\label{lem:split}
+Fixing $X_x=c$ with $\ell_x<c<r_x$ leaves at least two feasible positions for
+every other free item. The item $x$ is publicly incomparable with all old
+items fixed at $c$.
+If a selected position is an endpoint, the insertion of
+Section~\ref{sec:move} makes its new copy interior and retains at least as
+many assignments as the original endpoint fiber.
+\end{lemma}
+\begin{proof}
+Only predecessors of $x$ can acquire a smaller upper bound after interior
+fixing; their lower bounds are at most $\ell_x<c$. Only successors can
+acquire a larger lower bound, and their upper bounds are at least $r_x>c$.
+Thus no other free interval becomes a singleton.
+An old fixed item $p$ at $c$ with $p<_P x$ would imply $X_x\geq c$
+in every assignment, contradicting attainment of $\ell_x<c$.
+The case $x<_P p$ is symmetric.
+
+For a lower endpoint $c$, take an old assignment with $X_x=c$.
+Raise $x$ and exactly its successors currently equal to $c$ to the new
+position $c^+$. No such successor is fixed, since a fixed successor at
+$c$ would give $r_x\leq c$. All inequalities survive, and every changed
+artificial interval admits the new position. Collapsing $c^+$ back to $c$
+recovers the original assignment, proving injectivity. Assignments attaining
+the old lower and upper endpoints still exist before fixing; hence $c^+$
+is interior. Reflect this argument for an upper endpoint.
+
+It is essential that comparison-induced bounds are recomputed rather than
+enlarged as artificial bounds. A comparison $x<p$ with $p$ fixed at the old
+identity $c$ still implies $X_x\leq c$, not $X_x\leq c^+$.
+\end{proof}
+
+\begin{lemma}[Independent admissions]
+\label{lem:birth}
+The $j$th admission to a child multiplies its count by at least $j$.
+It changes neither the effective intervals nor the probability distribution
+of its old free items.
+\end{lemma}
+\begin{proof}
+Lemma~\ref{lem:split} makes the incoming item publicly incomparable with
+every old item in that child. It therefore introduces no inequality there.
+Every old assignment has exactly as many extensions as there are positions
+in the incoming item's full interval, at least $j$. Appending a position
+does not enlarge any old interval, so this extension count is constant
+over old assignments. The assertion remains true if the child has answered
+comparisons between successive admissions.
+\end{proof}
+
+\begin{lemma}[Safe routing]
+\label{lem:routing}
+For a publicly incomparable pair $a,b$ not both fixed at the same position,
+either both answers are safe, or a safe answer retains every old assignment.
+Delegation through a common fixed position changes only the count at the
+eventual stopping node and introduces no extra comparison into another child.
+Every resulting recursive state admits a strict total order extending $P$.
+\end{lemma}
+\begin{proof}
+Suppose adding $a<b$ creates a new public relation $i<j$ between two old
+items fixed at position $c$. There were old public paths
+$i\leq_P a$ and $b\leq_P j$. Consequently every old assignment satisfies
+\begin{equation}
+                         X_b\leq c\leq X_a.
+\label{eq:reverse}
+\end{equation}
+The reverse weak answer retains everything. If both directions have such
+an obstruction, the two inequalities force $X_a=X_b=c$ throughout the
+old family. By Lemma~\ref{lem:support} and the two-position invariant,
+both items were already fixed at that position: the delegation case.
+
+Suppose instead that $a<b$ newly confines a free item $w$ to $c$.
+Both bounds of $w$ cannot have changed, since that would require an old
+path $b\leq_P w\leq_P a$, contrary to incomparability.
+If the lower bound rose, $b\leq_P w$, the old upper bound of $w$ was
+$c$, and the old lower bound of $a$ was $c$. This again gives
+\eqref{eq:reverse}. There was an old assignment with $X_w<c$, so there
+was a strict witness $X_b<X_a$. That witness excludes an inner-fixed-item
+obstruction to the reverse answer, since such an obstruction would force
+$X_a\leq X_b$ in every old assignment. The reverse cannot create a
+singleton either, because it retains the whole old family. A falling upper
+bound is symmetric. If a weak answer is infeasible, its reverse is strict
+in every old assignment, giving the same conclusion.
+
+If both items are fixed at $c$, either weak answer retains every parent
+assignment. A newly acquired relation between items in this child is
+precisely a consequence of its requested comparison: its old path pieces
+are already in the child's public restriction. If another child at $d$
+acquired a relation, those pieces would imply $c\leq d\leq c$, so
+$d=c$. Thus delegation affects no other child.
+
+Finally choose an admissible assignment at each node. Order different
+positions increasingly. Within a tied position, extend the restriction of
+$P$, respecting the order recursively chosen for its fixed child items.
+Any path through free items imposes only a relation already in that public
+restriction. A total order extending a restriction of a finite partial order
+can be extended to the larger set, so these choices can be combined.
+Publicly incomparable queries never create a directed cycle; the safety
+tests ensure consistency with the existing child restrictions. Recursion
+therefore yields a strict total order on the original distinct items.
+\end{proof}
+
+The public order is the sorter's only information. Private interval cuts and
+fixings do not become extra answers. Consequently a correct sorter can stop
+only when $P$ is total, even if it knows the adversary's program: it must also
+be correct on every other input giving the same transcript.
