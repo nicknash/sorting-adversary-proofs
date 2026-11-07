@@ -2,7 +2,7 @@
 
 ## Status
 
-This directory formalizes components of the 7 November 2026 manuscript,
+This directory formalizes the construction and components of the 7 November 2026 manuscript,
 *An asymptotically optimal deterministic adversary for comparison sorting*.
 **It does not yet prove the manuscript's complete deterministic polynomial-time
 adversary theorem.** The existing curvature theorem remains the repository's
@@ -45,8 +45,8 @@ All paths below are under `SortingAdversary/Optimal/`.
 ### Continuation after the initial foundation PR
 
 The following modules close additional obligations of the initial checkpoint.
-The full recursive controller and end-to-end polynomial-time theorem remain
-under construction.
+The concrete recursive controller is now implemented and checked; the final
+whole-run comparison bound and polynomial bit-cost theorem remain under construction.
 
 | File | Newly proved content |
 | --- | --- |
@@ -194,7 +194,8 @@ and an exact product identity transfers the stopping subtree's retained
 fraction to the root. `StoppingComparison` executes the safety tests, excludes
 same-child delegation at a stopping node, and chooses the larger of the two
 certified rational estimates. It proves the retained fraction `1/2-error`.
-The generic router still awaits its complete repair-and-metadata program.
+`StoredRouting` and `RecursiveController` now instantiate that router with
+the complete stored repair-and-metadata program.
 
 `NumericalRepresentation` retains proper primitive source rows separately from
 active rows. Every retired source row is justified by a physical pin or
@@ -222,37 +223,76 @@ entropy arrays from the recorded actions. `PoolTreeAccounting`,
 child populations and prove exact free-label conservation, population and
 promotion identities, and the entropy telescope. `TreeChronology` proves
 immutable-node allocation and that each actual promotion increases the tree's
-promotion total by one. The remaining execution bridge must show that the
-complete controller emits the accepted sequences used by these lemmas.
+promotion total by one. `LedgerStoredReplay` and `LedgerStructuralReplay` now prove that the actual
+local normalizer emits an accepted incidence ledger through the concrete child
+updates. Whole-query delegation and reservation/pricing aggregation are the
+remaining accounting bridges.
 
 `TreeTerminal` derives each actual pool's stars-and-bars bound from inherited
 public totality, aggregates the real product count, and uses the preserved
 palette caps for the terminal logarithmic remainder. Correct sorting supplies
 the root totality through the repository's transcript semantics.
 
+### Concrete controller and uniform construction
+
+`LocalOracle` calls the verified materialized ideal-state DP on the actual
+sparse balls; `LocalOracleWork` bounds its table visits and integer sizes.
+`WidthRepair`, `WidthNormalize`, `WidthScaleSelect`, `WidthInterior`, and
+`WidthScale` execute all three width priorities, including completed typed
+scale reservations. `OrdinaryPromotion` records actual post-split destination
+identities. `StructuralNormalize` executes degree repair and reserved paths,
+including skipped labels and a final reserved label that becomes isolated.
+The entire local repair uses at most `n+n²` primitive operations.
+
+`StoredTree`, `StoredPromotion`, `StoredRepair`, and `StoredRouting` retain
+public matrices, sparse source rows, and chronological palette permutations.
+The replay updates the actual receiving child and divides the parent charge
+by the exact birthday multiplier. `PassiveLocalState` and `StoredReady` prove
+that isolated child admissions and equal-colour delegation preserve the
+maintained local conditions. `NormalizedBounds` computes the actual ranks and
+derives every local-oracle premise used by `RecursiveController`.
+
+`OnlineMachine` proves equality between direct stateful execution and the
+repository's transcript-dependent `Strategy` semantics. `ControllerMachine`
+counts every physical query, handles implied answers, materializes stored
+matrices between queries, and fixes a compatible ranking at its cutoff.
+`UniformAdversary.strategy` uses the concrete bounded stage selector, with a
+fixed-order fallback on small inputs. **`UniformAdversary.consistent` proves
+unconditional legality for all input sizes and all finite comparison trees.**
+It does not assert the still-unproved leading-one comparison bound.
+
+`CappedArithmetic`, `CappedStageScan`, `StageScalars`, `StageRecipe`,
+`StageParameters`, `UniformStage`, and `UniformController` implement and prove
+the uniform constructor. Huge rejected exponents are checked by capped
+arithmetic. Accepted packages discharge the controller's scalar hypotheses,
+cap both actual oracle ball allowances by `log₂(n+1)`, and cap the square of
+the cheap promotion price. The selected stage tends to infinity. The measured
+arithmetic work and integer-size bounds include rejected candidates.
+
+`LedgerBirthCredits` and `LedgerReplayPrices` emit actual child-admission
+receipts and prove that their logarithmic credits telescope to the change in
+the ledger's factorial potential. The signed count-loss theorem uses those
+real receipts; it does not assume a factorial schedule.
+
 ## What remains before the full theorem is proved
 
-1. **Complete the numerical-oracle integration.** Connect the proved induced
-   count to the stored ideal-table implementation used by every controller
-   query. Relabeling is now proved; the local theorem's structural premises
-   must follow from the actual repair procedure at each invocation.
+1. **Finish whole-run accounting for the constructed family.** Connect the
+   complete routed query and run to the actual incidence ledger, separate
+   path/scale reservation ledgers, and immutable hub-price records. Derive the
+   finite clock inequality from those emitted records and the actual terminal
+   tree count. The local accepted-run and signed birthday-credit bridges are
+   proved; the final global aggregation is still in progress.
 
-2. **Assemble the recursive controller and its trace accounting.** Implement
-   and verify width repair, degree repair, and chronological path processing
-   on the now-checked tree and source-row representation. The remaining work
-   includes executable selection and completion of every repair group, then
-   the correspondence between the emitted moves and the accepted incidence,
-   reservation, and pricing histories. Recursive routing, scale geometry,
-   child membership, public coherence, terminal counts, and individual
-   mutation prices are proved; a whole-run theorem is still required.
+2. **Instantiate the final asymptotic comparison theorem.** Combine the exact
+   clock inequality with the constructed selector's divergence, cheap square
+   cap, and existing vanishing entropy/terminal estimates. In particular,
+   `AsymptoticallyOptimal UniformAdversary.strategy` is not yet proved.
 
-3. **Close uniform asymptotics and computational cost.** Instantiate the
-   bounded stage computation with the actual parameters, prove its selected
-   error functions vanish, derive the clock inequality for the constructed
-   strategy, and prove one fixed polynomial bit-cost bound for that strategy.
-   The ideal counter already has exact correctness, explicit table-work
-   bounds, and intermediate integer-size bounds. Neither those bounds nor a
-   bound on affordability-test count alone is a complete machine-cost proof.
+3. **Complete the whole-program polynomial bit-cost proof.** The actual stage
+   constructor, local DP, graph tables, repair length, palette sizes, and tree
+   sizes have checked bounds. Those bounds must still be composed for the
+   complete stateful program, including lookup and arithmetic costs. A
+   polynomial bound for a component is not a full program-cost theorem.
 
 For the uniformization step, preserve the manuscript's stronger cheap-cost
 cap `(4^B W0)^2 ≤ log₂(n+1)`, equivalently

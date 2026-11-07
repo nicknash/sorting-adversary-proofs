@@ -22,10 +22,15 @@ analytic stage rates. Isolated and mixed local-query cases are included.
 The concrete recursive pool tree, ancestor delegation, parent/child promotion,
 persistent source-row representation, scale geometry, chronological ledgers,
 palette caps, and actual tree terminal bound are now checked as well.
-The repair-loop assembly and its complete execution accounting remain active.
+The complete width/degree/path normalizer, stored recursive query controller,
+physical-clock cutoff, and bounded uniform stage constructor are now executable
+and checked. `UniformAdversary.strategy` constructs the family, and
+`UniformAdversary.consistent` proves its legality against every finite sorter.
+The final whole-run comparison inequality and polynomial bit-cost theorem
+remain under construction.
 
 See [`docs/optimal-adversary-formalization.md`](docs/optimal-adversary-formalization.md)
-for the exact theorem coverage and the remaining controller, execution-accounting,
+for the exact theorem coverage and the remaining execution-accounting,
 and bit-complexity obligations. The separate optimal-development axiom audit
 permits only the three standard Lean axioms. The reference semantics' exhaustive
 counting is distinct from the verified table algorithm.

@@ -78,14 +78,56 @@ import SortingAdversary.Optimal.ScaleGeometry
 import SortingAdversary.Optimal.ScaleHubs
 import SortingAdversary.Optimal.ScaleMass
 import SortingAdversary.Optimal.ScalePinPreservation
+import SortingAdversary.Optimal.CappedArithmetic
+import SortingAdversary.Optimal.CappedStageScan
+import SortingAdversary.Optimal.ControllerMachine
+import SortingAdversary.Optimal.LedgerBirthCredits
+import SortingAdversary.Optimal.LedgerReplayLabels
+import SortingAdversary.Optimal.LedgerReplayPrices
+import SortingAdversary.Optimal.LedgerSourceHistory
+import SortingAdversary.Optimal.LedgerStoredHistory
+import SortingAdversary.Optimal.LedgerStoredReplay
+import SortingAdversary.Optimal.LedgerStructuralReplay
+import SortingAdversary.Optimal.LedgerTreeBridge
+import SortingAdversary.Optimal.LedgerTreeTransitions
+import SortingAdversary.Optimal.LocalOracle
+import SortingAdversary.Optimal.LocalOracleWork
+import SortingAdversary.Optimal.Materialize
+import SortingAdversary.Optimal.NormalizedBounds
+import SortingAdversary.Optimal.OnlineMachine
+import SortingAdversary.Optimal.OrdinaryPromotion
+import SortingAdversary.Optimal.PassiveLocalState
+import SortingAdversary.Optimal.RecursiveController
+import SortingAdversary.Optimal.ScaleGroupPrice
+import SortingAdversary.Optimal.ScaleWalks
+import SortingAdversary.Optimal.StageParameters
+import SortingAdversary.Optimal.StageRecipe
+import SortingAdversary.Optimal.StageScalars
+import SortingAdversary.Optimal.StoredPromotion
+import SortingAdversary.Optimal.StoredReady
+import SortingAdversary.Optimal.StoredRepair
+import SortingAdversary.Optimal.StoredRouting
+import SortingAdversary.Optimal.StoredTree
+import SortingAdversary.Optimal.StructuralNormalize
+import SortingAdversary.Optimal.TreeRootChange
+import SortingAdversary.Optimal.UniformAdversary
+import SortingAdversary.Optimal.UniformController
+import SortingAdversary.Optimal.UniformStage
+import SortingAdversary.Optimal.WidthInterior
+import SortingAdversary.Optimal.WidthNormalize
+import SortingAdversary.Optimal.WidthRepair
+import SortingAdversary.Optimal.WidthScale
+import SortingAdversary.Optimal.WidthScaleSelect
 import SortingAdversary.Optimal.Examples
 import SortingAdversary.Optimal.Audit
 
 /-!
-# Checked components of the recursive colour sorting adversary
+# The recursive colour sorting adversary and its checked components
 
-This root contains no admitted proof obligations. It does not yet construct the
-complete polynomial-time adversary. See `docs/optimal-adversary-formalization.md`
-for the precise coverage and outstanding mathematical and computational work.
+This root contains no admitted proof obligations. `UniformAdversary.strategy`
+constructs the complete executable family and `UniformAdversary.consistent`
+proves unconditional online legality. The final leading-one and whole-program
+polynomial-cost theorems still require the execution-accounting integration.
+See `docs/optimal-adversary-formalization.md` for the precise current boundary.
 The `Optimal.Audit` import rejects nonstandard axioms in this namespace.
 -/
