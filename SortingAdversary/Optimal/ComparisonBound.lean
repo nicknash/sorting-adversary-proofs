@@ -11,8 +11,9 @@ import Mathlib.Tactic.Positivity
 This file states the online leading-one target using the repository's actual
 sorting-tree semantics. It proves the final reduction from a vanishing-error
 accounting inequality. The accounting inequality and consistency remain
-explicit hypotheses. No recursive controller satisfying those hypotheses is
-constructed here, and no polynomial running-time assertion is made.
+explicit hypotheses in this general reduction. `UniformOptimal` instantiates
+them for the constructed recursive controller. Polynomial running time is a
+separate assertion.
 -/
 
 namespace SortingAdversary.Optimal
@@ -60,9 +61,9 @@ theorem relative_clock_bound {T q overhead remainder δ : ℝ}
 /-- A fully proved semantic reduction: a legal strategy whose exact accounting
 has vanishing relative error has the stated online comparison guarantee.
 
-This theorem is deliberately conditional. Supplying its hypotheses for the
-recursive colour controller, and verifying that controller's polynomial cost,
-are the principal remaining formalization tasks.
+This theorem is deliberately conditional. `UniformOptimal` proves the
+unconditional comparison guarantee for the actual recursive colour controller;
+the controller's running time has a separate cost model.
 -/
 theorem comparison_guarantee_of_vanishing_accounting
     (strategy : ∀ n, Strategy n) (overhead remainder : ℕ → ℝ)

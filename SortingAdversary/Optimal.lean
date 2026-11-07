@@ -152,6 +152,26 @@ import SortingAdversary.Optimal.StoredEvolution
 import SortingAdversary.Optimal.StoredRowPotential
 import SortingAdversary.Optimal.UniformComparisonReduction
 import SortingAdversary.Optimal.UniformRates
+import SortingAdversary.Optimal.CheapHubPrice
+import SortingAdversary.Optimal.ControllerEventCounts
+import SortingAdversary.Optimal.ControllerFinalPrice
+import SortingAdversary.Optimal.ControllerLedgerAlignment
+import SortingAdversary.Optimal.ControllerPriceBudget
+import SortingAdversary.Optimal.ControllerPriceSum
+import SortingAdversary.Optimal.IndexedHubHistory
+import SortingAdversary.Optimal.LedgerPromotionTrace
+import SortingAdversary.Optimal.RepairEventCounts
+import SortingAdversary.Optimal.RepairHubPins
+import SortingAdversary.Optimal.ReservationEntropyRun
+import SortingAdversary.Optimal.SlotHubHistory
+import SortingAdversary.Optimal.StoredStateIndex
+import SortingAdversary.Optimal.TreeFactorialCredit
+import SortingAdversary.Optimal.TreePriceBudget
+import SortingAdversary.Optimal.TreePriceEntropy
+import SortingAdversary.Optimal.TreeReservationEntropy
+import SortingAdversary.Optimal.UniformExecution
+import SortingAdversary.Optimal.UniformRunBudgets
+import SortingAdversary.Optimal.UniformOptimal
 import SortingAdversary.Optimal.Examples
 import SortingAdversary.Optimal.Audit
 
@@ -160,8 +180,9 @@ import SortingAdversary.Optimal.Audit
 
 This root contains no admitted proof obligations. `UniformAdversary.strategy`
 constructs the complete executable family and `UniformAdversary.consistent`
-proves unconditional online legality. The final leading-one and whole-program
-polynomial-cost theorems still require the execution-accounting integration.
+proves unconditional online legality. `UniformAdversary.asymptoticallyOptimal`
+proves the unconditional leading-one online comparison bound for that family.
+The whole-program polynomial-cost theorem is a separate remaining obligation.
 See `docs/optimal-adversary-formalization.md` for the precise current boundary.
 The `Optimal.Audit` import rejects nonstandard axioms in this namespace.
 -/

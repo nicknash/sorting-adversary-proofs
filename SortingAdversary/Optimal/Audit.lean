@@ -152,6 +152,26 @@ import SortingAdversary.Optimal.StoredEvolution
 import SortingAdversary.Optimal.StoredRowPotential
 import SortingAdversary.Optimal.UniformComparisonReduction
 import SortingAdversary.Optimal.UniformRates
+import SortingAdversary.Optimal.CheapHubPrice
+import SortingAdversary.Optimal.ControllerEventCounts
+import SortingAdversary.Optimal.ControllerFinalPrice
+import SortingAdversary.Optimal.ControllerLedgerAlignment
+import SortingAdversary.Optimal.ControllerPriceBudget
+import SortingAdversary.Optimal.ControllerPriceSum
+import SortingAdversary.Optimal.IndexedHubHistory
+import SortingAdversary.Optimal.LedgerPromotionTrace
+import SortingAdversary.Optimal.RepairEventCounts
+import SortingAdversary.Optimal.RepairHubPins
+import SortingAdversary.Optimal.ReservationEntropyRun
+import SortingAdversary.Optimal.SlotHubHistory
+import SortingAdversary.Optimal.StoredStateIndex
+import SortingAdversary.Optimal.TreeFactorialCredit
+import SortingAdversary.Optimal.TreePriceBudget
+import SortingAdversary.Optimal.TreePriceEntropy
+import SortingAdversary.Optimal.TreeReservationEntropy
+import SortingAdversary.Optimal.UniformExecution
+import SortingAdversary.Optimal.UniformRunBudgets
+import SortingAdversary.Optimal.UniformOptimal
 import SortingAdversary.Optimal.Examples
 import Lean.Util.CollectAxioms
 import Lean.Elab.Command
@@ -177,10 +197,10 @@ Its module is excluded from module-ownership selection; mathematical names in
 the audited namespace are still checked even if introduced here. Every proof
 module must be imported above so its declarations enter this environment.
 
-Passing this gate establishes a proof trust boundary, not the completeness of
-the manuscript formalization. In particular,
-`comparison_guarantee_of_vanishing_accounting` still has explicit controller
-legality and accounting hypotheses, and asserts no polynomial running time.
+Passing this gate establishes a proof trust boundary. The unconditional
+`UniformAdversary.asymptoticallyOptimal` theorem proves the actual family's
+online comparison guarantee. Polynomial running time is a separate obligation;
+an axiom audit alone does not certify an implementation cost model.
 -/
 
 open Lean Elab Command in
@@ -228,5 +248,7 @@ elab "#audit_optimal_axioms" : command => do
 #print axioms SortingAdversary.Optimal.Endpoints.terminal_product_log_count
 #print axioms SortingAdversary.Optimal.Parameters.logarithmicStage_tendsto
 #print axioms SortingAdversary.Optimal.comparison_guarantee_of_vanishing_accounting
+#print axioms SortingAdversary.Optimal.UniformAdversary.asymptoticallyOptimal
+#print axioms SortingAdversary.Optimal.UniformAdversary.worst_case
 
 #audit_optimal_axioms

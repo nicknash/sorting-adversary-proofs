@@ -1,19 +1,20 @@
-# Recursive colour adversary: checked results and remaining obligations
+# Recursive colour adversary: comparison theorem and implementation costs
 
 ## Status
 
 This directory formalizes the construction and components of the 7 November 2026 manuscript,
 *An asymptotically optimal deterministic adversary for comparison sorting*.
-**It does not yet prove the manuscript's complete deterministic polynomial-time
-adversary theorem.** The existing curvature theorem remains the repository's
-proved complete online adversary result.
+**The unconditional leading-one online comparison theorem is proved.**
+`UniformAdversary.asymptoticallyOptimal` applies to the actual executable
+uniform family. The separate whole-program polynomial bit-cost theorem
+remains under construction.
 
-The new files contain proofs, executable finite reference definitions, and
-explicit conditional reductions. There are no admitted proofs or declarations
-of the missing mathematical results as axioms. In particular,
-`comparison_guarantee_of_vanishing_accounting` has explicit legality,
-accounting, and convergence hypotheses; it is not an existence theorem for
-the proposed controller.
+The files contain proofs, executable finite reference definitions, the actual
+controller, and its complete comparison accounting. There are no admitted
+proofs or custom axioms. General reductions such as
+`comparison_guarantee_of_vanishing_accounting` retain their explicit hypotheses;
+`UniformOptimal` discharges the corresponding obligations for the constructed
+family and proves the unconditional result.
 
 The source used for this development is the eleven-page manuscript dated
 7 November 2026. Its PDF SHA-256 is
@@ -45,8 +46,8 @@ All paths below are under `SortingAdversary/Optimal/`.
 ### Continuation after the initial foundation PR
 
 The following modules close additional obligations of the initial checkpoint.
-The concrete recursive controller is now implemented and checked; the final
-whole-run comparison bound and polynomial bit-cost theorem remain under construction.
+The concrete recursive controller and its whole-run comparison bound are now
+implemented and checked. Polynomial bit cost has a separate proof obligation.
 
 | File | Newly proved content |
 | --- | --- |
@@ -79,8 +80,8 @@ distinctions remain explicit during controller assembly.
 Consequently exact counts and the reference choices are executable. The
 reference definitions enumerate assignments. `IdealCounting` now proves a
 separate stored-table implementation equal to those counts; it does not
-enumerate assignments. Local approximation accuracy and its connection to the
-full controller remain separate obligations.
+enumerate assignments. The later local-accuracy and controller modules connect that implementation
+to the full controller.
 
 ### Weak colour inequalities and strict physical comparisons
 
@@ -155,8 +156,9 @@ selects a largest admissible aligned block and verifies the typed hub veto.
 largest records from a finite selection history, decodes those actual records
 into the lifetime dictionary, and derives the signed-price envelope. This
 removes the earlier requirement to supply a code or maximum-block theorem as
-an independent hypothesis. The controller must still produce the history and
-establish its population and group-separation invariants.
+an independent hypothesis. `ControllerPricing`, `ControllerEventCounts`, and `ControllerPriceBudget` now
+produce that actual history and establish its population and group-separation
+invariants.
 
 `Promotion.promote` is a single executable parent operation covering interior,
 lower-endpoint, and upper-endpoint choices. Its result includes the updated
@@ -174,8 +176,8 @@ coordinates are isolated and their consequences retained in propagated walls.
 initialization and empty-child counts, and supplies executable birthday admissions
 with their palette embeddings and exact count multiplier. `AsymptoticRates`
 proves the explicit normalized terminal, squared-cap cheap, regular, and scale
-remainders tend to zero, together with the physical/cut overhead. These analytic
-results still require the actual controller's finite accounting inequality.
+remainders tend to zero, together with the physical/cut overhead. `UniformOptimal` instantiates these analytic results with the actual
+controller's proved finite accounting inequality.
 
 ## Concrete tree, sparse history, and chronological accounting
 
@@ -225,8 +227,9 @@ promotion identities, and the entropy telescope. `TreeChronology` proves
 immutable-node allocation and that each actual promotion increases the tree's
 promotion total by one. `LedgerStoredReplay` and `LedgerStructuralReplay` now prove that the actual
 local normalizer emits an accepted incidence ledger through the concrete child
-updates. Whole-query delegation and reservation/pricing aggregation are the
-remaining accounting bridges.
+updates. The subsequent `LedgerRun`, `ReservationEntropyRun`, and
+`ControllerFinalPrice` modules complete the whole-query delegation and
+reservation/pricing aggregation.
 
 `TreeTerminal` derives each actual pool's stars-and-bars bound from inherited
 public totality, aggregates the real product count, and uses the preserved
@@ -259,7 +262,8 @@ matrices between queries, and fixes a compatible ranking at its cutoff.
 `UniformAdversary.strategy` uses the concrete bounded stage selector, with a
 fixed-order fallback on small inputs. **`UniformAdversary.consistent` proves
 unconditional legality for all input sizes and all finite comparison trees.**
-It does not assert the still-unproved leading-one comparison bound.
+`UniformAdversary.asymptoticallyOptimal` adds the leading-one comparison bound
+for this same family.
 
 `CappedArithmetic`, `CappedStageScan`, `StageScalars`, `StageRecipe`,
 `StageParameters`, `UniformStage`, and `UniformController` implement and prove
@@ -299,28 +303,63 @@ one row. `CutoffBounds` proves the implemented clock dominates `n log₂ n`
 and is eventually at most `4 n log n`. `UniformRates` proves the rates for
 the actual bounded selector, including the evaluated cheap charge and cut
 error. `UniformComparisonReduction` is the scalar closing reduction; its
-finite active-run inequality remains an explicit premise until the global
-price aggregation is connected.
+finite active-run inequality is now supplied by the actual global price
+aggregation in `UniformOptimal`.
 
-## What remains before the full theorem is proved
+## Unconditional leading-one theorem
 
-1. **Finish global price aggregation for the constructed family.** The
-   complete routed query and run are connected to the actual incidence ledger,
-   separate path/scale reservation books, immutable hub histories, and signed
-   birthday credits. The final dictionary/population entropy aggregation and
-   cheap/expensive factorial split must still produce the finite clock
-   inequality from those actual records.
+`TreeReservationEntropy` and `ReservationEntropyRun` turn the completed actual
+path and scale groups into the global entropy budgets. `LedgerPromotionTrace`,
+`ControllerLedgerAlignment`, and `TreeFactorialCredit` identify the birthday
+receipts with the real final child factorials. `ControllerEventCounts` relates
+the actual cheap, degree, path, and scale records to those tree populations.
 
-2. **Instantiate the final asymptotic comparison theorem.** Combine the exact
-   clock inequality with the constructed selector's divergence, cheap square
-   cap, and existing vanishing entropy/terminal estimates. In particular,
-   `AsymptoticallyOptimal UniformAdversary.strategy` is not yet proved.
+`StoredStateIndex`, `TreePriceBudget`, and `TreePriceEntropy` build the finite
+final dictionary over actual stored nodes and immutable child identities.
+`IndexedHubHistory` and `SlotHubHistory` place every actual hub in that
+dictionary. `CheapHubPrice` splits each child's single factorial credit between
+cheap and expensive admissions. `ControllerFinalPrice.actual_price` proves the
+resulting whole-run inequality with only an actual `ActiveRun` as a premise.
+`ControllerPriceBudget.actual_budget_bounds` bounds its dictionary budget by
+`256 n ln n` under the physical clock; all populations and counts are derived.
 
-3. **Complete the whole-program polynomial bit-cost proof.** The actual stage
-   constructor, local DP, graph tables, repair length, palette sizes, and tree
-   sizes have checked bounds. Those bounds must still be composed for the
-   complete stateful program, including lookup and arithmetic costs. A
-   polynomial bound for a component is not a full program-cost theorem.
+`UniformRunBudgets` proves the selected-stage hub-mass and scale-surcharge
+bounds from the actual incidence and reservation histories. `UniformExecution`
+recovers the exact selected controller run from the repository's sorting-tree
+semantics. `UniformOptimal.selected_comparison_budget` combines these facts,
+the actual terminal estimate, and the cut count into the finite comparison
+inequality. Its closing theorem is:
+
+```lean
+theorem UniformAdversary.asymptoticallyOptimal :
+    AsymptoticallyOptimal UniformAdversary.strategy
+```
+
+Unfolding the specification gives consistency for every input size and every
+finite comparison tree, together with:
+
+```text
+for every δ > 0, there exists N such that for every n ≥ N
+and every correct comparison tree t on n labels,
+  (1 - δ) n log₂ n ≤ comparisons made against UniformAdversary.strategy n.
+```
+
+The theorem has no mathematical hypotheses. The actual selected stage tends
+to infinity, all relative remainder terms tend to zero, and runs exceeding
+the actual cutoff satisfy the comparison bound directly. The corollary
+`UniformAdversary.worst_case` supplies a genuine ranking input of each correct
+sorter with the same lower bound. This is an online adversary theorem for the
+constructed family, not a conditional accounting reduction.
+
+## Remaining whole-program cost obligation
+
+The actual stage constructor, local DP, graph tables, repair length, palette
+sizes, and tree sizes have checked bounds. Those bounds must still be composed
+for the complete stateful program, including lookup and arithmetic costs. In
+particular, function-valued sparse metadata must pay for its stored update
+history, and every counted implementation must be connected to the actual
+controller's result. A polynomial bound for a component is not a full
+program-cost theorem.
 
 For the uniformization step, preserve the manuscript's stronger cheap-cost
 cap `(4^B W0)^2 ≤ log₂(n+1)`, equivalently
@@ -329,8 +368,7 @@ the implementation paragraph explicitly describes capping the square.
 Dropping this square would not make the corresponding linear remainder
 negligible by the stated argument.
 
-These are substantial remaining proof obligations. There is no theorem in
-this contribution asserting that they have been discharged.
+No whole-program polynomial bit-cost theorem is claimed at this checkpoint.
 
 ## Build and audit
 
