@@ -30,3 +30,7 @@ the compiled PDF is versioned.
 The related Lean development elsewhere in this repository follows the earlier
 recursive integer-colour construction. The paper distinguishes that formalization
 from the continuous presentation used here.
+
+Submitted to Hexagon as **hexagon:2611.00196** under CC BY 4.0 on 7 November
+2026. The source and compiled PDF were received successfully; moderator review
+is pending. Submission metadata and hashes are in `submission.json`.

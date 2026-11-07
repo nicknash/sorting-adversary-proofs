@@ -1,0 +1,25 @@
+{
+  "identifier": "hexagon:2611.00196",
+  "status": "submitted_for_moderation",
+  "submitted_at_utc": "2026-11-07T19:18:00Z",
+  "submitted_at_precision": "minute, as displayed on the receipt",
+  "title": "An Optimal Deterministic Adversary for Sorting",
+  "contributor": "Nicholas Nash",
+  "orcid": "0009-0003-0475-7852",
+  "license": "CC-BY-4.0",
+  "primary_subject": "cs.DS",
+  "msc2020": [
+    "68P10"
+  ],
+  "text_provenance": "primarily_ai_generated",
+  "human_understanding": "some_parts_but_not_all",
+  "model": "GPT 6 Astra",
+  "paper_source_commit": "3075b7e81eb86b16a3de09c4e03edb00d4434d48",
+  "uploaded_zip_sha256": "0d8143a9983048b8ba2e3e8571dabfedcfe6a54da2fbe5ca2807f423adaaf57d",
+  "hexagon_source_package_sha256": "a8ee7ec7725ff854ba31604b87dbdaf822c043e87ad6c4787857aac1617a4102",
+  "hexagon_source_package_hash_note": "Hexagon receipt hash for its submitted package, distinct from the preserved ZIP hash.",
+  "local_pdf_sha256": "35fe218fb7e72436804d62eea27a6daca258ce1b2ec773517c912ae7cf5a99bf",
+  "preview_compilation": "successful",
+  "submitted_pdf_compilation": "successful",
+  "publication": "awaiting moderator approval"
+}
