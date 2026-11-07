@@ -237,6 +237,39 @@ import SortingAdversary.Optimal.RepresentationTreeAdmission
 import SortingAdversary.Optimal.RepresentationPromotionKeys
 import SortingAdversary.Optimal.RepresentationTreePromotion
 import SortingAdversary.Optimal.RepresentationTreeBounds
+import SortingAdversary.Optimal.IsolatedCoupling
+import SortingAdversary.Optimal.LocalOracleBitBounds
+import SortingAdversary.Optimal.MeasuredActive
+import SortingAdversary.Optimal.MeasuredChildRouting
+import SortingAdversary.Optimal.MeasuredDelegation
+import SortingAdversary.Optimal.MeasuredMachine
+import SortingAdversary.Optimal.MeasuredOracleBounds
+import SortingAdversary.Optimal.MeasuredOracleBudget
+import SortingAdversary.Optimal.MeasuredRouting
+import SortingAdversary.Optimal.MeasuredRoutingWork
+import SortingAdversary.Optimal.MeasuredStopContext
+import SortingAdversary.Optimal.RationalBitWork
+import SortingAdversary.Optimal.RepresentationTreeReplay
+import SortingAdversary.Optimal.RepresentationTreeView
+import SortingAdversary.Optimal.StageCompileWork
+import SortingAdversary.Optimal.UniformPreparedWork
+import SortingAdversary.Optimal.UniformRepairPolynomial
+import SortingAdversary.Optimal.UniformRepairWork
+import SortingAdversary.Optimal.UniformRoutingWork
+import SortingAdversary.Optimal.UniformScalarSizes
+import SortingAdversary.Optimal.UniformScalarWork
+import SortingAdversary.Optimal.UniformStopBounds
+import SortingAdversary.Optimal.UniformStopPolynomial
+import SortingAdversary.Optimal.UniformStopWork
+import SortingAdversary.Optimal.WidthPolynomialWork
+import SortingAdversary.Optimal.ControllerResources
+import SortingAdversary.Optimal.UniformInitialWork
+import SortingAdversary.Optimal.UniformSelectionWork
+import SortingAdversary.Optimal.UniformMachineWork
+import SortingAdversary.Optimal.HubBitBounds
+import SortingAdversary.Optimal.UniformBitResources
+import SortingAdversary.Optimal.UniformEfficient
+import SortingAdversary.Optimal.UniformInitializationBits
 import Lean.Util.CollectAxioms
 import Lean.Elab.Command
 
@@ -263,8 +296,9 @@ module must be imported above so its declarations enter this environment.
 
 Passing this gate establishes a proof trust boundary. The unconditional
 `UniformAdversary.asymptoticallyOptimal` theorem proves the actual family's
-online comparison guarantee. Polynomial running time is a separate obligation;
-an axiom audit alone does not certify an implementation cost model.
+online comparison guarantee. `UniformEfficient.efficientOptimal` also connects
+the concrete measured implementation and actual operand certificates to the
+stated binary cost model; an axiom audit alone does not certify a cost model.
 -/
 
 open Lean Elab Command in
@@ -314,5 +348,12 @@ elab "#audit_optimal_axioms" : command => do
 #print axioms SortingAdversary.Optimal.comparison_guarantee_of_vanishing_accounting
 #print axioms SortingAdversary.Optimal.UniformAdversary.asymptoticallyOptimal
 #print axioms SortingAdversary.Optimal.UniformAdversary.worst_case
+
+#print axioms SortingAdversary.Optimal.UniformMachineWork.strategy_eq
+#print axioms SortingAdversary.Optimal.UniformMachineWork.initialization_polynomial
+#print axioms SortingAdversary.Optimal.UniformMachineWork.per_query_polynomial
+
+#print axioms SortingAdversary.Optimal.UniformEfficient.built_resources
+#print axioms SortingAdversary.Optimal.UniformEfficient.efficientOptimal
 
 #audit_optimal_axioms

@@ -94,12 +94,17 @@ def lowerPromotionAccess (a : LocalAccess s) (v : Fin n) (hv : s.pool.pins v = n
     publicRow := a.publicRow
     source := a.source
     active := eraseVertex a.active v
-    lower := pinLower (splitWall a.pin a.lower (embedAfter c) (embedAfter c)) v (freshColor c)
-    upper := pinUpper (splitWall a.pin a.upper (embedAfter c) (embedUpper c)) v (freshColor c)
-    pin := pinMap a.pin (embedAfter c) v (freshColor c)
+    lower := pinLower (K := s.pool.palette + 1 + 1)
+      (splitWall (K := s.pool.palette + 1) (L := s.pool.palette + 1 + 1)
+        a.pin a.lower (embedAfter c) (embedAfter c)) v (freshColor c)
+    upper := pinUpper (K := s.pool.palette + 1 + 1)
+      (splitWall (K := s.pool.palette + 1) (L := s.pool.palette + 1 + 1)
+        a.pin a.upper (embedAfter c) (embedUpper c)) v (freshColor c)
+    pin := pinMap (K := s.pool.palette + 1) (L := s.pool.palette + 1 + 1)
+      a.pin (embedAfter c) v (freshColor c)
     member := a.member
-    order := extendForward a.order (freshColor c)
-    inverse := extendInverse a.inverse (freshColor c)
+    order := extendForward (K := s.pool.palette + 1) a.order (freshColor c)
+    inverse := extendInverse (K := s.pool.palette + 1) a.inverse (freshColor c)
     publicRow_value := a.publicRow_value
     source_value := ?_
     active_value := ?_
@@ -194,12 +199,17 @@ def upperPromotionAccess (a : LocalAccess s) (v : Fin n) (hv : s.pool.pins v = n
     publicRow := a.publicRow
     source := a.source
     active := eraseVertex a.active v
-    lower := pinLower (splitWall a.pin a.lower (embedBefore c) (embedAfter c)) v c.castSucc
-    upper := pinUpper (splitWall a.pin a.upper (embedBefore c) (embedUpper c)) v c.castSucc
-    pin := pinMap a.pin (embedBefore c) v c.castSucc
+    lower := pinLower (K := s.pool.palette + 1 + 1)
+      (splitWall (K := s.pool.palette + 1) (L := s.pool.palette + 1 + 1)
+        a.pin a.lower (embedBefore c) (embedAfter c)) v c.castSucc
+    upper := pinUpper (K := s.pool.palette + 1 + 1)
+      (splitWall (K := s.pool.palette + 1) (L := s.pool.palette + 1 + 1)
+        a.pin a.upper (embedBefore c) (embedUpper c)) v c.castSucc
+    pin := pinMap (K := s.pool.palette + 1) (L := s.pool.palette + 1 + 1)
+      a.pin (embedBefore c) v c.castSucc
     member := a.member
-    order := extendForward a.order c.castSucc
-    inverse := extendInverse a.inverse c.castSucc
+    order := extendForward (K := s.pool.palette + 1) a.order c.castSucc
+    inverse := extendInverse (K := s.pool.palette + 1) a.inverse c.castSucc
     publicRow_value := a.publicRow_value
     source_value := a.source_value
     active_value := ?_
@@ -255,9 +265,10 @@ def interiorPromotionAccess (a : LocalAccess s) (v : Fin n) (hv : s.pool.pins v 
   publicRow := a.publicRow
   source := a.source
   active := eraseVertex a.active v
-  lower := pinLower a.lower v c
-  upper := pinUpper a.upper v c
-  pin := pinMap a.pin (fun c => ⟨c, 0⟩) v c
+  lower := pinLower (K := s.pool.palette + 1) a.lower v c
+  upper := pinUpper (K := s.pool.palette + 1) a.upper v c
+  pin := pinMap (K := s.pool.palette + 1) (L := s.pool.palette + 1)
+    a.pin (fun c => ⟨c, 0⟩) v c
   member := a.member
   order := a.order
   inverse := a.inverse

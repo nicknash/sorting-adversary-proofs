@@ -1,4 +1,5 @@
 import SortingAdversary.Optimal.RepresentationPromotion
+import SortingAdversary.Optimal.RepresentationCacheShape
 
 /-!
 # Actual promotion work and eager cache costs
@@ -163,23 +164,89 @@ def promoteCached (a : LocalAccess s) (v : Fin n) (hv : s.pool.pins v = none)
     (c : Fin (s.pool.palette + 1))
     (hc : s.pool.system.effectiveLower v ≤ c ∧ c ≤ s.pool.system.effectiveUpper v) :
     Result (LocalAccess (s.promote v hv c hc)) :=
-  let updated := a.promote v hv c hc
-  let cached := updated.value.cache
-  ⟨cached.value, updated.work + cached.work⟩
+  let lower := WindowWork.effectiveLower a.windows v
+  let upper := WindowWork.effectiveUpper a.windows v
+  if hl : lower.value = c then
+    have hl' : s.pool.system.effectiveLower v = c := by simpa only
+      [lower, WindowWork.effectiveLower_value, windows_system] using hl
+    let cached := (lowerPromotionAccess a v hv c hl').cacheWith (s.pool.palette + 1) rfl
+    ⟨cached.value.transport (lowerState_actual s v hv c hc hl'),
+      lower.work + upper.work + 24 + cached.work⟩
+  else if hu : upper.value = c then
+    have hl' : s.pool.system.effectiveLower v ≠ c := by simpa only
+      [lower, WindowWork.effectiveLower_value, windows_system] using hl
+    have hu' : s.pool.system.effectiveUpper v = c := by simpa only
+      [upper, WindowWork.effectiveUpper_value, windows_system] using hu
+    let cached := (upperPromotionAccess a v hv c hu').cacheWith (s.pool.palette + 1) rfl
+    ⟨cached.value.transport (upperState_actual s v hv c hc hl' hu'),
+      lower.work + upper.work + 24 + cached.work⟩
+  else
+    have hl' : s.pool.system.effectiveLower v ≠ c := by simpa only
+      [lower, WindowWork.effectiveLower_value, windows_system] using hl
+    have hu' : s.pool.system.effectiveUpper v ≠ c := by simpa only
+      [upper, WindowWork.effectiveUpper_value, windows_system] using hu
+    have interior : s.pool.system.effectiveLower v < c ∧ c < s.pool.system.effectiveUpper v :=
+      ⟨lt_of_le_of_ne hc.1 hl', lt_of_le_of_ne hc.2 hu'.symm⟩
+    let cached := (interiorPromotionAccess a v hv c interior).cacheWith s.pool.palette rfl
+    ⟨cached.value.transport (interiorState_actual s v hv c interior),
+      lower.work + upper.work + 24 + cached.work⟩
 
 theorem promoteCached_access (a : LocalAccess s) (v : Fin n) (hv : s.pool.pins v = none)
     (c : Fin (s.pool.palette + 1))
     (hc : s.pool.system.effectiveLower v ≤ c ∧ c ≤ s.pool.system.effectiveUpper v) :
-    AccessBound (a.promoteCached v hv c hc).value 2 :=
-  cache_access _
+    AccessBound (a.promoteCached v hv c hc).value 2 := by
+  unfold promoteCached
+  dsimp only
+  split
+  · exact transport_bound _ _ (cacheWith_access _ _ rfl)
+  · split <;> exact transport_bound _ _ (cacheWith_access _ _ rfl)
 
 theorem promoteCached_work_le (a : LocalAccess s) {A : ℕ} (h : AccessBound a A)
     (v : Fin n) (hv : s.pool.pins v = none) (c : Fin (s.pool.palette + 1))
     (hc : s.pool.system.effectiveLower v ≤ c ∧ c ≤ s.pool.system.effectiveUpper v) :
     (a.promoteCached v hv c hc).work ≤ 2 * WindowWork.endpointWorkBound n A A + 24 +
       cacheBound n (s.promote v hv c hc).pool.palette (2 * A + 16) := by
-  exact Nat.add_le_add (promote_work_le a h v hv c hc)
-    (cache_work_le _ (promote_access a h v hv c hc))
+  have hlower := WindowWork.effectiveLower_work_le a.windows v A A (fun u => h.publicRow u v) h.lower
+  have hupper := WindowWork.effectiveUpper_work_le a.windows v A A (h.publicRow v) h.upper
+  unfold promoteCached
+  dsimp only
+  split
+  · rename_i hl
+    have hl' : s.pool.system.effectiveLower v = c := by simpa only
+      [WindowWork.effectiveLower_value, windows_system] using hl
+    have hcache := cacheWith_work_le (lowerPromotionAccess a v hv c hl') (s.pool.palette + 1) rfl
+      (lowerPromotionAccess_bound a h v hv c hl')
+    have hp : (s.promote v hv c hc).pool.palette = s.pool.palette + 1 :=
+      (congrArg (fun state : State n => state.pool.palette) (lowerState_actual s v hv c hc hl')).symm
+    rw [hp]
+    dsimp only
+    omega
+  · rename_i hl
+    have hl' : s.pool.system.effectiveLower v ≠ c := by simpa only
+      [WindowWork.effectiveLower_value, windows_system] using hl
+    split
+    · rename_i hu
+      have hu' : s.pool.system.effectiveUpper v = c := by simpa only
+        [WindowWork.effectiveUpper_value, windows_system] using hu
+      have hcache := cacheWith_work_le (upperPromotionAccess a v hv c hu') (s.pool.palette + 1) rfl
+        (upperPromotionAccess_bound a h v hv c hu')
+      have hp : (s.promote v hv c hc).pool.palette = s.pool.palette + 1 :=
+        (congrArg (fun state : State n => state.pool.palette) (upperState_actual s v hv c hc hl' hu')).symm
+      rw [hp]
+      dsimp only
+      omega
+    · rename_i hu
+      have hu' : s.pool.system.effectiveUpper v ≠ c := by simpa only
+        [WindowWork.effectiveUpper_value, windows_system] using hu
+      have interior : s.pool.system.effectiveLower v < c ∧ c < s.pool.system.effectiveUpper v :=
+        ⟨lt_of_le_of_ne hc.1 hl', lt_of_le_of_ne hc.2 hu'.symm⟩
+      have hcache := cacheWith_work_le (interiorPromotionAccess a v hv c interior) s.pool.palette rfl
+        (interiorPromotionAccess_bound a h v hv c interior)
+      have hp : (s.promote v hv c hc).pool.palette = s.pool.palette :=
+        (congrArg (fun state : State n => state.pool.palette) (interiorState_actual s v hv c interior)).symm
+      rw [hp]
+      dsimp only
+      omega
 
 end LocalAccess
 

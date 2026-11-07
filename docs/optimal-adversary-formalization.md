@@ -6,8 +6,10 @@ This directory formalizes the construction and components of the 7 November 2026
 *An asymptotically optimal deterministic adversary for comparison sorting*.
 **The unconditional leading-one online comparison theorem is proved.**
 `UniformAdversary.asymptoticallyOptimal` applies to the actual executable
-uniform family. The separate whole-program polynomial bit-cost theorem
-remains under construction.
+uniform family. A concrete stateful implementation is proved equal to this
+family and has polynomial cost in the explicit bounded-operand schoolbook
+model described below. The built program carries proved resource certificates
+for actual reachable executions.
 
 The files contain proofs, executable finite reference definitions, the actual
 controller, and its complete comparison accounting. There are no admitted
@@ -22,7 +24,7 @@ The source used for this development is the eleven-page manuscript dated
 The new construction is different from the curvature construction already in
 the repository. None of its main lemmas is inferred from that older theorem.
 
-## Measured implementation checkpoint
+## Measured implementation
 
 The measured primitive implementations now include exact local subset counting,
 integer-size bounds, Euclidean normalization of rational probabilities, sparse
@@ -53,9 +55,13 @@ and member set explicitly, keeping the semantic target state erased. This
 avoids evaluating a reference state update merely to supply a dependent
 index. Generated-code inspection complements the Lean erasure equalities.
 
-Recursive routing, uniform parameter/counter bounds, and complete polynomial
-bit-cost composition remain under construction. The checked local executor
-bounds alone do not establish the final whole-program runtime theorem.
+The complete stopping and recursive routing programs now compose these
+implementations. `UniformMachineWork.build` constructs the entire stateful
+program, including selection, radii and initial membership. Its transition
+agrees exactly with the verified controller. `ControllerResources` proves
+counter and identity bounds for actual reachable states;
+`UniformBitResources` and `UniformEfficient` connect these and the local
+arithmetic certificates to the stated binary cost model.
 
 ## What has been checked
 
@@ -82,7 +88,8 @@ All paths below are under `SortingAdversary/Optimal/`.
 
 The following modules close additional obligations of the initial checkpoint.
 The concrete recursive controller and its whole-run comparison bound are now
-implemented and checked. Polynomial bit cost has a separate proof obligation.
+implemented and checked. The measured implementation and binary resource
+certificates are described in the cost section below.
 
 | File | Newly proved content |
 | --- | --- |
@@ -386,24 +393,90 @@ the actual cutoff satisfy the comparison bound directly. The corollary
 sorter with the same lower bound. This is an online adversary theorem for the
 constructed family, not a conditional accounting reduction.
 
-## Remaining whole-program cost obligation
+## Complete stateful implementation and cost model
 
-The actual stage constructor, local DP, graph tables, repair length, palette
-sizes, and tree sizes have checked bounds. Those bounds must still be composed
-for the complete stateful program, including lookup and arithmetic costs. In
-particular, function-valued sparse metadata must pay for its stored update
-history, and every counted implementation must be connected to the actual
-controller's result. A polynomial bound for a component is not a full
-program-cost theorem.
+`UniformMachineWork.build n` executes the capped parameter search and constructs
+a `Program n`. Its measured `step` returns the actual answer and successor
+state. `Program.step_value` proves that this transition is the online
+machine's transition; `strategy_eq` proves equality with
+`UniformAdversary.strategy n` for every transcript. This is a stateful
+implementation: the next answer uses the retained state. The history-based
+strategy function serves as its mathematical semantics.
 
-For the uniformization step, preserve the manuscript's stronger cheap-cost
-cap `(4^B W0)^2 ≤ log₂(n+1)`, equivalently
+The accepted branch computes the two local-oracle radii once. Known
+comparisons use cached public rows. Unknown comparisons execute the measured
+common-child search, stopping decision, physical comparison, complete repair,
+and chronological replay. Every local getter is materialized in stored
+vectors. Child-list scans, replacements, palette permutations, table lookups,
+trace appends, and rebuilding caches contribute to the measured work. The
+implementation retains the answer, tree and identity counter; global
+accounting payloads and rational charge products are used only in proofs.
+
+The active clock has the fixed cutoff from the comparison proof. At the
+cutoff the program computes and stores an exact compatible ranking. The
+frozen state discards the clock and answers subsequent queries using stored
+ranks. Thus arbitrarily long transcripts do not create an unbounded runtime
+clock. `ControllerResources` recovers a real active execution from every
+reachable active state and proves the allocator and stored-identity bounds.
+
+### Word operations and binary charges
+
+`PrimitiveWork.Result` contains a computed value and its work count. One
+primitive word operation is an arithmetic/comparison operation, an indexed
+array access, or a list-cell operation. Callbacks return their own measured
+work, and every callback in the built program is instantiated with the
+concrete implementation. Measurement counters are ghost annotations of the
+value computation; the model does not recursively charge the arithmetic of
+maintaining its own measurement.
+
+The checked uniform envelopes are:
+
+- Initialization: at most
+  `10000 * (UniformStage.recipeSize + 1) * (n + 1)^2` word operations.
+- One stateful query: at most `4 * 10^12 * (n + 1)^16` word operations.
+- A common binary operand envelope: `10^6 * (n + 1)^8` bits.
+- Initialization in the binary charging model: at most
+  `10^17 * (UniformStage.recipeSize + 1) * (n + 1)^18`.
+- One query in the binary charging model: at most `10^25 * (n + 1)^32`.
+
+The exponents and constants are deliberately conservative. They establish
+one fixed polynomial independent of the accepted stage and the transcript;
+they are not a practical performance estimate.
+
+`RationalBitWork.Model` charges a word primitive on operands of at most `B`
+bits by `(B+1)^2`. This is the explicit bounded-operand schoolbook model. The
+algebraic conversion from word counts to binary charges is paired with
+resource certificates for the actual built program. In particular, a bound
+for `charge(work, B)` alone would not justify using `B` for an arbitrary
+state with an unrestricted allocator counter.
+
+The certificates cover actual reachable counters and identities; stored
+node and palette bounds; every repair-prefix palette; local count pairs,
+normalized rational fields and comparison cross products; every partial
+DP transition and read sum; finite rank keys; dyadic hub calculations;
+stage power prefixes; and width, scale and promotion receipts. The uniform
+initializer separately counts rejected capped stages, field lookups,
+logarithms, rational normalization and initial member construction.
+`RationalBitWork` also gives concrete bit profiles for the Euclidean
+normalization and rational comparator, proving equality with the counted
+routines and bounds for their intermediate operands.
+
+`UniformEfficient.built_resources` attaches the program certificates to the
+exact `build n` result. The unconditional `UniformEfficient.efficientOptimal`
+theorem combines them with the initializer certificates, exact strategy,
+unconditional comparison theorem, and polynomial initialization/query
+charges. No oracle, repair, routing callback, or unproved resource premise
+is supplied by the caller.
+This formalizes the stated arithmetic cost model; it does not verify Lean's
+compiler, memory manager, native bigint implementation, or wall-clock time,
+and it is not a fully instrumented machine-instruction trace.
+
+For the uniformization step, the implementation preserves the manuscript's
+stronger cheap-cost cap `(4^B W0)^2 ≤ log₂(n+1)`, equivalently
 `4^B W0 ≤ sqrt(log₂(n+1))`. The square root is garbled in extracted PDF text;
 the implementation paragraph explicitly describes capping the square.
 Dropping this square would not make the corresponding linear remainder
 negligible by the stated argument.
-
-No whole-program polynomial bit-cost theorem is claimed at this checkpoint.
 
 ## Build and audit
 
@@ -424,4 +497,4 @@ the older result and its separately documented trust boundary.
 
 The finite examples use ordinary `decide`, whose resulting proof is checked
 by the kernel. They are sanity checks of the model and do not replace
-universal theorems or the missing complexity analysis.
+universal correctness, accounting, or implementation-cost theorems.
