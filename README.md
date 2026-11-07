@@ -12,17 +12,19 @@ adversary for comparison sorting* is being formalized under
 **The complete polynomial-time leading-one adversary theorem is not yet proved
 in Lean.**
 
-The development now also includes certified executable routing, invariant
-preservation through interior and endpoint pins, exact fresh admissions,
-stored-matrix public closure, a legal online guard, terminal-order semantics,
-verified ideal-state counting with quantitative work and integer-size bounds,
-and the signed-price aggregation from dyadic dictionary records. It has a
-separate axiom audit permitting only the three standard Lean axioms.
+The development includes certified executable routing, invariant-preserving
+promotions and fresh admissions, stored-matrix public closure, exact ideal-state
+counting with quantitative work and integer-size bounds, the finite common-clock
+coupling and induced-neighbourhood accuracy theorem, marginal log-concavity and
+the original noisy-quartile `1/(16m)` guarantee, stable binary batches and actual
+hub-history signed prices, strict width cuts, pin elimination, and vanishing
+analytic stage rates. Isolated and mixed local-query cases are included.
 
 See [`docs/optimal-adversary-formalization.md`](docs/optimal-adversary-formalization.md)
-for the exact theorem coverage and the remaining local-oracle, dictionary,
-controller, and bit-complexity obligations. Exhaustive counting in the
-reference semantics is not claimed to be the polynomial-time implementation.
+for the exact theorem coverage and the remaining controller, execution-accounting,
+and bit-complexity obligations. The separate optimal-development axiom audit
+permits only the three standard Lean axioms. The reference semantics' exhaustive
+counting is distinct from the verified table algorithm.
 
 ## Proved complete adversary theorem, stated exactly
 

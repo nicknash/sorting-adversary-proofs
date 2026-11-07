@@ -9,8 +9,10 @@ import Mathlib.Algebra.Order.Group.Int
 /-!
 # Integer compression before inserting one label
 
-The order used in this file is the transitively closed public order. A valid
-colour assignment respects it weakly. Floors and ceilings have already been
+The order used in this file is a transitively closed numerical order. A valid
+colour assignment respects it weakly. It can be the closure of the active raw
+rows: retired public comparisons may instead be implied by retained walls.
+Floors and ceilings have already been
 propagated, so each is a monotone function of the label.
 
 For a deleted label with interval `[L,U]`, compress its proper predecessors
@@ -406,6 +408,28 @@ theorem full_count_le_width_mul_deleted (v : α) (lower upper : α → ℤ) :
     omega
   simpa [window, Int.card_Icc, hwidth, Nat.mul_comm] using h
 
+/-- An arbitrary set of permitted values has at most its cardinality times
+the deleted count. The encoding retains the deleted map and the chosen value. -/
+theorem restricted_count_le_deleted (v : α) (lower upper : α → ℤ)
+    (A : Finset ℤ) :
+    ((fullMaps lower upper).filter (fun f => f v ∈ A)).card ≤
+      A.card * (deletedMaps v lower upper).card := by
+  classical
+  let F := (fullMaps lower upper).filter (fun f => f v ∈ A)
+  let encode : F → (deletedMaps v lower upper) × A := fun f =>
+    (⟨eraseAt v f.val, mem_deletedMaps.mpr
+      ⟨by simp [eraseAt], deletedValid_eraseAt
+        (mem_fullMaps.mp (Finset.mem_filter.mp f.property).1)⟩⟩,
+      ⟨f.val v, (Finset.mem_filter.mp f.property).2⟩)
+  have hinj : Function.Injective encode := by
+    intro f g h
+    apply Subtype.ext
+    apply eraseAt_recover (v := v)
+    · exact congrArg (fun p : (deletedMaps v lower upper) × A => p.2.val) h
+    · exact congrArg (fun p : (deletedMaps v lower upper) × A => p.1.val) h
+  have h := Fintype.card_le_of_injective encode hinj
+  simpa only [Fintype.card_prod, Fintype.card_coe, Nat.mul_comm] using h
+
 /-- The insertion lemma with the central interval eliminated:
 `W N₋ ≤ 2 · 4^c · N`. No divisions or asymptotic notation are used. -/
 theorem width_mul_deleted_count_le_twice_full {v : α} {lower upper : α → ℤ}
@@ -423,6 +447,25 @@ theorem width_mul_deleted_count_le_twice_full {v : α} {lower upper : α → ℤ
           (centralColors (lower v) (upper v)).card) := by ac_rfl
     _ ≤ 2 * ((fullMaps lower upper).card *
           4 ^ Fintype.card (ComparableTo v)) := Nat.mul_le_mul_left 2 hc
+    _ = _ := by ac_rfl
+
+/-- The insertion estimate bounds every restricted coordinate event, including
+short intervals used when retiring a steep active edge. -/
+theorem restricted_count_mul_width_le {v : α} {lower upper : α → ℤ}
+    (hlower : Monotone lower) (hupper : Monotone upper)
+    (hwindow : lower v ≤ upper v) (A : Finset ℤ) :
+    ((fullMaps lower upper).filter (fun f => f v ∈ A)).card *
+        (upper v - lower v + 1).toNat ≤
+      2 * 4 ^ Fintype.card (ComparableTo v) * A.card * (fullMaps lower upper).card := by
+  calc
+    _ ≤ (A.card * (deletedMaps v lower upper).card) *
+        (upper v - lower v + 1).toNat :=
+      Nat.mul_le_mul_right _ (restricted_count_le_deleted v lower upper A)
+    _ = A.card * ((upper v - lower v + 1).toNat *
+        (deletedMaps v lower upper).card) := by ac_rfl
+    _ ≤ A.card * (2 * 4 ^ Fintype.card (ComparableTo v) *
+        (fullMaps lower upper).card) :=
+      Nat.mul_le_mul_left _ (width_mul_deleted_count_le_twice_full hlower hupper hwindow)
     _ = _ := by ac_rfl
 
 /-- Exact denominator-free version of the central point-mass lower bound:

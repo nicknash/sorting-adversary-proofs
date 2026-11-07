@@ -39,6 +39,18 @@ theorem dyadic_cap_le_twice {births : ℕ} (hbirths : 0 < births) :
   have h := Nat.pow_log_le_self 2 hbirths.ne'
   omega
 
+/-- The manuscript's lifetime birth bound, rounded up to a dyadic envelope. -/
+def poolExponent (size : ℕ) : ℕ := capExponent (2 * size + 2)
+
+theorem pool_births_le_cap (size : ℕ) : 2 * size + 2 ≤ 2 ^ poolExponent size :=
+  le_dyadic_cap _
+
+theorem pool_cap_le_eight_size {size : ℕ} (hsize : 1 ≤ size) :
+    2 ^ poolExponent size ≤ 8 * size := by
+  have h := dyadic_cap_le_twice (show 0 < 2 * size + 2 by omega)
+  change 2 ^ poolExponent size ≤ 2 * (2 * size + 2) at h
+  omega
+
 /-- A scale deficit, a batch-scale row, and a batch/block index. Rows below
 `d+1` are the ordinary dyadic records; the last row is available for exceptions.
 -/
@@ -209,6 +221,14 @@ def totalCapacity {Node : Type*} [Fintype Node] (exponent : Node → ℕ) : ℕ 
 theorem totalCapacity_pos {Node : Type*} [Fintype Node] [Nonempty Node]
     (exponent : Node → ℕ) : 0 < totalCapacity exponent := by
   exact Finset.sum_pos (fun v _ => Nat.two_pow_pos (exponent v)) Finset.univ_nonempty
+
+/-- A single linear total capacity bound across the actual nonempty pools. -/
+theorem total_pool_capacity_le {Node : Type*} [Fintype Node] (size : Node → ℕ)
+    (hsize : ∀ v, 1 ≤ size v) :
+    totalCapacity (fun v => poolExponent (size v)) ≤ 8 * ∑ v, size v := by
+  calc
+    _ ≤ ∑ v, 8 * size v := Finset.sum_le_sum (fun v _ => pool_cap_le_eight_size (hsize v))
+    _ = _ := (Finset.mul_sum _ _ _).symm
 
 /-- Node capacities normalize the disjoint union of the finite codes. -/
 noncomputable def globalCode {Node : Type*} [Fintype Node]

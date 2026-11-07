@@ -114,46 +114,92 @@ Pools with no free labels are also included in the terminal product bound.
 Probability lemmas which need a genuine normalized law require positive
 parent counts in their statements.
 
+## Local laws, calibrated choices, and actual representative records
+
+The next continuation proves the finite local comparison approximation rather
+than taking its error bound as an oracle assumption. `FiniteProbability`,
+`LocalCoupling`, `ClockContraction`, `SystematicCoupling`, `LocalMoments`,
+`CouplingHistory`, and `ClockStationarity` build an actual rational common-clock
+coupling and prove both uniform marginals and its moment contraction. The
+factorial-sized clock grid is an auxiliary proof space; the algorithm does not
+sample or enumerate it.
+
+`GraphBalls`, `BallSchedule`, and `NumericalGeometry` instantiate the shrinking
+neighbourhoods using the actual raw sparse rows. They prove the closure/reachability
+correspondence, finite ball cardinal bounds, the bounded comparable set, and
+propagated-window identities. `TruncatedLaw` identifies full-carrier truncation
+with the genuinely smaller induced weak system. `LocalParameters` supplies
+explicit rational/integer parameters. `LocalAccuracy.comparison_accuracy`
+then proves the exact induced two-ball probability is within the requested
+error, under the stated degree, height, component-width, and minimum-width
+conditions. `CDFAccuracy` supplies the fixed-threshold cumulative endpoint.
+`IsolatedAccuracy` removes the minimum-width condition on isolated marks,
+including mixed isolated/nonisolated comparisons; fully isolated queries are exact.
+
+`FiniteInsertion` transfers integer compression estimates to the actual finite
+weak-map laws. It includes near-tie and fixed-threshold probability bounds,
+arbitrary restricted-coordinate counts, and central-colour fibre lower bounds.
+This transfer is proved through an explicit finite-palette embedding.
+
+`ComponentSwap` constructs and inverts the marginal counting injection.
+`MarginalCalibration` proves the resulting actual weak-map marginal is
+log-concave, while `DiscreteCalibration` supplies the finite reverse-hazard
+argument. The executable first-crossing rule is proved to return an interval
+of length m in which **every colour, including both endpoints, has true mass
+at least 1/(16m)**. No log-concavity premise is supplied by an oracle.
+
+`StableBatches` implements the binary-counter batch partition. `HubSelector`
+selects a largest admissible aligned block and verifies the typed hub veto.
+`BatchWindows` derives batch windows from actual palette positions.
+`HubPricing.history_signed_debit_le` computes destination multiplicities and
+largest records from a finite selection history, decodes those actual records
+into the lifetime dictionary, and derives the signed-price envelope. This
+removes the earlier requirement to supply a code or maximum-block theorem as
+an independent hypothesis. The controller must still produce the history and
+establish its population and group-separation invariants.
+
+`Promotion.promote` is a single executable parent operation covering interior,
+lower-endpoint, and upper-endpoint choices. Its result includes the updated
+system and pins, immutable-colour embedding, true fibre-count retention,
+independence from old destination members, and the complete local invariant.
+`ordinary_price` connects the calibrated fibre bound to this actual operation.
+
+`CutNormalization` proves both strict width cuts, their exact rejected-width
+count bounds, retention of at least `1-C/L`, preservation of the local invariant,
+and equality after retiring a row already implied by the artificial walls.
+`PinElimination` proves exact maps, counts, events, and expectations when pinned
+coordinates are isolated and their consequences retained in propagated walls.
+
+`PoolState` implements actual membership on the fixed label carrier, proves root
+initialization and empty-child counts, and supplies executable birthday admissions
+with their palette embeddings and exact count multiplier. `AsymptoticRates`
+proves the explicit normalized terminal, squared-cap cheap, regular, and scale
+remainders tend to zero, together with the physical/cut overhead. These analytic
+results still require the actual controller's finite accounting inequality.
+
 ## What remains before the full theorem is proved
 
-1. **The local probability error.** Construct and verify the conditional
-   refresh coupling, prove the discrepancy moment contraction, and combine
-   it with the insertion/near-tie estimate to bound the difference between
-   full and truncated laws. `local_choice_retains` currently takes those
-   error inequalities as hypotheses. The truncated system must use the
-   *original propagated windows* while retaining the sparse generating
-   graph; taking arbitrary original lists is not a proved substitute.
+1. **Complete the numerical-oracle integration.** Connect the proved induced
+   count to the stored ideal-table implementation used by every controller
+   query. Relabeling and the local theorem's structural premises must follow
+   from the actual repair procedure at each invocation.
 
-2. **The efficient counting algorithm.** Verify the ideal-state dynamic
-   program against the exact finite semantics. For a run of palette levels
-   with the same transition matrix, admissible ideal states must exclude
-   expired and not-yet-available unary intervals before the `I+V` argument
-   is used. Then establish the operation and integer bit-length bounds.
+2. **Assemble the recursive controller and its trace accounting.** Implement
+   and verify the stored pool tree, public-order delegation, width repair,
+   degree repair, and path reservations. The remaining work includes the
+   separated-scale geometry, strict-wall row retirement, inactive-label and
+   child-membership invariants, termination, and the correspondence between
+   actual moves and the incidence/group arrays used by the accounting proof.
+   Local routing, safety, endpoint transitions, and the true parent-promotion
+   price are already proved; a whole-run theorem is still required.
 
-3. **Calibrated pins and the changing palette dictionary.** Formalize the
-   marginal log-concavity injection and noisy-CDF interval lemma; implement
-   stable binary-counter batches and aligned dyadic hubs; prove the lifetime
-   dictionary bound and the two-admissions-per-colour cap within a scale
-   group. The current code inequalities do not establish the dictionary
-   hypotheses for a particular implementation.
-
-4. **The recursive controller.** Implement pools, delegation, pins, physical
-   and numerical records, and repairs. Prove initialization, preservation,
-   termination, legality, and the correspondence between actual promotions
-   and the arrays/witnesses used in the accounting lemmas. This includes
-   path reservations, retesting degree witnesses, retiring rows at strict
-   walls, and preserving dormant child laws during births. Prove the
-   complete singleton safety test and its compatibility with the inner-pin
-   test. The local routing lemmas are not a proof that a complete run
-   preserves all these invariants.
-
-5. **Uniform asymptotics and machine cost.** Instantiate the stage-cost
-   function with the manuscript's actual arithmetic and oracle parameters;
-   prove the signed hub-price estimate and the resulting error functions
-   vanish; apply `comparison_guarantee_of_vanishing_accounting`; and verify
-   a fixed polynomial bit-cost bound for the constructed strategy. The
-   existing bound on the number of affordability tests does not bound the
-   cost of evaluating an arbitrary supplied stage-cost function.
+3. **Close uniform asymptotics and computational cost.** Instantiate the
+   bounded stage computation with the actual parameters, prove its selected
+   error functions vanish, derive the clock inequality for the constructed
+   strategy, and prove one fixed polynomial bit-cost bound for that strategy.
+   The ideal counter already has exact correctness, explicit table-work
+   bounds, and intermediate integer-size bounds. Neither those bounds nor a
+   bound on affordability-test count alone is a complete machine-cost proof.
 
 For the uniformization step, preserve the manuscript's stronger cheap-cost
 cap `(4^B W0)^2 ≤ log₂(n+1)`, equivalently
