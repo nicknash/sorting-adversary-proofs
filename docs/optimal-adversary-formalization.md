@@ -274,14 +274,42 @@ receipts and prove that their logarithmic credits telescope to the change in
 the ledger's factorial potential. The signed count-loss theorem uses those
 real receipts; it does not assume a factorial schedule.
 
+`ControllerRun` and `ActiveTerminal` connect the stateful execution to the
+actual active response sequence and the terminal totality/count estimate.
+`LedgerQuery`, `LedgerRouter`, `LedgerController`, and `LedgerRun` derive an
+accepted chronological ledger for that sequence, hence the actual final-tree
+promotion bound `P ≤ 2q` and degree bound `D * degreeCount ≤ 2q`.
+`LedgerControllerPrices` and `LedgerRunPrices` telescope the emitted birthday
+receipts and the counting-potential drop over the full run.
+
+The `Reservation*` modules through `ReservationFinalGroups` execute two
+separate pending reservation books alongside that same actual ledger. Every
+path group has `H` original labels, every scale group has `J`, groups of each
+type are disjoint, and the actual final physical destinations have the required
+path/scale multiplicities. Nested scale repairs inside a pending path are
+covered. `RepairPricing`, `RepairPersistence`, `RepairEvolution`, and
+`ControllerPricing` extract the actual immutable hub history and prove that
+all its records still fit their real final stored node.
+
+`StoredRowPotential`, `RepairCuts`, `CutAccounting`, and `CutRun` prove that
+the cuts emitted by the real complete active execution number at most `q`.
+Child admissions preserve the descendant active-row contribution, delegated
+queries preserve ancestor active rows, and each stopping query adds at most
+one row. `CutoffBounds` proves the implemented clock dominates `n log₂ n`
+and is eventually at most `4 n log n`. `UniformRates` proves the rates for
+the actual bounded selector, including the evaluated cheap charge and cut
+error. `UniformComparisonReduction` is the scalar closing reduction; its
+finite active-run inequality remains an explicit premise until the global
+price aggregation is connected.
+
 ## What remains before the full theorem is proved
 
-1. **Finish whole-run accounting for the constructed family.** Connect the
-   complete routed query and run to the actual incidence ledger, separate
-   path/scale reservation ledgers, and immutable hub-price records. Derive the
-   finite clock inequality from those emitted records and the actual terminal
-   tree count. The local accepted-run and signed birthday-credit bridges are
-   proved; the final global aggregation is still in progress.
+1. **Finish global price aggregation for the constructed family.** The
+   complete routed query and run are connected to the actual incidence ledger,
+   separate path/scale reservation books, immutable hub histories, and signed
+   birthday credits. The final dictionary/population entropy aggregation and
+   cheap/expensive factorial split must still produce the finite clock
+   inequality from those actual records.
 
 2. **Instantiate the final asymptotic comparison theorem.** Combine the exact
    clock inequality with the constructed selector's divergence, cheap square

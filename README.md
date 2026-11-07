@@ -26,6 +26,10 @@ The complete width/degree/path normalizer, stored recursive query controller,
 physical-clock cutoff, and bounded uniform stage constructor are now executable
 and checked. `UniformAdversary.strategy` constructs the family, and
 `UniformAdversary.consistent` proves its legality against every finite sorter.
+The actual full active execution now derives its chronological ledger,
+promotion and degree budgets, path/scale reservation books, immutable hub
+histories, signed birthday credits, cut count, and terminal totality. The
+implemented integer cutoff and selected-stage remainder rates are checked.
 The final whole-run comparison inequality and polynomial bit-cost theorem
 remain under construction.
 

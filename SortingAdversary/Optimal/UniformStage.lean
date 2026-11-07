@@ -40,6 +40,8 @@ structure Accepted (cap j : ℕ) where
   scale : runtime.normalizer.scale.J =
     AsymptoticRates.stageScaleLength j runtime.normalizer.scale.width.B
   accuracy : runtime.ε = 1 / (100 * (j : ℚ))
+  cut_error : (2 * 4 ^ runtime.normalizer.scale.width.B : ℚ) /
+    runtime.normalizer.scale.width.L ≤ runtime.ε
   cheap_square : runtime.cheap ^ 2 ≤ cap
   comparison_ball : runtime.comparisonBall ≤ cap
   cdf_ball : runtime.cdfBall ≤ cap
@@ -62,6 +64,22 @@ def compileTable (cap j : ℕ) (hj : 0 < j) (hjcap : j ≤ cap) (table : StageRe
     change 1 / (table.get .accuracyDen : ℚ) = _
     rw [hvalues .accuracyDen]
     simp only [value, accuracyDen, Nat.cast_mul, Nat.cast_ofNat]
+  cut_error := by
+    change (2 * 4 ^ table.get .comparables : ℚ) / table.get .edgeRatio ≤
+      1 / (table.get .accuracyDen : ℚ)
+    rw [hvalues .comparables, hvalues .edgeRatio, hvalues .accuracyDen]
+    change (2 * 4 ^ comparables j : ℚ) / edgeRatio j ≤ 1 / (accuracyDen j : ℚ)
+    have hd : (0 : ℚ) < accuracyDen j := by exact_mod_cast accuracyDen_pos hj
+    have hL : (0 : ℚ) < edgeRatio j := by
+      exact_mod_cast (lt_trans (by positivity : 0 < 2 * 4 ^ comparables j) (cutBudget hj))
+    apply (div_le_div_iff₀ hL hd).mpr
+    have hN : accuracyDen j * insertion j ≤ edgeRatio j := by
+      unfold edgeRatio
+      apply Nat.mul_le_mul_right
+      nlinarith [Nat.zero_le (accuracyDen j * degreeCap j)]
+    have hQ : (accuracyDen j : ℚ) * (2 * 4 ^ comparables j) ≤ edgeRatio j := by
+      exact_mod_cast hN
+    nlinarith
   cheap_square := by
     change (table.get .cheap) ^ 2 ≤ cap
     rw [hvalues .cheap]
