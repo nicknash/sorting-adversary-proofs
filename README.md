@@ -1,29 +1,56 @@
 # Sorting adversaries in Lean
 
 This repository is an audit-oriented, `sorry`-free Lean 4 formalization of
-deterministic adversaries for comparison sorting. Its complete proved online
-adversary is the curvature/volumetric construction described below.
+deterministic adversaries for comparison sorting. It now proves the leading-one
+online comparison guarantee for the executable recursive colour adversary,
+as well as the earlier curvature/volumetric construction described below.
 
 ## November 7 optimal-adversary formalization
 
 The recursive colour construction from *An asymptotically optimal deterministic
-adversary for comparison sorting* is being formalized under
+adversary for comparison sorting* is formalized under
 [`SortingAdversary/Optimal/`](SortingAdversary/Optimal/).
-**The complete polynomial-time leading-one adversary theorem is not yet proved
-in Lean.**
+**The leading-one online comparison theorem is proved in Lean.** The separate
+whole-program polynomial bit-cost proof remains under construction.
 
-The new development proves finite weak-map semantics, safe routing lemmas,
-palette refinements and birth credits, integer insertion lemmas, terminal
-counts, factorial and entropy accounting, bounded stage selection, and the
-conditional reduction to an online comparison guarantee. It has a separate
-axiom audit permitting only the three standard Lean axioms.
+The closing theorem is
+[`UniformAdversary.asymptoticallyOptimal`](SortingAdversary/Optimal/UniformOptimal.lean).
+It proves that the single constructed family is consistent against every finite
+comparison tree and, for every real `δ > 0`, forces at least
+`(1 - δ) n log₂ n` comparisons against every correct sorter for all sufficiently
+large `n`. Its proof has no assumed oracle, pricing, accounting, or convergence
+hypotheses. `UniformAdversary.worst_case` transfers the bound to a genuine
+ranking input of every correct sorting tree.
+
+The development includes certified executable routing, invariant-preserving
+promotions and fresh admissions, stored-matrix public closure, exact ideal-state
+counting with quantitative work and integer-size bounds, the finite common-clock
+coupling and induced-neighbourhood accuracy theorem, marginal log-concavity and
+the original noisy-quartile `1/(16m)` guarantee, stable binary batches and actual
+hub-history signed prices, strict width cuts, pin elimination, and vanishing
+analytic stage rates. Isolated and mixed local-query cases are included.
+The concrete recursive pool tree, ancestor delegation, parent/child promotion,
+persistent source-row representation, scale geometry, chronological ledgers,
+palette caps, and actual tree terminal bound are now checked as well.
+The complete width/degree/path normalizer, stored recursive query controller,
+physical-clock cutoff, and bounded uniform stage constructor are now executable
+and checked. `UniformAdversary.strategy` constructs the family, and
+`UniformAdversary.consistent` proves its legality against every finite sorter.
+The actual full active execution now derives its chronological ledger,
+promotion and degree budgets, path/scale reservation books, immutable hub
+histories, signed birthday credits, cut count, and terminal totality. The
+implemented integer cutoff and selected-stage remainder rates are checked.
+The actual whole-run comparison inequality, final dictionary entropy budget,
+cheap/expensive factorial split, and unconditional asymptotic comparison theorem
+are now checked. The remaining work concerns the complete program's bit cost.
 
 See [`docs/optimal-adversary-formalization.md`](docs/optimal-adversary-formalization.md)
-for the exact theorem coverage and the remaining local-oracle, dictionary,
-controller, and bit-complexity obligations. Exhaustive counting in the
-reference semantics is not claimed to be the polynomial-time implementation.
+for the exact theorem coverage and the remaining bit-complexity obligation.
+The separate optimal-development axiom audit
+permits only the three standard Lean axioms. The reference semantics' exhaustive
+counting is distinct from the verified table algorithm.
 
-## Proved complete adversary theorem, stated exactly
+## Earlier curvature adversary theorem, stated exactly
 
 Put
 
@@ -166,8 +193,8 @@ own rational interval checker and replays certificate data stored in
 `StrengthenedCertificateData.lean`. The finite replay uses `native_decide`, so
 the generated native evaluator axiom is explicitly visible in the axiom audit.
 
-Lean also does not formalize a bit-cost model or a convex-optimization
-implementation. The exact strategy is a semantic, noncomputable function
+The curvature development does not formalize a bit-cost model or a
+convex-optimization implementation. Its exact strategy is a semantic, noncomputable function
 using exact real volumetric centers. The research memos explain why
 polynomial-accuracy centers and child potentials can be obtained in polynomial
 time, and Lean proves the `2ε` robustness lemma needed by that argument, but it
