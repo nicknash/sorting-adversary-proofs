@@ -19,6 +19,10 @@ coupling and induced-neighbourhood accuracy theorem, marginal log-concavity and
 the original noisy-quartile `1/(16m)` guarantee, stable binary batches and actual
 hub-history signed prices, strict width cuts, pin elimination, and vanishing
 analytic stage rates. Isolated and mixed local-query cases are included.
+The concrete recursive pool tree, ancestor delegation, parent/child promotion,
+persistent source-row representation, scale geometry, chronological ledgers,
+palette caps, and actual tree terminal bound are now checked as well.
+The repair-loop assembly and its complete execution accounting remain active.
 
 See [`docs/optimal-adversary-formalization.md`](docs/optimal-adversary-formalization.md)
 for the exact theorem coverage and the remaining controller, execution-accounting,

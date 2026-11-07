@@ -177,21 +177,74 @@ proves the explicit normalized terminal, squared-cap cheap, regular, and scale
 remainders tend to zero, together with the physical/cut overhead. These analytic
 results still require the actual controller's finite accounting inequality.
 
+## Concrete tree, sparse history, and chronological accounting
+
+The next checked layer contains the stored recursive tree and the actual
+parent/child mutations. `PoolTree`, `TreePromotion`, `TreePromotionCount`,
+`TreeOrder`, and `PoolPalette` prove exact child membership, immutable-key
+transport, independent birthdays at the real destination, preservation of
+public-order restrictions, and palette caps. `SeparatedPins` ensures that a
+moved label keeps a comparable member outside its destination; this proves
+strictly smaller child populations and the actual `2s-1` node bound.
+
+`TreeRoutingBase`, `TreeReplacement`, and `TreeRouter` implement recursive
+routing through the child containing both queried labels. The ancestor count
+is unchanged, the shared child's new public order agrees with its parent,
+and an exact product identity transfers the stopping subtree's retained
+fraction to the root. `StoppingComparison` executes the safety tests, excludes
+same-child delegation at a stopping node, and chooses the larger of the two
+certified rational estimates. It proves the retained fraction `1/2-error`.
+The generic router still awaits its complete repair-and-metadata program.
+
+`NumericalRepresentation` retains proper primitive source rows separately from
+active rows. Every retired source row is justified by a physical pin or
+strict separation of primitive artificial walls. Its sparse numerical view
+has exactly the original maps, counts, events, fibres, and effective windows.
+Both endpoint splits, physical pins, strict cuts, fresh admissions, and new
+comparison rows preserve this representation. In particular, no derived
+propagated bound is silently stored as an artificial wall before a split.
+
+`SparseRepairGraph` computes a longest path in a materialized table using
+original label identities and a topological rank, proves actual reservation
+properties, and supplies the decreasing free-label/active-row measure.
+`ScaleGeometry`, `ScalePinPreservation`, `ScaleHubs`, and `ScaleMass` prove the
+first-crossing scale labels, their separation and unchanged windows, the
+actual typed-veto group length and two-per-child cap, and central-insertion
+prices at the selected hubs. `PaletteBirthOrder` extends chronological colour
+permutations through both endpoint splits and top appends. `Reindexing`
+removes any ordering assumption on the original label indices from both
+comparison and CDF accuracy.
+
+`IncidenceLedger` and `GroupReservations` execute and validate finite action
+sequences, deriving incidence budgets, disjoint completed reservations, and
+entropy arrays from the recorded actions. `PoolTreeAccounting`,
+`PoolTreeTraversal`, and `PoolTreeGroups` identify those arrays with actual
+child populations and prove exact free-label conservation, population and
+promotion identities, and the entropy telescope. `TreeChronology` proves
+immutable-node allocation and that each actual promotion increases the tree's
+promotion total by one. The remaining execution bridge must show that the
+complete controller emits the accepted sequences used by these lemmas.
+
+`TreeTerminal` derives each actual pool's stars-and-bars bound from inherited
+public totality, aggregates the real product count, and uses the preserved
+palette caps for the terminal logarithmic remainder. Correct sorting supplies
+the root totality through the repository's transcript semantics.
+
 ## What remains before the full theorem is proved
 
 1. **Complete the numerical-oracle integration.** Connect the proved induced
    count to the stored ideal-table implementation used by every controller
-   query. Relabeling and the local theorem's structural premises must follow
-   from the actual repair procedure at each invocation.
+   query. Relabeling is now proved; the local theorem's structural premises
+   must follow from the actual repair procedure at each invocation.
 
 2. **Assemble the recursive controller and its trace accounting.** Implement
-   and verify the stored pool tree, public-order delegation, width repair,
-   degree repair, and path reservations. The remaining work includes the
-   separated-scale geometry, strict-wall row retirement, inactive-label and
-   child-membership invariants, termination, and the correspondence between
-   actual moves and the incidence/group arrays used by the accounting proof.
-   Local routing, safety, endpoint transitions, and the true parent-promotion
-   price are already proved; a whole-run theorem is still required.
+   and verify width repair, degree repair, and chronological path processing
+   on the now-checked tree and source-row representation. The remaining work
+   includes executable selection and completion of every repair group, then
+   the correspondence between the emitted moves and the accepted incidence,
+   reservation, and pricing histories. Recursive routing, scale geometry,
+   child membership, public coherence, terminal counts, and individual
+   mutation prices are proved; a whole-run theorem is still required.
 
 3. **Close uniform asymptotics and computational cost.** Instantiate the
    bounded stage computation with the actual parameters, prove its selected
