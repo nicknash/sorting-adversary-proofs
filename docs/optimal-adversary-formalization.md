@@ -42,11 +42,45 @@ All paths below are under `SortingAdversary/Optimal/`.
 | `Examples.lean` | Kernel-reduced finite checks of ties, palette preservation, births, endpoint identities, and the distinction between weak feasibility and strict public legality | Semantic regression checks |
 | `Audit.lean` | Declaration-level axiom audit of the new namespace | Verification boundary |
 
+### Continuation after the initial foundation PR
+
+The following modules close additional obligations of the initial checkpoint.
+The full recursive controller and end-to-end polynomial-time theorem remain
+under construction.
+
+| File | Newly proved content |
+| --- | --- |
+| `Safety.lean` | Exact window changes under a new comparison; a newly singleton free coordinate forces an all-retaining reverse with a strict witness |
+| `ControllerRouting.lean` | Executable certified routing using both safety tests and window feasibility; safe stopping branches preserve the local public-order and free-window invariant |
+| `PinTransitions.lean` | Exact windows after a physical pin; strict interior pins preserve every other free coordinate and give independent child admissions |
+| `RefinementTransitions.lean` | Both endpoint palette refinements preserve the full local invariant; the fresh colour is proved interior before pinning |
+| `FreshAdmission.lean` | Fixed-carrier fresh-label admission is bijective to the old maps times the palette; exact birth credit and preservation of invariants through birth and top-colour enlargement |
+| `SparseClosure.lean` | Stored-matrix Floyd--Warshall closure; exact map/count equivalence; propagating original walls while retaining sparse rows; explicit cubic matrix-cell-write count |
+| `PublicOrder.lean` | Concrete ranking extension of any finite public partial order using predecessor counts and label tie-breaking |
+| `PublicLegality.lean` | Executable public-order guard; every guarded policy satisfies the actual repository's online legality specification |
+| `CompletedOrder.lean` | A correct sorter makes the actual public closure total; its compatible ranking supplies the exact free-label enumeration for the terminal count |
+| `IdealCounting.lean` | Stored-table ideal-state dynamic programming equals the original finite count; endpoint expiry/future checks, polynomial table-work bounds under the logarithmic cap, and bounds on all intermediate integer sizes |
+| `DyadicDictionary.lean` | Explicit finite dyadic hub-record code and summable cubic subprobability bound |
+| `SignedPrice.lean` | Positive-debit truncation, factorial credits, code/Jensen aggregation, and the absolute-constant global signed-price envelope from dictionary records |
+
+`IdealCounting.count_eq` is exact correctness of the executable local counter,
+not an assumption about a counting oracle. The work theorem counts transition
+tests and scanned table entries, including the implementation's linear table
+lookup. It does not by itself certify the bit cost of arbitrary input functions
+for rows and bounds. The stored-matrix representation and integer-size results
+are ingredients for that separate end-to-end cost proof.
+
+The public guard proves legality for any supplied policy; it does not prove
+that every supplied policy has a long run. Likewise, the signed-price theorem
+requires dictionary records representing the actual chosen colours. These
+distinctions remain explicit during controller assembly.
+
 `WeakSystem` uses Boolean raw rows and inclusive finite colour intervals.
-Consequently exact counts and the reference choices are executable. These
-definitions enumerate assignments and are **not** asserted to be the
-polynomial-time local counting algorithm. They provide precise semantics
-against which that algorithm can be verified.
+Consequently exact counts and the reference choices are executable. The
+reference definitions enumerate assignments. `IdealCounting` now proves a
+separate stored-table implementation equal to those counts; it does not
+enumerate assignments. Local approximation accuracy and its connection to the
+full controller remain separate obligations.
 
 ### Weak colour inequalities and strict physical comparisons
 

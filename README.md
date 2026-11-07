@@ -12,11 +12,12 @@ adversary for comparison sorting* is being formalized under
 **The complete polynomial-time leading-one adversary theorem is not yet proved
 in Lean.**
 
-The new development proves finite weak-map semantics, safe routing lemmas,
-palette refinements and birth credits, integer insertion lemmas, terminal
-counts, factorial and entropy accounting, bounded stage selection, and the
-conditional reduction to an online comparison guarantee. It has a separate
-axiom audit permitting only the three standard Lean axioms.
+The development now also includes certified executable routing, invariant
+preservation through interior and endpoint pins, exact fresh admissions,
+stored-matrix public closure, a legal online guard, terminal-order semantics,
+verified ideal-state counting with quantitative work and integer-size bounds,
+and the signed-price aggregation from dyadic dictionary records. It has a
+separate axiom audit permitting only the three standard Lean axioms.
 
 See [`docs/optimal-adversary-formalization.md`](docs/optimal-adversary-formalization.md)
 for the exact theorem coverage and the remaining local-oracle, dictionary,
