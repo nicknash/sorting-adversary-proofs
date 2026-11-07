@@ -237,6 +237,39 @@ import SortingAdversary.Optimal.RepresentationTreeAdmission
 import SortingAdversary.Optimal.RepresentationPromotionKeys
 import SortingAdversary.Optimal.RepresentationTreePromotion
 import SortingAdversary.Optimal.RepresentationTreeBounds
+import SortingAdversary.Optimal.IsolatedCoupling
+import SortingAdversary.Optimal.LocalOracleBitBounds
+import SortingAdversary.Optimal.MeasuredActive
+import SortingAdversary.Optimal.MeasuredChildRouting
+import SortingAdversary.Optimal.MeasuredDelegation
+import SortingAdversary.Optimal.MeasuredMachine
+import SortingAdversary.Optimal.MeasuredOracleBounds
+import SortingAdversary.Optimal.MeasuredOracleBudget
+import SortingAdversary.Optimal.MeasuredRouting
+import SortingAdversary.Optimal.MeasuredRoutingWork
+import SortingAdversary.Optimal.MeasuredStopContext
+import SortingAdversary.Optimal.RationalBitWork
+import SortingAdversary.Optimal.RepresentationTreeReplay
+import SortingAdversary.Optimal.RepresentationTreeView
+import SortingAdversary.Optimal.StageCompileWork
+import SortingAdversary.Optimal.UniformPreparedWork
+import SortingAdversary.Optimal.UniformRepairPolynomial
+import SortingAdversary.Optimal.UniformRepairWork
+import SortingAdversary.Optimal.UniformRoutingWork
+import SortingAdversary.Optimal.UniformScalarSizes
+import SortingAdversary.Optimal.UniformScalarWork
+import SortingAdversary.Optimal.UniformStopBounds
+import SortingAdversary.Optimal.UniformStopPolynomial
+import SortingAdversary.Optimal.UniformStopWork
+import SortingAdversary.Optimal.WidthPolynomialWork
+import SortingAdversary.Optimal.ControllerResources
+import SortingAdversary.Optimal.UniformInitialWork
+import SortingAdversary.Optimal.UniformSelectionWork
+import SortingAdversary.Optimal.UniformMachineWork
+import SortingAdversary.Optimal.HubBitBounds
+import SortingAdversary.Optimal.UniformBitResources
+import SortingAdversary.Optimal.UniformEfficient
+import SortingAdversary.Optimal.UniformInitializationBits
 import SortingAdversary.Optimal.Audit
 
 /-!
@@ -246,7 +279,9 @@ This root contains no admitted proof obligations. `UniformAdversary.strategy`
 constructs the complete executable family and `UniformAdversary.consistent`
 proves unconditional online legality. `UniformAdversary.asymptoticallyOptimal`
 proves the unconditional leading-one online comparison bound for that family.
-The whole-program polynomial-cost theorem is a separate remaining obligation.
-See `docs/optimal-adversary-formalization.md` for the precise current boundary.
+`UniformEfficient.efficientOptimal` combines exact implementation, optimality,
+actual reachable operand certificates, and polynomial initialization/query
+charges in the explicit bounded-operand schoolbook model.
+See `docs/optimal-adversary-formalization.md` for the execution and trust boundaries.
 The `Optimal.Audit` import rejects nonstandard axioms in this namespace.
 -/

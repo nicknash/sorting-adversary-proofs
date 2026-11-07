@@ -21,8 +21,8 @@ def lowerCutAccess (a : LocalAccess s) (u v : Fin n) (live : s.rows.active u v =
   publicRow := a.publicRow
   source := a.source
   active := eraseRow a.active u v
-  lower := pinLower a.lower v threshold
-  upper := pinUpper a.upper u (previousColor threshold)
+  lower := pinLower (K := s.pool.palette + 1) a.lower v threshold
+  upper := pinUpper (K := s.pool.palette + 1) a.upper u (previousColor threshold)
   pin := a.pin
   member := a.member
   order := a.order
@@ -44,8 +44,8 @@ def upperCutAccess (a : LocalAccess s) (u v : Fin n) (live : s.rows.active u v =
   publicRow := a.publicRow
   source := a.source
   active := eraseRow a.active u v
-  lower := pinLower a.lower v (nextColor threshold)
-  upper := pinUpper a.upper u threshold
+  lower := pinLower (K := s.pool.palette + 1) a.lower v (nextColor threshold)
+  upper := pinUpper (K := s.pool.palette + 1) a.upper u threshold
   pin := a.pin
   member := a.member
   order := a.order

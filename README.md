@@ -10,8 +10,10 @@ as well as the earlier curvature/volumetric construction described below.
 The recursive colour construction from *An asymptotically optimal deterministic
 adversary for comparison sorting* is formalized under
 [`SortingAdversary/Optimal/`](SortingAdversary/Optimal/).
-**The leading-one online comparison theorem is proved in Lean.** The separate
-whole-program polynomial bit-cost proof remains under construction.
+**The leading-one online comparison theorem and a concrete polynomial-cost
+implementation are proved in Lean.** The implementation uses an explicit
+bounded-operand schoolbook cost model, with certificates for the operands
+that occur in reachable executions.
 
 The closing theorem is
 [`UniformAdversary.asymptoticallyOptimal`](SortingAdversary/Optimal/UniformOptimal.lean).
@@ -42,10 +44,29 @@ histories, signed birthday credits, cut count, and terminal totality. The
 implemented integer cutoff and selected-stage remainder rates are checked.
 The actual whole-run comparison inequality, final dictionary entropy budget,
 cheap/expensive factorial split, and unconditional asymptotic comparison theorem
-are now checked. The remaining work concerns the complete program's bit cost.
+are now checked.
+
+The implementation entry point is
+[`UniformMachineWork.build`](SortingAdversary/Optimal/UniformMachineWork.lean).
+It constructs the accepted-stage or fixed-order machine, its initial tree,
+and its counted stateful transition. `strategy_eq` proves exact agreement
+with `UniformAdversary.strategy` on every transcript. Initialization has a
+fixed quadratic word-work bound; each query has a fixed degree-sixteen
+word-work bound. Both bounds include the actual data-structure operations and
+local counting algorithms.
+
+[`UniformEfficient`](SortingAdversary/Optimal/UniformEfficient.lean) combines
+optimality with the built program's resource certificates and polynomial
+binary charges. These certificates cover reachable counters and immutable
+identities, palettes throughout repair, local count integers and partial DP
+sums, rational arithmetic, dyadic hub calculations, and admitted stage
+arithmetic. The deliberately loose query envelope has degree thirty-two.
+The cost model is stated in
+[`RationalBitWork`](SortingAdversary/Optimal/RationalBitWork.lean); the theorem
+does not certify the timing of Lean's native bigint library or compiler.
 
 See [`docs/optimal-adversary-formalization.md`](docs/optimal-adversary-formalization.md)
-for the exact theorem coverage and the remaining bit-complexity obligation.
+for the exact theorem coverage, execution model, and verification boundary.
 The separate optimal-development axiom audit
 permits only the three standard Lean axioms. The reference semantics' exhaustive
 counting is distinct from the verified table algorithm.
