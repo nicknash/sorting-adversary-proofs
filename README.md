@@ -1,9 +1,29 @@
 # Sorting adversaries in Lean
 
-This repository is an audit-oriented, `sorry`-free Lean 4 formalization of a
-deterministic curvature/volumetric adversary for comparison sorting.
+This repository is an audit-oriented, `sorry`-free Lean 4 formalization of
+deterministic adversaries for comparison sorting. Its complete proved online
+adversary is the curvature/volumetric construction described below.
 
-## Headline theorem, stated exactly
+## November 7 optimal-adversary formalization
+
+The recursive colour construction from *An asymptotically optimal deterministic
+adversary for comparison sorting* is being formalized under
+[`SortingAdversary/Optimal/`](SortingAdversary/Optimal/).
+**The complete polynomial-time leading-one adversary theorem is not yet proved
+in Lean.**
+
+The new development proves finite weak-map semantics, safe routing lemmas,
+palette refinements and birth credits, integer insertion lemmas, terminal
+counts, factorial and entropy accounting, bounded stage selection, and the
+conditional reduction to an online comparison guarantee. It has a separate
+axiom audit permitting only the three standard Lean axioms.
+
+See [`docs/optimal-adversary-formalization.md`](docs/optimal-adversary-formalization.md)
+for the exact theorem coverage and the remaining local-oracle, dictionary,
+controller, and bit-complexity obligations. Exhaustive counting in the
+reference semantics is not claimed to be the polynomial-time implementation.
+
+## Proved complete adversary theorem, stated exactly
 
 Put
 

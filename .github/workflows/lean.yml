@@ -34,3 +34,5 @@ jobs:
           axiom-audit: true
           axiom-audit-root: "SortingAdversary"
           axiom-audit-allow: "propext,Classical.choice,Quot.sound,SortingAdversary.StrengthenedCurvature.strengthened_certificate_check._native.native_decide.ax_1_1"
+      - name: Audit every recursive-colour declaration with standard axioms only
+        run: lake env lean SortingAdversary/Optimal/Audit.lean
