@@ -1,18 +1,38 @@
 \section{A geometric bound at termination}\label{sec:accounting}
 
-We now place the recursive state inside the ordinary unit cube $(0,1)^n$,
-with one coordinate for each original label. The map preserves every
-represented order. When sorting is complete its image must lie in a single
-coordinate-order region, of volume $1/n!$. Computing the volume of the image
-will therefore give an upper bound on the final state.
+A correct sorter can finish only when the public answers determine a single
+order. We want to turn that fact into an upper bound on the volume of the
+final state. There is an obstacle: positions in different groups use
+different copies of the unit interval. Consider a feasible assignment in
+which $A$ is free at position $3/4$ in the root, while $B$ has position
+$7/8$ inside a child anchored at $1/4$. The represented order is $B<A$, although the two raw
+coordinates satisfy $3/4<7/8$. We cannot apply the usual $1/n!$ volume bound
+to these coordinates.
+
+We therefore put all items onto one common line. Replace each anchor by a
+small interval, and place the child's recursively constructed line inside
+it. The order of items on the resulting line is exactly their represented
+order. Each item now has a coordinate in the same $(0,1)$, so at termination
+all resulting assignments lie in one of the $n!$ equal-volume order regions.
+The only remaining question is how much this placement shrinks volume.
 
 \subsection{An interval for each child}
 
-Reserve for an anchor of address length $m$ a child interval of width
+Every group may eventually use anchors at arbitrarily fine dyadic levels.
+At level $m$ there are $2^m$ possible anchors. Giving each one width
+proportional to $2^{-m}$ would use the same total width at every level and
+would not fit in a bounded interval. We make the widths decrease a little
+faster, by an extra factor $2^{-m/k}$. This makes their total finite while
+adding only $m/k$ to the logarithmic cost of a child placement.
+
+Specifically, reserve for each anchor at level $m$ an interval of width
 \begin{equation}\label{eq:child-weight}
 w(m)=\frac{2^{-(1+1/k)m}}{4k}.
 \end{equation}
-At most $2^m$ anchors have that address length. Hence at every node
+Only children currently present receive intervals. The sum over all
+possible anchors below is a bound on every such finite set.
+The factor $4k$ leaves at least half the line for free positions. Indeed,
+at every node
 \begin{equation}\label{eq:weight-sum}
 \sum_c w_c\le\frac1{4k}\sum_{m\ge0}2^{-m/k}
 =\frac1{4k(1-2^{-1/k})}\le\frac12.
@@ -63,8 +83,22 @@ shown schematically; their values are given by \eqref{eq:child-weight}.}
 \label{fig:packing}
 \end{figure}
 
-For a parent--child edge $c$, let $s_c$ be the number of original labels in
-the child's entire subtree, and put
+An item is scaled by a child interval's width every time its route from the
+root passes through that child. For example, an item at depth two has final
+position
+\[
+a_1+w_1\bigl(a_2+w_2G_v(X_x)\bigr),
+\]
+where $a_i$ is the left endpoint of the chosen child interval, measured
+in its own parent's unit interval,
+and $G_v$ is the map in the group where the item is free. Its scale factor
+is $w_1w_2/2$. The factor $1/2$ occurs once, at its free coordinate; the
+ancestor groups contribute only their child widths.
+
+To multiply these scale factors over all items, let $s_c$ be the number of
+original labels in the subtree below a parent--child edge $c$. The width
+$w_c$ scales exactly these $s_c$ items, so its contribution is $w_c^{s_c}$.
+The product of all child-width contributions is
 \begin{equation}\label{eq:W}
 \mathcal W=\prod_{\text{parent--child edges }c}w_c^{s_c}.
 \end{equation}
@@ -96,8 +130,8 @@ Partition the domain at the finitely many anchor hyperplanes. On each piece,
 the map of a label is affine. Its slope is $1/2$ at its free coordinate,
 multiplied by the widths of the child intervals containing that label along
 the path to the root. There are exactly $n$ factors of $1/2$, one per free
-coordinate. An edge width $w_c$ occurs $s_c$ times. Thus the Jacobian on
-every piece is $2^{-n}\mathcal W$. The domain, a product of the node regions,
+coordinate. An edge width $w_c$ occurs $s_c$ times. Multiplying these coordinate scale factors shows that every
+piece has its volume multiplied by $2^{-n}\mathcal W$. The domain, a product of the node regions,
 has volume $Z$. Injectivity lets us add the image volumes of the pieces,
 proving \eqref{eq:packed-volume}.
 
@@ -107,13 +141,17 @@ volume $1/n!$, since coordinate permutations preserve volume and equality
 hyperplanes have volume zero. Hence $2^{-n}Z\mathcal W\le1/n!$.
 \end{proof}
 
-\subsection{The addresses of a path}
+\subsection{Why a long path must use fine anchors}
 
-The same bound on child widths controls a path repair.
+The items on a directed path have already been compared, directly or
+through intermediate items. Two of them therefore cannot enter the same
+child. A long path needs many distinct anchors, but there are few anchors
+at low levels. The following estimate makes this observation quantitative.
+It will pay for refining an entire path in the next section.
 
-\begin{lemma}[Address length of a path batch]\label{lem:path-address}
+\begin{lemma}[Total level of a path batch]\label{lem:path-address}
 The $H$ labels of a selected directed path enter distinct children of their
-parent. If their address lengths are $m_1,\ldots,m_H$, then
+parent. If their levels are $m_1,\ldots,m_H$, then
 \begin{equation}\label{eq:path-charge}
 \sum_{i=1}^H m_i\ge kH.
 \end{equation}

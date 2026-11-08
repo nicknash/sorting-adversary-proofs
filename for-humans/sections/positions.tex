@@ -1,16 +1,50 @@
 \section{Local probabilities and the choice of an anchor}\label{sec:oracle}
 
-The two numerical tasks are to estimate a comparison probability and to fix
-a coordinate where its density is sufficiently large. The graph bounds make
-the first task local. The second task links the volume recovered by a
-refinement to the address length of its child.
+The adversary needs to perform two calculations. To answer a comparison,
+it estimates the fraction of the current region that supports each answer.
+To move an item into a child, it finds a position where fixing that item
+retains enough volume. We describe the calculations first, then state the
+bounds that justify them.
 
-\subsection{Local probability estimates}
+\subsection{Calculating a local probability}
 
-For an interval-and-arrow region, degree and distance refer to the underlying
-undirected graph; height is the maximum number of vertices on a directed
-path. Two vertices are comparable if a directed path joins them in either
-direction.
+Let $K$ be the feasible region of the group handling the query. Its graph
+may be large. The estimator replaces it temporarily by a small graph around
+the queried coordinates and calculates the desired probability exactly in
+that smaller region. For a radius $\rho$, it performs these steps.
+\begin{enumerate}
+\item Use the effective intervals obtained by tightening the full group's
+bounds. For a query $X_x<c$, retain the vertices within $\rho$ edges of
+$x$; for $X_x<X_y$, retain the union of the neighborhoods of $x$ and $y$.
+Distances ignore arrow directions.
+\item Keep every arrow whose endpoints are both retained, and keep each
+retained coordinate's effective interval from the full group. Call the
+resulting region $K_{\rm loc}$. In particular, deleting a distant vertex
+does not undo any interval bound it had already implied.
+\item Calculate the volume $V_{\rm loc}$ of this region. Calculate a
+second volume $N_{\rm loc}$ after adding the proposed comparison arrow
+or threshold bound to a temporary copy of the local region.
+\item Return $\widehat p=N_{\rm loc}/V_{\rm loc}$.
+\end{enumerate}
+The denominator is positive because the restriction of a full feasible
+assignment is feasible locally. These steps leave the group's stored
+constraints unchanged.
+
+Both volumes are finite exact calculations. List the interval endpoints
+and enumerate the possible orders of those endpoints and the retained
+coordinates. Discard an order that violates an interval or an arrow.
+For each remaining order, the coordinates in a gap between consecutive
+endpoints occur in a prescribed order. If the gap has length $a$ and
+contains $r$ coordinates, that part has volume $a^r/r!$. Multiply over
+the gaps and sum over the accepted orders. Appendix~\ref{app:table}
+gives the integer implementation and its cost.
+
+Thus the only approximation is the removal of distant constraints. The
+following theorem bounds its effect and specifies a sufficient radius.
+The \emph{degree} of the graph is its maximum number of neighbors, ignoring
+directions; its \emph{height} is the maximum number of vertices on a directed
+path. Two vertices are \emph{comparable} if a directed path joins them in
+either direction.
 
 \begin{theorem}[Local interval probabilities]\label{thm:local}
 Fix integers $d,h\ge1$, rational $R\ge1$, and rational
@@ -19,55 +53,106 @@ $\rho=\rho(d,h,R,\varepsilon)$ with the following property.
 Consider a positive-volume interval-and-arrow region in the unit cube,
 with degree at most $d$ and height at most $h$.
 \begin{enumerate}
-\item If $W_x\ge1/R$, the probability $\Prb(X_x<c)$ is determined to
-additive error $\varepsilon$ by the induced radius-$\rho$ neighborhood of $x$.
-\item If at least one of $W_x,W_y$ is at least $1/R$, the probability
-$\Prb(X_x<X_y)$ is determined to additive error $\varepsilon$ by the subgraph induced by the union
-of their radius-$\rho$ vertex neighborhoods.
+\item If $W_x\ge1/R$, the estimator above for $\Prb(X_x<c)$ has additive
+error at most $\varepsilon$.
+\item If at least one of $W_x,W_y$ is at least $1/R$, the estimator above
+for $\Prb(X_x<X_y)$ has additive error at most $\varepsilon$.
 \end{enumerate}
-In each case the local region retains the effective intervals of the full
-region. All other widths may be arbitrarily small and positive. The local
-region has at most
+All other effective widths may be arbitrarily small and positive.
+The retained region has at most
 \[
 b=2(d+1)^{\rho+1}
 \]
 coordinates. With dyadic input bounds, its probabilities can be computed
 exactly in $(3b)^b\operatorname{poly}(b)$ arithmetic operations.
+For a fixed queried coordinate, the same retained region gives the stated
+accuracy for every threshold $c$.
 \end{theorem}
 
-The locality proof is in Appendix~\ref{app:local}. It couples conditional
-coordinate updates in the full and local regions. Bounded degree and height
-make a sufficiently high moment of the coordinate discrepancy contract.
-A density bound at the wide queried coordinate then converts closeness of
-coordinates into closeness of comparison probabilities. The proof uses
-random variables only to compare distributions; the algorithm calculates
-the local volumes deterministically by the enumeration in
-Appendix~\ref{app:table}.
+The width assumption controls comparisons that are almost tied. The proof
+shows that the queried positions in the full and retained regions can be made
+close. A comparison can change only when those positions are close to a
+tie. More precisely, if $x$ has at most $B$ other comparable labels and
+$y$ is incomparable with $x$, then
+\[
+\Prb(|X_x-X_y|\le a)\le\frac{2(B+1)a}{W_x}.
+\]
+The same bound holds with a fixed threshold in place of $X_y$.
+It follows from a bound on the density of $x$ that remains valid after
+fixing $X_y$; no independence of the queried positions is required
+(Corollary~\ref{cor:gap}). A wide $x$ therefore makes the near-tie event
+small, regardless of the width of $y$. If the labels are comparable,
+their directed path is retained and fixes the answer exactly.
+This is the reason for preparing a query whose free coordinates are all
+narrow: moving one of them into a fresh unit interval supplies the needed
+wide coordinate.
 
-For the adversary, use $d=k$, $h=2H$, and $\varepsilon=\eta$.
-Lemmas~\ref{lem:restoration} and~\ref{lem:preparation} ensure the required
-graph and width bounds at every call to the estimator. The same local region
-may be reused for all thresholds in one midpoint search.
+Appendix~\ref{app:local} proves closeness by comparing a uniform assignment
+from each region. It repeatedly replaces coordinates by uniform choices
+from their currently permitted intervals, using the same random numbers
+in both assignments. Each assignment keeps its original uniform
+distribution, while the discrepancies at vertices far from the removed
+constraints decrease. Bounded degree and height give a sufficient number
+of updates and hence a sufficient radius. These random assignments and
+updates occur only in the proof; the estimator executes the finite volume
+calculation described above.
 
-\subsection{Density and dyadic address length}\label{sec:median-search}
+For the adversary, take $d=k$, $h=2H$, and $\varepsilon=\eta$.
+Lemmas~\ref{lem:restoration} and~\ref{lem:preparation} establish the graph
+and width bounds at every estimator call.
 
-We use two facts about the density $f_x$ of a coordinate with effective
-interval $(\ell,r)$, width $W$, and at most $B$ other comparable coordinates.
-First,
+\subsection{Density and the choice of a position}\label{sec:median-search}
+
+Fix a free coordinate $x$ in a group of volume $V$. If $S_x(t)$ is the
+volume of the section obtained by setting $X_x=t$, its density is
+\[
+f_x(t)=\frac{S_x(t)}{V}.
+\]
+It measures volume per unit coordinate length: the fraction of assignments
+with $a<X_x<b$ is $\int_a^b f_x(t)\,dt$. By
+Lemma~\ref{lem:section-volume}, fixing $x$ at $c$ and giving it a fresh unit
+coordinate in a child multiplies $Z$ by $f_x(c)$. We therefore want a
+large density at the chosen anchor.
+
+The two anchor rules obtain this in different ways. For a wide item we
+can estimate its cumulative distribution $F_x$ and search for a position
+with substantial mass on either side. For a narrow item we use its interval
+endpoints alone. The following density estimates justify both
+rules.
+
+Suppose $x$ has effective interval $(\ell,r)$ of width $W$ and at most
+$B$ other comparable labels. Then
 \begin{equation}\label{eq:density-summary}
 f_x(t)\le\frac{B+1}{W},\qquad
 f_x(t)\ge\frac{4^{-B}}{W}\quad
 \left(\ell+\frac W4\le t\le r-\frac W4\right).
 \end{equation}
-Second, if $F_x$ is its cumulative distribution, then for $a\le c\le b$,
+The lower bound gives an endpoint-only choice: every point in the central
+half has this much density. The upper bound limits the probability in a
+short interval; it will ensure that the midpoint search cannot continue
+halving its search interval indefinitely.
+
+For the search we also need a density bound that improves as its cell
+shrinks. For any $a\le c\le b$,
 \begin{equation}\label{eq:mass-summary}
 (b-a)f_x(c)\ge
 \min\{F_x(c),1-F_x(c)\}\bigl(F_x(b)-F_x(a)\bigr).
 \end{equation}
-Appendix~\ref{app:geometry} proves both facts by maps between sections of the
-feasible region. The first controls the maximum density and gives a lower
-bound near the center of the effective interval. The second gives a density
-lower bound at a point with substantial mass on both sides.
+If both tails at $c$ and the mass of $[a,b]$ are bounded below, this
+forces the density at $c$ to be a constant times $1/(b-a)$.
+Appendix~\ref{app:geometry} proves \eqref{eq:density-summary} and
+\eqref{eq:mass-summary} by explicit maps between sections.
+
+\subsection{The midpoint search}
+
+Recall that the wide-item search starts with $[a,b]=[0,1]$ and tests its
+midpoint $c$. It keeps the right half if the reported cumulative
+probability is below $1/4$, keeps the left half if it is above $3/4$,
+and otherwise accepts $c$. This cell records where to test next.
+Rejecting a midpoint changes neither the feasible region $K$ nor its
+distribution $F_x$: the temporary threshold bound is used only to
+calculate the numerator of that test. All tests can use the same
+$K_{\rm loc}$ and denominator.
 
 \begin{lemma}[Midpoint search]\label{lem:median-search}
 The midpoint search for a wide item terminates at an interior anchor $c$.
@@ -79,50 +164,73 @@ The search makes at most
 $\ceil{\log(4(B+1)/W_x)}+1$ tests.
 \end{lemma}
 \begin{proof}
-The estimates have error at most $\eta<1/32$.
-If the current cell is $[a,b]$, every rejected test ensures
-$F_x(a)<9/32$ and $F_x(b)>23/32$. These inequalities hold initially as well.
-At acceptance,
+Every estimate has error at most $\eta<1/32$. A test reported below
+$1/4$ has true value below $9/32$, and its midpoint becomes the new
+left endpoint. A test reported above $3/4$ has true value above $23/32$,
+and its midpoint becomes the new right endpoint. Since the initial
+endpoint values are $F_x(0)=0$ and $F_x(1)=1$, the search maintains
+\[
+F_x(a)<9/32,\qquad F_x(b)>23/32.
+\]
+At acceptance, the report lies in $[1/4,3/4]$, so
 \[
 \frac7{32}\le F_x(c)\le\frac{25}{32},\qquad
 F_x(b)-F_x(a)\ge\frac7{16}.
 \]
-Thus $c$ is interior, and \eqref{eq:mass-summary} gives
-$2^{-m}f_x(c)\ge49/512>1/16$.
-Finally, \eqref{eq:density-summary} implies
+The first bounds put $c$ strictly inside its support. Applying
+\eqref{eq:mass-summary} to the accepted cell gives
+\[
+2^{-m}f_x(c)\ge\frac7{32}\frac7{16}
+=\frac{49}{512}>\frac1{16},
+\]
+which proves the density guarantee.
+
+For termination, the upper density bound in \eqref{eq:density-summary}
+gives, at every cell reached,
 \[
 \frac7{16}\le F_x(b)-F_x(a)
 \le\frac{B+1}{W_x}\,2^{-m}.
 \]
-At $m\ge\ceil{\log(4(B+1)/W_x)}$, the upper bound is at most
-$1/4<7/16$, a contradiction. The search therefore stops within the
-stated number of tests.
+At $m\ge\ceil{\log(4(B+1)/W_x)}$, the upper bound would be at most
+$1/4<7/16$. Starting at $m=0$ and increasing it by one at each rejection
+therefore permits at most the stated number of tests.
 \end{proof}
+
+\subsection{A common bound for both anchor rules}
+
+The lower-bound proof will compare the logarithmic volume gain from
+refinement with the anchor's level $m$. The wide-item search gives
+$\log f_x(c)\ge m-4$. The narrow-item rule gives the weaker bound
+$m-3-2B$, but the choice $R=2^{2kB}$ forces $m>2kB$ whenever that rule
+is used. Thus its additional loss $2B$ is less than the fraction $m/k$
+of the level. Both choices satisfy the following bound.
 
 \begin{lemma}[Refinement density]\label{lem:anchor-density}
 Every anchor chosen by the adversary is interior and satisfies
 \begin{equation}\label{eq:tariff}
 \log f_x(c)\ge(1-1/k)m-4.
 \end{equation}
-For a narrow item its address length also satisfies
+For a narrow item its level also satisfies
 \begin{equation}\label{eq:narrow-address}
 m>2kB+2.
 \end{equation}
 \end{lemma}
 \begin{proof}
-For a wide item, Lemma~\ref{lem:median-search} gives the stronger lower bound
-$m-4$. For a narrow item, write $b=2^{-m}$ for the chosen cell length.
-Its midpoint is at distance at most $b/2\le W_x/8$ from the interval center,
-so it belongs to the central half. By \eqref{eq:density-summary} and
+For a wide item, Lemma~\ref{lem:median-search} gives the stronger lower
+bound $m-4$. For a narrow item, write $b=2^{-m}$ for the selected cell
+length, so $W_x/8<b\le W_x/4$. The chosen midpoint is at distance at
+most $b/2\le W_x/8$ from the interval center. It belongs to the central
+half and is therefore interior. By \eqref{eq:density-summary} and
 $W_x<8b$,
 \[
 f_x(c)\ge\frac{4^{-B}}{W_x}>2^{m-3-2B}.
 \]
-Also $b\le W_x/4<1/(4R)$, whence
-$m>\log R+2=2kB+2$. In particular $2B<m/k$, proving
-\eqref{eq:tariff}.
+Moreover, $b\le W_x/4<1/(4R)$, so
+$m>\log R+2=2kB+2$. In particular $2B<m/k$, and hence
+$m-3-2B>(1-1/k)m-4$, proving \eqref{eq:tariff}.
 \end{proof}
 
-The prescribed fine grid for a narrow item is important: it forces a long
-address even if the effective interval happens to contain a coarse dyadic
-midpoint. This is the property that pays for preparing a narrow query.
+The narrow rule must use its prescribed fine grid even if a coarser
+dyadic midpoint lies inside the interval. Its high level is what allows
+the weaker central density estimate to satisfy the same bound as the
+wide-item search.

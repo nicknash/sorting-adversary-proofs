@@ -1,16 +1,21 @@
 \section{Introduction}\label{sec:classical}
 
-The information-theoretic lower bound for sorting has a simple adversarial
-interpretation. Keep the set of total orders consistent with the answers
-given so far, and answer each comparison so as to retain a larger half of
-that set. Starting from $n!$ orders, this adversary forces at least
-$\log_2(n!)$ comparisons. Its direct implementation requires counting linear
-extensions of a partial order, a $\#\mathrm P$-complete
-problem~\cite{brightwell}. The question is whether one can obtain the same
-leading constant with an efficiently computable adversary.
+A sorting adversary answers comparisons while keeping the final order
+undetermined for as long as possible. The ideal rule is simple. Among the
+$n!$ orders of the labels, keep those consistent with the answers so far.
+Each new comparison divides them into two classes; retain a larger class.
+After $q$ comparisons at least $n!/2^q$ orders remain, so a correct sorter
+cannot finish before $q\ge\log_2(n!)$.
 
-We consider $n$ distinct labelled keys. A sorting algorithm chooses pairs
-adaptively, and must be correct for every strict total order on the labels.
+The difficulty is to carry out this rule efficiently. An order consistent
+with the known comparisons is called a \emph{linear extension} of their
+partial order. Counting these extensions exactly is a
+$\#\mathrm P$-complete problem~\cite{brightwell}. We seek an efficient
+adversary that retains the ideal rule's leading constant without performing
+this global count.
+
+We consider $n$ distinct labelled keys. A sorting algorithm chooses each pair using the answers to its earlier
+comparisons, and must be correct for every strict total order on the labels.
 An adversary is \emph{legal} if every finite sequence of its answers is
 consistent with at least one such order. It sees the requested comparisons,
 but need not know the sorting algorithm that generates them.
@@ -35,7 +40,7 @@ practical running times.
 \subsection{From binary trees to retained comparisons}
 
 Atallah and Kosaraju~\cite{atallah} gave an efficient sorting adversary with
-leading coefficient $1/2$. Related adversaries occur in the work of
+a lower bound of $\tfrac12 n\log n$ comparisons. Related adversaries occur in the work of
 Borodin, Guibas, Lynch, and Yao~\cite{borodin} on searching after partial
 sorting, Richards and Vaidya~\cite{richards} on the distribution of
 comparisons among keys, and Brodal, Chaudhuri, and
@@ -57,9 +62,9 @@ left-to-right order, without moving either item.
 Each comparison increases the sum of item depths by at most two.
 At completion, occupied nodes must be distinct and unrelated by ancestry:
 otherwise two represented items can occur in either relative order, leaving
-an unresolved comparison. Their binary addresses are therefore prefix-free.
-If their depths are $d_1,\ldots,d_n$, the corresponding dyadic intervals
-are disjoint, giving
+an unresolved comparison. Each left or right step selects the corresponding half of an interval.
+A node of depth $d_i$ therefore represents an interval of length $2^{-d_i}$.
+At completion these intervals are disjoint, giving
 \[
 \sum_i2^{-d_i}\le1,
 \qquad
@@ -75,7 +80,7 @@ node, for example, it may place $A,C$ in the left child and $B,D$ in the
 right. This also fixes $A<D$ and $C<B$. Figure~\ref{fig:retained}
 contrasts this separation with retaining just the two inequalities.
 
-\begin{figure}[tb]
+\begin{figure}[htbp]
 \centering
 \begin{tikzpicture}[>=Latex,font=\small,
   group/.style={draw=ink!65,rounded corners=2pt,fill=pale,minimum height=8mm},
@@ -110,53 +115,60 @@ arrow shows how a subsequent answer $A<C$ can be stored in the same group.}
 \end{figure}
 
 Kaplan, Zamir, and Zwick~\cite{kzz} improved the leading coefficient to
-$37/64$ by retaining more structure before moving items down the tree.
-Their constructions allow ordered pairs within a node, together with rules
-for resolving interactions between these pairs. The present adversary
-extends this approach: a node retains a directed graph of comparisons, and
-an item moves to a child only when the graph must be simplified or its
-coordinate must be prepared for a query.
+$37/64$. Our construction retains the ordered-tree representation and lets
+each node store a directed graph of comparisons. An item moves to a child
+only when that graph must be simplified or its coordinate must be prepared
+for a query.
 
-\subsection{The construction and its analysis}
+\subsection{How the new adversary postpones separation}
 
-For a partial order $P$, the region of unit coordinates satisfying its
-inequalities has volume $e(P)/n!$, where $e(P)$ is the number of linear
-extensions: every coordinate order occupies volume $1/n!$~\cite{stanley}.
-Thus retaining a larger-volume side would implement the ideal adversary
-if we kept all items at the root and never simplified its constraints.
+The purpose of keeping a graph within a node is to answer a comparison
+without immediately separating its endpoints into different subtrees.
+Associate each item in a group with a variable position in $(0,1)$.
+A stored arrow $x\to y$ requires $X_x<X_y$. The assignments satisfying all
+these requirements form a region whose volume measures the choices still
+available in that group. The answer $x<y$ keeps one part of this region;
+the opposite answer keeps the other.
 
-In our representation each group has auxiliary real positions in $(0,1)$,
-constrained by its stored comparisons. An arrow $x\to y$ means $X_x<X_y$. The adversary chooses
-an approximately larger-volume answer, retaining at least $1/2-\eta$ of
-the group's feasible volume. Bounded degree and bounded directed-path
-length allow this probability to be estimated from a neighborhood whose
-size depends only on an accuracy parameter. The group itself may contain
-arbitrarily many items.
+If all items stayed in one group with unit intervals, its volume would be
+$e(P)/n!$, where $e(P)$ counts the orders allowed by the stored comparisons.
+Indeed, each of the $n!$ coordinate orders has volume $1/n!$ in the unit
+cube~\cite{stanley}. Choosing a larger-volume answer would then be exactly
+the ideal rule. The graph, however, could become too complicated to use.
 
-To simplify a group, fix an item's position at an interior point $c$, replace
-its incident arrows by interval bounds, and give it a fresh coordinate in
-a child at $c$. This preserves every answered comparison. If $f_x(c)$ is
-the density of the fixed coordinate, the product $Z$ of all group volumes
-is multiplied by exactly $f_x(c)$. A well-chosen position can therefore
-recover volume while removing constraints from the graph.
+We control its complexity by limiting how many arrows meet an item and how
+many items occur on a directed path. Under these restrictions, the
+probability of a comparison can be estimated by keeping only nearby items,
+provided at least one queried coordinate has an interval of adequate width.
+If all queried coordinates have narrower intervals, the adversary first moves
+one into a child, where it receives a fresh unit interval. The estimate is obtained by exact calculation in that smaller region.
+An error of at most $\eta$ means that the chosen answer still keeps at least
+$1/2-\eta$ of the full group's volume.
 
-The proof assigns a small interval to each child and embeds the entire
-recursive state in the unit cube. The widths of these intervals contribute
-a factor $\mathcal W$. Initially $n!Z\mathcal W=n!$; when a sorter finishes,
-the embedding lies in one order region and $n!Z\mathcal W\le2^n$.
-We then use the potential
-\[
-\Psi=n!Z^\beta\mathcal W\,2^{-\tau e},
-\]
-where $e$ is the number of stored arrows, $\beta=1+o(1)$, and $\tau=o(1)$.
-The extra volume factor and the charge for stored arrows make every complete
-repair nondecreasing in $\Psi$. Each comparison reduces $\log\Psi$ by at
-most $1+o(1)$, giving the theorem.
+When the graph needs simplifying, the adversary fixes an item's position
+at a point $c$. Its comparisons with the other items become bounds saying
+which side of $c$ they occupy. The item then moves to a child at $c$, where
+it receives a fresh variable position. The fixed position locates the whole child block among the parent's other
+anchors. Comparing the block with a free parent item may still require a
+threshold comparison. The fresh child position leaves the moved item's
+order within the child unresolved. Several items may enter the same
+child, so refinement need not determine their mutual order.
 
-Section~\ref{sec:algorithm} specifies the algorithm before its analysis.
-Sections~\ref{sec:legal} and~\ref{sec:oracle} establish legality and the
-local numerical guarantees. Sections~\ref{sec:accounting}
-and~\ref{sec:potential} give the packing and potential arguments, and
-Section~\ref{sec:runtime} proves the uniform polynomial bound.
-The proofs of the density bounds, locality, and exact local volume calculation
-appear in the appendices. The manuscript source is available online.\footnote{\url{https://github.com/nicknash/sorting-adversary-proofs/tree/main/for-humans}}
+There are two things to prove. First, the local calculations must be both
+accurate and efficient. Second, the extra choices discarded by refinement
+must not allow a sorter to finish too early. For the second part we place
+the recursive state in one common coordinate system and measure its volume.
+The resulting bound leads to a measure that starts at $n!$ and is at most
+$2^n$ when sorting finishes. We adjust that measure so that a complete repair never decreases it, while an answer
+reduces its logarithm by at most $1+o(1)$. The gap between the initial and
+final values then forces $n\log n-o(n\log n)$ comparisons.
+
+Section~\ref{sec:algorithm} gives the state and the mechanical rules, including
+a small example of refinement and child reuse. Section~\ref{sec:legal} proves
+that the rules preserve a possible order. Section~\ref{sec:oracle} explains
+the local calculation and the choice of a fixed position.
+Sections~\ref{sec:accounting} and~\ref{sec:potential} develop the volume measure
+and its comparison bound. Section~\ref{sec:runtime} gives the uniform
+polynomial-time implementation. The geometric and numerical proofs needed
+for the local calculation are in the appendices. The manuscript source is
+available online.\footnote{\url{https://github.com/nicknash/sorting-adversary-proofs/tree/main/for-humans}}

@@ -6,7 +6,10 @@ The current manuscript presents the unit-interval adversary with a single
 potential for repairs. It begins with the classical binary-tree adversaries,
 gives the complete mechanical algorithm, and develops legality, local
 probabilities, geometric packing, the comparison bound, and a uniform
-polynomial-time implementation. Three TikZ figures illustrate the construction.
+polynomial-time implementation. Worked examples distinguish fixed parent
+positions from fresh child coordinates. Five TikZ figures illustrate the
+construction, the volume identity, and the geometric proof. The potential
+coefficients are derived from the changes caused by a refinement.
 
 - [Current paper](output/pdf/paper.pdf)
 - `paper.tex`: title, approved abstract, methodological disclosure, and section inputs

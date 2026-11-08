@@ -23,8 +23,9 @@ graph bounds are organized as an induction; anchor selection, packing, and the
 single potential supply the comparison bound. Complete proofs of the density,
 locality, and exact enumeration lemmas are in the appendices. Historical citations
 include Atallah--Kosaraju, Borodin--Guibas--Lynch--Yao, Richards--Vaidya,
-Brodal--Chaudhuri--Radhakrishnan, and Kaplan--Zamir--Zwick. Three TikZ figures
-show early separation versus retained arrows, refinement, and geometric packing.
+Brodal--Chaudhuri--Radhakrishnan, and Kaplan--Zamir--Zwick. Five TikZ figures
+show early separation versus retained arrows, shared-child refinement, the
+section-volume identity, geometric packing, and the balancing-map components.
 
 The exact fixed-parameter lower bound is retained; the redundant conservative
 numerical expansion of its denominator is replaced by its asymptotic estimate.
@@ -45,3 +46,34 @@ The related Lean files have not been altered or reverified. They concern the
 older integer-colour construction, not a formalization of this unit-interval
 presentation. The existing Hexagon deposit is unchanged; submission.json is the
 historical receipt for that version, and revision.json identifies this revision.
+
+Second exposition pass
+----------------------
+The reader-facing revision explains the ideal adversary before linear-extension
+notation, gives a three-item refinement example and follows its subsequent
+comparisons, distinguishes a child's new coordinate from its fixed parent
+position, and gives explicit bound updates in refinement. It defines dyadic
+level separately from depth in the recursive tree.
+
+The probability estimator is presented as an actual finite calculation before
+its theorem. Rejected midpoint tests affect only the search interval. The packing
+argument begins with the problem of comparing coordinates from different groups
+and explains why its child widths must decrease faster than 2^(-m). The potential
+is derived from a table of refinement changes and the three repair conditions.
+
+The appendix now supplies the complete balancing map and inverse, as well as a
+step-by-step predecessor-chain argument for contraction. Independent internal
+rereads checked these arguments and caught ambiguities in the induction and
+examples. This is an internal mathematical review, not external validation or
+formal verification.
+
+The approved abstract and disclosure were compared exactly against the preceding
+committed version. Existing diagnostic code and recorded results are unchanged.
+The revised PDF compiles without warnings; labels, citations, figures, procedures,
+and page layout were checked. The source bundle was rebuilt for this revision.
+
+The linked Compare Tree Adversaries chat was read after its result completed:
+https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af0ab2d-c3f8-83eb-bdfb-e5203c1951a1
+It did not supply a replacement for the locality proof. Its optional determinant
+and auxiliary-forest proposals were not imported into this exposition. Its
+reported numerical experiments were not independently rerun in this revision.

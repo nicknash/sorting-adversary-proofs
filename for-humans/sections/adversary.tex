@@ -1,176 +1,266 @@
 \section{The adversary}\label{sec:algorithm}
 
-The adversary maintains a rooted tree of groups. A group records comparisons
-among items whose relative order is still being resolved there. An item may
-leave a group by fixing its position and continuing in a child at that
-position. We call this operation a \emph{refinement}.
+We first describe what a state means and how an item moves from a parent to
+its child. We then give the comparison rule and the conditions that trigger
+these moves. The numerical parameters are collected at the end of the
+section, after their roles have been explained.
 
-Fix an integer $k\ge16$. The algorithm uses the parameters
-\begin{equation}\label{eq:parameters}
-\eta=\frac1{100k},\qquad H=2^{2k},\qquad
-B=(k+1)^{2H+1},\qquad R=2^{2kB}.
-\end{equation}
-Between comparison calls, the graph in each group has degree less than $k$
-and no directed path on $H$ vertices. These two restrictions will make the
-probability calculations local. The threshold $1/R$ determines when a queried
-coordinate must first be refined. Section~\ref{sec:runtime} selects $k$ as a
-function of $n$; for now it is fixed.
+\subsection{A tree of groups, each with its own coordinates}
 
-\subsection{The state of a group}
+Each item is stored at exactly one node of a rooted tree. At that node it
+has a variable position $X_x$ in an open interval $(a_x,b_x)\subseteq(0,1)$.
+We call the item \emph{free} at this node: its position has not been fixed,
+although comparisons may already constrain it. An arrow $x\to y$ records
+the requirement $X_x<X_y$. The graph has no directed cycle.
 
-At each node $v$, every item represented there is either \emph{free} or belongs
-to a child subtree. A free item $x$ has an auxiliary coordinate $X_x$ in an open
-interval $(a_x,b_x)\subseteq(0,1)$. These coordinates describe possible orders;
-they are not the unknown key values. A directed acyclic graph on the free
-items stores inequalities $X_x<X_y$. Each child has a fixed position
-$c\in(0,1)$, its \emph{anchor}, and its own copy of the unit interval.
-Different children of one node have different anchors.
+A child occupies a fixed position $c\in(0,1)$ in its parent. This position,
+called its \emph{anchor}, represents the entire child subtree as one
+consecutive block. Inside the child, positions again range over $(0,1)$.
+They order items within that block. Coordinates belonging to different
+nodes are therefore on different scales and cannot be compared directly.
+Different children of a node have different anchors.
+The allowed assignments at each node must have positive volume;
+Section~\ref{sec:legal} proves that every operation preserves this property.
 
-Each original item has exactly one free coordinate in the entire tree. At
-every ancestor of its node it is represented by the anchor of the child
-containing it. Initially all $n$ items are free at the root, their intervals
-are $(0,1)$, and there are no arrows or children.
+To read an order from the state, choose allowed values of the free
+coordinates at each node. At the root, list its free items and child anchors
+from left to right. Replace each anchor by the list obtained in its child,
+and continue recursively. We choose values avoiding ties; these form all
+but a set of volume zero. Every item appears exactly once in the resulting
+list. The coordinates describe possible orders of the keys, not their
+unknown numerical values.
 
-The feasible region of a node is
-\begin{equation}\label{eq:node-region}
-K_v=\{X:a_x<X_x<b_x\text{ for all free }x,
-             \quad X_x<X_y\text{ for every arrow }x\to y\}.
-\end{equation}
-Write $V_v=\vol(K_v)$, with volume one when the node has no free items, and
-define
-\begin{equation}\label{eq:Z}
-Z=\prod_v V_v.
-\end{equation}
-Thus $Z=1$ initially. We shall prove that every reached state satisfies
-$0<Z\le1$. The algorithm never
-calculates this product. It calculates probabilities only in small induced
-subgraphs, as specified in Section~\ref{sec:oracle}.
+Initially the tree has only a root. All $n$ items are free there, their
+intervals are $(0,1)$, and there are no arrows. Every order is represented.
+The algorithm will ensure that every order it represents is consistent
+with all the comparisons it has answered. It may discard additional orders
+when it changes the representation; the lower-bound proof will account for
+that loss.
 
-Only actual comparisons create arrows. The graph is simple: repeated
-comparisons do not create parallel arrows, and transitive consequences are
-not inserted. The number of stored arrows will matter in the proof.
+\subsection{Refinement: fixing the parent position}
 
-We maintain all interval bounds implied by the arrows. Write $y\preceq x$
-if $y=x$ or a directed path leads from $y$ to $x$. The \emph{effective interval}
-of $x$ is $(\ell_x,r_x)$, where
-\begin{equation}\label{eq:effective}
-\ell_x=\max_{y\preceq x}a_y,\qquad
-r_x=\min_{y\succeq x}b_y,\qquad W_x=r_x-\ell_x.
-\end{equation}
-The operation \textnormal{\textsc{Tighten}} replaces every stored interval by its effective
-interval. It is performed after every change to an interval or arrow, before
-testing widths or calculating probabilities. The resulting bounds remain
-stored when arrows are later removed. A coordinate is \emph{wide} if
-$W_x\ge1/R$, and \emph{narrow} otherwise.
-
-\subsection{Choosing an answer}
-
-To compare original items $A$ and $B$, descend while both belong to the same
-child. At the first node where their representations differ, each is either
-a free coordinate or a child anchor. Two different anchors determine the
-answer. Otherwise at least one representation is free.
-
-Suppose first that both are free. Under the uniform volume measure on $K_v$,
-let
+The basic operation moves an item $x$ into a child. Choose a position $c$
+strictly inside the interval of values still possible for $X_x$. Replace
+its parent coordinate by the constant $c$. Every arrow incident to $x$
+then tightens an interval bound on its other endpoint:
 \[
-p=\Prb(X_A<X_B)=\frac{\vol(K_v\cap\{X_A<X_B\})}{V_v}.
+y\to x\quad\Longrightarrow\quad b_y\gets\min(b_y,c),
+\qquad
+x\to z\quad\Longrightarrow\quad a_z\gets\max(a_z,c).
 \]
-The probability notation is only a ratio of volumes; the adversary makes no
-random choices. Given an estimate $\widehat p$ with
-$|\widehat p-p|\le\eta$, it answers $A<B$ if $\widehat p\ge1/2$, and $B<A$
-otherwise. Since equality has volume zero, the chosen answer retains at
-least $1/2-\eta$ of $V_v$. It is stored as an arrow. For a free coordinate
-and an anchor $c$, write $x$ for the free item and use $\Prb(X_x<c)$.
-Store the resulting upper or lower interval bound, reversing the reported
-label order when the free item is $B$.
+Retain every other bound already stored in the parent. Remove $x$ and
+these arrows, then propagate the new bounds through the remaining graph
+(the operation \textnormal{\textsc{Tighten}} defined below). Now put $x$ in the
+child anchored at $c$, creating that child if necessary. It receives a new
+coordinate $U_x\in(0,1)$ with no incident arrows. None of the child's
+previous intervals or arrows changes. We call this operation a
+\emph{refinement}. Thereafter we may write $X_x$ for its new coordinate,
+since its old coordinate is no longer a variable.
 
-The local estimator requires a wide coordinate for a threshold query, and
-at least one wide endpoint for a two-coordinate query. If this condition
-fails, the adversary refines a queried item before answering.
+The two positions have different jobs. The fixed parent position specifies
+where the child block occurs among the other parent items. The new variable
+specifies where $x$ occurs within that block. Fixing the former does not fix
+the latter.
 
-\subsection{Choosing an anchor and refining an item}
-
-Every anchor is the midpoint of a dyadic cell:
-\begin{equation}\label{eq:dyadic}
-c=(j+\tfrac12)2^{-m},\qquad 0\le j<2^m,\quad m\ge0.
-\end{equation}
-We call $m$ its \emph{address length}: $m$ binary digits specify the cell.
-The reduced denominator of $c$ is $2^{m+1}$, so its position determines
-$m$ uniquely. Reusing an anchor therefore also reuses its address length.
-
-There are two rules for choosing $c$.
-
-\begin{enumerate}
-\item For a wide item, start with the cell $[0,1]$. At its midpoint $c$,
-estimate $F_x(c)=\Prb(X_x<c)$ to error at most $\eta$.
-If the estimate is below $1/4$, retain the right half; if it is above $3/4$,
-retain the left half; otherwise accept $c$. Repeat within the retained cell.
-\item For a narrow item, choose the dyadic length $b=2^{-m}$ satisfying
-$W_x/8<b\le W_x/4$. Choose the midpoint of a cell of this length nearest
-to $(\ell_x+r_x)/2$, taking the smaller midpoint in case of a tie.
-\end{enumerate}
-
-Both choices lie strictly inside the effective interval. Their density
-guarantees are proved in Section~\ref{sec:oracle}.
-
-To refine $x$ at $c$, fix $X_x=c$, remove $x$ from the parent's free graph,
-and replace each incident arrow by the corresponding bound on its other
-endpoint. Thus $y\to x$ becomes $X_y<c$, and $x\to z$ becomes $X_z>c$.
-Retain all other stored bounds and tighten the parent. Then admit $x$ to
-the child at $c$, creating the child if necessary, as an isolated coordinate
-with interval $(0,1)$. The child's previous data stay unchanged.
+For example, suppose the root contains $A,B,C$, with the sole requirement
+$A<B$. If we refine $A$ at $1/2$, then $B$'s parent interval becomes
+$(1/2,1)$ and $A$ receives a unit coordinate in the child at $1/2$.
+If we next refine $C$ at $1/2$, the same child contains two free items, $A$
+and $C$, with no comparison between them. Both orders
+\[
+A<C<B\qquad\text{and}\qquad C<A<B
+\]
+are represented. The comparison $A<B$ has been preserved. The order of
+$A$ and $C$ remains open. The additional relation $C<B$ was not queried;
+this example also shows why refinements must be paid for in the proof.
+The item $B$ cannot enter this child, since $1/2$ is outside its allowed
+open interval.
 
 \begin{figure}[tb]
 \centering
 \begin{tikzpicture}[>=Latex,font=\small,
   item/.style={circle,draw=ink,fill=white,minimum size=6mm,inner sep=1pt},
   group/.style={draw=ink!65,rounded corners=2pt,fill=pale}]
-\begin{scope}[shift={(-3.4,0)}]
-\draw[group] (-2.7,-.9) rectangle (2.7,1.15);
-\node at (0,.8) {Before refinement};
-\node[item] (y) at (-1.7,0) {$y$};
-\node[item] (x) at (0,0) {$x$};
-\node[item] (z) at (1.7,0) {$z$};
-\draw[->,thick] (y)--(x);
-\draw[->,thick] (x)--(z);
+\begin{scope}[shift={(-3.5,0)}]
+\draw[group] (-2.5,-1) rectangle (2.5,1.15);
+\node at (0,.8) {Before the two refinements};
+\node[item] (a) at (-1.35,0) {$A$};
+\node[item] (b) at (1.35,0) {$B$};
+\node[item] (c) at (0,-.6) {$C$};
+\draw[->,thick,accent] (a)--(b);
 \end{scope}
-\draw[->,thick] (-.45,.1)--(.45,.1);
-\begin{scope}[shift={(3.4,0)}]
-\draw[group] (-2.7,-.9) rectangle (2.7,1.15);
-\node at (0,.8) {After fixing $X_x=c$};
-\draw[thick] (-2.35,-.15)--(2.35,-.15);
-\fill (0,-.15) circle (2pt);
-\node[below] at (0,-.18) {$c$};
-\node at (-1.5,.15) {$X_y<c$};
-\node at (1.5,.15) {$c<X_z$};
-\draw[group] (-2.35,-2.7) rectangle (2.35,-1.6);
-\node at (0,-1.9) {Child at $c$};
-\node at (0,-2.35) {old items, plus $X_x\in(0,1)$};
-\draw[->,thick,accent] (0,-.9)--(0,-1.6);
+\draw[->,thick] (-.65,.1)--(.65,.1);
+\begin{scope}[shift={(3.5,0)}]
+\draw[group] (-2.5,-1) rectangle (2.5,1.15);
+\node at (0,.8) {Parent after fixing $A,C$ at $1/2$};
+\draw[thick] (-2,-.15)--(2,-.15);
+\filldraw[draw=accent,fill=accent!20] (.05,-.28) rectangle (1.95,-.02);
+\fill (0,-.15) circle(2pt);
+\node[below] at (-2,-.2) {$0$};
+\node[below] at (0,-.2) {$1/2$};
+\node[below] at (2,-.2) {$1$};
+\node at (1,.25) {$X_B\in(1/2,1)$};
+\draw[group] (-2,-3) rectangle (2,-1.7);
+\node at (0,-1.95) {Child at $1/2$};
+\node[item] (aa) at (-.7,-2.5) {$A$};
+\node[item] (cc) at (.7,-2.5) {$C$};
+\draw[->,thick,accent] (0,-1)--(0,-1.7);
 \end{scope}
 \end{tikzpicture}
-\caption{A refinement preserves the comparisons incident to $x$ as interval
-bounds in the parent. The relative order of $x$ and the items already at the
-same anchor is resolved inside the child.}
+\caption{Refining two incomparable items at the same position leaves their
+mutual order unresolved in a shared child. The child has its own unit
+interval. The parent's bound on $B$ puts the whole child before $B$.}
 \label{fig:refinement}
 \end{figure}
 
-\subsection{The complete comparison procedure}
+\subsection{Where a comparison is answered}
 
-The following procedures specify all state changes. Ties between eligible
-items are resolved by label order. A path is selected by the lexicographically
-first eligible label sequence. Degree counts neighbors without regard to
-edge direction; path length below counts vertices.
+To compare distinct original labels $A$ and $B$, start at the root. If they belong
+to the same child subtree, descend into that child. Repeat until their
+representations differ. At this node, each label is represented either by
+its own free coordinate or by the anchor of the child containing it.
+There are three cases.
+\begin{enumerate}
+\item Two different anchors determine the answer from their left-to-right
+order.
+\item For a free coordinate $X_x$ and an anchor $c$, decide whether
+$X_x<c$ or $X_x>c$.
+\item For two free coordinates, decide whether $X_A<X_B$ or $X_B<X_A$.
+\end{enumerate}
+In Figure~\ref{fig:refinement}, comparing $A$ with $C$ descends into their
+common child. Comparing either one with $B$ stays at the root and compares
+$1/2$ with $X_B$; the stored bound already puts $B$ to the right. More
+generally, comparing items in different children uses only their anchors.
+The numerical values of their coordinates inside the children do not enter
+that comparison.
+
+For either case involving free coordinates, let
+\begin{equation}\label{eq:node-region}
+K_v=\{X:a_x<X_x<b_x\text{ for all free }x,
+             \quad X_x<X_y\text{ for every stored arrow }x\to y\}
+\end{equation}
+be the region of allowed assignments at this node, and let $V_v=\vol(K_v)$.
+The uniform distribution on $K_v$ gives equal weight to equal-volume parts.
+For example, the fraction compatible with $A<B$ is
+\[
+p=\Prb(X_A<X_B)=\frac{\vol(K_v\cap\{X_A<X_B\})}{V_v}.
+\]
+An exact count of orders is unnecessary: it suffices to estimate this ratio.
+Given $\widehat p$ with $|\widehat p-p|\le\eta$, choose $A<B$ if
+$\widehat p\ge1/2$, and $B<A$ otherwise. Either choice retains at least
+$1/2-\eta$ of the old volume. The algorithm is deterministic; the
+probability notation describes volumes, not random choices made by the
+adversary.
+
+Store the chosen answer as an arrow when both coordinates are free.
+Repeated comparisons do not create a second copy of an arrow, and we do
+not add arrows merely because they follow transitively from other arrows.
+For a free item $x$ and an anchor $c$, estimate $\Prb(X_x<c)$ instead and
+store the chosen upper or lower interval bound. Translate that direction
+back to the queried labels, reversing it if $x$ is the second label.
+
+To obtain an estimate, the algorithm keeps a neighborhood of the queried
+items in the graph and calculates the above ratio exactly in the smaller
+region. The neighborhood consists of all vertices within a prescribed
+number of edges, ignoring edge direction, together with all arrows between
+those vertices. Its intervals are the bounds already implied by the full
+graph. Section~\ref{sec:oracle} specifies the radius and the finite volume
+calculation, and proves that the resulting estimate is accurate.
+
+\subsection{The three reasons for refinement}
+
+The estimate just described is available when each vertex has few neighbors,
+every directed path is short, and at least one queried coordinate has an
+interval of adequate width. We arrange these conditions as follows. Fix an
+integer $k\ge16$ and error $\eta=1/(100k)$. Use a path threshold $H$ and a
+width threshold $1/R$, with values given below.
+
+First we include every interval bound already forced by the arrows. If
+$y\to x$ and $X_y>a_y$, then also $X_x>a_y$; an upper bound propagates in
+the reverse direction. Writing $y\preceq x$ when $y=x$ or a directed path
+leads from $y$ to $x$, the resulting interval is
+\begin{equation}\label{eq:effective}
+\ell_x=\max_{y\preceq x}a_y,\qquad
+r_x=\min_{y\succeq x}b_y,\qquad W_x=r_x-\ell_x.
+\end{equation}
+We call $(\ell_x,r_x)$ the \emph{effective interval}. The operation
+\textnormal{\textsc{Tighten}} sets $a_x\gets\ell_x$ and $b_x\gets r_x$
+for every free item $x$. It is performed after
+any changed arrow or interval, and before a width test or probability
+calculation. These bounds remain stored even if the arrows that implied
+them are later removed. Tightening does not discard any allowed assignment.
+
+There are exactly three reasons to refine an item.
+\begin{enumerate}
+\item \textbf{A comparison needs a wider coordinate.}
+Call a coordinate \emph{wide} when $W_x\ge1/R$, and \emph{narrow}
+otherwise. A comparison estimate needs one wide free coordinate. If all
+free coordinates in the requested comparison are narrow, refine one of
+them before answering. It receives an unconstrained unit coordinate in its
+child. The reason one wide coordinate is enough is explained in
+Section~\ref{sec:oracle}.
+\item \textbf{Too many arrows meet an item.}
+After an answer, if a vertex has at least $k$ neighbors, refine it.
+This removes all arrows incident to it from the parent graph.
+\item \textbf{A directed path is too long.}
+After the degree condition has been restored, select any directed path
+with $H$ vertices and refine all its items. Complete this selected list
+before selecting another path. Repeat until no such path remains.
+\end{enumerate}
+We use the word \emph{repair} for an operation that restores one of these
+conditions. A path repair consists of the entire selected list. The analysis
+will pay for that list as a whole, rather than for each of its items
+separately.
+
+\subsection{How the fixed position is chosen}
+
+Anchors are midpoints obtained by repeatedly halving the unit interval.
+After $m$ halvings the cells have length $2^{-m}$, and their midpoints are
+\begin{equation}\label{eq:dyadic}
+c=(j+\tfrac12)2^{-m},\qquad 0\le j<2^m.
+\end{equation}
+We call $m$ the anchor's \emph{level}. For example, $1/2$ has level $0$,
+and $1/4,3/4$ have level $1$. There are $2^m$ possible anchors at level $m$.
+An anchor has only one level, since the reduced denominator of its midpoint
+is $2^{m+1}$. Thus repeated use of a position also reuses its level. This level measures
+resolution within one parent interval, independently of that parent's depth
+in the tree. Every refinement moves an item down exactly one tree edge.
+
+For a wide item, we find a midpoint with a substantial fraction of the
+allowed assignments on either side. Start with a search cell $[0,1]$.
+At its midpoint $c$, estimate $F_x(c)=\Prb(X_x<c)$ to error $\eta$.
+If the estimate is below $1/4$, search the right half; if it is above $3/4$,
+search the left half; otherwise accept $c$. A rejected test changes only
+this search cell. It does not change any stored interval, arrow, or allowed
+assignment. Every test concerns the same current region $K_v$.
+
+For a narrow item, no probability calculation is needed. Choose the unique
+cell length $b=2^{-m}$ satisfying $W_x/8<b\le W_x/4$. Among the midpoints
+of that grid, use the one nearest to $(\ell_x+r_x)/2$, taking the smaller
+one on a tie. It lies near the center of the effective interval.
+
+Both rules choose an interior point. Section~\ref{sec:oracle} proves the
+property needed for the lower bound: fixing a level-$m$ point recovers a
+volume factor whose logarithm is at least $(1-1/k)m-4$.
+
+\subsection{The mechanical rules}
+
+Resolve choices between eligible items by label order. Select a directed
+path by the lexicographically first eligible label sequence. Degree counts
+neighbors regardless of arrow direction; the length of a directed path
+counts its vertices.
 
 \begin{quote}
+\begin{minipage}{\linewidth}
 \textbf{Restore$(v)$.}
 \begin{enumerate}
-\item While the free graph of $v$ has a vertex of degree at least $k$,
+\item While the free graph at $v$ has a vertex of degree at least $k$,
 refine such a vertex.
-\item While it contains a directed path on $H$ vertices, select one such
-path and refine all its vertices in label order. Complete this entire list
-before selecting another path.
+\item While it contains a directed path on $H$ vertices, select one and
+refine all its vertices in label order. Finish that list before selecting
+another path.
 \end{enumerate}
+\end{minipage}
 \end{quote}
 
 \begin{quote}
@@ -181,16 +271,37 @@ before selecting another path.
 representations differ. If both are anchors, return their order.
 \item Tighten $v$. If none of the free queried coordinates is wide,
 refine one of them and restart step 1.
-\item Estimate the probability of $A<B$ to additive error $\eta$ and select
-an answer by the rule above. Store its arrow or interval bound.
-\item Tighten $v$, run \textnormal{\textsc{Restore}}$(v)$, and return the selected answer.
+\item Estimate the probability of $A<B$ to error $\eta$ and choose an
+answer by the rule above. Store its arrow or interval bound.
+\item Tighten $v$, run \textnormal{\textsc{Restore}}$(v)$, and return the
+chosen answer.
 \end{enumerate}
 \end{minipage}
 \end{quote}
 
-Every answer is also entered in a separate comparison graph on the original
-labels, before restoration or, for an anchor answer, before returning.
-This graph records the public transcript. Its edges do not count toward the
-degree restrictions or the active arrow count used below. It will supply a
-compatible total order for the finite stopping rule in
-Section~\ref{sec:runtime}.
+The restart in step 2 is necessary because moving an item may change the
+node where the comparison is answered. There are at most two preparation
+refinements: once either queried item has received a fresh wide coordinate,
+it cannot need preparation again before this answer
+(Lemma~\ref{lem:preparation}).
+
+Every answer is also recorded in a separate graph on the original labels,
+before restoration or, for an answer between anchors, before returning.
+This graph stores the public history of comparisons, which we call the
+\emph{transcript}. Its edges are never counted as part of a group's active
+graph. In Section~\ref{sec:runtime} we use it to finish with a compatible
+fixed order after a prescribed number of queries.
+
+For completeness, the parameters used by these rules are
+\begin{equation}\label{eq:parameters}
+\eta=\frac1{100k},\qquad H=2^{2k},\qquad
+B=(k+1)^{2H+1},\qquad R=2^{2kB}.
+\end{equation}
+Here $B$ bounds how many other vertices can be joined to one vertex by a
+directed path in either direction during a repair. Section~\ref{sec:legal}
+proves that bound. The value of $H$ makes a long path expensive enough to
+pay for refining all its items. The value of $R$ makes a narrow interval
+small enough to pay for refining its item. These two estimates are proved
+in Sections~\ref{sec:oracle} and~\ref{sec:accounting}.
+Finally, Section~\ref{sec:runtime} chooses $k$ as a slowly growing function
+of $n$ so that the whole algorithm uses polynomial time.

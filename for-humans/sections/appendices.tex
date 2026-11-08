@@ -1,8 +1,24 @@
 \section{Coordinate densities}\label{app:geometry}
 
 We prove the density bounds used to choose anchors and to turn coordinate
-approximation into probability approximation. Throughout this section, density
-means normalized section volume.
+approximation into probability approximation. Let $V$ be the set of
+coordinates, let $N=|V|$, and let $K\subseteq\R^V$ be their feasible region.
+For a coordinate $x$ and a real number $t$, write
+\[
+K_x(t)=\{(z_i)_{i\ne x}:z\in K,\ z_x=t\},
+\qquad S_x(t)=\vol_{N-1}K_x(t).
+\]
+Here $K_x(t)$ is a region in the coordinates other than $x$; its volume
+does not include the fixed coordinate. The uniform distribution on $K$
+therefore gives $x$ the density
+\[
+f_x(t)=\frac{S_x(t)}{\vol_N K},\qquad
+F_x(t)=\int_{-\infty}^t f_x(s)\,ds.
+\]
+These formulas specify the density at every point, not just almost
+everywhere. If some coordinates have already been fixed, we use the same
+definitions in the remaining free coordinates. In dimension zero, the
+volume of the singleton consisting of the empty assignment is one.
 
 \begin{lemma}[Coordinate density bounds]\label{lem:fiber}
 Suppose $x$ has at most $B$ other comparable labels and effective interval
@@ -16,8 +32,14 @@ These bounds also hold after fixing any set of labels incomparable with $x$,
 for every resulting slice of positive volume.
 \end{lemma}
 \begin{proof}
-Let $S(t)$ be the section volume at $X_x=t$, with any specified incomparable
-labels already fixed. For $\ell<t<s<r$, put
+We may fix any specified set of coordinates incomparable with $x$ before
+starting the argument. Measure all volumes in the remaining free
+coordinates, and abbreviate the section volume by $S(t)$.
+
+First we construct a map from the section at $t$ into the section at a
+larger value $s$. Raising $x$ may force its descendants to rise, but no
+other coordinates need move. We compress $[t,r]$ into $[s,r]$ and leave
+values above $r$ unchanged. More precisely, for $\ell<t<s<r$, put
 $\alpha=(r-s)/(r-t)$ and apply
 \[
 \phi(z)=
@@ -26,21 +48,32 @@ s+\alpha(z-t),&t\le z\le r,\\
 z,&z\ge r
 \end{cases}
 \]
-to $x$ and all its descendants. Every descendant has value greater than $t$
-and upper endpoint at least $r$. The map moves these coordinates upward,
-keeps their interval constraints, and preserves strict inequalities within
-this set because it is strictly increasing. Any arrow crossing the set's
-boundary enters it, so that arrow also remains strict.
+to $x$ and all its descendants. Every descendant $y$ has value greater
+than $t$. Its effective upper endpoint satisfies $r_y\ge r_x=r$, by the
+definition of effective intervals. A moved coordinate never decreases;
+if it starts below $r$, it stays below $r$, and if it starts at or above
+$r$, it stays fixed. Its lower and upper interval bounds are therefore
+preserved. The function $\phi$ is strictly increasing, so every arrow
+between moved coordinates remains strict. An arrow crossing the boundary
+of this set must enter it: an arrow leaving a descendant would lead to
+another descendant. Its upper endpoint can only increase, so a boundary
+arrow also remains strict.
 
 This injective map sends the section at $t$ into the section at $s$.
-In the section's free coordinates its derivatives are $\alpha$ or $1$,
-with at most $B$ affected coordinates. Partitioning at the finitely many
-thresholds $X_y=r$ therefore gives
+To compare volumes, partition the source section according to which moved
+coordinates lie below $r$. On each piece the map is affine and its
+Jacobian determinant in the free coordinates is $\alpha^j$, where
+$j\le B$: the coordinate $x$ is fixed, and at most $B$ other coordinates
+are moved. Since $0<\alpha<1$, this determinant is at least $\alpha^B$.
+The images of distinct pieces are disjoint because the map is injective.
+Adding their volumes gives
 \begin{equation}\label{eq:push-upper}
 S(s)\ge\left(\frac{r-s}{r-t}\right)^B S(t)
 \qquad(t<s).
 \end{equation}
-For $\ell<s<t<r$, apply to $x$ and its ancestors the increasing map
+For a smaller target value $s$, the construction is reversed: lower $x$
+and its ancestors, compress $[\ell,t]$ into $[\ell,s]$, and leave values
+below $\ell$ fixed. Thus, for $\ell<s<t<r$, use
 \[
 \phi(z)=
 \begin{cases}
@@ -48,15 +81,23 @@ z,&z\le\ell,\\
 s+\dfrac{s-\ell}{t-\ell}(z-t),&\ell\le z\le t.
 \end{cases}
 \]
-Their lower endpoints are at most $\ell$; they move downward, and every
-boundary arrow leaves this set. The same argument yields
+on $x$ and its ancestors. The effective lower endpoint of every ancestor
+is at most $\ell$. No moved coordinate rises, and one that starts at or
+above $\ell$ remains there. Thus all intervals are preserved. The map is
+strictly increasing on the moved set, and every boundary arrow leaves
+that set, so all arrows remain strict as well. Its determinant on each
+piece is at least $((s-\ell)/(t-\ell))^B$. Consequently
 \begin{equation}\label{eq:push-lower}
 S(s)\ge\left(\frac{s-\ell}{t-\ell}\right)^B S(t)
 \qquad(s<t).
 \end{equation}
-Both maps fix incomparable coordinates. From any nonempty section they
-reach every point of $(\ell,r)$, so fixing those coordinates does not change
-the support of $x$.
+Neither construction moves a coordinate incomparable with $x$, so both
+remain valid after the conditioning at the start of the proof. A region
+of positive volume has some section of positive volume. The two maps
+carry that section to every $t\in(\ell,r)$ with a positive volume factor.
+Consequently fixing incomparable coordinates leaves the entire effective
+interval available to $x$; it does not shorten the interval over which
+we normalize its density.
 
 Normalize $S$ to obtain $f_x$. Integrating the two inequalities on their
 respective sides of $t$ gives
@@ -66,9 +107,13 @@ respective sides of $t$ gives
 \int_t^r\left(\frac{r-s}{r-t}\right)^B ds\right)
 =\frac{Wf_x(t)}{B+1}.
 \]
-This proves the upper bound. Some section has density at least $1/W$.
-Moving it to any $t\in[\ell+W/4,r-W/4]$ uses a ratio at least $1/4$
-in \eqref{eq:push-upper} or \eqref{eq:push-lower}, proving the lower bound.
+This proves the upper bound. For the lower bound, the density integrates
+to one over an interval of length $W$, so some $t_0\in(\ell,r)$ has
+$f_x(t_0)\ge1/W$. Fix $s\in[\ell+W/4,r-W/4]$. If $t_0<s$, the ratio
+in \eqref{eq:push-upper} is at least $(r-s)/W\ge1/4$; if $s<t_0$,
+the ratio in \eqref{eq:push-lower} is at least $(s-\ell)/W\ge1/4$.
+If $s=t_0$, no map is needed. In every case
+$f_x(s)\ge4^{-B}/W$.
 \end{proof}
 
 \begin{corollary}[A bound for small differences]\label{cor:gap}
@@ -94,45 +139,126 @@ f(u)f(v)\le f(t)f(u+v-t).
 \end{equation}
 \end{lemma}
 \begin{proof}
-Write $S$ for the unnormalized section volume. The claim is immediate if
-$t=u$, $t=v$, or either outer section is empty. Otherwise take feasible
-assignments $p,q$ in the sections $X_x=u,v$, and put $\delta=t-u$.
-Subtract $\delta$ from every coordinate of $q$ to obtain $h$. Both $p$
-and $h$ satisfy the strict arrows.
+Write $S(s)=\vol_{N-1}K_x(s)$. It suffices to construct a
+volume-preserving injection
+\[
+K_x(u)\times K_x(v)\longrightarrow
+K_x(u+v-t)\times K_x(t).
+\]
+Both products are measured in their $2(N-1)$ free coordinates. If
+$t=u$, $t=v$, or $S(u)S(v)=0$, the inequality is immediate. Otherwise
+suppose $u<t<v$, take a pair of feasible assignments $p,q$ with
+$p_x=u$ and $q_x=v$, and put $\delta=t-u$.
 
-Form an undirected graph by joining the endpoints of an arrow $i\to j$
-when
+We first translate the second assignment by setting $h_i=q_i-\delta$
+for every $i$. Translation preserves all arrows, so both $p$ and $h$
+satisfy them. The intermediate assignment $h$ need not satisfy the
+interval bounds. We shall swap selected coordinates of $p$ and $h$,
+then undo the translation on the second assignment.
+
+Which coordinates must be swapped together? For each $i$, the two
+available values are $p_i$ and $h_i$. Join the endpoints of an arrow
+$i\to j$ by an undirected edge exactly when
 \[
 \max(p_i,h_i)\ge\min(p_j,h_j).
 \]
-Along each such edge, $h-p$ is nonzero and has the same sign at both
-endpoints. Indeed, if the signs were different or one difference were zero,
-the strict inequality in $p$ or in $h$ would contradict the displayed
-condition. At $x$ the difference is $v-t>0$, so $h_i>p_i$ throughout
-the connected component containing $x$.
+An edge means that choosing the two endpoint values independently could
+violate the arrow. If there is no edge, either value at $i$ is strictly
+less than either value at $j$, so every choice is safe.
+Figure~\ref{fig:balance-components} illustrates the two cases.
 
-Swap $p,h$ on that component, then add $\delta$ back to the second
-assignment. The output coordinates at $x$ are $u+v-t$ and $t$.
-At each swapped coordinate,
+\Needspace{9\baselineskip}
+Along an edge, $h_i-p_i$ and $h_j-p_j$ have the same strict sign. To see
+this, if $h_i\ge p_i$ and $h_j\le p_j$, then
+$\max(p_i,h_i)=h_i<h_j=\min(p_j,h_j)$, because $h$ satisfies the arrow.
+If $h_i\le p_i$ and $h_j\ge p_j$, the same contradiction follows from
+$p_i<p_j$. These two cases also exclude a zero difference at either
+endpoint. Let $C$ be the connected component containing $x$. Since
+$h_x-p_x=v-t>0$, we obtain $h_i>p_i$ for every $i\in C$.
+
+Now define the output pair by
 \[
-p_i<h_i=q_i-\delta<q_i,
-\qquad p_i<p_i+\delta<q_i,
+(p'_i,q'_i)=
+\begin{cases}
+(q_i-\delta,\ p_i+\delta),&i\in C,\\
+(p_i,q_i),&i\notin C.
+\end{cases}
 \]
-so both new values remain in the original interval. Internal arrows remain
-strict. For a boundary arrow, the absence of a joining edge means that
-either value at its lower endpoint is less than either value at its upper
-endpoint. Thus the outputs are feasible.
+This is precisely the proposed swap followed by the inverse translation.
+At $x$ it gives $p'_x=v-\delta=u+v-t$ and $q'_x=u+\delta=t$, as required.
 
-The map is injective. Subtracting $\delta$ from the second output recovers
-the same unordered coordinate pairs, hence the same graph and component;
-swapping that component again recovers $p,h$. On each of finitely many
-pieces, the map permutes free coordinates and adds constants, so it
-preserves volume. Consequently
+We check feasibility in two steps. First, on $C$ we have
+$p_i<q_i-\delta<q_i$ and $p_i<p_i+\delta<q_i$. Thus both new values lie
+between the original feasible values $p_i$ and $q_i$, and so remain in
+the interval for coordinate $i$. Outside $C$ there is no change.
+Second, consider the arrows before adding $\delta$ back. An arrow with
+both endpoints in $C$ has had its two assignments exchanged, so it
+remains strict in each. An arrow with neither endpoint in $C$ is
+unchanged. A boundary arrow is not an edge of the auxiliary graph,
+because $C$ is a component; any choice of its endpoint values is therefore
+safe. Finally, adding the same $\delta$ to every coordinate of the second
+assignment preserves its arrows. Both output assignments are feasible.
+
+To recover the input, subtract $\delta$ from $q'$ and observe that for
+every coordinate
+\[
+\{p'_i,q'_i-\delta\}=\{p_i,q_i-\delta\}=\{p_i,h_i\}.
+\]
+These unordered pairs determine the auxiliary graph. We therefore recover
+the same component $C$, swap its coordinates once more, and add $\delta$
+to the second assignment. This recovers $(p,q)$, proving injectivity.
+
+There are only finitely many possible components $C$. On the part of
+the source with a fixed $C$, the map exchanges selected pairs of free
+coordinates and adds constants. Its Jacobian determinant has absolute
+value one. The parts and their images are measurable, and injectivity
+makes the images disjoint. Adding their volumes proves
 \[
 S(u)S(v)\le S(t)S(u+v-t).
 \]
 Dividing by the square of the total volume proves the claim.
 \end{proof}
+
+\begin{figure}[tb]
+\centering
+\begin{tikzpicture}[x=0.66cm,y=0.75cm,>=Latex,font=\small]
+\begin{scope}
+\node[anchor=west] at (0,2.3) {An auxiliary edge is needed};
+\node[anchor=east] at (0,1) {$i$};
+\node[anchor=east] at (0,0) {$j$};
+\draw[very thick,accent] (1,1)--(4,1);
+\draw[very thick,accent] (3,0)--(6,0);
+\draw[densely dashed,gray] (3,-.35)--(3,1.35);
+\draw[densely dashed,gray] (4,-.35)--(4,1.35);
+\fill (1,1) circle (2pt) node[above=3pt] {$p_i$};
+\fill (4,1) circle (2pt) node[above=3pt] {$h_i$};
+\fill (3,0) circle (2pt) node[below=3pt] {$p_j$};
+\fill (6,0) circle (2pt) node[below=3pt] {$h_j$};
+\node at (3.4,-1) {$h_i\ge p_j$};
+\end{scope}
+\begin{scope}[xshift=6.2cm]
+\node[anchor=west] at (0,2.3) {Every endpoint choice is safe};
+\node[anchor=east] at (0,1) {$i$};
+\node[anchor=east] at (0,0) {$j$};
+\draw[very thick,accent] (1,1)--(2,1);
+\draw[very thick,accent] (4,0)--(5,0);
+\draw[densely dashed,gray] (2,-.35)--(2,1.35);
+\draw[densely dashed,gray] (4,-.35)--(4,1.35);
+\fill (1,1) circle (2pt) node[above=3pt] {$p_i$};
+\fill (2,1) circle (2pt) node[above=3pt] {$h_i$};
+\fill (4,0) circle (2pt) node[below=3pt] {$p_j$};
+\fill (5,0) circle (2pt) node[below=3pt] {$h_j$};
+\node at (3.4,-1) {$\max(p_i,h_i)<\min(p_j,h_j)$};
+\end{scope}
+\end{tikzpicture}
+\caption{The auxiliary graph in Lemma~\ref{lem:balance}, for one arrow
+$i\to j$. Each segment joins the two available values of its coordinate.
+On the left, swapping just one endpoint could select $h_i$ and $p_j$,
+violating the arrow. On the right, the two segments are separated in the
+required order, so swapping either endpoint is safe. Every boundary arrow
+of a component has this second form.}
+\label{fig:balance-components}
+\end{figure}
 
 \begin{lemma}[Density from mass on both sides]\label{lem:midpoint-certificate}
 For a coordinate density $f$, its cumulative distribution $F$, and
@@ -145,12 +271,17 @@ $a\le c\le b$,
 \begin{proof}
 Lemma~\ref{lem:balance} gives
 $f(u)f(v)\le f(c)f(u+v-c)$ for $u\le c\le v$.
-Integrate over $u\le c$ and $c\le v\le b$. For each fixed $v$,
-the integral of the shifted density is at most one, giving
+For fixed $v\ge c$, integration over $u\le c$ gives
+\[
+F(c)f(v)\le f(c)\int_{-\infty}^c f(u+v-c)\,du\le f(c),
+\]
+because the integral of a density over any interval is at most one.
+Integrating this inequality over $c\le v\le b$ yields
 \[
 F(c)\bigl(F(b)-F(c)\bigr)\le(b-c)f(c).
 \]
-Integration over $a\le u\le c$ and $v\ge c$ similarly gives
+Likewise, for fixed $u\le c$, integration over $v\ge c$ gives
+$f(u)(1-F(c))\le f(c)$. Integrating over $a\le u\le c$ yields
 \[
 \bigl(F(c)-F(a)\bigr)\bigl(1-F(c)\bigr)\le(c-a)f(c).
 \]
@@ -162,65 +293,132 @@ their minimum.
 
 \section{Local approximation of comparison probabilities}\label{app:local}
 
-We prove Theorem~\ref{thm:local} by coupling the uniform distributions on
-the full feasible region and the retained region. A sequence of coordinate
-updates preserves each distribution and reduces the discrepancy between
-coordinates away from the retained boundary.
+We prove Theorem~\ref{thm:local} by running the same random coordinate
+updates on two feasible assignments: one in the full region and one in
+the retained region. Each assignment remains uniformly distributed in its
+own region. The shared random choices bring their values close together
+far from the retained boundary. We then use the density bound to show
+that close values usually give the same comparison answer.
+
+This random experiment is only a proof device. The adversary evaluates
+the local probabilities by the deterministic volume calculation in
+Appendix~\ref{app:table}.
 
 \subsection{Coupled coordinate updates}
 
-Start with a uniform assignment in each region, under any joint coupling.
-Visit the full graph in a topological order; the retained graph uses the
-restriction of this order. Conditional on every other coordinate, $X_x$
-is uniform on $(a,b)$, where
+Choose independently an assignment $X$ uniformly from the full feasible
+region and an assignment $\widehat X$ uniformly from the retained region.
+We shall subsequently update them using shared random numbers. Specifying
+two random objects in a common experiment in this way is called a
+\emph{coupling}.
+
+A \emph{sweep} visits every vertex of the full graph once, in a fixed
+topological order; the retained graph uses the restriction of this order.
+Consider one assignment and condition on all its coordinates other than
+$X_x$. The only constraints still depending on $X_x$ are its interval
+and the arrows incident with $x$. Its available values form the interval
+$(a,b)$, where
 \[
 a=\max\{\ell_x,\ X_y:y\to x\},\qquad
 b=\min\{r_x,\ X_z:x\to z\}.
 \]
-Replace it by $(1-U_x)a+U_xb$. Use independent uniform $U_x\in(0,1)$
-at each vertex and in each sweep, sharing the same $U_x$ between the two
-assignments at retained vertices. Vertices outside the retained graph are
-updated only in the full assignment. Each update resamples the conditional
-distribution, and hence preserves the corresponding joint uniform law.
+Because the joint density is constant on the feasible region, the
+conditional distribution of $X_x$ is uniform on this interval. Replace
+it by $(1-U_x)a+U_xb$, where $U_x$ is uniform on $(0,1)$. In the retained
+assignment, use the endpoints computed from $\widehat X$ and its retained
+arrows. Use independent $U_x$ at different vertices and in different
+sweeps, but share the same $U_x$ between the two assignments whenever
+$x$ is retained. Vertices outside the retained graph are updated only
+in the full assignment.
 
-Let $\Delta_x$ be the absolute difference between the two values at a
-retained vertex. Whenever every incident edge is retained,
+An update replaces a coordinate by a fresh sample from its conditional
+distribution. For every fixed choice of the other coordinates, this leaves
+that conditional distribution unchanged; averaging over those choices
+therefore leaves the distribution of the entire assignment unchanged.
+Consequently $X$ remains uniform on the full region and $\widehat X$
+remains uniform on the retained region after every update. They need not
+remain independent, and no independence between them will be used.
+
+For a retained vertex, write $\Delta_x=|X_x-\widehat X_x|$. Within one
+sweep, superscripts ${\rm old}$ and ${\rm new}$ denote values before and
+after that vertex is visited. Every old value is also its value at the start
+of the sweep: updating another vertex does not change it. Thus the whole
+old discrepancy vector is independent of this sweep's fresh variables $U$.
+Whenever every incident edge is retained,
 \begin{equation}\label{eq:coupling}
 \Delta_x^{\rm new}
 \le(1-U_x)\max_{y\to x}\Delta_y^{\rm new}
   +U_x\max_{x\to z}\Delta_z^{\rm old}.
 \end{equation}
-An empty maximum is zero. The bound follows because taking a maximum or
-minimum with common fixed bounds does not increase the largest discrepancy
-among its arguments. Predecessors have already been updated; successors
-have not.
+Here and below an empty maximum is zero. To obtain this inequality,
+compare the two available lower endpoints: both include the same fixed
+bound $\ell_x$, so their difference is at most the largest predecessor
+discrepancy. The same argument for the upper endpoints uses the common
+bound $r_x$ and the successors. Multiplying by the shared coefficients
+$1-U_x$ and $U_x$ gives \eqref{eq:coupling}. Topological order explains the
+superscripts: every predecessor has already been visited in this sweep,
+whereas no successor has.
 
-Suppose the undirected ball $B_h(x)$ is retained. Recursively expand the
-predecessor term in \eqref{eq:coupling}, choosing a maximizing predecessor
-at each step. Any predecessor chain reaches a vertex with no predecessor
-within at most $h$ vertices. Define $A_x$ as the minimum of the fresh
-$1-U_y$ over $x$ and its ancestors. The coefficient following that chain
-to a zero discrepancy is at least $A_x^h$. At each expansion the two
-coefficients sum to one; every other branch ends at an old successor
-discrepancy, reached by at most $h-1$ predecessor edges and one successor
-edge. Thus
+We next expand the dependence on the new predecessor values until it
+reaches a fixed interval endpoint. Let $B_h(x)$ denote the vertices at
+undirected distance at most $h$ from $x$, suppose this ball is retained,
+and put
+\[
+D=\max_{y\in B_h(x)}\Delta_y^{\rm old}.
+\]
+Starting with $z_0=x$, repeatedly choose a predecessor attaining the
+maximum new discrepancy in \eqref{eq:coupling}. Stop at a vertex with
+no predecessor. The resulting reverse directed path is
+$z_0,z_1,\ldots,z_{s-1}$, where $s\le h$ because the graph has height
+at most $h$. Write $a_i=1-U_{z_i}$.
+
+Every successor of $z_i$ is at distance at most $i+1\le h$ from $x$,
+so its old discrepancy is at most $D$. All incident edges used here are
+retained for the same reason. Thus \eqref{eq:coupling} gives
+\[
+\Delta_{z_i}^{\rm new}
+\le a_i\Delta_{z_{i+1}}^{\rm new}+(1-a_i)D
+\quad(0\le i<s-1),
+\qquad
+\Delta_{z_{s-1}}^{\rm new}\le(1-a_{s-1})D.
+\]
+The last inequality has no predecessor term: the lower endpoint at that
+vertex is fixed and identical in the two regions. Substituting backwards
+along the path gives
+\[
+\Delta_x^{\rm new}
+\le\left(1-\prod_{i=0}^{s-1}a_i\right)D.
+\]
+Indeed, substituting a bound $(1-P)D$ for the next discrepancy changes
+the coefficient to $a_i(1-P)+(1-a_i)=1-a_iP$.
+
+Let $A_x$ be the minimum of the fresh values $1-U_y$ over $x$ and all
+its ancestors. Every $a_i\ge A_x$, and $s\le h$ with $0\le A_x\le1$,
+so $\prod_i a_i\ge A_x^s\ge A_x^h$. We have proved
 \begin{equation}\label{eq:one-sweep}
 \Delta_x^{\rm new}\le
 (1-A_x^h)\max_{y\in B_h(x)}\Delta_y^{\rm old}.
 \end{equation}
-This bound holds for every choice of maximizing predecessors, since $A_x$
-uses all ancestors. All edges used by the expansion lie in $B_h(x)$.
+The chosen path may depend on the current discrepancies and the fresh
+random numbers. Defining $A_x$ using all ancestors makes
+\eqref{eq:one-sweep} valid regardless of that choice.
 
 \subsection{Moment contraction}
 
-Put
+The right side of \eqref{eq:one-sweep} involves up to a bounded number of
+old discrepancies. We use a sufficiently large power $p$ so that, after
+taking expectations, its random coefficient compensates for the number
+of possible old coordinates. The expectation $\E[\Delta_x^p]$ is called
+the $p$th moment of the discrepancy. Put
 \[
 M=(d+1)^{h+1},\qquad
 a=\frac1{4M^2},\qquad
 p=(4M^2)^{h+1}.
 \]
-The ball $B_h(x)$ and the set of ancestors defining $A_x$ each have at
-most $M$ vertices. Hence
+Degree at most $d$ implies that $B_h(x)$ has at most
+$1+d+\cdots+d^h\le(d+1)^{h+1}=M$ vertices. Every ancestor of $x$ lies
+in this ball because any directed path has at most $h-1$ edges. Thus at
+most $M$ fresh uniform random variables define $A_x$. A union bound gives
 \[
 \Prb(A_x<a)\le Ma=\frac1{4M}.
 \]
@@ -230,9 +428,12 @@ On the complementary event, Bernoulli's inequality gives
 \le\frac1{1+pa^h}
 =\frac1{1+4M^2}\le\frac1{4M}.
 \]
-Here $(1-z)^{-p}\ge1+pz$ for $0\le z<1$. It follows that
+Here we used $(1-z)^{-p}\ge1+pz$ for $0\le z<1$. On the exceptional
+event $A_x<a$, the quantity $(1-A_x^h)^p$ is at most one. Splitting the
+expectation over these two events therefore gives
 \[
-\E[(1-A_x^h)^p]\le\frac1{2M}.
+\E[(1-A_x^h)^p]
+\le\Prb(A_x<a)+\frac1{4M}\le\frac1{2M}.
 \]
 The fresh random variables defining $A_x$ are independent of all old
 discrepancies. Raising \eqref{eq:one-sweep} to the power $p$ and bounding
@@ -254,14 +455,19 @@ C=M+1,\qquad \delta=\frac{\varepsilon}{16CR},\\
 \mu=\ceil{\log(8/\varepsilon)},\\
 t=p\lambda+\mu,\qquad \rho=ht.
 \end{gather*}
-These integers are computable by rational arithmetic and comparisons with
-powers of two.
+The integers $\lambda,\mu,t,\rho$ are computable by rational arithmetic
+and comparisons with powers of two. The choices ensure
+$2^\lambda\ge1/\delta$ and $2^\mu\ge8/\varepsilon$.
 
-Fix a queried vertex $x_*$. After sweep $j$, apply \eqref{eq:moment}
-only at vertices within distance $h(t-j)$ of $x_*$. Their required
+Fix a queried vertex $x_*$. Its radius-$\rho=ht$ ball is retained. One
+application of \eqref{eq:moment} needs information within distance $h$,
+so after each sweep we discard an outer layer of that thickness from
+the set of vertices at which we claim a bound. More precisely, after
+sweep $j$ consider vertices within distance $h(t-j)$ of $x_*$. Their
 $h$-balls lie within distance $h(t-j+1)$, where the preceding sweep's
-bound applies. Every initial discrepancy is at most one because all
-coordinates lie in $(0,1)$. Induction on $j$ gives
+bound applies. Initially every discrepancy is at most one, since all
+coordinates lie in $(0,1)$. Applying \eqref{eq:moment} and induction
+on $j$ now gives
 \[
 \max_{x\in B_{h(t-j)}(x_*)}\E[\Delta_x(j)^p]\le2^{-j},
 \qquad 0\le j\le t.
@@ -283,19 +489,34 @@ comparison probabilities are then the same, either zero or one.
 Otherwise the labels are incomparable. Let $x$ be a queried coordinate
 of width at least $1/R$. It has at most $M$ other comparable labels,
 so Corollary~\ref{cor:gap} bounds the probability that $X_x-X_y$ lies in
-any interval of length $a$ by $CRa$. Outside the two exceptional events
-in \eqref{eq:coordinate-error}, a difference in comparison signs between
-the two assignments requires
+any interval of length $L$ by $CRL$. Outside the two exceptional events
+in \eqref{eq:coordinate-error}, both
+$|X_x-\widehat X_x|\le\delta$ and $|X_y-\widehat X_y|\le\delta$.
+Hence the two differences $X_x-X_y$ and $\widehat X_x-\widehat X_y$
+are within $2\delta$ of each other. They can have different signs only if
 \[
 |X_x-X_y|\le2\delta.
 \]
 The probability of this event in the full assignment is at most
 $4CR\delta=\varepsilon/4$. The exceptional events together have
 probability at most $\varepsilon/4$, so the signs disagree with probability
-at most $\varepsilon/2$. For a threshold comparison, the same argument
-uses one exceptional event and an interval of length $2\delta$.
-Since each assignment retains its original uniform law, the difference
-between the two probabilities is at most their probability of disagreement.
+at most $\varepsilon/2$. For a threshold comparison with a fixed number
+$c$, there is only one exceptional event. Outside it, different answers
+require $|X_x-c|\le\delta$, an interval of length $2\delta$ whose
+probability is at most $2CR\delta=\varepsilon/8$. Including the
+exceptional event gives a disagreement probability at most
+$\varepsilon/4$.
+
+For any two events in one random experiment,
+\[
+|\Prb(E)-\Prb(\widehat E)|
+\le\Prb(E\text{ and not }\widehat E)
+  +\Prb(\widehat E\text{ and not }E).
+\]
+Apply this to the two comparison answers after $t$ sweeps. Since each
+assignment is still uniform on its original region, these are exactly
+the full and retained probabilities in the theorem. The bounds just
+proved are both smaller than the required error $\varepsilon$.
 
 Finally, the retained region has positive volume: the restriction of a full
 strictly feasible assignment has a small feasible neighborhood. The union

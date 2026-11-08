@@ -4,9 +4,11 @@
   "argument": "unit-interval adversary with a single repair potential",
   "source_pdf_sha256": "3f83f2dc85d014f502c559961e5f49f4cf923bf3b8708a57c4941b8438bbdc41",
   "source_zip_sha256": "d66ddee35fef71a974c96fda7aa2c9e1701a7b3d6134c20199ddd8f635a92ddc",
-  "local_pdf_sha256": "48ebd5d2f762b289d2d6a8bb9bc158241f61aac60dbbd2dbfbb0dad9a6e3129e",
-  "prepared_zip_sha256": "7c742a7e88d495d996849622d5b753f583a3ea02d36c294a5520e93c42609d23",
+  "local_pdf_sha256": "9cad2ecf77253f3ba76c4429637315eb176f419e7c68f26dba71702d6950fbc9",
+  "prepared_zip_sha256": "90fc9ab4ea50b787284582b2c716edac3419eadce917034801cadbe89df174d1",
   "previous_hexagon_submission": "hexagon:2611.00196",
   "previous_submission_metadata": "submission.json",
-  "formalization": "Related earlier integer-colour construction; this continuous presentation is not formally verified."
+  "formalization": "Related earlier integer-colour construction; this continuous presentation is not formally verified.",
+  "exposition": "Motivated construction, worked examples, derived potential, and expanded geometric and locality proofs",
+  "pages": 29
 }

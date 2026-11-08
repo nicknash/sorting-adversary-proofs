@@ -1,54 +1,87 @@
 \section{The comparison lower bound}\label{sec:potential}
 
-The packing quantity $n!Z\mathcal W$ starts at $n!$ and ends at most $2^n$.
-It remains to relate its decrease to the number of comparisons. We adjust
-the volume exponent and charge a small amount for each stored arrow, so that
-every complete repair has nonnegative change.
+The quantity $n!Z\mathcal W$ now has the endpoints we need: it starts at
+$n!$ and is at most $2^n$ when sorting finishes. If only comparisons could
+reduce it, and each reduced it by a factor close to $2$, the lower bound
+would follow. Refinements can also reduce it. We modify the quantity so
+that each complete repair preserves or increases it, leaving comparisons
+responsible for the required overall decrease.
 
-\Needspace{12\baselineskip}
-Let $e$ be the total number of active arrows over all nodes. Set
-\begin{equation}\label{eq:coefficients}
-L=\log(4k),\qquad
-\beta=\frac{k+1+L}{k-5},\qquad
-\tau=\frac{4\beta+L}{k},
-\end{equation}
-and define
+\subsection{Choosing a quantity that repairs cannot decrease}
+
+Consider a refinement at level $m$ that removes $r$ incident arrows.
+The volume identity, the anchor-density bound, and the child width give
+three simple changes. Write $e$ for the total number of active arrows,
+and put $L=\log(4k)$.
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+Quantity & Change caused by the refinement\\
+\midrule
+$\log Z$ & at least $(1-1/k)m-4$\\
+$\log\mathcal W$ & exactly $-(1+1/k)m-L$\\
+$e$ & exactly $-r$\\
+\bottomrule
+\end{tabular}
+\end{center}
+Adding the first two rows gives only $-2m/k-4-L$ as a lower bound.
+Thus $n!Z\mathcal W$ alone does not give the required guarantee.
+There are two ways to improve it: give more weight to the recovered volume,
+and reward deletion of arrows.
+
+The repair rules tell us what guarantee to aim for. A narrow-item refinement
+has $m\ge k$; a degree refinement has $r\ge k$; and a path batch has average
+level at least $k$. A lower bound of the form
+$\tau(m+r-k)$, for some $\tau>0$, would therefore suffice in all three cases.
+We seek it using
 \begin{equation}\label{eq:potential}
-\Psi=n!Z^\beta\mathcal W\,2^{-\tau e}.
+\Psi=n!Z^\beta\mathcal W\,2^{-\tau e},
 \end{equation}
-Here $\beta>1$ and $\tau>0$. The coefficients satisfy
+with $\beta>1$. We call $\Psi$ a \emph{potential}: it is a numerical measure
+of the state used in the proof. The adversary never evaluates it.
+The extra power of $Z$ increases the reward for recovered volume.
+The factor $2^{-\tau e}$ charges a small amount when an arrow is stored,
+then returns that amount when the arrow is removed.
+
+The table shows that the change in $\log\Psi$ is at least
+\[
+\bigl[\beta(1-1/k)-(1+1/k)\bigr]m+\tau r-(4\beta+L).
+\]
+To make this expression equal $\tau(m+r-k)$, choose the coefficients to satisfy
 \begin{equation}\label{eq:coefficient-identities}
 \beta(1-1/k)-(1+1/k)=\tau,
 \qquad 4\beta+L=k\tau.
 \end{equation}
-The extra power of $Z$ rewards volume recovered by refinement. Removing
-an arrow also restores the factor $2^\tau$ charged when it was stored.
-The algorithm does not evaluate this potential.
+Multiplying the first equation by $k$ and substituting the second gives
+$\beta(k-5)=k+1+L$. Hence the required values are
+\begin{equation}\label{eq:coefficients}
+L=\log(4k),\qquad
+\beta=\frac{k+1+L}{k-5},\qquad
+\tau=\frac{4\beta+L}{k}.
+\end{equation}
+For $k\ge16$ these satisfy $\beta>1$ and $\tau>0$.
+Both modifications preserve the final upper bound: since $Z\le1$ and
+$e\ge0$, they give $\Psi\le n!Z\mathcal W\le2^n$ at termination.
+Initially they change nothing, because $Z=1$ and $e=0$.
 
 \begin{lemma}[Refinement inequality]\label{lem:repair-potential}
-If a refinement selects an anchor of address length $m$ for a vertex of
+If a refinement selects an anchor at level $m$ for a vertex of
 current degree $r$, then
 \begin{equation}\label{eq:repair-potential}
 \log\Psi_{\rm new}-\log\Psi_{\rm old}\ge\tau(m+r-k).
 \end{equation}
 \end{lemma}
 \begin{proof}
-Refinement multiplies $Z$ by $f_x(c)$ and $\mathcal W$ by $w(m)$, and
-deletes exactly $r$ active arrows. The child receives an isolated coordinate.
-Using Lemma~\ref{lem:anchor-density},
-\begin{align*}
-\log\frac{\Psi_{\rm new}}{\Psi_{\rm old}}
-&=\beta\log f_x(c)-(1+1/k)m-L+\tau r\\
-&\ge\bigl[\beta(1-1/k)-(1+1/k)\bigr]m-4\beta-L+\tau r\\
-&=\tau(m+r-k).
-\end{align*}
-The last line is \eqref{eq:coefficient-identities}.
+The child receives an isolated coordinate, so exactly the $r$ parent
+arrows are deleted. Substituting the three changes in the table into
+\eqref{eq:potential} gives the lower bound derived above.
+The coefficient identities \eqref{eq:coefficient-identities} reduce it to
+$\tau(m+r-k)$.
 \end{proof}
 
-The choice of $\beta,\tau$ makes the address length and the deleted-arrow
-count have the same coefficient, while making the fixed cost equal to
-$k$ times that coefficient. The three reasons for refinement now fit the
-same inequality.
+\subsection{Every complete repair pays for itself}
+
+We now apply the same refinement inequality to each of the three repair rules.
 
 \begin{proposition}[Repair monotonicity]\label{prop:repairs}
 Each query-preparation refinement and each degree refinement preserves or
@@ -59,7 +92,7 @@ A preparation refines a narrow item, so $m>2kB+2>k$ by
 \eqref{eq:narrow-address}. A degree refinement has $r\ge k$.
 In either case Lemma~\ref{lem:repair-potential} gives a nonnegative change.
 
-For a selected path, let $m_i$ be the address and $r_i$ the current degree
+For a selected path, let $m_i$ be the level and $r_i$ the current degree
 at its $i$th refinement. Summing the refinement inequality over the whole
 batch gives
 \[
@@ -74,6 +107,13 @@ An individual refinement within a path batch may decrease the potential.
 The proposition applies to the completed batch, which is why
 \textnormal{\textsc{Restore}} finishes a selected path before making another selection
 or returning an answer.
+
+\subsection{Only comparisons can supply the remaining decrease}
+
+The endpoint bounds require a net decrease of at least $\log(n!)-n$ in
+the logarithm of the potential. Complete repairs cannot contribute to this
+decrease. Each comparison contributes at most $1+O(\log k/k)$, as we now
+show. Dividing by this per-comparison bound gives the result.
 
 \begin{theorem}[Fixed-parameter comparison bound]\label{thm:fixed-stage}
 For every integer $k\ge16$, the adversary is deterministic and legal.

@@ -1,99 +1,134 @@
 \section{A uniform polynomial-time implementation}\label{sec:runtime}
 
-For each fixed $k$, the local calculation has bounded dimension, but this
-bound grows with $k$. We choose $k=k(n)$ slowly enough that its entire
-calculation is polynomial in $n$, while $k(n)$ still tends to infinity.
-We measure computation on a fixed deterministic multitape Turing machine,
+For a fixed parameter $k$, each local volume calculation is finite and its
+size is independent of $n$. To obtain the leading constant one, however,
+we must let $k$ grow with $n$. Two costs then need control: computing the
+parameters themselves, and using them in a comparison. We bound the first
+by a time limit on initialization and the second by a size limit on the
+local enumeration. Both limits are in terms of $n$, the number of items.
+Computation is measured on a fixed deterministic multitape Turing machine,
 with integers represented in binary.
 
 \subsection{Selecting the parameter}
 
-For a parameter $k$, let
+For each $k$, define
 \[
 \rho_k=\rho(k,2H,R,\eta),\qquad
 b_k=2(k+1)^{\rho_k+1},\qquad E_k=(3b_k)^{b_k}.
 \]
-The formula for $\rho$ in Appendix~\ref{app:local} is computable by integer
-arithmetic. Fix a program that successively writes the complete parameter
-tuples for $k=16,17,\ldots$, including $H,B,R,\rho_k,b_k,E_k$ in binary.
-At initialization simulate this program for $n$ steps. Among the completed
-tuples, choose the largest $k$ satisfying
+Here $b_k$ bounds the number of coordinates in a local region, and $E_k$
+bounds the number of orders enumerated to compute its volume. The formula
+for $\rho$ in Appendix~\ref{app:local} is computable by integer arithmetic.
+Fix a program that successively writes complete parameter tuples for
+$k=16,17,\ldots$, including $H,B,R,\rho_k,b_k,E_k$ in ordinary binary
+notation.
+
+At initialization, run this program for $n$ machine steps. Use only tuples
+whose entire output has been completed. Among these, choose the largest
+$k$ satisfying
 \begin{equation}\label{eq:stage-gate}
 E_k\le n.
 \end{equation}
 If there is none, answer every comparison according to label order.
+The time limit controls the work of producing the parameters even when
+the next tuple is very large. The program writes only $O(n)$ bits, so
+checking all completed tuples also takes polynomial time. The size limit
+\eqref{eq:stage-gate} ensures that a subsequent local calculation
+enumerates at most $n$ orders.
 
-The simulation produces $O(n)$ bits, and testing its completed outputs
-takes polynomial time. For each fixed $k$, its tuple is eventually written
-and $E_k$ is finite. Thus, for all sufficiently large $n$, that tuple has
-been produced within the budget and satisfies \eqref{eq:stage-gate}.
-The selected $k(n)$ consequently tends to infinity.
+These restrictions still allow $k$ to grow without bound. Fix any
+$k\ge16$, and let $t_k$ be the finite number of machine steps needed to
+finish writing its tuple. For every $n\ge\max\{t_k,E_k\}$, that tuple is
+available and passes the size test. The chosen parameter is then at least
+$k$. Since this holds for every fixed $k$, the selected $k(n)$ tends to
+infinity.
 
-The gate bounds the number of orders enumerated in any local volume
-calculation by $n$. It remains to bound the lengths of the integers used
-in those calculations and the number of calculations per call.
+\subsection{Bounding the precision}
 
-\subsection{Precision and state size}
-
-Every interval endpoint is $0$, $1$, or a previously chosen dyadic anchor.
-Let
+The enumeration bound counts arithmetic operations. To turn it into a bit
+bound, we also need to control the binary lengths of all interval endpoints.
+Each endpoint is $0$, $1$, or an earlier dyadic anchor. Put
 \[
 K_0=\ceil{\log(4(B+1)R)}+2.
 \]
-Lemma~\ref{lem:median-search} bounds the number of fractional binary digits
-in an anchor chosen for a wide item by $K_0$. Since the initialization
-budget includes writing $B$ and $R$, we have $K_0=O(n)$.
+For a wide coordinate, the midpoint-search bound of
+Lemma~\ref{lem:median-search}, together with $W_x\ge1/R$, gives at most
+$K_0$ fractional binary digits in the selected anchor. This bound is
+independent of the precision of the old endpoints. The initialization
+budget includes writing $B$ and $R$ in full binary notation, so
+$K_0=O(n)$.
 
-Suppose the existing endpoints have at most $\Lambda$ fractional digits.
-A positive difference between two such endpoints is at least $2^{-\Lambda}$.
-For a narrow item, its chosen cell length satisfies $2^{-m}>W_x/8$, so
-$m<\Lambda+3$ and its midpoint has at most $\Lambda+3$ fractional digits.
-Tightening only copies endpoints and introduces no new precision.
-After $P$ refinements, therefore,
+For a narrow coordinate, suppose the current endpoints have at most
+$\Lambda$ fractional digits. They are integer multiples of $2^{-\Lambda}$;
+a positive effective width is therefore at least $2^{-\Lambda}$.
+The chosen dyadic cell has length $2^{-m}>W_x/8$, giving
+$m<\Lambda+3$. Its midpoint has denominator $2^{m+1}$ and hence at
+most $\Lambda+3$ fractional digits. Thus a narrow refinement adds at most
+three digits of precision. Tightening takes maxima and minima of existing
+endpoints and introduces no new ones.
+
+After $P$ refinements, these observations give
 \begin{equation}\label{eq:precision}
 \Lambda\le K_0+3P.
 \end{equation}
-By the termination bounds, $P\le(n+2)q$ after $q$ complete calls, and the
-next call performs at most $n+2$ more refinements. There are at most $P+1$
-nodes.
+By Lemmas~\ref{lem:preparation} and~\ref{lem:restoration},
+$P\le(n+2)q$ after $q$ complete calls, with at most $n+2$ further
+refinements in the next call. Each refinement creates at most one node,
+so the tree has at most $P+1$ nodes.
 
-To bound state size even for indefinitely repeated queries, after
+\subsection{Bounding the state for every query sequence}
+
+A sorter may repeat comparisons indefinitely. To keep the state size and
+precision bounded independently of the number of repeated questions, after
 \begin{equation}\label{eq:cutoff}
 Q_{\rm stop}=2n\ceil{\log(n+1)}
 \end{equation}
-complete calls, choose a total order extending the saved public comparison
-graph and answer from it thereafter. A topological ordering gives such an
-order by legality. The recursive state can then be discarded. The public
-graph contains every earlier answer, including answers between anchors,
-so this change remains consistent with the entire transcript.
+complete calls, choose a total order extending the public comparison graph
+and answer from it thereafter. Such an order is obtained by topological
+sorting. The graph records every earlier answer, including those determined
+by anchors, so every subsequent answer remains consistent with the entire
+transcript. The recursive state can be discarded and the ranks in this
+fixed order stored instead.
 
-Before the cutoff, \eqref{eq:precision} gives
-$\Lambda=O(n^2\log(n+1))$ and the tree has polynomially many nodes.
-All thresholds in a wide-item midpoint search have at most $K_0$ fractional
-digits as well. By Appendix~\ref{app:table}, a local calculation on $b$
-coordinates uses integers of
+This cutoff exceeds $n\log n$. A sorter reaching it has already incurred
+more comparisons than the claimed lower bound, so freezing an order cannot
+invalidate that bound. Before the cutoff, \eqref{eq:precision} gives
+\[
+\Lambda=O(n^2\log(n+1)),
+\]
+and the tree has polynomially many nodes. During a wide-item midpoint
+search, its tested thresholds also have at most $K_0$ fractional digits.
+A common dyadic denominator for stored endpoints and the current threshold
+therefore has polynomial binary length.
+
+Appendix~\ref{app:table} shows that a local calculation on $b$ coordinates
+uses integers of
 \[
 O\bigl(b(\Lambda+\log(b+1))\bigr)
 \]
-bits. Its enumeration has at most $n$ terms by \eqref{eq:stage-gate}, and
-each term requires a polynomial number of integer operations. Standard
-binary arithmetic therefore gives a fixed polynomial bit bound.
+bits. There are at most $n$ enumerated orders by \eqref{eq:stage-gate},
+and $b\le b_k\le n$. Checking each order and forming its contribution
+requires a fixed polynomial number of integer operations. With standard
+binary arithmetic, one local calculation consequently has a polynomial
+bit cost whose exponent does not depend on $k$.
 
-A wide-item refinement makes at most $K_0$ such calculations; a narrow-item
-refinement uses only its endpoints. There are at most $n+2$ refinements per
-call and one final probability estimate. Tightening, neighborhood searches,
-and path selection are polynomial graph computations. In particular,
-longest path lengths in a directed acyclic graph are found in reverse
-topological order; these lengths allow the lexicographically first path
-on $H$ vertices to be selected greedily. Thus the bit cost per comparison
-is bounded by one polynomial in $n$, whose exponent is independent of $k$.
+A wide-item refinement uses at most $K_0$ such calculations. A narrow-item
+refinement uses only its endpoints. There are at most $n+2$ refinements
+per call, and at most one additional estimate to choose the answer.
+The remaining tasks are polynomial graph computations: propagating interval
+bounds, finding neighborhoods, and selecting a path. Longest path lengths
+in a directed acyclic graph are found in reverse topological order; these
+lengths let us select the lexicographically first path on $H$ vertices
+greedily, always choosing the first vertex that admits a long enough
+continuation. Thus every comparison, including the call at which an order
+is frozen, has a bit cost bounded by one fixed polynomial in $n$.
 
 \begin{proof}[Proof of Theorem~\ref{thm:main}]
-The parameter selection and finite cutoff define one deterministic
-polynomial-time adversary. For all sufficiently large $n$, it chooses a
-parameter, and $k(n)\to\infty$.
-If sorting ends before the cutoff, Theorem~\ref{thm:fixed-stage} gives
-$q\ge(1-o(1))n\log n$. If it reaches the cutoff, it has already made more
-than $n\log n$ comparisons. Legality holds throughout, including after
-freezing the compatible order. This proves the theorem.
+The bounded parameter selection and finite cutoff define a single
+deterministic polynomial-time adversary. For all sufficiently large $n$,
+it selects a parameter, and $k(n)\to\infty$. If sorting ends before the
+cutoff, Theorem~\ref{thm:fixed-stage} gives
+$q\ge(1-o(1))n\log n$. If it reaches the cutoff, it has already made
+more than $n\log n$ comparisons. Legality holds before the cutoff and
+is preserved by freezing a compatible total order. This proves the theorem.
 \end{proof}
