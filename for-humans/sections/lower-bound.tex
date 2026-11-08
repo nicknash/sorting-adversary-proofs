@@ -1,0 +1,116 @@
+\section{The comparison lower bound}\label{sec:potential}
+
+The packing quantity $n!Z\mathcal W$ starts at $n!$ and ends at most $2^n$.
+It remains to relate its decrease to the number of comparisons. We adjust
+the volume exponent and charge a small amount for each stored arrow, so that
+every complete repair has nonnegative change.
+
+\Needspace{12\baselineskip}
+Let $e$ be the total number of active arrows over all nodes. Set
+\begin{equation}\label{eq:coefficients}
+L=\log(4k),\qquad
+\beta=\frac{k+1+L}{k-5},\qquad
+\tau=\frac{4\beta+L}{k},
+\end{equation}
+and define
+\begin{equation}\label{eq:potential}
+\Psi=n!Z^\beta\mathcal W\,2^{-\tau e}.
+\end{equation}
+Here $\beta>1$ and $\tau>0$. The coefficients satisfy
+\begin{equation}\label{eq:coefficient-identities}
+\beta(1-1/k)-(1+1/k)=\tau,
+\qquad 4\beta+L=k\tau.
+\end{equation}
+The extra power of $Z$ rewards volume recovered by refinement. Removing
+an arrow also restores the factor $2^\tau$ charged when it was stored.
+The algorithm does not evaluate this potential.
+
+\begin{lemma}[Refinement inequality]\label{lem:repair-potential}
+If a refinement selects an anchor of address length $m$ for a vertex of
+current degree $r$, then
+\begin{equation}\label{eq:repair-potential}
+\log\Psi_{\rm new}-\log\Psi_{\rm old}\ge\tau(m+r-k).
+\end{equation}
+\end{lemma}
+\begin{proof}
+Refinement multiplies $Z$ by $f_x(c)$ and $\mathcal W$ by $w(m)$, and
+deletes exactly $r$ active arrows. The child receives an isolated coordinate.
+Using Lemma~\ref{lem:anchor-density},
+\begin{align*}
+\log\frac{\Psi_{\rm new}}{\Psi_{\rm old}}
+&=\beta\log f_x(c)-(1+1/k)m-L+\tau r\\
+&\ge\bigl[\beta(1-1/k)-(1+1/k)\bigr]m-4\beta-L+\tau r\\
+&=\tau(m+r-k).
+\end{align*}
+The last line is \eqref{eq:coefficient-identities}.
+\end{proof}
+
+The choice of $\beta,\tau$ makes the address length and the deleted-arrow
+count have the same coefficient, while making the fixed cost equal to
+$k$ times that coefficient. The three reasons for refinement now fit the
+same inequality.
+
+\begin{proposition}[Repair monotonicity]\label{prop:repairs}
+Each query-preparation refinement and each degree refinement preserves or
+increases $\Psi$. Each complete path batch preserves or increases $\Psi$.
+\end{proposition}
+\begin{proof}
+A preparation refines a narrow item, so $m>2kB+2>k$ by
+\eqref{eq:narrow-address}. A degree refinement has $r\ge k$.
+In either case Lemma~\ref{lem:repair-potential} gives a nonnegative change.
+
+For a selected path, let $m_i$ be the address and $r_i$ the current degree
+at its $i$th refinement. Summing the refinement inequality over the whole
+batch gives
+\[
+\log\frac{\Psi_{\rm after}}{\Psi_{\rm before}}
+\ge\tau\left(\sum_{i=1}^H m_i+\sum_{i=1}^H r_i-kH\right)\ge0,
+\]
+because Lemma~\ref{lem:path-address} gives $\sum_i m_i\ge kH$ and every
+$r_i$ is nonnegative.
+\end{proof}
+
+An individual refinement within a path batch may decrease the potential.
+The proposition applies to the completed batch, which is why
+\textnormal{\textsc{Restore}} finishes a selected path before making another selection
+or returning an answer.
+
+\begin{theorem}[Fixed-parameter comparison bound]\label{thm:fixed-stage}
+For every integer $k\ge16$, the adversary is deterministic and legal.
+If a correct sorter terminates after $q$ calls, then, with
+$a_\eta=-\log(1/2-\eta)$,
+\begin{equation}\label{eq:exact-bound}
+q\ge\frac{\log(n!)-n}{\beta a_\eta+\tau}
+=\frac{n\log n-O(n)}{1+O(\log k/k)}.
+\end{equation}
+\end{theorem}
+\begin{proof}
+The procedures and tie rules are deterministic. Legality is
+Proposition~\ref{prop:legality}, and termination of each call follows from
+Lemmas~\ref{lem:restoration} and~\ref{lem:preparation}.
+
+An answer between free coordinates or between a free coordinate and an
+anchor retains at least $1/2-\eta$ of its node volume. It leaves
+$\mathcal W$ unchanged and adds at most one active arrow. Its change in
+$\log\Psi$ is therefore at least $-\beta a_\eta-\tau$.
+An answer between anchors leaves the potential unchanged. Preparations
+and complete restorations do not decrease it by Proposition~\ref{prop:repairs}.
+Summing over calls yields
+\[
+\log\Psi_{\rm final}\ge\log(n!)-q(\beta a_\eta+\tau).
+\]
+Initially $Z=\mathcal W=1$ and $e=0$, explaining the term $\log(n!)$.
+At termination, Lemma~\ref{lem:packing}, $Z\le1$, and $e\ge0$ give
+\begin{equation}\label{eq:psi-endpoints}
+\Psi_{\rm final}
+=(n!Z\mathcal W)Z^{\beta-1}2^{-\tau e}\le2^n.
+\end{equation}
+Combining the last two inequalities proves the first bound.
+
+Finally, \eqref{eq:coefficients} gives
+$\beta=1+O(\log k/k)$ and $\tau=O(\log k/k)$.
+Since $\eta=1/(100k)$, $a_\eta=1+O(1/k)$.
+The estimate $\log(n!)=n\log n-O(n)$ follows, for example, by comparing
+$\sum_{j=1}^n\log j$ with $\int_1^n\log t\,dt$.
+These estimates give the second expression in \eqref{eq:exact-bound}.
+\end{proof}

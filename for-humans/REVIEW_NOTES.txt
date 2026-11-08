@@ -1,54 +1,47 @@
-DEFERRED-SEPARATION REVISION -- 7 November 2026
+EXPOSITION REVISION -- 8 November 2026
 
 Source
 ------
-The mathematical body replaces the earlier paper with the arguments from
-deferred_separation.pdf and deferred_separation_sources.zip, obtained from the
-author's specified Adversaries chat:
-https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6aef4568-c860-83ed-8597-4b1b11e26905
+The argument follows unified_optimal_sorting_adversary.pdf and its accompanying
+source archive, supplied by the author on 8 November 2026. The new construction
+uses unit coordinates, geometric packing, and one potential for complete repairs.
 
 Original PDF SHA-256:
-90c03c27ac944af44a02b9d157efd14fc0dd2cc9a3328bbd924f61b7c0774ec9
+3f83f2dc85d014f502c559961e5f49f4cf923bf3b8708a57c4941b8438bbdc41
 Original source ZIP SHA-256:
-4b1f9a5ce9e29c98b5cd802322ede472febff53b4eea3341663f7616bb092290
+d66ddee35fef71a974c96fda7aa2c9e1701a7b3d6134c20199ddd8f635a92ddc
 
-The supplied ZIP contains the complete TeX manuscript, the numerical-check
-script, its recorded results, and a README. Mathematical sections and appendices
-are retained. The source's account of changes from an earlier internal manuscript
-is replaced by a short checks/formalization section. Metadata uses the existing
-paper title, Nicholas Nash, and the author's ORCID.
+Exposition
+----------
+The four-sentence approved abstract is unchanged. The methodological disclosure
+remains immediately after it, identifies GPT 6 Astra, and states that the text
+except the abstract is AI-generated and the author is preparing a clear,
+human-readable exposition. The author is Nicholas Nash, with the supplied ORCID.
 
-Abstract and disclosure
------------------------
-At the author's explicit follow-up request, the two sentences beginning
-"Within each subproblem" and "Reusing child subproblems" are removed from
-the abstract. The four preceding sentences remain.
+The algorithm and all repair parameters now precede the proofs. Legality and
+graph bounds are organized as an induction; anchor selection, packing, and the
+single potential supply the comparison bound. Complete proofs of the density,
+locality, and exact enumeration lemmas are in the appendices. Historical citations
+include Atallah--Kosaraju, Borodin--Guibas--Lynch--Yao, Richards--Vaidya,
+Brodal--Chaudhuri--Radhakrishnan, and Kaplan--Zamir--Zwick. Three TikZ figures
+show early separation versus retained arrows, refinement, and geometric packing.
 
-The methodological disclosure is immediately after the abstract:
-Except for the abstract, the text of this paper is AI-generated using
-GPT 6 Astra. The author is working on a clear, human-readable exposition.
+The exact fixed-parameter lower bound is retained; the redundant conservative
+numerical expansion of its denominator is replaced by its asymptotic estimate.
+The source manuscript's development history, finite-check discussion, and
+unrelated counting-scheme discussion are omitted from the paper.
 
-For Hexagon's human-understanding declaration, the author selected
-"Some parts, but not all". The paper no longer asserts that all results
-have been independently checked and understood by a human.
+Verification scope
+------------------
+The supplied exact diagnostics were inspected and rerun: 4,081 parameter stages,
+28,567 transition identities, 241 distinct-address checks, 35 synthetic batches,
+51 finite volume systems, 393 midpoint searches, and 131 narrow-position choices
+passed. The coefficient script uses a rational variant with ceiling(log2(4k));
+the paper's algebra uses log2(4k) itself. The proof, rather than those finite
+checks, establishes the stated symbolic identities. Checks do not cover every
+online trajectory or establish the locality theorem.
 
-Formalization scope
--------------------
-The repository was synchronized to 15d93dd before this revision. Its current
-documentation records unconditional leading-one optimality and a polynomial
-cost implementation for the earlier recursive integer-colour construction.
-The new paper links the repository while distinguishing that development from
-this continuous-position presentation, its coding argument, and its exact-volume
-recurrence. No Lean source was changed for this revision.
-
-Checks and submission packaging
--------------------------------
-The supplied Python script was inspected and rerun. All 630 seeded exact
-comparisons and all 27 analytic cases passed. It compares two distinct exact
-volume algorithms and selected elementary identities. It does not verify every
-adversary trajectory or replace the universal proofs.
-
-The Hexagon source ZIP contains paper.tex, its included mathematical section,
-and script/results under anc/. It excludes Lean code, this review file, local
-source paths, intermediate files, and the precompiled PDF. Hexagon compiles
-the PDF from the submitted TeX.
+The related Lean files have not been altered or reverified. They concern the
+older integer-colour construction, not a formalization of this unit-interval
+presentation. The existing Hexagon deposit is unchanged; submission.json is the
+historical receipt for that version, and revision.json identifies this revision.

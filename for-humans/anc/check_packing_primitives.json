@@ -1,0 +1,448 @@
+{
+  "status": "passed",
+  "scope": "Small exact diagnostics of endpoint-interleaving volume, midpoint search with pointwise CDF error, and narrow-position rounding. Not a formal verification of locality or the asymptotic adversary, and not a simulation of all adversary trajectories.",
+  "arithmetic": "Python integers and fractions.Fraction only",
+  "seed": 1108,
+  "volume_systems": 51,
+  "seeded_systems": 40,
+  "explicit_systems": 11,
+  "volume_methods": [
+    "coordinate permutations and ordered endpoint-gap assignments",
+    "independent previous integer subset-polynomial recurrence"
+  ],
+  "positive_systems_by_size": {
+    "0": 1,
+    "1": 10,
+    "2": 10,
+    "3": 8,
+    "4": 8,
+    "5": 9
+  },
+  "zero_volume_systems_by_size": {
+    "2": 2,
+    "4": 2,
+    "5": 1
+  },
+  "midpoint_searches": 393,
+  "midpoint_noise_patterns": [
+    "exact",
+    "+1/32,-1/32 alternating",
+    "-1/32,+1/32 alternating"
+  ],
+  "midpoint_noise_note": "Perturbed reports are clipped to [0,1]; each has error <=1/32. No monotonicity or shared-distribution property is assumed.",
+  "empty_address_acceptances": 165,
+  "maximum_midpoint_tests": 21,
+  "minimum_observed_16_times_cell_width_times_density": "8",
+  "narrow_position_checks": 131,
+  "all_passed": true,
+  "systems": [
+    {
+      "name": "empty_region_coordinates",
+      "kind": "explicit",
+      "vertices": 0,
+      "edges": 0,
+      "volume": "1",
+      "passed": true
+    },
+    {
+      "name": "unit_interval",
+      "kind": "explicit",
+      "vertices": 1,
+      "edges": 0,
+      "volume": "1",
+      "passed": true
+    },
+    {
+      "name": "unit_square",
+      "kind": "explicit",
+      "vertices": 2,
+      "edges": 0,
+      "volume": "1",
+      "passed": true
+    },
+    {
+      "name": "root_triangle",
+      "kind": "explicit",
+      "vertices": 2,
+      "edges": 1,
+      "volume": "1/2",
+      "passed": true
+    },
+    {
+      "name": "five_element_chain",
+      "kind": "explicit",
+      "vertices": 5,
+      "edges": 4,
+      "volume": "1/120",
+      "passed": true
+    },
+    {
+      "name": "clipped_fork",
+      "kind": "explicit",
+      "vertices": 4,
+      "edges": 3,
+      "volume": "2849/49152",
+      "passed": true
+    },
+    {
+      "name": "incomparable_attachments",
+      "kind": "explicit",
+      "vertices": 5,
+      "edges": 4,
+      "volume": "10127/245760",
+      "passed": true
+    },
+    {
+      "name": "isolated_narrow",
+      "kind": "explicit",
+      "vertices": 1,
+      "edges": 0,
+      "volume": "1/1048576",
+      "passed": true
+    },
+    {
+      "name": "disconnected_narrow",
+      "kind": "explicit",
+      "vertices": 4,
+      "edges": 1,
+      "volume": "3/4096",
+      "passed": true
+    },
+    {
+      "name": "directed_cycle",
+      "kind": "explicit",
+      "vertices": 2,
+      "edges": 2,
+      "volume": "0",
+      "passed": true
+    },
+    {
+      "name": "infeasible_intervals",
+      "kind": "explicit",
+      "vertices": 2,
+      "edges": 1,
+      "volume": "0",
+      "passed": true
+    },
+    {
+      "name": "seeded_n1_case0",
+      "kind": "seeded",
+      "vertices": 1,
+      "edges": 0,
+      "volume": "3/4",
+      "passed": true
+    },
+    {
+      "name": "seeded_n1_case1",
+      "kind": "seeded",
+      "vertices": 1,
+      "edges": 0,
+      "volume": "3/8",
+      "passed": true
+    },
+    {
+      "name": "seeded_n1_case2",
+      "kind": "seeded",
+      "vertices": 1,
+      "edges": 0,
+      "volume": "3/8",
+      "passed": true
+    },
+    {
+      "name": "seeded_n1_case3",
+      "kind": "seeded",
+      "vertices": 1,
+      "edges": 0,
+      "volume": "1/2",
+      "passed": true
+    },
+    {
+      "name": "seeded_n1_case4",
+      "kind": "seeded",
+      "vertices": 1,
+      "edges": 0,
+      "volume": "1/8",
+      "passed": true
+    },
+    {
+      "name": "seeded_n1_case5",
+      "kind": "seeded",
+      "vertices": 1,
+      "edges": 0,
+      "volume": "3/4",
+      "passed": true
+    },
+    {
+      "name": "seeded_n1_case6",
+      "kind": "seeded",
+      "vertices": 1,
+      "edges": 0,
+      "volume": "1/4",
+      "passed": true
+    },
+    {
+      "name": "seeded_n1_case7",
+      "kind": "seeded",
+      "vertices": 1,
+      "edges": 0,
+      "volume": "1/4",
+      "passed": true
+    },
+    {
+      "name": "seeded_n2_case0",
+      "kind": "seeded",
+      "vertices": 2,
+      "edges": 0,
+      "volume": "15/32",
+      "passed": true
+    },
+    {
+      "name": "seeded_n2_case1",
+      "kind": "seeded",
+      "vertices": 2,
+      "edges": 0,
+      "volume": "35/64",
+      "passed": true
+    },
+    {
+      "name": "seeded_n2_case2",
+      "kind": "seeded",
+      "vertices": 2,
+      "edges": 0,
+      "volume": "25/64",
+      "passed": true
+    },
+    {
+      "name": "seeded_n2_case3",
+      "kind": "seeded",
+      "vertices": 2,
+      "edges": 0,
+      "volume": "15/64",
+      "passed": true
+    },
+    {
+      "name": "seeded_n2_case4",
+      "kind": "seeded",
+      "vertices": 2,
+      "edges": 0,
+      "volume": "3/64",
+      "passed": true
+    },
+    {
+      "name": "seeded_n2_case5",
+      "kind": "seeded",
+      "vertices": 2,
+      "edges": 0,
+      "volume": "3/16",
+      "passed": true
+    },
+    {
+      "name": "seeded_n2_case6",
+      "kind": "seeded",
+      "vertices": 2,
+      "edges": 0,
+      "volume": "5/64",
+      "passed": true
+    },
+    {
+      "name": "seeded_n2_case7",
+      "kind": "seeded",
+      "vertices": 2,
+      "edges": 1,
+      "volume": "1/128",
+      "passed": true
+    },
+    {
+      "name": "seeded_n3_case0",
+      "kind": "seeded",
+      "vertices": 3,
+      "edges": 0,
+      "volume": "105/512",
+      "passed": true
+    },
+    {
+      "name": "seeded_n3_case1",
+      "kind": "seeded",
+      "vertices": 3,
+      "edges": 0,
+      "volume": "15/64",
+      "passed": true
+    },
+    {
+      "name": "seeded_n3_case2",
+      "kind": "seeded",
+      "vertices": 3,
+      "edges": 0,
+      "volume": "25/128",
+      "passed": true
+    },
+    {
+      "name": "seeded_n3_case3",
+      "kind": "seeded",
+      "vertices": 3,
+      "edges": 0,
+      "volume": "175/512",
+      "passed": true
+    },
+    {
+      "name": "seeded_n3_case4",
+      "kind": "seeded",
+      "vertices": 3,
+      "edges": 1,
+      "volume": "1/128",
+      "passed": true
+    },
+    {
+      "name": "seeded_n3_case5",
+      "kind": "seeded",
+      "vertices": 3,
+      "edges": 1,
+      "volume": "7/64",
+      "passed": true
+    },
+    {
+      "name": "seeded_n3_case6",
+      "kind": "seeded",
+      "vertices": 3,
+      "edges": 0,
+      "volume": "21/128",
+      "passed": true
+    },
+    {
+      "name": "seeded_n3_case7",
+      "kind": "seeded",
+      "vertices": 3,
+      "edges": 1,
+      "volume": "1/512",
+      "passed": true
+    },
+    {
+      "name": "seeded_n4_case0",
+      "kind": "seeded",
+      "vertices": 4,
+      "edges": 3,
+      "volume": "13/192",
+      "passed": true
+    },
+    {
+      "name": "seeded_n4_case1",
+      "kind": "seeded",
+      "vertices": 4,
+      "edges": 2,
+      "volume": "625/16384",
+      "passed": true
+    },
+    {
+      "name": "seeded_n4_case2",
+      "kind": "seeded",
+      "vertices": 4,
+      "edges": 2,
+      "volume": "1/256",
+      "passed": true
+    },
+    {
+      "name": "seeded_n4_case3",
+      "kind": "seeded",
+      "vertices": 4,
+      "edges": 2,
+      "volume": "11/512",
+      "passed": true
+    },
+    {
+      "name": "seeded_n4_case4",
+      "kind": "seeded",
+      "vertices": 4,
+      "edges": 2,
+      "volume": "7/768",
+      "passed": true
+    },
+    {
+      "name": "seeded_n4_case5",
+      "kind": "seeded",
+      "vertices": 4,
+      "edges": 1,
+      "volume": "0",
+      "passed": true
+    },
+    {
+      "name": "seeded_n4_case6",
+      "kind": "seeded",
+      "vertices": 4,
+      "edges": 1,
+      "volume": "9/4096",
+      "passed": true
+    },
+    {
+      "name": "seeded_n4_case7",
+      "kind": "seeded",
+      "vertices": 4,
+      "edges": 4,
+      "volume": "0",
+      "passed": true
+    },
+    {
+      "name": "seeded_n5_case0",
+      "kind": "seeded",
+      "vertices": 5,
+      "edges": 3,
+      "volume": "27/8192",
+      "passed": true
+    },
+    {
+      "name": "seeded_n5_case1",
+      "kind": "seeded",
+      "vertices": 5,
+      "edges": 4,
+      "volume": "12609/1310720",
+      "passed": true
+    },
+    {
+      "name": "seeded_n5_case2",
+      "kind": "seeded",
+      "vertices": 5,
+      "edges": 3,
+      "volume": "5/8192",
+      "passed": true
+    },
+    {
+      "name": "seeded_n5_case3",
+      "kind": "seeded",
+      "vertices": 5,
+      "edges": 1,
+      "volume": "315/8192",
+      "passed": true
+    },
+    {
+      "name": "seeded_n5_case4",
+      "kind": "seeded",
+      "vertices": 5,
+      "edges": 4,
+      "volume": "31/98304",
+      "passed": true
+    },
+    {
+      "name": "seeded_n5_case5",
+      "kind": "seeded",
+      "vertices": 5,
+      "edges": 6,
+      "volume": "5/196608",
+      "passed": true
+    },
+    {
+      "name": "seeded_n5_case6",
+      "kind": "seeded",
+      "vertices": 5,
+      "edges": 4,
+      "volume": "247/491520",
+      "passed": true
+    },
+    {
+      "name": "seeded_n5_case7",
+      "kind": "seeded",
+      "vertices": 5,
+      "edges": 3,
+      "volume": "0",
+      "passed": true
+    }
+  ]
+}

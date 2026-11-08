@@ -1,0 +1,381 @@
+\section{Coordinate densities}\label{app:geometry}
+
+We prove the density bounds used to choose anchors and to turn coordinate
+approximation into probability approximation. Throughout this section, density
+means normalized section volume.
+
+\begin{lemma}[Coordinate density bounds]\label{lem:fiber}
+Suppose $x$ has at most $B$ other comparable labels and effective interval
+$(\ell,r)$ of width $W$. Its density satisfies
+\begin{align}
+f_x(t)&\le\frac{B+1}{W},\label{eq:fiber-upper}\\
+f_x(t)&\ge\frac{4^{-B}}{W}
+\qquad(\ell+W/4\le t\le r-W/4).\label{eq:fiber-lower}
+\end{align}
+These bounds also hold after fixing any set of labels incomparable with $x$,
+for every resulting slice of positive volume.
+\end{lemma}
+\begin{proof}
+Let $S(t)$ be the section volume at $X_x=t$, with any specified incomparable
+labels already fixed. For $\ell<t<s<r$, put
+$\alpha=(r-s)/(r-t)$ and apply
+\[
+\phi(z)=
+\begin{cases}
+s+\alpha(z-t),&t\le z\le r,\\
+z,&z\ge r
+\end{cases}
+\]
+to $x$ and all its descendants. Every descendant has value greater than $t$
+and upper endpoint at least $r$. The map moves these coordinates upward,
+keeps their interval constraints, and preserves strict inequalities within
+this set because it is strictly increasing. Any arrow crossing the set's
+boundary enters it, so that arrow also remains strict.
+
+This injective map sends the section at $t$ into the section at $s$.
+In the section's free coordinates its derivatives are $\alpha$ or $1$,
+with at most $B$ affected coordinates. Partitioning at the finitely many
+thresholds $X_y=r$ therefore gives
+\begin{equation}\label{eq:push-upper}
+S(s)\ge\left(\frac{r-s}{r-t}\right)^B S(t)
+\qquad(t<s).
+\end{equation}
+For $\ell<s<t<r$, apply to $x$ and its ancestors the increasing map
+\[
+\phi(z)=
+\begin{cases}
+z,&z\le\ell,\\
+s+\dfrac{s-\ell}{t-\ell}(z-t),&\ell\le z\le t.
+\end{cases}
+\]
+Their lower endpoints are at most $\ell$; they move downward, and every
+boundary arrow leaves this set. The same argument yields
+\begin{equation}\label{eq:push-lower}
+S(s)\ge\left(\frac{s-\ell}{t-\ell}\right)^B S(t)
+\qquad(s<t).
+\end{equation}
+Both maps fix incomparable coordinates. From any nonempty section they
+reach every point of $(\ell,r)$, so fixing those coordinates does not change
+the support of $x$.
+
+Normalize $S$ to obtain $f_x$. Integrating the two inequalities on their
+respective sides of $t$ gives
+\[
+1\ge f_x(t)\left(
+\int_\ell^t\left(\frac{s-\ell}{t-\ell}\right)^B ds+
+\int_t^r\left(\frac{r-s}{r-t}\right)^B ds\right)
+=\frac{Wf_x(t)}{B+1}.
+\]
+This proves the upper bound. Some section has density at least $1/W$.
+Moving it to any $t\in[\ell+W/4,r-W/4]$ uses a ratio at least $1/4$
+in \eqref{eq:push-upper} or \eqref{eq:push-lower}, proving the lower bound.
+\end{proof}
+
+\begin{corollary}[A bound for small differences]\label{cor:gap}
+If $y$ is incomparable with $x$, or $Y$ is a fixed number, then for every
+fixed interval $I$ of length $a$,
+\begin{equation}\label{eq:gap}
+\Prb(X_x-Y\in I)\le\frac{(B+1)a}{W},
+\end{equation}
+where $Y=X_y$ in the first case.
+\end{corollary}
+\begin{proof}
+In the first case, condition on $X_y$. Lemma~\ref{lem:fiber} bounds the
+conditional density of $x$ by $(B+1)/W$. Integrating over the translate
+$I+X_y$ and then averaging over $X_y$ proves the claim. For fixed $Y$,
+apply the unconditional density bound.
+\end{proof}
+
+\begin{lemma}[Balancing sections]\label{lem:balance}
+Let $f$ be a coordinate density, extended by zero outside its effective
+interval. For $u\le t\le v$,
+\begin{equation}\label{eq:balance}
+f(u)f(v)\le f(t)f(u+v-t).
+\end{equation}
+\end{lemma}
+\begin{proof}
+Write $S$ for the unnormalized section volume. The claim is immediate if
+$t=u$, $t=v$, or either outer section is empty. Otherwise take feasible
+assignments $p,q$ in the sections $X_x=u,v$, and put $\delta=t-u$.
+Subtract $\delta$ from every coordinate of $q$ to obtain $h$. Both $p$
+and $h$ satisfy the strict arrows.
+
+Form an undirected graph by joining the endpoints of an arrow $i\to j$
+when
+\[
+\max(p_i,h_i)\ge\min(p_j,h_j).
+\]
+Along each such edge, $h-p$ is nonzero and has the same sign at both
+endpoints. Indeed, if the signs were different or one difference were zero,
+the strict inequality in $p$ or in $h$ would contradict the displayed
+condition. At $x$ the difference is $v-t>0$, so $h_i>p_i$ throughout
+the connected component containing $x$.
+
+Swap $p,h$ on that component, then add $\delta$ back to the second
+assignment. The output coordinates at $x$ are $u+v-t$ and $t$.
+At each swapped coordinate,
+\[
+p_i<h_i=q_i-\delta<q_i,
+\qquad p_i<p_i+\delta<q_i,
+\]
+so both new values remain in the original interval. Internal arrows remain
+strict. For a boundary arrow, the absence of a joining edge means that
+either value at its lower endpoint is less than either value at its upper
+endpoint. Thus the outputs are feasible.
+
+The map is injective. Subtracting $\delta$ from the second output recovers
+the same unordered coordinate pairs, hence the same graph and component;
+swapping that component again recovers $p,h$. On each of finitely many
+pieces, the map permutes free coordinates and adds constants, so it
+preserves volume. Consequently
+\[
+S(u)S(v)\le S(t)S(u+v-t).
+\]
+Dividing by the square of the total volume proves the claim.
+\end{proof}
+
+\begin{lemma}[Density from mass on both sides]\label{lem:midpoint-certificate}
+For a coordinate density $f$, its cumulative distribution $F$, and
+$a\le c\le b$,
+\begin{equation}\label{eq:midpoint-certificate}
+(b-a)f(c)\ge
+\min\{F(c),1-F(c)\}\bigl(F(b)-F(a)\bigr).
+\end{equation}
+\end{lemma}
+\begin{proof}
+Lemma~\ref{lem:balance} gives
+$f(u)f(v)\le f(c)f(u+v-c)$ for $u\le c\le v$.
+Integrate over $u\le c$ and $c\le v\le b$. For each fixed $v$,
+the integral of the shifted density is at most one, giving
+\[
+F(c)\bigl(F(b)-F(c)\bigr)\le(b-c)f(c).
+\]
+Integration over $a\le u\le c$ and $v\ge c$ similarly gives
+\[
+\bigl(F(c)-F(a)\bigr)\bigl(1-F(c)\bigr)\le(c-a)f(c).
+\]
+Add these inequalities and replace the two tail factors on the left by
+their minimum.
+\end{proof}
+
+
+
+\section{Local approximation of comparison probabilities}\label{app:local}
+
+We prove Theorem~\ref{thm:local} by coupling the uniform distributions on
+the full feasible region and the retained region. A sequence of coordinate
+updates preserves each distribution and reduces the discrepancy between
+coordinates away from the retained boundary.
+
+\subsection{Coupled coordinate updates}
+
+Start with a uniform assignment in each region, under any joint coupling.
+Visit the full graph in a topological order; the retained graph uses the
+restriction of this order. Conditional on every other coordinate, $X_x$
+is uniform on $(a,b)$, where
+\[
+a=\max\{\ell_x,\ X_y:y\to x\},\qquad
+b=\min\{r_x,\ X_z:x\to z\}.
+\]
+Replace it by $(1-U_x)a+U_xb$. Use independent uniform $U_x\in(0,1)$
+at each vertex and in each sweep, sharing the same $U_x$ between the two
+assignments at retained vertices. Vertices outside the retained graph are
+updated only in the full assignment. Each update resamples the conditional
+distribution, and hence preserves the corresponding joint uniform law.
+
+Let $\Delta_x$ be the absolute difference between the two values at a
+retained vertex. Whenever every incident edge is retained,
+\begin{equation}\label{eq:coupling}
+\Delta_x^{\rm new}
+\le(1-U_x)\max_{y\to x}\Delta_y^{\rm new}
+  +U_x\max_{x\to z}\Delta_z^{\rm old}.
+\end{equation}
+An empty maximum is zero. The bound follows because taking a maximum or
+minimum with common fixed bounds does not increase the largest discrepancy
+among its arguments. Predecessors have already been updated; successors
+have not.
+
+Suppose the undirected ball $B_h(x)$ is retained. Recursively expand the
+predecessor term in \eqref{eq:coupling}, choosing a maximizing predecessor
+at each step. Any predecessor chain reaches a vertex with no predecessor
+within at most $h$ vertices. Define $A_x$ as the minimum of the fresh
+$1-U_y$ over $x$ and its ancestors. The coefficient following that chain
+to a zero discrepancy is at least $A_x^h$. At each expansion the two
+coefficients sum to one; every other branch ends at an old successor
+discrepancy, reached by at most $h-1$ predecessor edges and one successor
+edge. Thus
+\begin{equation}\label{eq:one-sweep}
+\Delta_x^{\rm new}\le
+(1-A_x^h)\max_{y\in B_h(x)}\Delta_y^{\rm old}.
+\end{equation}
+This bound holds for every choice of maximizing predecessors, since $A_x$
+uses all ancestors. All edges used by the expansion lie in $B_h(x)$.
+
+\subsection{Moment contraction}
+
+Put
+\[
+M=(d+1)^{h+1},\qquad
+a=\frac1{4M^2},\qquad
+p=(4M^2)^{h+1}.
+\]
+The ball $B_h(x)$ and the set of ancestors defining $A_x$ each have at
+most $M$ vertices. Hence
+\[
+\Prb(A_x<a)\le Ma=\frac1{4M}.
+\]
+On the complementary event, Bernoulli's inequality gives
+\[
+(1-A_x^h)^p\le(1-a^h)^p
+\le\frac1{1+pa^h}
+=\frac1{1+4M^2}\le\frac1{4M}.
+\]
+Here $(1-z)^{-p}\ge1+pz$ for $0\le z<1$. It follows that
+\[
+\E[(1-A_x^h)^p]\le\frac1{2M}.
+\]
+The fresh random variables defining $A_x$ are independent of all old
+discrepancies. Raising \eqref{eq:one-sweep} to the power $p$ and bounding
+the maximum by a sum therefore yields
+\begin{align}
+\E[(\Delta_x^{\rm new})^p]
+&\le\frac1{2M}\sum_{y\in B_h(x)}
+                         \E[(\Delta_y^{\rm old})^p]\nonumber\\
+&\le\frac12\max_{y\in B_h(x)}
+                         \E[(\Delta_y^{\rm old})^p].\label{eq:moment}
+\end{align}
+
+\subsection{The retained radius}
+
+Choose
+\begin{gather*}
+C=M+1,\qquad \delta=\frac{\varepsilon}{16CR},\\
+\lambda=\ceil{\log(1/\delta)},\qquad
+\mu=\ceil{\log(8/\varepsilon)},\\
+t=p\lambda+\mu,\qquad \rho=ht.
+\end{gather*}
+These integers are computable by rational arithmetic and comparisons with
+powers of two.
+
+Fix a queried vertex $x_*$. After sweep $j$, apply \eqref{eq:moment}
+only at vertices within distance $h(t-j)$ of $x_*$. Their required
+$h$-balls lie within distance $h(t-j+1)$, where the preceding sweep's
+bound applies. Every initial discrepancy is at most one because all
+coordinates lie in $(0,1)$. Induction on $j$ gives
+\[
+\max_{x\in B_{h(t-j)}(x_*)}\E[\Delta_x(j)^p]\le2^{-j},
+\qquad 0\le j\le t.
+\]
+In particular, Markov's inequality gives
+\begin{equation}\label{eq:coordinate-error}
+\Prb(\Delta_{x_*}(t)>\delta)
+\le2^{-t}\delta^{-p}
+\le2^{-\mu}\le\varepsilon/8.
+\end{equation}
+For two queried vertices, apply this estimate at each one.
+
+\subsection{Comparison probabilities}
+
+If the queried labels are comparable, their directed path has at most
+$h-1$ edges and is retained because $\rho\ge h$. The full and local
+comparison probabilities are then the same, either zero or one.
+
+Otherwise the labels are incomparable. Let $x$ be a queried coordinate
+of width at least $1/R$. It has at most $M$ other comparable labels,
+so Corollary~\ref{cor:gap} bounds the probability that $X_x-X_y$ lies in
+any interval of length $a$ by $CRa$. Outside the two exceptional events
+in \eqref{eq:coordinate-error}, a difference in comparison signs between
+the two assignments requires
+\[
+|X_x-X_y|\le2\delta.
+\]
+The probability of this event in the full assignment is at most
+$4CR\delta=\varepsilon/4$. The exceptional events together have
+probability at most $\varepsilon/4$, so the signs disagree with probability
+at most $\varepsilon/2$. For a threshold comparison, the same argument
+uses one exceptional event and an interval of length $2\delta$.
+Since each assignment retains its original uniform law, the difference
+between the two probabilities is at most their probability of disagreement.
+
+Finally, the retained region has positive volume: the restriction of a full
+strictly feasible assignment has a small feasible neighborhood. The union
+of radius-$\rho$ neighborhoods of two vertices has at most
+$2(d+1)^{\rho+1}$ vertices. This proves the approximation and size claims
+of Theorem~\ref{thm:local}.
+
+\section{Exact local volume}\label{app:table}
+
+Let the retained graph have $b$ coordinates. We compute its volume by
+partitioning its feasible assignments according to the order of the
+coordinates and their interval endpoints.
+
+\subsection{Enumeration of orders}
+
+Sort the distinct interval endpoints as
+\[
+e_1<e_2<\cdots<e_s,\qquad s\le2b.
+\]
+Enumerate the total orders of these endpoints and the $b$ labelled
+coordinates that preserve the endpoint order. Insert the coordinates
+successively into the ordered list. The $j$th insertion has $s+j$
+positions, so the number of orders is at most
+\[
+\prod_{j=1}^b(s+j)\le(3b)^b.
+\]
+Reject an order if it places a coordinate outside its interval or reverses
+an arrow. For an accepted order, let $r_j$ count the coordinates between
+$e_j$ and $e_{j+1}$. Their relative order is fixed. Permuting these
+coordinates partitions their cube into $r_j!$ equal-volume regions,
+apart from equalities of volume zero. The accepted order therefore has
+volume
+\begin{equation}\label{eq:interleaving-volume}
+\prod_{j=1}^{s-1}
+\frac{(e_{j+1}-e_j)^{r_j}}{r_j!}.
+\end{equation}
+An empty gap contributes one. The interval check excludes coordinates
+outside the extreme endpoints, so $\sum_j r_j=b$.
+
+Almost every feasible assignment determines exactly one accepted order,
+and every accepted order describes only feasible assignments. Summing
+\eqref{eq:interleaving-volume} thus gives the volume. For $b=0$, the
+volume is one.
+
+\subsection{Integer arithmetic and probability queries}
+
+Let $Q=2^\Lambda$ be a common denominator of the dyadic endpoints, and
+write $d_j=Q(e_{j+1}-e_j)$. Every summand in
+\eqref{eq:interleaving-volume} has denominator $b!Q^b$ and integer
+numerator
+\begin{equation}\label{eq:interleaving-integer}
+\frac{b!}{\prod_j r_j!}\prod_j d_j^{r_j}.
+\end{equation}
+The factorial quotient is an integer because it counts partitions of $b$
+labelled positions into groups of sizes $r_j$. Sum the numerators and
+divide by $b!Q^b$ once at the end.
+
+All coordinates lie in $(0,1)$, so the total volume is at most one.
+The summands are nonnegative; every partial numerator sum is therefore
+at most $b!Q^b$. The factors used to form one numerator also have products
+at most this bound, since $d_j\le Q$ and $\sum_jr_j=b$. Thus the
+arithmetic uses integers of
+\[
+O\bigl(b(\Lambda+\log(b+1))\bigr)
+\]
+bits. Checking an order and calculating its contribution require a
+polynomial number of arithmetic operations in $b$. The total is
+$(3b)^b\operatorname{poly}(b)$ operations, proving the remaining claim
+of Theorem~\ref{thm:local}.
+
+For a comparison numerator, add its arrow and repeat the calculation.
+For a threshold $c\le\ell_x$, the numerator is zero; for $c\ge r_x$,
+it equals the denominator. Otherwise replace the queried coordinate's
+upper endpoint by $c$ and repeat. There are still at most $2b$ endpoints.
+Use a common $Q$ for numerator and denominator; the factors $b!Q^b$
+cancel. Inconsistent constraints yield no accepted order and hence volume
+zero.
+
+If the resulting probability is $N/D$ with nonnegative integers $N,D$
+and $D>0$, the answer test is $2N\ge D$. The midpoint tests use
+$4N<D$ and $4N>3D$. The stage gate~\eqref{eq:stage-gate} bounds the
+number of enumerated orders by $n$, and the preceding bit bound completes
+the arithmetic estimate used in Section~\ref{sec:runtime}.

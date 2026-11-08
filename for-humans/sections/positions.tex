@@ -1,0 +1,128 @@
+\section{Local probabilities and the choice of an anchor}\label{sec:oracle}
+
+The two numerical tasks are to estimate a comparison probability and to fix
+a coordinate where its density is sufficiently large. The graph bounds make
+the first task local. The second task links the volume recovered by a
+refinement to the address length of its child.
+
+\subsection{Local probability estimates}
+
+For an interval-and-arrow region, degree and distance refer to the underlying
+undirected graph; height is the maximum number of vertices on a directed
+path. Two vertices are comparable if a directed path joins them in either
+direction.
+
+\begin{theorem}[Local interval probabilities]\label{thm:local}
+Fix integers $d,h\ge1$, rational $R\ge1$, and rational
+$0<\varepsilon<1/4$. There is a computable integer
+$\rho=\rho(d,h,R,\varepsilon)$ with the following property.
+Consider a positive-volume interval-and-arrow region in the unit cube,
+with degree at most $d$ and height at most $h$.
+\begin{enumerate}
+\item If $W_x\ge1/R$, the probability $\Prb(X_x<c)$ is determined to
+additive error $\varepsilon$ by the induced radius-$\rho$ neighborhood of $x$.
+\item If at least one of $W_x,W_y$ is at least $1/R$, the probability
+$\Prb(X_x<X_y)$ is determined to additive error $\varepsilon$ by the subgraph induced by the union
+of their radius-$\rho$ vertex neighborhoods.
+\end{enumerate}
+In each case the local region retains the effective intervals of the full
+region. All other widths may be arbitrarily small and positive. The local
+region has at most
+\[
+b=2(d+1)^{\rho+1}
+\]
+coordinates. With dyadic input bounds, its probabilities can be computed
+exactly in $(3b)^b\operatorname{poly}(b)$ arithmetic operations.
+\end{theorem}
+
+The locality proof is in Appendix~\ref{app:local}. It couples conditional
+coordinate updates in the full and local regions. Bounded degree and height
+make a sufficiently high moment of the coordinate discrepancy contract.
+A density bound at the wide queried coordinate then converts closeness of
+coordinates into closeness of comparison probabilities. The proof uses
+random variables only to compare distributions; the algorithm calculates
+the local volumes deterministically by the enumeration in
+Appendix~\ref{app:table}.
+
+For the adversary, use $d=k$, $h=2H$, and $\varepsilon=\eta$.
+Lemmas~\ref{lem:restoration} and~\ref{lem:preparation} ensure the required
+graph and width bounds at every call to the estimator. The same local region
+may be reused for all thresholds in one midpoint search.
+
+\subsection{Density and dyadic address length}\label{sec:median-search}
+
+We use two facts about the density $f_x$ of a coordinate with effective
+interval $(\ell,r)$, width $W$, and at most $B$ other comparable coordinates.
+First,
+\begin{equation}\label{eq:density-summary}
+f_x(t)\le\frac{B+1}{W},\qquad
+f_x(t)\ge\frac{4^{-B}}{W}\quad
+\left(\ell+\frac W4\le t\le r-\frac W4\right).
+\end{equation}
+Second, if $F_x$ is its cumulative distribution, then for $a\le c\le b$,
+\begin{equation}\label{eq:mass-summary}
+(b-a)f_x(c)\ge
+\min\{F_x(c),1-F_x(c)\}\bigl(F_x(b)-F_x(a)\bigr).
+\end{equation}
+Appendix~\ref{app:geometry} proves both facts by maps between sections of the
+feasible region. The first controls the maximum density and gives a lower
+bound near the center of the effective interval. The second gives a density
+lower bound at a point with substantial mass on both sides.
+
+\begin{lemma}[Midpoint search]\label{lem:median-search}
+The midpoint search for a wide item terminates at an interior anchor $c$.
+If its accepted cell has length $2^{-m}$, then
+\[
+f_x(c)\ge2^{m-4}.
+\]
+The search makes at most
+$\ceil{\log(4(B+1)/W_x)}+1$ tests.
+\end{lemma}
+\begin{proof}
+The estimates have error at most $\eta<1/32$.
+If the current cell is $[a,b]$, every rejected test ensures
+$F_x(a)<9/32$ and $F_x(b)>23/32$. These inequalities hold initially as well.
+At acceptance,
+\[
+\frac7{32}\le F_x(c)\le\frac{25}{32},\qquad
+F_x(b)-F_x(a)\ge\frac7{16}.
+\]
+Thus $c$ is interior, and \eqref{eq:mass-summary} gives
+$2^{-m}f_x(c)\ge49/512>1/16$.
+Finally, \eqref{eq:density-summary} implies
+\[
+\frac7{16}\le F_x(b)-F_x(a)
+\le\frac{B+1}{W_x}\,2^{-m}.
+\]
+At $m\ge\ceil{\log(4(B+1)/W_x)}$, the upper bound is at most
+$1/4<7/16$, a contradiction. The search therefore stops within the
+stated number of tests.
+\end{proof}
+
+\begin{lemma}[Refinement density]\label{lem:anchor-density}
+Every anchor chosen by the adversary is interior and satisfies
+\begin{equation}\label{eq:tariff}
+\log f_x(c)\ge(1-1/k)m-4.
+\end{equation}
+For a narrow item its address length also satisfies
+\begin{equation}\label{eq:narrow-address}
+m>2kB+2.
+\end{equation}
+\end{lemma}
+\begin{proof}
+For a wide item, Lemma~\ref{lem:median-search} gives the stronger lower bound
+$m-4$. For a narrow item, write $b=2^{-m}$ for the chosen cell length.
+Its midpoint is at distance at most $b/2\le W_x/8$ from the interval center,
+so it belongs to the central half. By \eqref{eq:density-summary} and
+$W_x<8b$,
+\[
+f_x(c)\ge\frac{4^{-B}}{W_x}>2^{m-3-2B}.
+\]
+Also $b\le W_x/4<1/(4R)$, whence
+$m>\log R+2=2kB+2$. In particular $2B<m/k$, proving
+\eqref{eq:tariff}.
+\end{proof}
+
+The prescribed fine grid for a narrow item is important: it forces a long
+address even if the effective interval happens to contain a coarse dyadic
+midpoint. This is the property that pays for preparing a narrow query.

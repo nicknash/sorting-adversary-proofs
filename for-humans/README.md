@@ -1,17 +1,19 @@
 # An Optimal Deterministic Adversary for Sorting
 
-Nicholas Nash · 7 November 2026 · ORCID [0009-0003-0475-7852](https://orcid.org/0009-0003-0475-7852)
+Nicholas Nash · 8 November 2026 · ORCID [0009-0003-0475-7852](https://orcid.org/0009-0003-0475-7852)
 
-The paper now follows *Deferred separation: positions, refinement, and prefix
-codes*. It uses continuous positions, dyadic anchors, a prefix-code bound for
-refinement costs, and an exact largest-coordinate volume recurrence.
+The current manuscript presents the unit-interval adversary with a single
+potential for repairs. It begins with the classical binary-tree adversaries,
+gives the complete mechanical algorithm, and develops legality, local
+probabilities, geometric packing, the comparison bound, and a uniform
+polynomial-time implementation. Three TikZ figures illustrate the construction.
 
-- [Compiled paper](output/pdf/paper.pdf)
-- `paper.tex`: entry point, abstract, and methodological disclosure
-- `sections/deferred-separation.tex`: mathematical exposition and references
-- `anc/check_local_volume.py`: exact numerical diagnostics
-- `anc/check_local_volume.json`: recorded results
-- `REVIEW_NOTES.txt`: provenance and verification scope
+- [Current paper](output/pdf/paper.pdf)
+- `paper.tex`: title, approved abstract, methodological disclosure, and section inputs
+- `sections/`: exposition, complete proofs, figures, and references
+- `anc/`: exact finite diagnostics and recorded results
+- `REVIEW_NOTES.txt`: provenance and the scope of verification
+- `revision.json`: current revision metadata
 
 Build with TeX Live and `latexmk`:
 
@@ -22,15 +24,18 @@ make checks
 make submission
 ```
 
-The submission command creates `output/submission/hexagon-source.zip`, containing
-only the TeX source and permitted ancillary checks. Figures and references are
-embedded in the TeX. Build intermediates and rendering checks are ignored;
-the compiled PDF is versioned.
+`make submission` builds `output/submission/hexagon-source.zip` from the TeX
+source and ancillary checks. It excludes build intermediates, review notes,
+Lean files, and the precompiled PDF.
 
-The related Lean development elsewhere in this repository follows the earlier
-recursive integer-colour construction. The paper distinguishes that formalization
-from the continuous presentation used here.
+The numerical checks cover selected finite volume calculations, anchor rules,
+and potential identities. They are not a verification of all adversary
+trajectories or a formal proof of the locality theorem. The related Lean
+development in this repository concerns the earlier integer-colour
+construction; it does not formally verify this unit-interval proof.
 
-Submitted to Hexagon as **hexagon:2611.00196** under CC BY 4.0 on 7 November
-2026. The source and compiled PDF were received successfully; moderator review
-is pending. Submission metadata and hashes are in `submission.json`.
+The version submitted to Hexagon as **hexagon:2611.00196**, under CC BY 4.0
+on 7 November 2026, is preserved in
+[commit 3075b7e](https://github.com/nicknash/sorting-adversary-proofs/tree/3075b7e81eb86b16a3de09c4e03edb00d4434d48/for-humans).
+`submission.json` records that deposit. The current revision has not been
+submitted as a replacement.

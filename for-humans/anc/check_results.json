@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "exact_parameter_stages": 4081,
+  "exact_transition_identity_checks": 28567,
+  "exact_distinct_address_checks": 241,
+  "synthetic_batch_checks": 35,
+  "first_moment_obstruction_examples": 6,
+  "scope": "Finite exact algebraic diagnostics only; no verification of all trajectories or locality."
+}

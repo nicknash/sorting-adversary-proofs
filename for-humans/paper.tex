@@ -5,18 +5,20 @@
 \usepackage[a4paper,margin=25mm,headheight=15pt]{geometry}
 \usepackage{microtype,booktabs,array,enumitem,xcolor,fancyhdr,needspace}
 \usepackage{tikz}
-\usetikzlibrary{arrows.meta,positioning,calc}
+\usetikzlibrary{arrows.meta,positioning,calc,fit,decorations.pathreplacing}
 \usepackage[colorlinks=true,linkcolor=blue!40!black,citecolor=blue!40!black,urlcolor=blue!40!black]{hyperref}
 \usepackage[nameinlink,noabbrev]{cleveref}
 \definecolor{ink}{HTML}{183447}
 \definecolor{accent}{HTML}{176B83}
 \definecolor{pale}{HTML}{EDF4F6}
-\setlength{\parindent}{0pt}
-\setlength{\parskip}{5pt plus 1pt}
+\usepackage[font=small,labelfont=bf]{caption}
+\setlength{\parindent}{1.2em}
+\setlength{\parskip}{2pt plus 1pt}
+\setlength{\emergencystretch}{1.5em}
 \setlist{nosep,leftmargin=1.7em,topsep=4pt}
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{\small\color{ink}Deferred separation}
+\fancyhead[L]{\small An Optimal Deterministic Adversary for Sorting}
 \fancyhead[R]{\small\color{ink}Nicholas Nash}
 \fancyfoot[C]{\thepage}
 \renewcommand{\headrulewidth}{0.3pt}
@@ -35,11 +37,10 @@
 \newcommand{\floor}[1]{\left\lfloor #1\right\rfloor}
 \newcommand{\half}{\tfrac12}
 \DeclareMathOperator{\dist}{dist}
-\newcommand{\guide}[2]{\begin{center}\fcolorbox{accent!35}{pale}{\begin{minipage}{0.91\textwidth}\textbf{\color{ink}#1}\quad #2\end{minipage}}\end{center}}
-\hypersetup{pdftitle={An Optimal Deterministic Adversary for Sorting},pdfauthor={Nicholas Nash},pdfsubject={A top-down, self-contained presentation of the deterministic recursive sorting adversary}}
+\hypersetup{pdftitle={An Optimal Deterministic Adversary for Sorting},pdfauthor={Nicholas Nash},pdfsubject={A deterministic sorting adversary with asymptotically optimal comparison lower bound}}
 \title{An Optimal Deterministic Adversary for Sorting}
 \author{Nicholas Nash\\[3pt]{\small\href{https://orcid.org/0009-0003-0475-7852}{ORCID: 0009-0003-0475-7852}}}
-\date{7 November 2026}
+\date{8 November 2026}
 \newcommand{\logtwo}{\log_2}
 \begin{document}
 \maketitle
@@ -56,15 +57,15 @@ classical framework in which items move down a binary tree.
 Except for the abstract, the text of this paper is AI-generated using
 GPT 6 Astra. The author is working on a clear, human-readable exposition.
 
-\guide{The organizing idea}{Keep comparisons inside a group for as long as
- they remain inexpensive to handle. When necessary, fix a position in that
- group and continue the unresolved order in a child.}
-
-The paper first specifies the algorithm and its numerical subroutines.
-Sections~\ref{sec:legal}--\ref{sec:accounting} establish legality and the
-refinement bound; Sections~\ref{sec:repairs}--\ref{sec:runtime} give the repairs
-and polynomial-time implementation. The appendices prove the numerical
-subroutines independently of sorting.
-
-\input{sections/deferred-separation}
+\input{sections/introduction}
+\input{sections/adversary}
+\input{sections/legality}
+\input{sections/positions}
+\input{sections/packing}
+\input{sections/lower-bound}
+\input{sections/implementation}
+\appendix
+\input{sections/appendices}
+\clearpage
+\input{sections/references}
 \end{document}

@@ -1,0 +1,162 @@
+\section{Legality and the graph invariants}\label{sec:legal}
+
+We first establish that the state always represents orders consistent with
+the public transcript. We then check that each call terminates with the graph
+conditions required for the next probability calculation.
+
+\subsection{The orders represented by a state}
+
+Choose a feasible point in each $K_v$, avoiding equalities between free
+coordinates and between a free coordinate and an anchor. Read the positions
+from left to right, replacing each child anchor by the order read recursively
+inside that child. This gives a strict total order on the original labels.
+The excluded equalities have volume zero.
+
+Our invariant is that \emph{every represented order respects every answered
+comparison}. We do not require every order consistent with the transcript to
+remain represented. A positive-volume state represents at least one order,
+so this invariant suffices for legality.
+
+\begin{lemma}[Effective intervals and sections]\label{lem:interior}
+For an acyclic arrow graph, tightening leaves the feasible region unchanged.
+The region has positive volume if and only if every effective width is
+positive. Moreover, fixing $X_x=c$ at any $c\in(\ell_x,r_x)$ leaves a
+positive-volume section in the remaining coordinates.
+\end{lemma}
+\begin{proof}
+Along a directed path, every feasible assignment obeys the lower bound at its
+first vertex and the upper bound at its last. Thus all bounds introduced by
+\eqref{eq:effective} already hold. The reverse inclusion follows because each
+effective interval is contained in its original interval.
+
+Positive volume requires positive widths. Conversely, suppose all widths
+are positive. Along an arrow $x\to y$, both $\ell_x\le\ell_y$ and
+$r_x\le r_y$. Choose numbers $0<\theta_x<1$ increasing in a topological
+order and set
+\[
+X_x=(1-\theta_x)\ell_x+\theta_xr_x.
+\]
+This expression is nondecreasing in each endpoint and strictly increasing in
+$\theta_x$. Every arrow is therefore strict. A sufficiently small open
+neighborhood of this point remains feasible, proving positive volume.
+
+Fixing $x$ at $c$ introduces upper bound $c$ at its predecessors and lower
+bound $c$ at its successors. A predecessor $y$ retains positive width because
+$\min(r_y,c)>\ell_y$: indeed $r_y>\ell_y$ and
+$c>\ell_x\ge\ell_y$. The successor argument is symmetric. No other
+effective interval changes. Apply the positive-volume criterion to the
+remaining graph.
+\end{proof}
+
+\begin{lemma}[Refinement and child admission]\label{lem:admission}
+Suppose a state satisfies the order invariant. Refining $x$ at an interior
+anchor $c$ preserves it, including when the child at $c$ already exists. The transcript relates
+$x$ to none of the labels already in that child subtree.
+If $f_x(c)$ is the density of the parent's coordinate $X_x$, then
+\begin{equation}\label{eq:refine}
+\frac{Z_{\rm after}}{Z_{\rm before}}=f_x(c).
+\end{equation}
+\end{lemma}
+\begin{proof}
+Fix a feasible assignment of the remaining free parent coordinates in the
+section $X_x=c$, pairwise distinct and away from all child anchors. Keeping
+those coordinates fixed, one may move $x$ slightly to either side of $c$:
+all its incident inequalities are strict. The resulting represented orders
+put $x$ immediately before or immediately after the entire old child subtree
+at $c$. Both respect the public transcript. Hence the transcript relates
+$x$ to none of the labels in that subtree, even by transitivity.
+
+Inserting $x$ at any position among the child labels is consequently legal.
+Their mutual order is unchanged; there is no public comparison between $x$
+and one of them; and $x$ stays on the same side of every outside label.
+This applies to every assignment in the new state, proving the invariant.
+The section has positive volume by Lemma~\ref{lem:interior}, and adding an
+isolated unit coordinate preserves positivity.
+
+Let $S_x(c)$ be the section volume. By definition,
+$f_x(c)=S_x(c)/V_v$. The parent's volume is replaced by $S_x(c)$, and the
+child gains an independent interval of length one. All other factors in
+$Z$ stay unchanged, giving \eqref{eq:refine}.
+\end{proof}
+
+The identity uses a section of one lower dimension in the parent and a new
+dimension in the child. It does not condition on an event of positive
+probability. For example, in $0<X_A<X_B<1$, the density of $X_A$ at $c$ is
+$2(1-c)$. Refining $A$ at $1/4$ multiplies $Z$ by $3/2$. Such increases
+will pay for the loss caused by simplifying a group.
+
+
+
+\subsection{Bounds during a comparison call}\label{sec:repairs}
+
+\begin{lemma}[Graph bounds and termination]\label{lem:restoration}
+During a comparison call, every active graph has degree at most $k$ and
+height at most $2H$. At its end, every graph has degree less than $k$ and
+height less than $H$. Restoration performs at most $n$ refinements, all at
+the node changed by the answer.
+\end{lemma}
+\begin{proof}
+Assume the strict bounds hold before the call. An answer adds at most one
+arrow, so it raises any degree by at most one. Any new directed path consists
+of two old paths joined by that arrow, and therefore has fewer than $2H$
+vertices. A selected answer cannot create a directed cycle, since its
+feasible region has positive volume. Interval changes add no edges.
+
+Every refinement removes a vertex and its incident arrows from the parent.
+Thus degrees and heights cannot increase during restoration. The degree
+pass establishes the degree bound, and the path pass preserves it while
+establishing the height bound. Each refinement removes a different free
+item from this node, so there are at most $n$. A child receives an isolated
+coordinate; its old graph is unchanged. No child requires restoration.
+\end{proof}
+
+\begin{lemma}[Query preparation]\label{lem:preparation}
+Steps 1--2 of \textnormal{\textsc{Compare}} perform at most two refinements. Each selected
+coordinate is narrow, and preparation preserves the graph bounds.
+\end{lemma}
+\begin{proof}
+A preparation refines one of the two original queried items. Its new
+coordinate is isolated and has interval $(0,1)$. Before an answer is stored,
+any further preparation only removes a parent coordinate and adds an
+isolated coordinate in a child. It cannot restrict this fresh coordinate.
+If the query descends into that child, the prepared item is therefore still
+wide. Each queried item can require preparation at most once. The selection
+test ensures narrowness, and deleting vertices or admitting isolated ones
+preserves the graph bounds.
+\end{proof}
+
+Consequently a call makes at most $n+2$ refinements. Throughout the call,
+every item has at most $B=(k+1)^{2H+1}$ other comparable items: each lies
+within undirected distance $2H$ in a graph of degree at most $k$.
+These are precisely the bounds used in the anchor rules and the local
+estimator. The argument also explains why active arrows and the public
+comparison graph must remain separate.
+
+
+\begin{proposition}[Legality]\label{prop:legality}
+Every reached state has positive volume and represents only orders
+consistent with the public transcript. After every complete call, all
+nodes satisfy the strict degree and height bounds.
+\end{proposition}
+\begin{proof}
+We induct on comparison calls. Initially the root region is the unit cube,
+every order is represented, and the graph is empty. Suppose the claims
+hold at the start of a call. Preparation preserves the graph bounds and
+makes a queried coordinate wide by Lemma~\ref{lem:preparation}. Each
+refinement uses an interior anchor and preserves positive volume and the
+order invariant by Lemma~\ref{lem:admission}.
+
+The local estimator of Section~\ref{sec:oracle} now applies to the queried
+region. Its selected answer retains at least $1/2-\eta>0$ of the volume,
+and every remaining represented order satisfies that answer. In particular,
+a new arrow cannot create a directed cycle. An answer between anchors is
+already true in all represented orders.
+
+Lemma~\ref{lem:restoration} bounds the degree and height throughout
+restoration. Thus the numerical guarantees continue to apply to every
+refinement, and Lemma~\ref{lem:admission} preserves the order invariant.
+Restoration terminates with the strict graph bounds. This completes the
+induction. The numerical results used here are proved for arbitrary
+positive interval-and-arrow regions with the stated graph bounds,
+independently of this induction.
+\end{proof}
