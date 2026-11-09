@@ -25,8 +25,7 @@ of possible orders is small enough to retain the optimal comparison bound.
 
 Our data structure is a rooted tree. Each node stores item records and
 a single directed acyclic graph (DAG), whose vertices are the items
-recorded at that node. Figure~\ref{fig:overview-state} shows an example;
-Algorithm~\ref{alg:overview-compare} gives the comparison procedure.
+recorded at that node. Figure~\ref{fig:overview-state} shows an example.
 
 Each item has a record $(x,X_x,a_x,b_x)$ stored at exactly one node.
 The label $x$ identifies its key, and $X_x$ is a symbolic variable for
@@ -153,13 +152,84 @@ Other feasible choices give other orders. Every order represented this way
 must respect all previous answers to the sorter. Those answers are also
 kept in a separate graph on the original item labels.
 
-\subsection{Moving an item into a child}
+\subsection{Answering a comparison}
 
-The operation that moves an item $x$ into a child is called a
-\emph{refinement}, denoted \texttt{Refine}$(x)$. First propagate all interval
-bounds implied by the DAG.
-This gives each item's \emph{effective interval}, its full range of
-feasible positions. Choose a point $c$ inside $x$'s effective interval
+Algorithm~\ref{alg:overview-compare} shows the algorithm the adversary uses
+to answer a comparison by the sorter.
+
+A query on labels $A,B$ is handled at the first node where they are
+represented differently. Starting at the root, descend while both labels
+belong to the same child subtree. At the stopping node, each is either a
+free item or the anchor of a child containing it.
+In Figure~\ref{fig:overview-state}, comparing $p$ with $q$ descends into
+the left child; comparing $p$ with $r$ uses the anchors $1/4$ and $3/4$;
+and comparing $a$ with $p$ compares $X_a$ with $1/4$ at the root.
+
+Two distinct anchors already determine an answer. Otherwise, the allowed
+position assignments at this node form a region, cut into two parts by
+the possible answers. The adversary estimates their relative volumes
+and chooses the answer with the larger estimate. This keeps at least
+half the old volume, up to a small error. The estimates are calculated
+deterministically using only a small neighborhood of the queried items
+in the DAG, with interval bounds inherited from the full graph
+(Theorem~\ref{thm:local}).
+
+An answer between two free items adds an arc to their DAG; an answer
+between a free item and an anchor tightens the item's interval.
+
+Before estimating volumes, we propagate all interval bounds implied by
+the DAG. This gives each item's
+\emph{effective interval}, its full range of feasible positions.
+For the volume estimates to be accurate, degrees and directed paths must
+stay below prescribed limits, and at least one queried free item must have
+an effective interval of sufficient width.
+
+We maintain these conditions by moving items into children. Such a move
+is called a \emph{refinement}, denoted \texttt{Refine}$(x)$ for item $x$.
+Section~\ref{sec:overview-refine} describes how it preserves earlier answers.
+If all queried free intervals
+are too narrow, refine one of those items before answering. After
+answering, we restore the graph bounds by
+refining vertices with too many neighbors, then refining every vertex of
+any selected path that is too long. All selections use fixed tie-breaking rules.
+
+\begin{algorithm}[H]
+\caption{\texttt{Compare}$(A,B)$: overview of a comparison query.}
+\label{alg:overview-compare}
+\DontPrintSemicolon
+\KwIn{Distinct item labels $A,B$ and the current adversary state.}
+\KwOut{An answer $A<B$ or $B<A$, with the state updated.}
+\While{true}{
+  $v\gets$ first node, starting from the root, where the labels' representations differ\;
+  \If{both labels are represented by child anchors}{
+    $\mathit{answer}\gets$ their left-to-right order\;
+    \Return $\mathit{answer}$\;
+  }
+  Propagate interval bounds through the DAG at $v$\;
+  \If{at least one queried free interval is wide enough}{\textbf{break}\;}
+  \texttt{Refine}(one of the queried free items)\;
+}
+Estimate the volume fraction supporting each answer, using a local DAG\;
+$\mathit{answer}\gets$ the answer with the larger estimate\;
+Store the arc or interval bound for $\mathit{answer}$ at $v$\;
+Propagate interval bounds through the DAG at $v$\;
+\While{a vertex at $v$ has too many neighbors}{
+  \texttt{Refine}(such a vertex)\;
+}
+\While{the DAG at $v$ has a directed path that is too long}{
+  Select such a path and \texttt{Refine} all its vertices\;
+}
+\Return $\mathit{answer}$\;
+\end{algorithm}
+
+Refining a queried item restarts the search from the root because the node
+that handles the query may change. In the last loop, the whole selected
+path is refined before another is selected.
+
+\subsection{Moving an item into a child}\label{sec:overview-refine}
+
+To carry out \texttt{Refine}$(x)$, first propagate all interval bounds
+implied by the DAG. Choose a point $c$ inside $x$'s effective interval
 and fix its parent position at $X_x=c$.
 
 The incident arcs then become interval bounds: $y\to x$ gives $X_y<c$,
@@ -220,69 +290,6 @@ this operation preserves all answered comparisons.
 The deterministic rule for choosing $c$ is given in
 Section~\ref{sec:median-search}; its role is to control how many possible
 orders refinement discards.
-
-\subsection{Answering a comparison}
-
-A query on labels $A,B$ is handled at the first node where they are
-represented differently. Starting at the root, descend while both labels
-belong to the same child subtree. At the stopping node, each is either a
-free item or the anchor of a child containing it.
-In Figure~\ref{fig:overview-state}, comparing $p$ with $q$ descends into
-the left child; comparing $p$ with $r$ uses the anchors $1/4$ and $3/4$;
-and comparing $a$ with $p$ compares $X_a$ with $1/4$ at the root.
-
-Two distinct anchors already determine an answer. Otherwise, the allowed
-position assignments at this node form a region, cut into two parts by
-the possible answers. The adversary estimates their relative volumes
-and chooses the answer with the larger estimate. This keeps at least
-half the old volume, up to a small error. The estimates are calculated
-deterministically using only a small neighborhood of the queried items
-in the DAG, with interval bounds inherited from the full graph
-(Theorem~\ref{thm:local}).
-
-An answer between two free items adds an arc to their DAG; an answer
-between a free item and an anchor tightens the item's interval.
-For the volume estimates to be accurate, degrees and directed paths must
-stay below prescribed limits, and at least one queried free item must have
-an effective interval of sufficient width. If all queried free intervals
-are too narrow, refine one of those items before answering. After
-answering, we restore the graph bounds by
-refining vertices with too many neighbors, then refining every vertex of
-any selected path that is too long. Algorithm~\ref{alg:overview-compare} summarizes
-the procedure; all selections use fixed tie-breaking rules.
-
-\begin{algorithm}[H]
-\caption{\texttt{Compare}$(A,B)$: overview of a comparison query.}
-\label{alg:overview-compare}
-\DontPrintSemicolon
-\KwIn{Distinct item labels $A,B$ and the current adversary state.}
-\KwOut{An answer $A<B$ or $B<A$, with the state updated.}
-\While{true}{
-  $v\gets$ first node, starting from the root, where the labels' representations differ\;
-  \If{both labels are represented by child anchors}{
-    $\mathit{answer}\gets$ their left-to-right order\;
-    \Return $\mathit{answer}$\;
-  }
-  Propagate interval bounds through the DAG at $v$\;
-  \If{at least one queried free interval is wide enough}{\textbf{break}\;}
-  \texttt{Refine}(one of the queried free items)\;
-}
-Estimate the volume fraction supporting each answer, using a local DAG\;
-$\mathit{answer}\gets$ the answer with the larger estimate\;
-Store the arc or interval bound for $\mathit{answer}$ at $v$\;
-Propagate interval bounds through the DAG at $v$\;
-\While{a vertex at $v$ has too many neighbors}{
-  \texttt{Refine}(such a vertex)\;
-}
-\While{the DAG at $v$ has a directed path that is too long}{
-  Select such a path and \texttt{Refine} all its vertices\;
-}
-\Return $\mathit{answer}$\;
-\end{algorithm}
-
-Refining a queried item restarts the search from the root because the node
-that handles the query may change. In the last loop, the whole selected
-path is refined before another is selected.
 
 The proofs must account for the orders discarded by refinements as well
 as by comparison answers. Section~\ref{sec:legal} establishes legality;
