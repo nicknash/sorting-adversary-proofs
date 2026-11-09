@@ -2,11 +2,12 @@
 
 We now give an overview of the data structure maintained by our adversary
 and how it is updated in response to comparison queries from the sorting
-algorithm. We describe the stored information, the operation that moves
-an item into a child, and the procedure for answering a query.
-Section~\ref{sec:algorithm} gives the complete rules and their parameters.
+algorithm.
 
 \subsection{The data structure}
+
+Figure~\ref{fig:overview-state} shows the data structure used by the
+comparison procedure in Algorithm~\ref{alg:overview-compare}.
 
 An item is represented by a record $(x,X_x)$, where the label $x$ identifies
 the key being sorted and $X_x$ is an auxiliary position variable. Each
@@ -29,7 +30,6 @@ as one consecutive block. Within the child, positions range from $0$ to $1$ agai
 contents inside that block. The child's DAG and interval bounds constrain
 these positions. The parent anchor determines the block's place among the
 parent's items and other children.
-Figure~\ref{fig:overview-state} shows these parts of the data structure.
 
 \begin{center}
 \begin{minipage}{\linewidth}
