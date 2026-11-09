@@ -607,3 +607,54 @@ introductory, algorithm, proof, appendix, reference, and parameter-table
 pages were visually checked. The revision has 30 pages, down from 36;
 all 16 source archive members match the saved files. No replacement has
 been sent to Hexagon.
+
+
+Single-loop construction and geometric proof simplification -- 9 November 2026
+-----------------------------------------------------------------------------
+Source: the latest complete assistant message in Simplify Paper Arguments,
+turn 8de7baac-97ed-44d1-9b67-c3601d9748ba, retrieved through the connected
+chat reader. It explicitly develops a second simplification of revision
+1752ddc. The linked nine-page PDF and ZIP were not downloaded. The source
+message supplies the proposed constructions and arguments; these were
+written into the existing exposition and independently audited. The
+separate width-obstruction note was left outside the adversary proof.
+
+Compare now routes and recognizes determined answers, then refines a
+selected H-vertex path, a queried vertex of degree k, or a narrow queried
+coordinate before estimating an answer. It has no post-answer Repair.
+The in-node invariant is degree at most k and path length below 2H.
+Every label is refined at most once per call. Local certainty tests are
+complete, so previously answered pairs return before changing state;
+this removes the global comparison DAG and yields P <= n binom(n,2).
+The transcript is a mathematical sequence of answers, not stored history.
+Effective endpoints are computed on demand; Refine preserves an exact
+section by substituting bounds only for incident inequalities.
+
+The density proof now freezes incomparable coordinates and contracts
+sections of the resulting convex region of dimension at most B+1.
+Pointwise volume-weighted averaging preserves the bounds at anchors.
+The locality proof uses good/bad contraction steps along at most M^t
+fixed dependency sequences. Fresh randomness across sweeps and a union
+bound give failure probability 2^(-t); no high moments or Markov bound
+remain. Full effective endpoints are still copied before truncation.
+The terminal experiment uses a stopped binary walk, giving denominator
+1+(2 log2(k)+17)/k in the explicit comparison bound.
+
+Independent mathematical review checked the raw-bound section identity,
+local certainty including touching intervals, the complete path batches,
+at-most-n refinements, node invariants, runtime state bound, conditional
+convex sections, and route-counting independence and boundary handling.
+Exact diagnostics pass 3,779 accounting checks, 54 independent volume
+comparisons, 423 anchor searches and 141 narrow choices. New finite
+checks cover 370 ordered-pair certainty tests, 423 raw/effective section
+identities with 423 independent volume checks, and 1,110 remaining
+effective intervals. These diagnostics do not verify all trajectories
+or replace the manuscript's general proofs. The Lean development remains
+for the related earlier construction.
+
+The abstract, disclosure, Sections 1-2, and existing figures are unchanged.
+Section 3 changes only as required by the new algorithm. Both compilers
+pass, with no final warnings or unresolved references. The affected
+algorithm, proof, appendix, and parameter-table pages were visually
+checked. The draft remains 30 pages. All 16 archive members match saved
+sources. This revision has not replaced the Hexagon deposit.

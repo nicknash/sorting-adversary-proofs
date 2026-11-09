@@ -1,6 +1,6 @@
 \section{Why the adversary forces many comparisons}\label{sec:potential}
 
-Recall from Algorithm~\ref{alg:repair} that a larger degree threshold $k$
+Recall from Algorithm~\ref{alg:compare} that a larger degree threshold $k$
 lets the adversary retain more comparisons involving each item before
 moving it into a child. Increasing $k$ lets the adversary force a comparison
 count closer to $n\log n$. The following bound quantifies this dependence.
@@ -11,7 +11,7 @@ Algorithm~\ref{alg:compare}, with the remaining parameter choices in
 Table~\ref{tab:parameters}, is deterministic and legal, and every call
 terminates. Every correct sorter makes at least
 \begin{equation}\label{eq:exact-bound}
-\frac{n\log n-3n}{1+(2\log k+18)/k}
+\frac{n\log n-3n}{1+(2\log k+17)/k}
 \end{equation}
 comparisons.
 \end{theorem}
@@ -119,10 +119,9 @@ call to return an answer consistent with the earlier answers.
 \begin{proposition}[Consistency and termination]\label{prop:legality}
 With the parameter choices of Theorem~\ref{thm:fixed-stage}, every reached
 state has positive node volumes and represents only orders consistent with
-the global transcript. Every comparison call terminates and performs at
-most $n+2$ refinements. During a call, every in-node DAG has degree at most
-$k$ and directed paths of at most $2H$ vertices. At the end of the call,
-the degrees are below $k$ and the directed paths have fewer than $H$ vertices.
+the transcript. Every comparison call terminates and performs at most $n$
+refinements. Every in-node DAG has degree at most $k$ and directed paths
+of fewer than $2H$ vertices throughout the interaction.
 \end{proposition}
 
 Section~\ref{sec:repairs} proves Proposition~\ref{prop:legality} from
@@ -133,15 +132,18 @@ Lemmas~\ref{lem:estimation} and~\ref{lem:anchor-density}.
 
 After $q$ completed comparison calls, let $P$ be the number of refinements
 and $D$ the sum of their anchor depths. We first bound $P$ using the arcs
-removed by degree repairs and the depths used by the other refinements.
+removed by degree refinements and the depths used by the other refinements.
 
+Outside a path batch, the algorithm refines a queried item because its
+vertex has degree $k$ or its coordinate is narrow. When both hold, count
+it as a degree refinement.
 Each degree refinement removes at least $k$ in-node arcs. At most one such
 arc is inserted per comparison, and each inserted arc is removed at most
 once. Thus there are at most $q/k$ degree refinements.
-A preparation refinement uses a narrow coordinate, so its anchor depth
+Every other individual refinement uses a narrow coordinate, so its anchor depth
 exceeds $2k$ by Lemma~\ref{lem:anchor-density}.
 
-For path repairs, choose
+For path batches, choose
 \begin{equation}\label{eq:path-threshold}
 H=2^k.
 \end{equation}
@@ -160,7 +162,7 @@ $m_1,\ldots,m_H$ in the implicit anchor tree, then
 \end{lemma}
 
 Section~\ref{sec:path-resolutions} proves the distinct-child claim and
-counts the available anchors. This is why Algorithm~\ref{alg:repair}
+counts the available anchors. This is why Algorithm~\ref{alg:compare}
 finishes the whole selected path even when earlier refinements have broken it.
 
 \begin{lemma}[Refinement count]\label{lem:refinement-count}
@@ -170,7 +172,7 @@ P\le\frac qk+\frac{D}{k-2}.
 \end{equation}
 \end{lemma}
 \begin{proof}
-There are at most $q/k$ degree refinements. Every preparation refinement
+There are at most $q/k$ degree refinements. Every other individual refinement
 has depth greater than $k-2$, and every complete path batch has average
 depth at least $k-2$. The number of these remaining refinements is therefore
 at most $D/(k-2)$.
@@ -218,20 +220,32 @@ interval $(0,1)$, giving $Z=1$, even though the child anchors fix their order.
 To account for the order determined by the tree, we use a random experiment
 on a fixed state.
 
-Start at the root. At a visited node, each existing child whose anchor has
-depth $m$ is chosen with probability
+Start at the root of the adversary's tree. At a visited node, stop with
+probability $1/2$. Otherwise, choose an anchor by a walk in the implicit
+anchor tree: at each node of that tree, select its position with probability
+$1/k$; otherwise, move to the left or right child with equal probability.
+If the selected anchor has an existing child in the adversary's tree,
+continue the experiment in that child. Otherwise, stop at the current
+node. Whenever the experiment stops in the adversary's tree, choose a
+uniform coordinate in $(0,1)$ there.
+
+The walk selecting an anchor terminates almost surely. A particular
+anchor at depth $m$ requires $m$ specified left or right choices, so an
+existing child at that anchor is entered with probability
 \begin{equation}\label{eq:child-weight}
-w(m)=\frac{2^{-(1+1/k)m}}{4k}.
+w(m)=\frac1{2k}\left(\frac{1-1/k}{2}\right)^m
+     =\frac{2^{-\gamma m}}{2k},
+\qquad \gamma=1-\log(1-1/k).
 \end{equation}
-Choosing a child continues the experiment there. With the remaining
-probability, stop and choose a uniform coordinate in
-$(0,1)$ at that node. The probabilities of the children sum to at most
-\begin{equation}\label{eq:weight-sum}
-\frac1{4k}\sum_{m\ge0}2^m2^{-(1+1/k)m}
-=\frac1{4k(1-2^{-1/k})}\le\frac12,
+The probability of stopping at each visited node of the adversary's tree
+is at least $1/2$.
+Since the state has a finite tree, the experiment produces a node and a
+coordinate almost surely. We will use the bound
+\begin{equation}\label{eq:anchor-depth-cost}
+\gamma-1=-\log(1-1/k)
+\le\frac1{(k-1)\ln2}\le\frac3{2k}
+\qquad(k\ge64).
 \end{equation}
-so the stopping probability is at least $1/2$. Each state has a finite
-tree, so the experiment produces a node and a coordinate.
 
 Sample one such position independently for each of the $n$ labels.
 The tree orders these positions by the same rule as in
@@ -244,7 +258,7 @@ therefore shows that each relative order has probability $1/n!$.
 If the transcript determines a unique total order after $q$ completed
 calls, then
 \begin{equation}\label{eq:terminal}
-\log(n!)\le n-\log Z+(1+1/k)D+(\log k+2)P.
+\log(n!)\le n-\log Z+\gamma D+(\log k+1)P.
 \end{equation}
 \end{lemma}
 \begin{proof}
@@ -259,9 +273,9 @@ only move downward, their required paths, counted separately for each label,
 contain exactly the $P$ edge
 traversals made by refinements, with total anchor depth $D$. The child
 choices therefore contribute
-$2^{-(1+1/k)D-(\log k+2)P}$. Thus the event has probability at least
+$2^{-\gamma D-(\log k+1)P}$. Thus the event has probability at least
 \[
-Z\,2^{-n-(1+1/k)D-(\log k+2)P}.
+Z\,2^{-n-\gamma D-(\log k+1)P}.
 \]
 By Proposition~\ref{prop:legality}, the event produces an order consistent
 with the transcript. The unique such order has probability $1/n!$ in the
@@ -275,9 +289,10 @@ proves \eqref{eq:terminal}.
 Proposition~\ref{prop:legality} gives consistency and termination of every
 call. The procedures and their tie rules are deterministic.
 Suppose the sorter finishes after $q$ comparisons. Substitute the volume
-bound \eqref{eq:volume-total} into \eqref{eq:terminal}:
+bound \eqref{eq:volume-total} into \eqref{eq:terminal} and use
+\eqref{eq:anchor-depth-cost}:
 \begin{equation}\label{eq:comparison-total}
-\log(n!)\le n+a_\eta q+\frac{2D}{k}+(\log k+6)P.
+\log(n!)\le n+a_\eta q+\frac{5D}{2k}+(\log k+5)P.
 \end{equation}
 The two depth terms have nearly cancelled. Lemmas~\ref{lem:refinement-count}
 and~\ref{lem:depth-total} now give the desired coefficient.
@@ -286,14 +301,14 @@ For the explicit bound, write $j=\log k$. Using $a_\eta\le1+1/k$ and
 substituting \eqref{eq:refinement-count} and \eqref{eq:depth-bound} into
 \eqref{eq:comparison-total} gives
 \begin{equation}\label{eq:comparison-charge}
-\log(n!)\le n+\left(1+\frac{2j+18}{k}\right)q.
+\log(n!)\le n+\left(1+\frac{2j+17}{k}\right)q.
 \end{equation}
 The coefficient inequality reduces, after multiplying by
-$k(k^2-7k+2)$, to
+$2k(k^2-7k+2)$, to
 \[
-3k^2-(12j+113)k+2j+42\ge0.
+7k^2-(24j+219)k+4j+94\ge0.
 \]
-Indeed, $3\cdot2^j\ge12j+113$ for $j\ge6$: the difference is positive at
+Indeed, $7\cdot2^j\ge24j+219$ for $j\ge6$: the difference is positive at
 $j=6$ and increases thereafter.
 Finally,
 \[

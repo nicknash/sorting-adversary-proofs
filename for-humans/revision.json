@@ -1,17 +1,20 @@
 {
   "date": "2026-11-09",
   "status": "not_submitted",
-  "argument": "two accounting inequalities for refinements and anchor depths; an IID probability bound at termination; exact local volumes with stationary-coupling locality; implied comparisons answered from the global DAG",
-  "local_pdf_sha256": "aeb2bd4c5a7f5fc9a1ee48660dbeef802b48b7339176e15e1b664c7c28b6dd4a",
-  "prepared_zip_sha256": "d57ec908b1231c7ff7a4aebf82b1c40730cce50c7a8398246b2da83962740efd",
+  "argument": "single pre-answer refinement loop; complete local certainty tests without a global comparison DAG; on-demand effective bounds; convex-section density bounds; route-counting locality for exact neighborhood volumes; stopped binary-walk terminal accounting",
+  "local_pdf_sha256": "4102a57c3649f9b681561d3da54425c750389702d1f4860db74950ecff016cad",
+  "prepared_zip_sha256": "4a5d02ba05b4b1a65d2e04d751e1a387243e5645f63d3fa41b5579c591ce6835",
   "previous_hexagon_submission": "hexagon:2611.00196",
   "previous_submission_metadata": "submission.json",
   "formalization": "Related earlier integer-colour construction; this continuous presentation is not formally verified.",
-  "exposition": "Sections 1-3 retain the existing exposition, with only the necessary roadmap, global-DAG shortcut, transcript-storage clarification, and cross-reference updates. Section 4 states the supporting guarantees before use, counts refinements and their total anchor depths, and proves the terminal bound by an IID sampling argument. Section 5 proves refinement legality and the anchor guarantees. Section 6 gives exact neighborhood probabilities and a stationary-coupling proof of locality, followed by exact volume enumeration and its bit cost. Section 7 bounds the stored state using incomparable pairs and chooses parameters by a computable cost gate. Appendix A supplies density bounds and cites Prekopa for log-concavity; Appendix B collects the five adversary parameters.",
+  "exposition": "The abstract, disclosure, and Sections 1-2 are unchanged. Section 3 receives only changes required by the simplified construction: one comparison loop, local certainty tests, and effective endpoints computed on demand. Section 4 retains aggregate accounting and uses a stopped binary walk for the terminal bound, with constant 17. Section 5 proves complete local certainty and termination after at most n refinements per call. Section 6 replaces high moments with a count of contracting steps along all possible dependency sequences. Appendix A replaces specialized deformation maps with contractions of convex sections. The existing figures and anchor-search exposition are preserved.",
   "pages": 30,
   "source_chat": "https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af20322-5238-83eb-8c1a-60fbea8e1d71",
   "previous_argument_source_chat": "https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af1b5f8-a1d0-83ed-b93d-fe7efd94df67",
   "previous_argument_source_pdf_sha256": "577836ef3235bd8c452b8bdf0b5cbf3840c943c1a1837bed8c9f7ce3f41ab907",
   "previous_argument_source_zip_sha256": "4c4545e4e96e6ad4eb1389e5a1cfc91c6d22b35bf9180a2bedfbfc1885515fc7",
-  "source_material": "Complete final message in Simplify Paper Arguments, retrieved through the connected chat reader. The linked PDF and source archive were not downloaded; the arguments were integrated and independently checked against the existing manuscript."
+  "source_material": "Latest complete assistant message in Simplify Paper Arguments, describing a second simplification iteration against revision 1752ddc, retrieved through the connected chat reader. The linked nine-page PDF and source archive were not downloaded. Its proposed replacements were developed in the existing manuscript and independently reviewed; the separate width-obstruction note is not part of this revision.",
+  "source_chat_turn": "8de7baac-97ed-44d1-9b67-c3601d9748ba",
+  "source_pdf_reference": "https://chatgpt.com/library?file_id=libfile_fde3_f-3c51493d6b74819195865ab40b22e486_742fa1b94fe0819190166d79e79a577c&account_id=personal",
+  "source_zip_reference": "https://chatgpt.com/library?file_id=libfile_fde3_f-08ba30a2ff0c819182d00dca8195abc0_742fa1b94fe0819190166d79e79a577c&account_id=personal"
 }

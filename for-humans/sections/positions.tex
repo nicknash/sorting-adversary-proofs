@@ -59,7 +59,10 @@ in the full graph.
 \subsection{Why distant coordinates have little effect}
 
 We put uniform assignments on $K$ and $K'$ in a common random experiment
-and bound the probability that they disagree on the query.
+and bound the probability that they disagree on the query. For the proof,
+we update the assignments one coordinate at a time. We trace differences
+between corresponding coordinates through these updates and show that
+every possible sequence of dependencies is likely to reduce them.
 
 \begin{proof}[Proof of Theorem~\ref{thm:local}]
 \emph{Updating the two assignments.}
@@ -112,58 +115,74 @@ where $A_z$ is the minimum of $1-U_u$ over $z$ and all its ancestors.
 Indeed, expansion along the selected path gives a factor
 $1-\prod_u(1-U_u)$, which is at most $1-A_z^h$.
 
-We next bound a high moment of the discrepancy. This lets the decrease
-in \eqref{eq:local-one-sweep} outweigh the number of possible vertices
-in its maximum. Both $B_h(z)$ and the set of ancestors used to define
-$A_z$ have at most $M$ vertices, where we set
+\emph{Following the possible dependencies.}
+Both $B_h(z)$ and the set of ancestors used to define $A_z$ have at most
+$M$ vertices, where
 \begin{equation}\label{eq:local-moment}
-M=(d+1)^{h+1},\qquad p=(4M^2)^{h+1}.
+M=(d+1)^{h+1}.
 \end{equation}
-Put $a_0=1/(4M^2)$. A union bound gives
-$\Prb(A_z<a_0)\le Ma_0=1/(4M)$. On the complementary event,
-\[
-(1-A_z^h)^p\le(1-a_0^h)^p
-\le\frac1{1+pa_0^h}
-=\frac1{1+4M^2}\le\frac1{4M}.
-\]
-Here $(1-v)^{-p}\ge1+pv$ for $0\le v<1$ gives the middle inequality.
-Consequently $\E[(1-A_z^h)^p]\le1/(2M)$. The fresh numbers defining
-$A_z$ are independent of all discrepancies at the start of the sweep.
-Raising \eqref{eq:local-one-sweep} to the power $p$ and bounding the
-maximum by a sum therefore gives
-\begin{equation}\label{eq:local-contraction}
-\E[(\Delta_z^{\rm new})^p]
-\le\frac1{2M}\sum_{u\in B_h(z)}\E[(\Delta_u^{\rm old})^p]
-\le\frac12\max_{u\in B_h(z)}\E[(\Delta_u^{\rm old})^p].
-\end{equation}
+Write $\Delta_z(s)$ for the discrepancy after $s$ sweeps and
+$A_z(s)$ for the minimum used in sweep $s$.
+Fix an even integer $t$. Repeatedly applying
+\eqref{eq:local-one-sweep} traces a sequence
+$z_t=z,z_{t-1},\ldots,z_0$, where $z_{s-1}\in B_h(z_s)$ at each step.
+There are at most $M^t$ such sequences.
 
-\emph{Keeping the boundary far enough away.}
-This estimate is used only where the needed neighbors are retained.
-Write $\Delta_z(s)$ for the discrepancy after $s$ sweeps. If
-$B_{sh}(z)\subseteq V'$, induction on $s$ gives
-\begin{equation}\label{eq:local-interior-error}
-\E[\Delta_z(s)^p]\le2^{-s}.
+Suppose $B_{ht}(z)$ is retained. For $1\le s\le t$, every possible $z_s$
+is at distance at most $(t-s)h$ from $z$, so $B_h(z_s)$ is retained too.
+Thus every application of \eqref{eq:local-one-sweep} is valid in both
+graphs. Since each initial discrepancy is at most one, we obtain
+\begin{equation}\label{eq:local-contraction}
+\Delta_z(t)\le
+\max_{z_t=z,\;z_{s-1}\in B_h(z_s)}
+       \prod_{s=1}^t\bigl(1-A_{z_s}(s)^h\bigr).
 \end{equation}
-For $s=0$, every discrepancy is at most one. For the induction step,
-apply \eqref{eq:local-contraction}; each $u\in B_h(z)$ has
-$B_{(s-1)h}(u)\subseteq V'$, so the induction hypothesis applies to it.
-Thus a radius $ht$ suffices for $t$ sweeps. At its outer boundary the
-argument uses only the initial discrepancy bound.
+At the outer boundary only the initial discrepancies occur in this
+expansion.
+
+We bound the probability that any of these products is large. Set
+\[
+a_0=\frac1{16M^3},\qquad \beta=1-a_0^h.
+\]
+Call a pair $(u,s)$ \emph{bad} if $A_u(s)<a_0$. A union bound over the
+at most $M$ random numbers defining $A_u(s)$ gives
+\[
+\Prb\bigl((u,s)\text{ is bad}\bigr)\le Ma_0=\frac1{16M^2}.
+\]
+For every other pair, the corresponding factor in
+\eqref{eq:local-contraction} is at most $\beta$.
+
+For a fixed sequence $z_t,\ldots,z_0$, the events that its pairs are bad
+involve independent random numbers from different sweeps. The probability that
+at least $t/2$ of its pairs are bad is therefore at most
+\[
+2^t\left(\frac1{16M^2}\right)^{t/2}
+=\left(\frac1{2M}\right)^t.
+\]
+Taking a union bound over the at most $M^t$ sequences gives probability
+at most $2^{-t}$ that any sequence has this many bad pairs. Otherwise
+every product in \eqref{eq:local-contraction} has at least $t/2$ factors
+at most $\beta$. Consequently,
+\begin{equation}\label{eq:local-interior-error}
+\Prb\bigl(\Delta_z(t)>\beta^{t/2}\bigr)\le2^{-t}.
+\end{equation}
 
 \emph{From coordinate errors to comparison errors.}
-To turn this into the required probability estimate, put $C=M+1$ and
-choose
+Put $C=M+1$ and choose
 \begin{align}
 \delta&=\frac{\varepsilon}{8CR},&
 \lambda&=\ceil{\log(1/\delta)},&
 \mu&=\ceil{\log(4/\varepsilon)},\nonumber\\
-t&=p\lambda+\mu,& \rho&=ht.\label{eq:local-radius}
+t&=2\bigl(a_0^{-h}\lambda+\mu\bigr),&
+\rho&=ht.\label{eq:local-radius}
 \end{align}
-For each queried coordinate, \eqref{eq:local-interior-error} and
-Markov's inequality imply
+Here $a_0^{-h}=(16M^3)^h$ is an integer, so $t$ is even. The inequality
+$(1-v)^{-r}\ge1+rv$ gives $\beta^{a_0^{-h}}\le1/2$. Hence
+$\beta^{t/2}\le2^{-\lambda}\le\delta$ and
+$2^{-t}\le2^{-\mu}\le\varepsilon/4$. For each queried coordinate,
+\eqref{eq:local-interior-error} now gives
 \[
-\Prb(\Delta_z(t)>\delta)\le2^{-t}\delta^{-p}
-\le2^{-\mu}\le\varepsilon/4.
+\Prb(\Delta_z(t)>\delta)\le\varepsilon/4.
 \]
 For an incomparable pair, choose the queried coordinate $x$ with
 $W_x\ge1/R$. There are at most $M$ other coordinates comparable with

@@ -1,8 +1,10 @@
 \section{Coordinate densities}\label{app:geometry}
 
 We prove the density bounds used to choose anchors and to turn coordinate
-approximation into probability approximation. Let $V$ be the set of
-coordinates, let $N=|V|$, and let $K\subseteq\R^V$ be their feasible region.
+approximation into probability approximation. The first bounds follow by
+fixing the incomparable coordinates and comparing sections of the remaining
+convex region. Let $V$ be the set of coordinates, let $N=|V|$, and let
+$K\subseteq\R^V$ be their feasible region.
 For a coordinate $x$ and a real number $t$, write
 \[
 K_x(t)=\{(z_i)_{i\ne x}:z\in K,\ z_x=t\},
@@ -21,7 +23,8 @@ definitions in the remaining free coordinates. In dimension zero, the
 volume of the singleton consisting of the empty assignment is one.
 
 \begin{lemma}[Coordinate density bounds]\label{lem:fiber}
-Suppose $x$ has at most $B$ other comparable labels and effective interval
+Suppose $K$ has positive volume, and $x$ has at most $B$ other comparable
+labels and effective interval
 $(\ell,r)$ of width $W$. Its density satisfies
 \begin{align}
 f_x(t)&\le\frac{B+1}{W},\label{eq:fiber-upper}\\
@@ -32,90 +35,66 @@ These bounds also hold after fixing any set of labels incomparable with $x$,
 for every resulting slice of positive volume.
 \end{lemma}
 \begin{proof}
-We may fix any specified set of coordinates incomparable with $x$ before
-starting the argument. Measure all volumes in the remaining free
-coordinates, and abbreviate the section volume by $S(t)$.
+We may first fix any prescribed set of coordinates incomparable with $x$,
+at values leaving a positive-volume slice; write $f_x$ for its coordinate
+density. Fixing a coordinate turns its incident inequalities
+into interval bounds. These bounds propagate along directed paths, so
+fixing an incomparable coordinate leaves $x$'s effective endpoints
+unchanged. By Lemma~\ref{lem:interior}, its projection interval remains
+$(\ell,r)$. The same argument applies successively as more incomparable
+coordinates are fixed.
 
-First we construct a map from the section at $t$ into the section at a
-larger value $s$. Raising $x$ may force its descendants to rise, but no
-other coordinates need move. We compress $[t,r]$ into $[s,r]$ and leave
-values above $r$ unchanged. More precisely, for $\ell<t<s<r$, put
-$\alpha=(r-s)/(r-t)$ and apply
-\[
-\phi(z)=
-\begin{cases}
-s+\alpha(z-t),&t\le z\le r,\\
-z,&z\ge r
-\end{cases}
-\]
-to $x$ and all its descendants. Every descendant $y$ has value greater
-than $t$. Its effective upper endpoint satisfies $r_y\ge r_x=r$, by the
-definition of effective intervals. A moved coordinate never decreases;
-if it starts below $r$, it stays below $r$, and if it starts at or above
-$r$, it stays fixed. Its lower and upper interval bounds are therefore
-preserved. The function $\phi$ is strictly increasing, so it preserves
-the inequalities imposed by arcs between moved coordinates. Every arc
-crossing the boundary of this set must enter it: an arc leaving a
-descendant would lead to another descendant. Only its head coordinate
-can move, and that coordinate never decreases, so its inequality also
-remains strict.
+Now fix all the remaining coordinates incomparable with $x$. For each
+choice leaving a nonempty slice, the remaining feasible region $C$ is
+open and convex, has dimension $d\le B+1$, and projects onto $(\ell,r)$
+in coordinate $x$. Write $S(t)$ for its section volume at $x=t$ and
+$g(t)=S(t)/\vol C$ for the resulting density.
 
-This injective map sends the section at $t$ into the section at $s$.
-To compare volumes, partition the source section according to which moved
-coordinates lie below $r$. On each piece the map is affine and its
-Jacobian determinant in the free coordinates is $\alpha^j$, where
-$j\le B$: the coordinate $x$ is fixed, and at most $B$ other coordinates
-are moved. Since $0<\alpha<1$, this determinant is at least $\alpha^B$.
-The images of distinct pieces are disjoint because the map is injective.
-Adding their volumes gives
+Choose points in $\overline C$ whose $x$-coordinates are $\ell$ and $r$.
+Such points exist because $C$ is bounded. For $\ell<t<s<r$, join every
+point of the section at $t$ to the point at $r$. Since $C$ is open and
+convex, the image at $x=s$ lies in the section of $C$ there. Each of its
+$d-1$ directions is scaled by $(r-s)/(r-t)$, so
 \begin{equation}\label{eq:push-upper}
-S(s)\ge\left(\frac{r-s}{r-t}\right)^B S(t)
+S(s)\ge\left(\frac{r-s}{r-t}\right)^{d-1}S(t)
 \qquad(t<s).
 \end{equation}
-For a smaller target value $s$, the construction is reversed: lower $x$
-and its ancestors, compress $[\ell,t]$ into $[\ell,s]$, and leave values
-below $\ell$ fixed. Thus, for $\ell<s<t<r$, use
-\[
-\phi(z)=
-\begin{cases}
-z,&z\le\ell,\\
-s+\dfrac{s-\ell}{t-\ell}(z-t),&\ell\le z\le t.
-\end{cases}
-\]
-on $x$ and its ancestors. The effective lower endpoint of every ancestor
-is at most $\ell$. No moved coordinate rises, and one that starts at or
-above $\ell$ remains there. Thus all intervals are preserved. The map is
-strictly increasing on the moved set, so it preserves the inequalities
-imposed by arcs within that set. Every arc crossing its boundary leaves
-the set. Only its tail coordinate can move, and that coordinate never
-increases, so these inequalities also remain strict. Its determinant on
-each piece is at least $((s-\ell)/(t-\ell))^B$. Consequently
+Joining instead to the point at $\ell$ gives
 \begin{equation}\label{eq:push-lower}
-S(s)\ge\left(\frac{s-\ell}{t-\ell}\right)^B S(t)
+S(s)\ge\left(\frac{s-\ell}{t-\ell}\right)^{d-1}S(t)
 \qquad(s<t).
 \end{equation}
-Neither construction moves a coordinate incomparable with $x$, so both
-remain valid after the conditioning at the start of the proof. A region
-of positive volume has some section of positive volume. The two maps
-carry that section to every $t\in(\ell,r)$ with a positive volume factor.
-Consequently, after fixing incomparable coordinates, we normalize the
-density of $x$ over the same effective interval $(\ell,r)$ of width $W$.
-
-Normalize $S$ to obtain $f_x$. Integrating the two inequalities on their
-respective sides of $t$ gives
+Normalize these inequalities and integrate over $s$ on both sides of $t$:
 \[
-1\ge f_x(t)\left(
-\int_\ell^t\left(\frac{s-\ell}{t-\ell}\right)^B ds+
-\int_t^r\left(\frac{r-s}{r-t}\right)^B ds\right)
-=\frac{Wf_x(t)}{B+1}.
+1\ge g(t)\left(
+\int_\ell^t\left(\frac{s-\ell}{t-\ell}\right)^{d-1}ds+
+\int_t^r\left(\frac{r-s}{r-t}\right)^{d-1}ds\right)
+=\frac{Wg(t)}{d}.
 \]
-This proves the upper bound. For the lower bound, the density integrates
-to one over an interval of length $W$, so some $t_0\in(\ell,r)$ has
-$f_x(t_0)\ge1/W$. Fix $s\in[\ell+W/4,r-W/4]$. If $t_0<s$, the ratio
-in \eqref{eq:push-upper} is at least $(r-s)/W\ge1/4$; if $s<t_0$,
-the ratio in \eqref{eq:push-lower} is at least $(s-\ell)/W\ge1/4$.
-If $s=t_0$, no map is needed. In every case
-$f_x(s)\ge4^{-B}/W$.
+Thus $g(t)\le d/W\le(B+1)/W$.
+
+For the lower bound, choose $t_0$ with $g(t_0)\ge1/W$, which exists
+because $g$ integrates to one over an interval of length $W$. For any
+$s\in[\ell+W/4,r-W/4]$, the appropriate ratio in
+\eqref{eq:push-upper} or \eqref{eq:push-lower} is at least $1/4$.
+Consequently
+\[
+g(s)\ge4^{-(d-1)}g(t_0)\ge\frac{4^{-B}}{W}.
+\]
+The case $s=t_0$ satisfies the same bound directly.
+
+Finally, average over the additional incomparable coordinates fixed in
+the second paragraph. If $\omega$ denotes their values, $C_\omega$ the
+remaining region, and $g_\omega$ its coordinate density, integration of
+each section gives the pointwise identity
+\[
+f_x(t)=
+\frac{\int \vol(C_\omega)g_\omega(t)\,d\omega}
+     {\int \vol(C_\omega)\,d\omega}.
+\]
+Empty slices contribute zero. The bounds on $g_\omega$ are uniform in
+$\omega$, so they hold for $f_x$ at every $t$. This proves both the
+unconditional bounds and the bounds after the initial conditioning.
 \end{proof}
 
 \begin{corollary}[A bound for small differences]\label{cor:gap}

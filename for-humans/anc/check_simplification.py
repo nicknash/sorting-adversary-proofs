@@ -29,10 +29,10 @@ def accounting_bounds(k):
 def comparison_charges(j, k):
     denominator, _, depth_bound, refinement_bound = accounting_bounds(k)
     loss_bound = 1 + Fraction(1, k)
-    charge = loss_bound + Fraction(2, k) * depth_bound + (j + 6) * refinement_bound
-    displayed_charge = 1 + Fraction(2 * j + 18, k)
-    residue = 3 * k * k - (12 * j + 113) * k + 2 * j + 42
-    return charge, displayed_charge, Fraction(residue, k * denominator)
+    charge = loss_bound + Fraction(5, 2 * k) * depth_bound + (j + 5) * refinement_bound
+    displayed_charge = 1 + Fraction(2 * j + 17, k)
+    residue = 7 * k * k - (24 * j + 219) * k + 4 * j + 94
+    return charge, displayed_charge, Fraction(residue, 2 * k * denominator)
 
 
 def stage(j):
@@ -53,7 +53,14 @@ def stage(j):
         "comparison_charge_upper_bound": charge <= displayed_charge,
         # This sufficient inequality makes the residue positive; Section 4
         # proves it at j=6 and observes its increase at every later integer j.
-        "residue_positive_majorant": 3 * k >= 12 * j + 113,
+        "residue_positive_majorant": 7 * k >= 24 * j + 219,
+        # Sum over all possible anchors: half the probability chooses an
+        # anchor, whose depth has geometric termination probability 1/k.
+        "anchor_walk_probability_mass": Fraction(1, 2 * k) / (1 - (1 - Fraction(1, k))) == Fraction(1, 2),
+        # ln 2 >= 2*(1/3 + (1/3)**3/3) = 56/81, from the first
+        # two positive terms of the log series. Together with
+        # -ln(1-x) <= x/(1-x), this bounds gamma-1 by 3/(2k).
+        "anchor_depth_logarithm_majorant": Fraction(81, 56 * (k - 1)) <= Fraction(3, 2 * k),
         # -ln(1-x) <= x/(1-x), ln 2 >= 1/2, and x=1/(50k)
         # give a rational sufficient condition for a_eta <= 1+1/k.
         "comparison_loss_rational_majorant": Fraction(2, 50 * k - 1) <= Fraction(1, k),
@@ -63,6 +70,7 @@ def stage(j):
     return {
         "j": j,
         "k": k,
+        "anchor_depth_cost_majorant": display(1 + Fraction(3, 2 * k)),
         "total_depth_per_comparison_bound": display(depth_bound),
         "refinements_per_comparison_bound": display(refinement_bound),
         "rational_comparison_charge": display(charge),
@@ -98,7 +106,7 @@ def main():
     identity_grid = residue_identity_grid()
     stage_checks = sum(len(row["checks"]) for row in rows)
     output = {
-        "purpose": "Finite exact-rational diagnostic of the two accounting inequalities and the +18 comparison coefficient; not a proof of the structural, geometric, or locality hypotheses or of the adversary.",
+        "purpose": "Finite exact-rational diagnostic of the two accounting inequalities and the +17 comparison coefficient; not a proof of the structural, geometric, or locality hypotheses or of the adversary.",
         "range": {"first_j": 6, "last_j": 128, "count": len(rows)},
         "all_checks_passed": True,
         "checks_per_stage": len(rows[0]["checks"]),

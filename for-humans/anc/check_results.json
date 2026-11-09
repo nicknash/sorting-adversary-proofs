@@ -1,13 +1,13 @@
 {
-  "purpose": "Finite exact-rational diagnostic of the two accounting inequalities and the +18 comparison coefficient; not a proof of the structural, geometric, or locality hypotheses or of the adversary.",
+  "purpose": "Finite exact-rational diagnostic of the two accounting inequalities and the +17 comparison coefficient; not a proof of the structural, geometric, or locality hypotheses or of the adversary.",
   "range": {
     "first_j": 6,
     "last_j": 128,
     "count": 123
   },
   "all_checks_passed": true,
-  "checks_per_stage": 12,
-  "stage_checks": 1476,
+  "checks_per_stage": 14,
+  "stage_checks": 1722,
   "residue_identity_grid": {
     "first_j": 0,
     "last_j": 16,
@@ -16,11 +16,15 @@
     "count": 2057,
     "scope": "Identity only; this grid does not assert the comparison inequality when k is unrelated to 2**j."
   },
-  "total_checks": 3533,
+  "total_checks": 3779,
   "coefficient_table": [
     {
       "j": 6,
       "k": 64,
+      "anchor_depth_cost_majorant": {
+        "exact": "131/128",
+        "decimal": 1.0234375
+      },
       "total_depth_per_comparison_bound": {
         "exact": "2139/1825",
         "decimal": 1.172054794520548
@@ -30,24 +34,24 @@
         "decimal": 0.034529109589041096
       },
       "rational_comparison_charge": {
-        "exact": "171299/116800",
-        "decimal": 1.4666010273972603
+        "exact": "336671/233600",
+        "decimal": 1.441228595890411
       },
       "displayed_comparison_charge": {
-        "exact": "47/32",
-        "decimal": 1.46875
+        "exact": "93/64",
+        "decimal": 1.453125
       },
       "comparison_charge_slack": {
-        "exact": "251/116800",
-        "decimal": 0.002148972602739726
+        "exact": "2779/233600",
+        "decimal": 0.01189640410958904
       },
       "coefficient_from_rational_charge": {
-        "exact": "116800/171299",
-        "decimal": 0.6818486973070479
+        "exact": "233600/336671",
+        "decimal": 0.6938524553644358
       },
       "coefficient_from_displayed_charge": {
-        "exact": "32/47",
-        "decimal": 0.6808510638297872
+        "exact": "64/93",
+        "decimal": 0.6881720430107527
       },
       "checks": {
         "estimation_error_range": true,
@@ -61,12 +65,18 @@
         "comparison_residue_identity": true,
         "comparison_charge_upper_bound": true,
         "residue_positive_majorant": true,
+        "anchor_walk_probability_mass": true,
+        "anchor_depth_logarithm_majorant": true,
         "comparison_loss_rational_majorant": true
       }
     },
     {
       "j": 8,
       "k": 256,
+      "anchor_depth_cost_majorant": {
+        "exact": "515/512",
+        "decimal": 1.005859375
+      },
       "total_depth_per_comparison_bound": {
         "exact": "33147/31873",
         "decimal": 1.0399711354437926
@@ -76,24 +86,24 @@
         "decimal": 0.008000624548991309
       },
       "rational_comparison_charge": {
-        "exact": "9171589/8159488",
-        "decimal": 1.124039768181533
+        "exact": "18245763/16318976",
+        "decimal": 1.1180703372564553
       },
       "displayed_comparison_charge": {
-        "exact": "145/128",
-        "decimal": 1.1328125
+        "exact": "289/256",
+        "decimal": 1.12890625
       },
       "comparison_charge_slack": {
-        "exact": "71581/8159488",
-        "decimal": 0.008772731818467041
+        "exact": "176831/16318976",
+        "decimal": 0.010835912743544692
       },
       "coefficient_from_rational_charge": {
-        "exact": "8159488/9171589",
-        "decimal": 0.8896482387076001
+        "exact": "16318976/18245763",
+        "decimal": 0.8943981131400205
       },
       "coefficient_from_displayed_charge": {
-        "exact": "128/145",
-        "decimal": 0.8827586206896552
+        "exact": "256/289",
+        "decimal": 0.8858131487889274
       },
       "checks": {
         "estimation_error_range": true,
@@ -107,12 +117,18 @@
         "comparison_residue_identity": true,
         "comparison_charge_upper_bound": true,
         "residue_positive_majorant": true,
+        "anchor_walk_probability_mass": true,
+        "anchor_depth_logarithm_majorant": true,
         "comparison_loss_rational_majorant": true
       }
     },
     {
       "j": 10,
       "k": 1024,
+      "anchor_depth_cost_majorant": {
+        "exact": "2051/2048",
+        "decimal": 1.00146484375
+      },
       "total_depth_per_comparison_bound": {
         "exact": "525819/520705",
         "decimal": 1.0098212999683123
@@ -122,24 +138,24 @@
         "decimal": 0.0019646459637654716
       },
       "rational_comparison_charge": {
-        "exact": "551535111/533201920",
-        "decimal": 1.034383205146748
+        "exact": "220300187/213280768",
+        "decimal": 1.0329116359896078
       },
       "displayed_comparison_charge": {
-        "exact": "531/512",
-        "decimal": 1.037109375
+        "exact": "1061/1024",
+        "decimal": 1.0361328125
       },
       "comparison_charge_slack": {
-        "exact": "1453599/533201920",
-        "decimal": 0.0027261698532518412
+        "exact": "687015/213280768",
+        "decimal": 0.0032211765103921605
       },
       "coefficient_from_rational_charge": {
-        "exact": "533201920/551535111",
-        "decimal": 0.966759702810652
+        "exact": "213280768/220300187",
+        "decimal": 0.9681370265927192
       },
       "coefficient_from_displayed_charge": {
-        "exact": "512/531",
-        "decimal": 0.9642184557438794
+        "exact": "1024/1061",
+        "decimal": 0.9651272384542884
       },
       "checks": {
         "estimation_error_range": true,
@@ -153,12 +169,18 @@
         "comparison_residue_identity": true,
         "comparison_charge_upper_bound": true,
         "residue_positive_majorant": true,
+        "anchor_walk_probability_mass": true,
+        "anchor_depth_logarithm_majorant": true,
         "comparison_loss_rational_majorant": true
       }
     },
     {
       "j": 12,
       "k": 4096,
+      "anchor_depth_cost_majorant": {
+        "exact": "8195/8192",
+        "decimal": 1.0003662109375
+      },
       "total_depth_per_comparison_bound": {
         "exact": "8394747/8374273",
         "decimal": 1.0024448689456387
@@ -168,24 +190,24 @@
         "decimal": 0.0004889977009515482
       },
       "rational_comparison_charge": {
-        "exact": "34628102153/34301022208",
-        "decimal": 1.0095355742757928
+        "exact": "69231052811/68602044416",
+        "decimal": 1.0091689453332573
       },
       "displayed_comparison_charge": {
-        "exact": "2069/2048",
-        "decimal": 1.01025390625
+        "exact": "4137/4096",
+        "decimal": 1.010009765625
       },
       "comparison_charge_slack": {
-        "exact": "24639521/34301022208",
-        "decimal": 0.0007183319742072685
+        "exact": "57681991/68602044416",
+        "decimal": 0.0008408202917426011
       },
       "coefficient_from_rational_charge": {
-        "exact": "34301022208/34628102153",
-        "decimal": 0.9905544940477871
+        "exact": "68602044416/69231052811",
+        "decimal": 0.9909143603995567
       },
       "coefficient_from_displayed_charge": {
-        "exact": "2048/2069",
-        "decimal": 0.9898501691638473
+        "exact": "4096/4137",
+        "decimal": 0.9900894367899444
       },
       "checks": {
         "estimation_error_range": true,
@@ -199,12 +221,18 @@
         "comparison_residue_identity": true,
         "comparison_charge_upper_bound": true,
         "residue_positive_majorant": true,
+        "anchor_walk_probability_mass": true,
+        "anchor_depth_logarithm_majorant": true,
         "comparison_loss_rational_majorant": true
       }
     },
     {
       "j": 16,
       "k": 65536,
+      "anchor_depth_cost_majorant": {
+        "exact": "131075/131072",
+        "decimal": 1.0000228881835938
+      },
       "total_depth_per_comparison_bound": {
         "exact": "2147581947/2147254273",
         "decimal": 1.000152601396174
@@ -214,24 +242,24 @@
         "decimal": 3.0520372384076184e-05
       },
       "rational_comparison_charge": {
-        "exact": "140823386292237/140722456035328",
-        "decimal": 1.0007172292166622
+        "exact": "281640330362899/281444912070656",
+        "decimal": 1.0006943394030656
       },
       "displayed_comparison_charge": {
-        "exact": "32793/32768",
-        "decimal": 1.000762939453125
+        "exact": "65585/65536",
+        "decimal": 1.0007476806640625
       },
       "comparison_charge_slack": {
-        "exact": "6432456741/140722456035328",
-        "decimal": 4.571023646279417e-05
+        "exact": "15012626511/281444912070656",
+        "decimal": 5.334126099686293e-05
       },
       "coefficient_from_rational_charge": {
-        "exact": "140722456035328/140823386292237",
-        "decimal": 0.999283284832396
+        "exact": "281444912070656/281640330362899",
+        "decimal": 0.9993061423696272
       },
       "coefficient_from_displayed_charge": {
-        "exact": "32768/32793",
-        "decimal": 0.9992376421797334
+        "exact": "65536/65585",
+        "decimal": 0.999252877944652
       },
       "checks": {
         "estimation_error_range": true,
@@ -245,12 +273,18 @@
         "comparison_residue_identity": true,
         "comparison_charge_upper_bound": true,
         "residue_positive_majorant": true,
+        "anchor_walk_probability_mass": true,
+        "anchor_depth_logarithm_majorant": true,
         "comparison_loss_rational_majorant": true
       }
     },
     {
       "j": 20,
       "k": 1048576,
+      "anchor_depth_cost_majorant": {
+        "exact": "2097155/2097152",
+        "decimal": 1.0000014305114746
+      },
       "total_depth_per_comparison_bound": {
         "exact": "549757386747/549752143873",
         "decimal": 1.0000095367959152
@@ -260,24 +294,24 @@
         "decimal": 1.9073595468200454e-06
       },
       "rational_comparison_charge": {
-        "exact": "576487140555751441/576456904013774848",
-        "decimal": 1.0000524523893566
+        "exact": "1152972631847731227/1152913808027549696",
+        "decimal": 1.0000510218715155
       },
       "displayed_comparison_charge": {
-        "exact": "524317/524288",
-        "decimal": 1.0000553131103516
+        "exact": "1048633/1048576",
+        "decimal": 1.0000543594360352
       },
       "comparison_charge_slack": {
-        "exact": "1649082368041/576456904013774848",
-        "decimal": 2.86072099502792e-06
+        "exact": "3847924219991/1152913808027549696",
+        "decimal": 3.3375645197399275e-06
       },
       "coefficient_from_rational_charge": {
-        "exact": "576456904013774848/576487140555751441",
-        "decimal": 0.9999475503617523
+        "exact": "1152913808027549696/1152972631847731227",
+        "decimal": 0.9999489807315831
       },
       "coefficient_from_displayed_charge": {
-        "exact": "524288/524317",
-        "decimal": 0.9999446899490194
+        "exact": "1048576/1048633",
+        "decimal": 0.9999456435187525
       },
       "checks": {
         "estimation_error_range": true,
@@ -291,6 +325,8 @@
         "comparison_residue_identity": true,
         "comparison_charge_upper_bound": true,
         "residue_positive_majorant": true,
+        "anchor_walk_probability_mass": true,
+        "anchor_depth_logarithm_majorant": true,
         "comparison_loss_rational_majorant": true
       }
     }

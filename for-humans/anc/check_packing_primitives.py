@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
-"""Exact diagnostics for endpoint-interleaving volume and midpoint refinement.
+"""Exact diagnostics for local certainty, sections, volumes, and anchor rules.
 
 Two independent reference volume calculations are compared: permutation/gap
 enumeration and an integer subset-polynomial recurrence. These provide exact
-reference probabilities for checking the geometric anchor rules.  Midpoint
+reference probabilities for checking the geometric anchor rules. Exact
+volumes after adding a comparison check the local-certainty criterion.
+Sections formed from raw and effective bounds check refinement without
+persistent tightening, including the remaining effective endpoints. Midpoint
 search is then checked using exact reference CDFs with pointwise perturbations
 of at most 1/32, including alternating signs.  All arithmetic uses integers and
 fractions.Fraction.  This is a small diagnostic, not a proof or a simulation of
@@ -150,6 +153,89 @@ def section_volume(intervals, edges, x, position):
     return subset_volume([tuple(bounds[y]) for y in kept], remaining_edges)
 
 
+def substitute_incident_constraints(intervals, edges, x, position):
+    """Return the remaining system after fixing x, using only incident arcs."""
+    bounds = [list(ab) for ab in interval_fractions(intervals)]
+    kept = [y for y in range(len(bounds)) if y != x]
+    new_id = {y: i for i, y in enumerate(kept)}
+    remaining_edges = []
+    for u, v in edges:
+        if u == x:
+            bounds[v][0] = max(bounds[v][0], position)
+        elif v == x:
+            bounds[u][1] = min(bounds[u][1], position)
+        else:
+            remaining_edges.append((new_id[u], new_id[v]))
+    return [tuple(bounds[y]) for y in kept], remaining_edges, kept
+
+
+def check_local_certainty_and_sections(name, intervals, edges, full_volume):
+    """Test the new criteria against exact volumes on one positive region."""
+    n = len(intervals)
+    supports, _ = effective_data(intervals, edges)
+    pred, succ = relations(n, edges)
+    counts = Counter()
+    assert subset_volume(supports, edges) == full_volume, (name, "effective_volume")
+    counts["effective_region_volume_checks"] += 1
+
+    orientation_volumes = {}
+    for x in range(n):
+        for y in range(n):
+            if x == y:
+                continue
+            volume = subset_volume(intervals, [*edges, (x, y)])
+            orientation_volumes[x, y] = volume
+            if y in succ[x]:
+                assert volume == full_volume, (name, "forward_path", x, y)
+                counts["directed_path_orientation_checks"] += 1
+            elif y in pred[x]:
+                assert volume == 0, (name, "reverse_path", x, y)
+                counts["directed_path_orientation_checks"] += 1
+            else:
+                feasible = supports[x][0] < supports[y][1]
+                assert (volume > 0) == feasible, (name, "local_certainty", x, y)
+                counts["incomparable_orientation_checks"] += 1
+                counts["incomparable_infeasible_orientations"] += not feasible
+                counts["touching_effective_endpoint_checks"] += supports[x][0] == supports[y][1]
+            counts["ordered_pair_checks"] += 1
+        for y in range(x):
+            assert orientation_volumes[x, y] + orientation_volumes[y, x] == full_volume, (
+                name, "opposite_orientation_partition", x, y
+            )
+            counts["opposite_orientation_partition_checks"] += 1
+
+    for x in range(n):
+        ell, upper = supports[x]
+        for fraction in (Fraction(1, 4), Fraction(1, 2), Fraction(3, 4)):
+            anchor = ell + fraction * (upper - ell)
+            assert ell < anchor < upper
+            raw_bounds, remaining_edges, kept = substitute_incident_constraints(intervals, edges, x, anchor)
+            effective_bounds, effective_edges, _ = substitute_incident_constraints(supports, edges, x, anchor)
+            raw_volume = subset_volume(raw_bounds, remaining_edges)
+            effective_volume = subset_volume(effective_bounds, effective_edges)
+            assert raw_volume == effective_volume > 0, (name, "section_volume", x, anchor)
+            assert raw_volume == section_volume(intervals, edges, x, anchor)
+            counts["raw_effective_section_volume_checks"] += 1
+            assert interleaving_volume(raw_bounds, remaining_edges) == raw_volume, (
+                name, "independent_section_volume", x, anchor
+            )
+            counts["independent_section_volume_checks"] += 1
+
+            actual_supports, _ = effective_data(raw_bounds, remaining_edges)
+            for index, y in enumerate(kept):
+                lo, hi = supports[y]
+                if y in pred[x]:
+                    hi = min(hi, anchor)
+                elif y in succ[x]:
+                    lo = max(lo, anchor)
+                assert actual_supports[index] == (lo, hi), (
+                    name, "remaining_effective_endpoints", x, anchor, y,
+                    actual_supports[index], (lo, hi)
+                )
+                counts["remaining_effective_interval_checks"] += 1
+    return counts
+
+
 def exact_cdf(intervals, edges, x, threshold, full_volume):
     a, b = intervals[x]
     if threshold <= a:
@@ -254,6 +340,12 @@ def run_checks():
         ("disconnected_narrow", [(0, 1), (0, 1),
                                   (Fraction(1, 2), Fraction(257, 512)),
                                   (Fraction(1, 8), Fraction(7, 8))], [(0, 1)], Fraction(3, 4096)),
+        ("touching_incomparable_intervals", [(0, Fraction(1, 2)), (Fraction(1, 2), 1)],
+                                           [], Fraction(1, 4)),
+        ("remote_lower_endpoint", [(Fraction(3, 4), 1), (0, 1), (0, 1),
+                                   (0, Fraction(1, 2))], [(0, 1), (1, 2)], Fraction(1, 768)),
+        ("remote_upper_endpoint", [(0, 1), (0, 1), (0, Fraction(1, 4)),
+                                   (Fraction(1, 2), 1)], [(0, 1), (1, 2)], Fraction(1, 768)),
         ("directed_cycle", [(0, 1), (0, 1)], [(0, 1), (1, 0)], Fraction(0)),
         ("infeasible_intervals", [(Fraction(3, 4), 1), (0, Fraction(1, 4))], [(0, 1)], Fraction(0)),
     ]
@@ -280,6 +372,7 @@ def run_checks():
     min_tariff_ratio = None
     positive_by_size = Counter()
     zero_by_size = Counter()
+    certainty_and_section_counts = Counter()
     for name, intervals, edges, expected, kind in systems:
         intervals = interval_fractions(intervals)
         calculated = interleaving_volume(intervals, edges)
@@ -291,6 +384,9 @@ def run_checks():
         n = len(intervals)
         (positive_by_size if calculated else zero_by_size)[n] += 1
         if calculated and n:
+            certainty_and_section_counts.update(
+                check_local_certainty_and_sections(name, intervals, edges, reference)
+            )
             supports, comparables = effective_data(intervals, edges)
             for x in range(n):
                 for pattern in ["exact", "alternating_plus", "alternating_minus"]:
@@ -308,7 +404,7 @@ def run_checks():
 
     return {
         "status": "passed",
-        "scope": "Small exact diagnostics of endpoint-interleaving volume, midpoint search with pointwise CDF error, and narrow-position rounding. Not a formal verification of locality or the asymptotic adversary, and not a simulation of all adversary trajectories.",
+        "scope": "Small exact diagnostics of endpoint-interleaving volume, complete local certainty, raw-bound refinement sections and their effective endpoints, midpoint search with pointwise CDF error, and narrow-position rounding. Not a proof of these properties for all states, a formal verification of locality or the asymptotic adversary, or a simulation of all adversary trajectories.",
         "arithmetic": "Python integers and fractions.Fraction only",
         "seed": SEED,
         "volume_systems": len(systems),
@@ -325,6 +421,9 @@ def run_checks():
         "maximum_midpoint_tests": max_tests,
         "minimum_observed_16_times_cell_width_times_density": str(min_tariff_ratio),
         "narrow_position_checks": narrow_count,
+        "local_certainty_and_sections": dict(sorted(certainty_and_section_counts.items())),
+        "section_anchor_fractions_of_effective_width": ["1/4", "1/2", "3/4"],
+        "additional_explicit_cases": ["touching_incomparable_intervals", "remote_lower_endpoint", "remote_upper_endpoint"],
         "all_passed": True,
         "systems": reports,
     }
@@ -339,6 +438,7 @@ def main():
     print(json.dumps({"status": report["status"], "volume_systems": report["volume_systems"],
                       "midpoint_searches": report["midpoint_searches"],
                       "narrow_position_checks": report["narrow_position_checks"],
+                      "local_certainty_and_sections": report["local_certainty_and_sections"],
                       "report": str(args.output.resolve())}))
 
 

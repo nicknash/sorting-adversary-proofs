@@ -10,22 +10,24 @@ with integers represented in binary.
 
 \subsection{Bounding the state throughout the interaction}
 
-The first test in Algorithm~\ref{alg:compare} answers any comparison
-already implied by the global comparison DAG. Such a call leaves the
-stored state unchanged. Every other call starts with an incomparable pair
-and makes that pair comparable permanently. Thus at most $\binom n2$
-calls can change the state, however often the sorter repeats a comparison.
+The certainty tests in Algorithm~\ref{alg:compare} recognize every
+comparison fixed by the represented orders (Lemma~\ref{lem:certainty}).
+Since those orders respect all earlier answers, a previously answered
+pair is recognized before any refinement begins. Such a call returns
+without changing the state. Every call that changes the state therefore
+compares a previously unanswered pair, so there are at most $\binom n2$
+such calls, however often the sorter repeats a comparison.
 
-Lemmas~\ref{lem:preparation} and~\ref{lem:restoration} bound the number of
-refinements in one call by $n+2$. Consequently the total number $P$ of
-refinements, including those in a call still in progress, satisfies
+Lemma~\ref{lem:restoration} bounds the number of refinements in one call
+by $n$. Consequently their total number $P$, including those in a call
+still in progress, satisfies
 \begin{equation}\label{eq:refinement-runtime}
-P\le(n+2)\binom n2.
+P\le n\binom n2.
 \end{equation}
 Each refinement creates at most one node in the adversary's tree, so
-that tree has at most $P+1$ nodes. The global comparison DAG has $n$
-vertices and at most $\binom n2$ arcs. The transcript is the output stream;
-its order constraints are retained in this DAG.
+that tree has at most $P+1$ nodes. The $n$ item records are distributed
+among these nodes, and each in-node DAG has degree at most $k$.
+The algorithm stores this tree, its records, and its in-node DAGs.
 
 We store an anchor by its path in the implicit anchor tree. A path of
 length $m$ gives its interval and position by $m$ halvings of $[0,1]$;
@@ -41,7 +43,8 @@ For a narrow item, suppose the current endpoints have at most $\Lambda$
 fractional digits. Its positive effective width is at least $2^{-\Lambda}$.
 The selected anchor-tree interval has length $2^{-m}>W_x/8$, so
 $m<\Lambda+3$. The new anchor therefore has at most $\Lambda+3$ fractional
-digits. Tightening takes maxima and minima of endpoints and adds no digits.
+digits. Effective endpoints are maxima and minima of stored bounds, so computing
+them adds no digits.
 After $P$ refinements,
 \begin{equation}\label{eq:precision}
 \Lambda\le K_0(k)+3P.
@@ -79,11 +82,11 @@ Hence the chosen $k(n)$ tends to infinity.
 For a selected tuple, \eqref{eq:refinement-runtime}--\eqref{eq:stage-gate}
 give $\Lambda=O(n^3)$ and a polynomial number of stored nodes. Every local
 volume calculation has a fixed polynomial bit cost. A comparison call
-makes at most $n+2$ refinements, and each wide refinement uses at most
+makes at most $n$ refinements, and each wide refinement uses at most
 $K_0(k)\le n$ estimates. Narrow refinements use the bounded walks described
 above. Routing queries, propagating bounds, and testing reachability take
 polynomial time in the stored state. Directed-path lengths are computed
-in reverse topological order; if $H>n$, no path can require repair.
+in reverse topological order; if $H>n$, no path can require refinement.
 All tie rules can be implemented by scanning labels in order. Thus each
 comparison is answered within one fixed polynomial number of bit
 operations, independent of the chosen parameter and of the length of
@@ -94,7 +97,7 @@ Initialization and every comparison call are deterministic and take
 polynomial time. For all sufficiently large $n$, a parameter tuple
 qualifies. Theorem~\ref{thm:fixed-stage} gives legality and forces
 \[
-q\ge\frac{n\log n-3n}{1+(2\log k(n)+18)/k(n)}
+q\ge\frac{n\log n-3n}{1+(2\log k(n)+17)/k(n)}
 =(1-o(1))n\log n,
 \]
 since $k(n)\to\infty$. The fixed-order rule for the remaining input sizes

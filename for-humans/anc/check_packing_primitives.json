@@ -1,11 +1,11 @@
 {
   "status": "passed",
-  "scope": "Small exact diagnostics of endpoint-interleaving volume, midpoint search with pointwise CDF error, and narrow-position rounding. Not a formal verification of locality or the asymptotic adversary, and not a simulation of all adversary trajectories.",
+  "scope": "Small exact diagnostics of endpoint-interleaving volume, complete local certainty, raw-bound refinement sections and their effective endpoints, midpoint search with pointwise CDF error, and narrow-position rounding. Not a proof of these properties for all states, a formal verification of locality or the asymptotic adversary, or a simulation of all adversary trajectories.",
   "arithmetic": "Python integers and fractions.Fraction only",
   "seed": 1108,
-  "volume_systems": 51,
+  "volume_systems": 54,
   "seeded_systems": 40,
-  "explicit_systems": 11,
+  "explicit_systems": 14,
   "volume_methods": [
     "coordinate permutations and ordered endpoint-gap assignments",
     "independent previous integer subset-polynomial recurrence"
@@ -13,9 +13,9 @@
   "positive_systems_by_size": {
     "0": 1,
     "1": 10,
-    "2": 10,
+    "2": 11,
     "3": 8,
-    "4": 8,
+    "4": 10,
     "5": 9
   },
   "zero_volume_systems_by_size": {
@@ -23,7 +23,7 @@
     "4": 2,
     "5": 1
   },
-  "midpoint_searches": 393,
+  "midpoint_searches": 423,
   "midpoint_noise_patterns": [
     "exact",
     "+1/32,-1/32 alternating",
@@ -33,7 +33,29 @@
   "empty_address_acceptances": 165,
   "maximum_midpoint_tests": 21,
   "minimum_observed_16_times_cell_width_times_density": "8",
-  "narrow_position_checks": 131,
+  "narrow_position_checks": 141,
+  "local_certainty_and_sections": {
+    "directed_path_orientation_checks": 160,
+    "effective_region_volume_checks": 48,
+    "incomparable_infeasible_orientations": 13,
+    "incomparable_orientation_checks": 210,
+    "independent_section_volume_checks": 423,
+    "opposite_orientation_partition_checks": 185,
+    "ordered_pair_checks": 370,
+    "raw_effective_section_volume_checks": 423,
+    "remaining_effective_interval_checks": 1110,
+    "touching_effective_endpoint_checks": 2
+  },
+  "section_anchor_fractions_of_effective_width": [
+    "1/4",
+    "1/2",
+    "3/4"
+  ],
+  "additional_explicit_cases": [
+    "touching_incomparable_intervals",
+    "remote_lower_endpoint",
+    "remote_upper_endpoint"
+  ],
   "all_passed": true,
   "systems": [
     {
@@ -106,6 +128,30 @@
       "vertices": 4,
       "edges": 1,
       "volume": "3/4096",
+      "passed": true
+    },
+    {
+      "name": "touching_incomparable_intervals",
+      "kind": "explicit",
+      "vertices": 2,
+      "edges": 0,
+      "volume": "1/4",
+      "passed": true
+    },
+    {
+      "name": "remote_lower_endpoint",
+      "kind": "explicit",
+      "vertices": 4,
+      "edges": 2,
+      "volume": "1/768",
+      "passed": true
+    },
+    {
+      "name": "remote_upper_endpoint",
+      "kind": "explicit",
+      "vertices": 4,
+      "edges": 2,
+      "volume": "1/768",
       "passed": true
     },
     {

@@ -153,24 +153,15 @@ $(X_a,X_b,X_c)=(1/3,1/2,7/8)$ give
 p<q<a<b<r<s<c.
 \]
 Other feasible choices give other orders. Every order represented this way
-must respect all previous answers to the sorter. These answers form the
-\emph{global transcript}, an output stream of answers to the sorter.
-We retain their order constraints in a \emph{global comparison DAG}
-on the original item labels. When a comparison starts with incomparable
-labels in this DAG, its answer $A<B$ adds the arc $A\to B$.
-An in-node DAG contains the comparisons
-between items currently stored at that node.
-Initially the global transcript is empty, and the global comparison DAG
-has all $n$ labels as vertices and no arcs.
+must respect all previous answers to the sorter. We call the sequence of
+these answers the \emph{transcript}.
 
 \subsection{Answering a comparison}\label{sec:comparison}
 
 Algorithm~\ref{alg:compare} shows the algorithm the adversary uses to answer
 a comparison by the sorter.
 
-To compare $A$ and $B$, first return any answer already implied by a
-directed path in the global comparison DAG. Otherwise, start at the root
-and descend into a child whenever
+To compare $A$ and $B$, start at the root and descend into a child whenever
 its subtree contains both items. Stop when at least one item is stored at
 the current node, or when the items lie in different child subtrees.
 At this node, use an item's free coordinate if it is stored here, and the
@@ -180,37 +171,26 @@ the left child; comparing $p$ with $r$ uses the anchors $1/4$ and $3/4$;
 and comparing $a$ with $p$ compares $X_a$ with $1/4$ at the root.
 
 Two distinct anchors determine the answer immediately. In the other cases,
-first propagate the interval bounds through the in-node DAG. If there is an arc
-$y\to x$, every lower bound on $X_y$ is also a lower bound on $X_x$; upper bounds propagate
-in the reverse direction. Write $y\preceq x$ when $y=x$ or a directed path
-leads from $y$ to $x$. The resulting \emph{effective interval} is
+compute the bounds implied by the in-node DAG. If there is an arc
+$y\to x$, every lower bound on $X_y$ is also a lower bound on $X_x$;
+upper bounds propagate in the reverse direction. Write $y\preceq x$ when
+$y=x$ or a directed path leads from $y$ to $x$. The resulting
+\emph{effective interval} is
 \begin{equation}\label{eq:effective}
 \ell_x=\max_{y\preceq x}a_y,\qquad
 r_x=\min_{y\succeq x}b_y,\qquad W_x=r_x-\ell_x.
 \end{equation}
-The operation \texttt{Tighten} (Algorithm~\ref{alg:tighten}) stores these
-bounds as $a_x,b_x$. It propagates lower bounds in topological order and
-upper bounds in reverse topological order. It is performed after every
-change to its in-node DAG or intervals. Bounds remain stored even if the
-arcs that implied them are later removed.
+These endpoints can be computed in two passes through the in-node DAG:
+lower endpoints in topological order, then upper endpoints in reverse
+order. We compute them when needed, keeping the record's bounds $a_x,b_x$
+as introduced by answers and refinements.
 
-\begin{algorithm}[H]
-\caption{\texttt{Tighten}$(v)$: propagate interval bounds through an in-node DAG.}
-\label{alg:tighten}
-\DontPrintSemicolon
-\KwIn{A tree node $v$, its in-node DAG, and the stored interval bounds.}
-\KwOut{The stored bounds $a_x=\ell_x$ and $b_x=r_x$ of \eqref{eq:effective} for every item $x$ at $v$.}
-$T\gets$ a topological order of the in-node DAG at $v$, choosing by item label whenever several vertices are eligible\;
-\ForEach{$x$ in $T$}{
-  $a_x\gets\max\bigl(\{a_x\}\cup\{a_y:y\to x\}\bigr)$\;
-}
-\ForEach{$x$ in reverse order of $T$}{
-  $b_x\gets\min\bigl(\{b_x\}\cup\{b_y:x\to y\}\bigr)$\;
-}
-\end{algorithm}
-
-An interval bound or a directed path may already decide the comparison;
-in that case return the determined answer.
+For a free coordinate $X_x$ and an anchor $c$, the answer is determined
+if $c\le\ell_x$ or $c\ge r_x$. For two free coordinates, a directed path
+between them determines their order; so do effective intervals that are
+disjoint or meet only at an endpoint. Return this answer immediately.
+Lemma~\ref{lem:certainty} proves that these tests detect every comparison
+fixed by the represented orders, including every previously answered pair.
 
 For an undecided comparison, let $p$ be the probability that $A$ precedes
 $B$ when positions at this node are assigned uniformly subject to its
@@ -221,32 +201,30 @@ Choose $A<B$ if $\widehat p\ge1/2$, and $B<A$ otherwise. For two free
 items, the event being estimated is $X_A<X_B$. For a free item $x$ and an
 anchor $c$, estimate $X_x<c$, taking the complement if the queried order
 is reversed. An answer between two free items adds an arc to the in-node DAG;
-an answer involving an anchor adds an interval bound. Repeated comparisons
-never add duplicate arcs.
+an answer involving an anchor adds an interval bound.
 
-The estimator also requires a lower bound on the width of at least one
-queried free coordinate. Write this threshold as $1/R$, with rational
-$R\ge1$. Call a coordinate
-\emph{wide} when $W_x\ge1/R$, and \emph{narrow}
-otherwise. If all queried free coordinates are narrow, move one of their
-items into a child before trying the query again. Such a move is called a
-\emph{refinement}, denoted \texttt{Refine}$(x)$; Section~\ref{sec:overview-refine}
-gives the operation in Algorithm~\ref{alg:refine}.
+Before using the estimator, we ensure that every queried free coordinate
+has effective width at least $1/R$, where $R\ge1$ is a fixed rational
+threshold. Call such a coordinate \emph{wide}, and a narrower one
+\emph{narrow}. A narrow queried item is moved into a child, and the query
+is routed again. This move is called a \emph{refinement}, denoted
+\texttt{Refine}$(x)$; Algorithm~\ref{alg:refine} in
+Section~\ref{sec:overview-refine} gives the operation.
 
-The calculation also needs bounds on the in-node DAG. Fix positive
-integers $k$ and $H$. We limit each
-vertex to fewer than $k$ neighbors, counting both incoming and outgoing
-arcs, and each directed path to fewer than $H$ vertices. After answering,
-refine vertices with at least $k$ neighbors until none remain. Then select
-a path of $H$ vertices and refine all of them, repeating until no such
-path remains. The procedure \texttt{Repair}$(v)$ performs these
-\emph{repairs} at node $v$; see Algorithm~\ref{alg:repair}. A path repair
-includes the entire selected list, even if earlier moves break the path.
+We also control the in-node DAGs using integers $k,H\ge2$.
+Throughout the interaction, each vertex has at most $k$ neighbors,
+counting both incoming and outgoing arcs, and each directed path has
+fewer than $2H$ vertices. Before estimating an undecided comparison, we first
+remove any path of $H$ vertices by refining its entire list of items.
+If a queried free item has degree $k$, we refine that item too.
+Each of these steps restarts the query. When the estimator is reached,
+the queried vertices have degree below $k$ and the current node has no
+$H$-vertex path. Adding one arc therefore preserves the bounds needed
+throughout the interaction: degrees rise by at most one, and a new path
+joins two old paths.
 
-\Needspace{11\baselineskip}
 The following lemma supplies the accuracy needed by the comparison rule
-and the anchor search. Its degree and path bounds also cover intermediate
-states during a repair. Section~\ref{sec:oracle} gives the estimator and
+and the anchor search. Section~\ref{sec:oracle} gives the estimator and
 proves the lemma.
 
 \begin{lemma}[Probability estimation]\label{lem:estimation}
@@ -266,70 +244,53 @@ Under the uniform distribution on these assignments,
 \DontPrintSemicolon
 \KwIn{Distinct item labels $A,B$ and the current adversary state.}
 \KwOut{An answer $A<B$ or $B<A$, with the state updated.}
-\If{a directed path in the global comparison DAG determines the answer}{
-  $\mathit{answer}\gets$ the determined answer\;
-  Append $\mathit{answer}$ to the output transcript\;
-  \Return $\mathit{answer}$\;
-}
 \While{true}{
   $v\gets$ the root\;
   \While{$A$ and $B$ lie in the same child subtree of $v$}{
     $v\gets$ that child\;
   }
   \If{$A$ and $B$ lie in different child subtrees of $v$}{
-    $\mathit{answer}\gets$ the left-to-right order of their child anchors\;
-    Append $\mathit{answer}$ to the output transcript\;
-    Insert its arc into the global comparison DAG\;
-    \Return $\mathit{answer}$\;
+    \Return the left-to-right order of their child anchors\;
   }
-  \texttt{Tighten}$(v)$\;
-  \If{interval bounds or a directed path in the in-node DAG at $v$ determine the answer}{
-    $\mathit{answer}\gets$ the determined answer\;
-    Append $\mathit{answer}$ to the output transcript\;
-    Insert its arc into the global comparison DAG\;
-    \Return $\mathit{answer}$\;
+  Compute effective intervals at $v$ using \eqref{eq:effective}\;
+  \If{effective intervals or a directed path in the in-node DAG at $v$ determine the answer}{
+    \Return the determined answer\;
   }
-  \If{at least one queried free coordinate is wide}{\textbf{break}\;}
-  \texttt{Refine}(the selected queried free item)\;
+  \If{the in-node DAG at $v$ has a directed path on $H$ vertices}{
+    $L\gets$ the list of labels on the selected path\;
+    \ForEach{$x\in L$ in label order}{\texttt{Refine}$(x)$\;}
+    \textbf{continue}\;
+  }
+  \If{a queried free item has degree $k$ in the in-node DAG at $v$}{
+    \texttt{Refine}(the selected such item)\;
+    \textbf{continue}\;
+  }
+  \If{a queried free coordinate is narrow}{
+    \texttt{Refine}(the selected such item)\;
+    \textbf{continue}\;
+  }
+  $\widehat p\gets$ \texttt{Estimate}$(v,A<B,\eta)$\;
+  $\mathit{answer}\gets A<B$ if $\widehat p\ge1/2$, and $B<A$ otherwise\;
+  Store $\mathit{answer}$ as an arc in the in-node DAG at $v$ or as an interval bound\;
+  \Return $\mathit{answer}$\;
 }
-$\widehat p\gets$ \texttt{Estimate}$(v,A<B,\eta)$\;
-$\mathit{answer}\gets A<B$ if $\widehat p\ge1/2$, and $B<A$ otherwise\;
-Append $\mathit{answer}$ to the output transcript\;
-Insert its arc into the global comparison DAG\;
-Store $\mathit{answer}$ as an arc in the in-node DAG at $v$ or as an interval bound\;
-\texttt{Tighten}$(v)$\;
-\texttt{Repair}$(v)$\;
-\Return $\mathit{answer}$\;
 \end{algorithm}
 
-Refining a queried item restarts the search from the root because the node
-that handles the query may change. Both \texttt{Compare} and \texttt{Repair}
-choose the smallest label among eligible items. \texttt{Repair} selects
-the lexicographically first eligible path and processes its items in label
-order. These rules make every selection deterministic.
+Every restart refines at least one item. Its new coordinate in the child
+is isolated and has interval $(0,1)$. Further refinements cannot give
+that coordinate an incident arc or narrow its interval, so it cannot
+need refinement again during this call. Thus a call makes at most $n$
+refinements; Section~\ref{sec:repairs} gives the full proof.
 
-\begin{algorithm}[H]
-\caption{\texttt{Repair}$(v)$: restore the degree and path-length bounds.}
-\label{alg:repair}
-\DontPrintSemicolon
-\KwIn{A tree node $v$ and the current adversary state.}
-\KwOut{The updated state, with degree below $k$ and paths of fewer than
-$H$ vertices in the in-node DAG at $v$.}
-\While{the in-node DAG at $v$ has a vertex of degree at least $k$}{
-  \texttt{Refine}(such a vertex)\;
-}
-\While{the in-node DAG at $v$ has a directed path on $H$ vertices}{
-  $P\gets$ the selected path\;
-  \ForEach{$x\in P$ in label order}{\texttt{Refine}$(x)$\;}
-}
-\end{algorithm}
+For deterministic selection, choose the smallest eligible item label and
+the lexicographically first eligible directed path. Complete each selected
+path's list even if earlier refinements break the path.
 
 \subsection{Moving an item into a child}\label{sec:overview-refine}
 
 Algorithm~\ref{alg:refine} gives \texttt{Refine}$(x)$, which moves $x$
-from its current node into a child. After tightening the parent's interval
-bounds, it calls \texttt{ChooseAnchor} to select a position $c$ inside
-$x$'s effective interval.
+from its current node into a child. It computes $x$'s effective interval
+and calls \texttt{ChooseAnchor} to select a position $c$ inside it.
 
 We select anchor positions using a fixed infinite binary tree, the
 \emph{implicit anchor tree}, shown in Figure~\ref{fig:anchor-tree}. The same
@@ -383,7 +344,7 @@ the walks that select an anchor inside the effective interval.
 Fixing $X_x=c$ places $x$ in the child block anchored at $c$.
 The arcs incident to $x$ in that in-node DAG become interval bounds: $y\to x$ gives $X_y<c$,
 and $x\to z$ gives $X_z>c$. Remove $x$ and these arcs from the parent,
-retain the bounds, and propagate them through the remaining in-node DAG.
+and retain the new bounds on its neighbors.
 Insert $x$ into the child anchored at $c$, creating it if needed. In that
 child, $x$ receives a fresh position variable with interval $(0,1)$ and no incident arcs; the
 child's existing constraints remain unchanged.
@@ -396,7 +357,7 @@ Figure~\ref{fig:overview-refine} illustrates reuse of an existing child.
 \KwIn{A free item $x$ and the current adversary state.}
 \KwOut{The updated state, with $x$ stored in a child of its former node.}
 $v\gets$ the node storing $x$\;
-\texttt{Tighten}$(v)$\;
+Compute $x$'s effective interval using \eqref{eq:effective}\;
 $c\gets$ \texttt{ChooseAnchor}$(x)$\;
 \ForEach{arc $y\to x$ in the in-node DAG at $v$}{
   $b_y\gets\min(b_y,c)$\;
@@ -405,14 +366,12 @@ $c\gets$ \texttt{ChooseAnchor}$(x)$\;
   $a_z\gets\max(a_z,c)$\;
 }
 Remove $x$'s record from $v$ and its vertex and incident arcs from the in-node DAG at $v$\;
-\texttt{Tighten}$(v)$\;
 \If{$v$ has no child anchored at $c$}{
   Create a child of $v$ at $c$, with no records and an empty in-node DAG\;
 }
 $u\gets$ the child of $v$ anchored at $c$\;
 Insert a record $(x,X_x,0,1)$ at $u$, with a fresh, unassigned position variable $X_x$\;
 Insert $x$ as an isolated vertex in the in-node DAG at $u$\;
-\texttt{Tighten}$(u)$\;
 \end{algorithm}
 
 \begin{center}
@@ -472,6 +431,6 @@ shows that we can afford this loss of possible orders while retaining the
 optimal asymptotic comparison bound.
 
 Table~\ref{tab:parameters} collects the thresholds used by
-Algorithms~\ref{alg:compare}, \ref{alg:repair}, and~\ref{alg:refine} above.
+Algorithms~\ref{alg:compare} and~\ref{alg:refine} above.
 In the next section, we explain why the adversary forces any correct
 sorter to perform many comparisons.

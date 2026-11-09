@@ -6,7 +6,8 @@ The current manuscript presents the unit-interval adversary with exact
 probability calculations on bounded neighborhoods. Section 1 introduces the
 derandomization problem, and Section 2 reviews the earlier adversaries.
 Section 3 gives the data structure and comparison procedure, including the
-implicit binary anchor tree and the global-DAG check for an implied answer.
+implicit binary anchor tree and a single preparation loop. Local anchor,
+interval, and directed-path tests recognize every determined answer.
 
 Section 4 proves the comparison bound by counting refinements and summing
 their anchor depths. A probability argument relates the final state to the
@@ -19,10 +20,14 @@ parameters.
 
 This revision follows the mathematical simplifications in
 [Simplify Paper Arguments](https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af20322-5238-83eb-8c1a-60fbea8e1d71).
-The abstract, disclosure, and related work are unchanged. The introduction's
-roadmap and the global-DAG check are the necessary updates to Sections 1–3.
+This iteration removes the global comparison DAG, the separate repair
+procedure, and persistent propagation of bounds. The abstract, disclosure,
+and Sections 1–2 are unchanged; Section 3 receives the necessary changes
+to the comparison and refinement rules. The density proof uses contractions
+of convex sections, and the locality proof counts contracting steps along
+possible sequences of updates.
 The exact comparison bound is now
-`(n log₂ n − 3n) / (1 + (2 log₂ k + 18)/k)` for powers of two `k ≥ 64`.
+`(n log₂ n − 3n) / (1 + (2 log₂ k + 17)/k)` for powers of two `k ≥ 64`.
 
 - [Current paper](output/pdf/paper.pdf)
 - `paper.tex`: title, approved abstract, methodological disclosure, and section inputs
@@ -46,8 +51,11 @@ Lean files, and the precompiled PDF.
 
 The current exact-rational diagnostics check the two accounting inequalities
 and their comparison coefficient, and compare two independent volume
-calculations on 51 systems. The geometric checks also cover 393 anchor
-searches and 131 narrow-coordinate choices. These are finite diagnostics;
+calculations on 54 systems. The geometric checks also cover 423 anchor
+searches and 141 narrow-coordinate choices. New exact checks cover 370
+ordered-pair certainty tests, 423 section calculations with raw and effective
+bounds, and 1,110 effective intervals after coordinate removal. These are
+finite diagnostics;
 the general density, locality, and comparison arguments are proved in the
 manuscript. The earlier finite-averaging script and its recorded results
 remain in `anc/` as historical material, outside the current check target

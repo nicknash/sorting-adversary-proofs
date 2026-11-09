@@ -20,21 +20,22 @@ The state may discard some orders that still respect the answers. Legality
 requires only that at least one remains. Positive volume in every node
 will ensure this.
 
-The global comparison DAG records every answered relation. The invariant
-must continue to hold when refinement removes an arc from an in-node DAG.
+The invariant must continue to hold when refinement removes an arc from
+an in-node DAG.
 
 \begin{lemma}[Effective intervals and sections]\label{lem:interior}
-For an in-node DAG, tightening leaves the feasible region unchanged.
+Replacing interval bounds by their effective endpoints leaves the
+feasible region unchanged.
 The region has positive volume if and only if every effective width is
-positive. Moreover, fixing $X_x=c$ at any $c\in(\ell_x,r_x)$ leaves a
+positive. When these widths are positive, fixing $X_x=c$ at any
+$c\in(\ell_x,r_x)$ leaves a
 positive-volume section in the remaining coordinates.
 \end{lemma}
 \begin{proof}
 If $y\ne x$ precedes $x$ on a directed path, every feasible assignment
 satisfies $X_x>X_y>a_y$; the stored bound $X_x>a_x$ covers $y=x$.
 Taking the maximum over these bounds gives $X_x>\ell_x$. The upper-bound argument is the reverse. Thus all bounds
-introduced by \eqref{eq:effective} already hold, so tightening changes no
-feasible assignment.
+given by \eqref{eq:effective} already hold.
 
 Positive volume requires positive widths. Conversely, suppose all widths
 are positive. Along an arc $x\to y$, the definitions give
@@ -52,8 +53,10 @@ sufficiently small open neighborhood of this assignment is feasible.
 Now fix $X_x=c$ and delete its coordinate. The inequalities imposed by
 its incident arcs become upper bounds $c$ at its in-neighbors and lower
 bounds $c$ at its out-neighbors. Upper bounds propagate only backward
-along arcs, and lower bounds only forward. Since all previous effective bounds remain
-stored, the new effective intervals are therefore
+along arcs, and lower bounds only forward. Any lower bound that previously
+reached a successor through $x$ is superseded by $c>\ell_x$; any upper
+bound that reached a predecessor through $x$ is superseded by $c<r_x$.
+Thus the new effective intervals are
 \[
 \begin{cases}
 (\ell_y,\min(r_y,c)),&y\text{ precedes }x,\\
@@ -68,10 +71,44 @@ $c<r_x\le r_y$. All other widths stay positive. The criterion just proved,
 applied to the remaining in-node DAG, shows that the section has positive volume.
 \end{proof}
 
+\begin{lemma}[Recognizing determined comparisons]\label{lem:certainty}
+Suppose every node region has positive volume. At the node reached by
+routing a query, the anchor, effective-interval,
+and directed-path tests in Algorithm~\ref{alg:compare} detect every
+comparison that holds in all represented orders.
+\end{lemma}
+\begin{proof}
+Distinct child anchors determine their subtrees' order. A free coordinate
+$X_x$ ranges over its entire effective interval by Lemma~\ref{lem:interior}.
+It can therefore lie on either side of an anchor $c$ exactly when
+$\ell_x<c<r_x$.
+
+Consider two free items $x,y$. A directed path fixes their order.
+If they are incomparable in the in-node DAG, we claim that
+\begin{equation}\label{eq:comparison-feasible}
+X_x<X_y\text{ is feasible}\quad\Longleftrightarrow\quad\ell_x<r_y.
+\end{equation}
+Necessity follows from $\ell_x<X_x<X_y<r_y$. For sufficiency,
+add the arc $x\to y$. This preserves acyclicity. It caps the effective
+upper endpoints of $x$ and its predecessors by $r_y$, and raises the
+effective lower endpoints of $y$ and its successors to $\ell_x$.
+These sets are disjoint, since a common vertex would give a path from
+$y$ to $x$. Every affected predecessor has lower endpoint at most
+$\ell_x<r_y$, and every affected successor has upper endpoint at least
+$r_y>\ell_x$. All effective widths remain positive, so
+Lemma~\ref{lem:interior} gives a feasible assignment with $X_x<X_y$.
+
+Applying \eqref{eq:comparison-feasible} in both directions shows that
+both answers are possible precisely when the effective intervals overlap.
+Each feasible local choice extends to a represented total order by choosing
+feasible assignments in the other nodes and avoiding ties. Hence an
+undecided local test always leaves both orders possible.
+\end{proof}
+
 \begin{lemma}[Refinement and child admission]\label{lem:admission}
 Suppose the node regions have positive volume and the order invariant holds.
 Refining $x$ at an interior anchor $c$ preserves both properties, including
-when the child at $c$ already exists. The global transcript implies no
+when the child at $c$ already exists. The transcript implies no
 relation between $x$ and any label already in that child subtree.
 \end{lemma}
 \begin{proof}
@@ -88,7 +125,7 @@ while keeping the old state feasible. The resulting two represented orders
 place $x$ immediately before or immediately after the entire block $S$.
 Both orders respect the transcript. For each $y\in S$, one has $x<y$ and
 the other has $y<x$; neither relation can therefore be implied by the
-global comparison DAG.
+transcript.
 
 Now take any order represented after the refinement. Deleting $x$ from the
 child leaves an assignment of its old coordinates and hence an old child
@@ -243,13 +280,13 @@ shrinks. For any $a\le c\le b$,
 \end{equation}
 If both tails at $c$ and the mass of $[a,b]$ are bounded below, this
 forces the density at $c$ to be a constant times $1/(b-a)$.
-Appendix~\ref{app:geometry} proves \eqref{eq:density-summary} and
-\eqref{eq:mass-summary} by explicit maps between sections.
+Appendix~\ref{app:geometry} proves \eqref{eq:density-summary} by contracting convex
+sections, and derives \eqref{eq:mass-summary} from log-concavity.
 
 \subsubsection{The search for a wide item}
 
 Every test uses the same feasible region $K$ and distribution $F_x$.
-Each test calls \texttt{Estimate} for $X_x<c$ with the same tightened
+Each test calls \texttt{Estimate} for $X_x<c$ with the same effective
 endpoints. Only the queried threshold changes.
 
 \begin{lemma}[Wide-item search]\label{lem:median-search}
@@ -336,97 +373,60 @@ wide-item search.
 
 \subsection{Bounds during a comparison call}\label{sec:repairs}
 
-We next check how the in-node DAGs evolve. The first two lemmas bound
-the changes during a call. We then combine them with
-Lemmas~\ref{lem:estimation} and~\ref{lem:anchor-density} to prove that
-every call preserves feasibility and consistency with the answered
-comparisons.
-
-\begin{lemma}[Query preparation]\label{lem:preparation}
-Before selecting its answer, \textnormal{\textsc{Compare}} performs at most
-two refinements. Each selected coordinate is narrow, and preparation
-preserves the in-node DAG bounds.
-\end{lemma}
-\begin{proof}
-A preparation refines one of the two original queried items. Its new
-coordinate is isolated and has interval $(0,1)$. Before an answer is stored,
-any further preparation only removes a parent coordinate and adds an
-isolated coordinate in a child. It cannot restrict this fresh coordinate.
-If the query descends into that child, the prepared item is therefore still
-wide. Each queried item can require preparation at most once. The selection
-test ensures narrowness. Deleting vertices and admitting isolated vertices
-preserve the degree and path-length bounds.
-\end{proof}
+The preparation loop in Algorithm~\ref{alg:compare} simplifies the current
+node before an answer is selected. We check that the in-node DAG bounds
+hold throughout the call, and that the loop makes only finitely many
+moves.
 
 \begin{lemma}[In-node DAG bounds and termination]\label{lem:restoration}
-Suppose every in-node DAG has degree less than $k$ and directed paths
-of fewer than $H$ vertices at the start of a call. If its selected answer leaves positive volume,
-then every in-node DAG has degree at most $k$ and directed paths of at most
-$2H$ vertices throughout the call. At its end, every in-node DAG again satisfies the strict bounds.
-\textnormal{\texttt{Repair}} performs at most $n$ refinements, all at the
-node changed by the answer.
+Suppose every in-node DAG has degree at most $k$ and directed paths
+of fewer than $2H$ vertices at the start of a call. These bounds hold
+throughout the call. Each label is refined at most once, so the call
+makes at most $n$ refinements.
 \end{lemma}
 \begin{proof}
-Preparation preserves the strict bounds by Lemma~\ref{lem:preparation}.
-The answer adds at most one arc to the affected in-node DAG, raising
-any degree there by at most one.
-Any new directed path consists of two old paths joined by that arc, so
-it has fewer than $2H$ vertices. A positive-volume answer cannot create a
-directed cycle. An interval change adds no in-node arcs.
+A refinement deletes a vertex and its incident arcs from its parent
+and adds an isolated vertex to a child. It cannot increase any degree
+or extend any directed path. Immediately before a new answer is selected,
+the current in-node DAG has no path on $H$ vertices and the queried free
+vertices have degree below $k$. Adding their comparison arc leaves degree
+at most $k$. Any new directed path consists of two old paths joined by
+this arc, so it has fewer than $2H$ vertices. The certainty tests have
+already excluded a directed path in either direction between the queried
+items, so the new arc cannot create a cycle. An answer involving an anchor
+adds only an interval bound.
 
-Every refinement removes a vertex and its incident arcs from the parent.
-Thus degrees and path lengths cannot increase during restoration. The first
-loop of Algorithm~\ref{alg:repair} removes every degree violation. The second loop removes every path
-violation without increasing degrees. All selected path vertices are
-processed, even if earlier refinements have broken the original path.
-Each refinement removes a different free item from this node, so there
-are at most $n$. A child receives an isolated coordinate and keeps all
-its old arcs. Its degree and path-length bounds are preserved as well, so no
-child requires restoration.
+Once a label is refined, it has an isolated coordinate with interval
+$(0,1)$ in its child. Until the final answer, every subsequent state change
+is another refinement. These moves affect interval bounds only at
+neighbors of the vertex being removed, so they cannot narrow this isolated
+coordinate or give it an incident arc. It cannot lie on a selected path,
+have degree $k$, or be narrow. Thus it cannot be selected again, even
+if the query is rerouted to its new node. Every restart refines at least
+one label, giving the bound of $n$ refinements.
 \end{proof}
 
-Consequently a complete call makes at most $n+2$ refinements. During the
-call, every coordinate has at most $B$ other comparable
-coordinates in its in-node DAG: all lie within undirected distance $2H$
-in an in-node DAG of degree at most $k$. These are the bounds used by the local
-estimator and the anchor rules.
-
 \begin{proof}[Proof of Proposition~\ref{prop:legality}]
-We induct on comparison calls and, within a call, on refinements. Initially
-the root region is the unit cube, every order is represented, and its
-in-node DAG has no arcs. Suppose the claims hold at the start of a call.
+Initially every node region has positive volume, every order is represented,
+and the in-node DAG bounds hold. We induct over the changes made by a
+comparison call. The bounds follow from Lemma~\ref{lem:restoration}.
+At a refinement, Lemma~\ref{lem:anchor-density} supplies an interior
+anchor, and Lemma~\ref{lem:admission} preserves positive volume and the
+order invariant. This applies to every item of a selected path, including
+those whose incident arcs have already been removed by earlier moves.
 
-If the global comparison DAG already determines the answer, returning it
-preserves the represented orders and leaves the stored state unchanged.
-Otherwise the call proceeds with the recursive state.
+If the local tests determine the answer, it holds in every represented
+order. Otherwise, the preparation loop ends with wide queried free
+coordinates. Lemma~\ref{lem:estimation} applies to the current positive
+region; the selected answer retains at least $1/2-\eta>0$ of its volume.
+Recording its arc or interval bound makes that answer true in every
+represented order and preserves every earlier constraint. This completes
+the induction.
 
-Preparation refines only narrow coordinates. Lemma~\ref{lem:anchor-density}
-supplies an interior position, so Lemma~\ref{lem:admission} preserves
-positivity and the order invariant. Lemma~\ref{lem:preparation} shows that
-preparation terminates with the width needed for a probability query,
-unless anchors, interval bounds, or a directed path already decide it.
-
-Lemma~\ref{lem:estimation} now applies to the positive queried region
-with the strict in-node DAG bounds. Its chosen answer retains at
-least $1/2-\eta>0$ of the volume and makes that comparison true in every
-represented order. In particular, a new arc cannot create a directed
-cycle. An answer determined by anchors, interval bounds, or a directed path
-was already true in every represented order and leaves the represented
-orders unchanged.
-The selected answer is recorded in the global comparison DAG before
-calling \texttt{Repair}.
-
-Lemma~\ref{lem:restoration} gives degree at most $k$ and directed paths
-of at most $2H$ vertices during restoration. At each refinement these bounds and positivity
-allow Lemma~\ref{lem:anchor-density} to be used.
-The chosen anchor is interior, and Lemma~\ref{lem:admission} preserves the
-invariant and positivity for the next step. Restoration terminates with
-the strict bounds. This completes the induction.
-Lemmas~\ref{lem:estimation} and~\ref{lem:anchor-density} ensure that every
-probability estimate and anchor selection terminates. The preparation and
-restoration lemmas bound the number of refinements in a call by $n+2$, so
-the call terminates as well. The anchor estimates used at each step
-apply to arbitrary positive-volume node regions with the stated in-node DAG
-bounds. The proof of Lemma~\ref{lem:estimation} in Section~\ref{sec:oracle}
-applies to all such regions independently of the adversary's history.
+The probability estimator and anchor search terminate by
+Lemmas~\ref{lem:estimation} and~\ref{lem:anchor-density}. Together with
+Lemma~\ref{lem:restoration}, this proves termination of the full call.
+These analytic lemmas apply to arbitrary positive-volume regions with
+the stated in-node DAG bounds; their proofs are independent of the
+adversary's history.
 \end{proof}
