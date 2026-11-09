@@ -369,3 +369,12 @@ warnings or unresolved references; the affected pages were visually
 checked. The PDF has 35 pages and all 18 archive members match saved files.
 The abstract, disclosure, introduction, related work, algorithm, parameter
 values, and comparison bound are unchanged.
+
+
+Estimation lemma trim -- 9 November 2026
+--------------------------------------
+Removed the redundant final sentence about termination and unchanged state
+from Lemma 3.1. Deterministic computation is already stated; the temporary
+storage and finite calculation remain explicit in Section 6. Both compilers
+pass without final repository warnings. The PDF and source bundle were
+rebuilt, and archive members match the saved files.
