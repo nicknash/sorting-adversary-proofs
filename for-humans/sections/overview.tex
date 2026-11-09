@@ -36,9 +36,11 @@ We call an item \emph{free} at its node while its position remains variable.
 
 In an in-node DAG, an arc $x\to y$ records a comparison answered $x<y$
 between two items stored there, imposing $X_x<X_y$ on their positions.
-A feasible assignment of positions at that node satisfies both its
-interval bounds and its arc inequalities. Each answered comparison
-between free items contributes at most one arc.
+Each answered comparison between free items contributes at most one arc.
+
+A \emph{feasible assignment} at a node is a choice of real values for its
+position variables satisfying $a_x<X_x<b_x$ for every item $x$ and
+$X_x<X_y$ for every arc $x\to y$ in its in-node DAG.
 
 Initially the tree consists of just the root, containing all records
 with bounds $a_x=0$ and $b_x=1$. The position variables $X_x$ are
@@ -228,12 +230,12 @@ proves the lemma.
 \begin{lemma}[Probability estimation]\label{lem:estimation}
 Suppose a node admits a feasible assignment, and its in-node DAG has
 degree at most $k$ and directed paths of at most $2H$ vertices.
+Under the uniform distribution on these assignments,
 \textnormal{\texttt{Estimate}} deterministically computes, with error at most $\eta$:
 \begin{enumerate}[label=(\roman*)]
 \item $\Prb(X_x<c)$, when $x$ is wide and $c$ is dyadic;
 \item $\Prb(X_x<X_y)$, when at least one of $x,y$ is wide.
 \end{enumerate}
-Probabilities use the uniform distribution on feasible assignments.
 \end{lemma}
 
 \begin{algorithm}[H]

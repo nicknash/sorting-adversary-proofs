@@ -378,3 +378,13 @@ from Lemma 3.1. Deterministic computation is already stated; the temporary
 storage and finite calculation remain explicit in Section 6. Both compilers
 pass without final repository warnings. The PDF and source bundle were
 rebuilt, and archive members match the saved files.
+
+
+Feasible assignments -- 9 November 2026
+-------------------------------------
+Defined a feasible assignment explicitly in Section 3.1 as real values for
+a node's position variables satisfying every interval bound and in-node
+arc inequality. Lemma 3.1 now incorporates the uniform-distribution clause
+into its setup, replacing the detached final sentence. Both compilers pass
+without final repository warnings; the PDF and source bundle were rebuilt
+and archive members match the saved files.
