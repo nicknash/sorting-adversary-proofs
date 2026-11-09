@@ -84,7 +84,7 @@ Related work and overview revision -- 9 November 2026
 Section 2 now reviews the binary-tree adversaries and the four-child interval
 lattice of Kaplan, Zamir, and Zwick. The KZZ description, retained-pair
 restrictions, example transition, and open question were checked against the
-local primary paper A Sort of an Adversary, Sections 5--6 and Table 4. The
+local primary paper A Sort of an Adversary, Sections 5--6 and Tables 4 and 11. The
 binary-tree examples were checked against Brodal et al.'s rules.
 
 Section 3 is a brief illustrated overview of the state, refinement, comparison

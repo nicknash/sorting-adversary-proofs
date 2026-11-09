@@ -131,13 +131,108 @@ representing two children store only unpaired items. Comparing two
 unpaired items $A,B$ at a tree node can therefore record $A<B$ as a pair
 without moving either item.
 
-A comparison between two pairs illustrates the role of the lattice.
-Suppose $A<B$ and $C<D$ are retained at the same tree node. On comparing
-$A$ and $C$, one permitted response is $A<C$: move $A$ into child $0$,
-and move $B$ and the pair $C<D$ into $[1,3]$. The three remaining items
-have been placed after $A$, but their destinations among children $1,2,3$
-remain open. The local state still consists of one unpaired item and one
-pair~\cite[Table~4]{kzz}.
+A comparison between pairs in different nodes illustrates the role of the
+lattice. Suppose $A<B$ is retained at $[0,2]$ and $C<D$ at $[1,3]$.
+On comparing $A$ and $C$, one permitted response is $A<C$: move $A$ into
+child $0$ and $B$ into $[1,2]$, leaving the pair $C<D$ at $[1,3]$.
+Figure~\ref{fig:kzz-pairs} shows the change. The old answer $A<B$ is now
+represented by the items' positions, while $C<D$ remains a retained
+pair~\cite[Table~11]{kzz}.
+
+\begin{center}
+\begin{minipage}{\linewidth}
+\captionsetup{hypcap=false}
+\centering
+\begin{tikzpicture}[>=Latex,font=\small,
+  state/.style={draw=ink!35,rounded corners=2pt,fill=white,
+                minimum height=7mm,minimum width=12mm},
+  occupied/.style={state,draw=ink!70,fill=pale},
+  item/.style={circle,draw=ink,fill=white,minimum size=5mm,inner sep=1pt},
+  queried/.style={item,fill=accent!18,thick}]
+\begin{scope}[shift={(-3.6,0)}]
+\node at (0,.7) {Before comparing $A$ and $C$};
+\node[state] (l03) at (0,0) {$[0,3]$};
+\node[occupied,minimum width=23mm,minimum height=11mm] (l02) at (-1.35,-1.25) {};
+\node[font=\footnotesize] at (-1.35,-0.94) {$[0,2]$};
+\node[occupied,minimum width=23mm,minimum height=11mm] (l13) at (1.35,-1.25) {};
+\node[font=\footnotesize] at (1.35,-0.94) {$[1,3]$};
+\node[state] (l01) at (-2.7,-2.65) {$[0,1]$};
+\node[state,minimum height=11mm] (l12) at (0,-2.65) {};
+\node[font=\footnotesize] at (0,-2.34) {$[1,2]$};
+\node[state] (l23) at (2.7,-2.65) {$[2,3]$};
+\node[state,minimum width=11mm,minimum height=11mm] (l0) at (-2.85,-4) {};
+\node[font=\footnotesize] at (-2.85,-3.69) {$0$};
+\node[state,minimum width=11mm,minimum height=11mm] (l1) at (-0.95,-4) {};
+\node[font=\footnotesize] at (-0.95,-3.69) {$1$};
+\node[state,minimum width=11mm,minimum height=11mm] (l2) at (0.95,-4) {};
+\node[font=\footnotesize] at (0.95,-3.69) {$2$};
+\node[state,minimum width=11mm,minimum height=11mm] (l3) at (2.85,-4) {};
+\node[font=\footnotesize] at (2.85,-3.69) {$3$};
+\draw[ink!35] (l03)--(l02);
+\draw[ink!35] (l03)--(l13);
+\draw[ink!35] (l02)--(l01);
+\draw[ink!35] (l02)--(l12);
+\draw[ink!35] (l13)--(l12);
+\draw[ink!35] (l13)--(l23);
+\draw[ink!35] (l01)--(l0);
+\draw[ink!35] (l01)--(l1);
+\draw[ink!35] (l12)--(l1);
+\draw[ink!35] (l12)--(l2);
+\draw[ink!35] (l23)--(l2);
+\draw[ink!35] (l23)--(l3);
+\node[queried] (lA) at (-1.8,-1.44) {$A$};
+\node[item] (lB) at (-0.9,-1.44) {$B$};
+\node[queried] (lC) at (0.9,-1.44) {$C$};
+\node[item] (lD) at (1.8,-1.44) {$D$};
+\draw[->,thick,accent] (lA)--(lB);
+\draw[->,thick,accent] (lC)--(lD);
+\end{scope}
+\begin{scope}[shift={(3.6,0)}]
+\node at (0,.7) {After answering $A<C$};
+\node[state] (r03) at (0,0) {$[0,3]$};
+\node[state,minimum width=23mm,minimum height=11mm] (r02) at (-1.35,-1.25) {};
+\node[font=\footnotesize] at (-1.35,-0.94) {$[0,2]$};
+\node[occupied,minimum width=23mm,minimum height=11mm] (r13) at (1.35,-1.25) {};
+\node[font=\footnotesize] at (1.35,-0.94) {$[1,3]$};
+\node[state] (r01) at (-2.7,-2.65) {$[0,1]$};
+\node[occupied,minimum height=11mm] (r12) at (0,-2.65) {};
+\node[font=\footnotesize] at (0,-2.34) {$[1,2]$};
+\node[state] (r23) at (2.7,-2.65) {$[2,3]$};
+\node[occupied,minimum width=11mm,minimum height=11mm] (r0) at (-2.85,-4) {};
+\node[font=\footnotesize] at (-2.85,-3.69) {$0$};
+\node[state,minimum width=11mm,minimum height=11mm] (r1) at (-0.95,-4) {};
+\node[font=\footnotesize] at (-0.95,-3.69) {$1$};
+\node[state,minimum width=11mm,minimum height=11mm] (r2) at (0.95,-4) {};
+\node[font=\footnotesize] at (0.95,-3.69) {$2$};
+\node[state,minimum width=11mm,minimum height=11mm] (r3) at (2.85,-4) {};
+\node[font=\footnotesize] at (2.85,-3.69) {$3$};
+\draw[ink!35] (r03)--(r02);
+\draw[ink!35] (r03)--(r13);
+\draw[ink!35] (r02)--(r01);
+\draw[ink!35] (r02)--(r12);
+\draw[ink!35] (r13)--(r12);
+\draw[ink!35] (r13)--(r23);
+\draw[ink!35] (r01)--(r0);
+\draw[ink!35] (r01)--(r1);
+\draw[ink!35] (r12)--(r1);
+\draw[ink!35] (r12)--(r2);
+\draw[ink!35] (r23)--(r2);
+\draw[ink!35] (r23)--(r3);
+\node[item] (rA) at (-2.85,-4.17) {$A$};
+\node[item] (rB) at (0,-2.82) {$B$};
+\node[item] (rC) at (0.9,-1.44) {$C$};
+\node[item] (rD) at (1.8,-1.44) {$D$};
+\draw[->,thick,accent] (rC)--(rD);
+\end{scope}
+\end{tikzpicture}
+\captionof{figure}{A comparison between pairs at different nodes in the
+adversary of Kaplan, Zamir, and Zwick~\cite[Table~11]{kzz}. Shaded items
+are queried. Blue arcs are retained comparisons; gray lines are lattice
+edges. The new answer $A<C$ is represented by placement in disjoint child
+ranges, so it does not become an arc joining the two pairs.}
+\label{fig:kzz-pairs}
+\end{minipage}
+\end{center}
 
 A retained pair also restricts its members' possible destinations: they
 cannot enter the same child of the underlying four-child tree. For
