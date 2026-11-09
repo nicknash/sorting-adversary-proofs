@@ -423,3 +423,12 @@ points to its proof. The representation is introduced before these
 components; the polynomial implementation remains the closing step. Both
 compilers pass without final repository warnings. The affected pages were
 visually checked, and source archive members match the saved files.
+
+
+Appendices in the roadmap -- 9 November 2026
+------------------------------------------
+Moved the appendix references after the Section 7 summary and briefly
+described all four appendices: geometric estimates, finite averaging
+accuracy, arithmetic bounds, and parameter reference. Both compilers pass
+without final repository warnings; source archive members match the saved
+files.

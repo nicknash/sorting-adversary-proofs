@@ -133,14 +133,14 @@ fixed degree, path-length and interval-width bounds. Only bounded
 neighborhoods can influence the queried positions during these updates.
 After propagating interval bounds through the full graph, averaging
 finitely many update sequences within these neighborhoods gives a
-deterministic estimate (Section~\ref{sec:oracle} and Appendix~\ref{app:local}).
+deterministic estimate (Section~\ref{sec:oracle}).
 
 \emph{Choosing positions with large remaining volume.}
 Moving an item into a child fixes its position in the parent.
 A geometric inequality turns estimates of the probability on either
 side of a position into a lower bound on the volume left after fixing it.
 This supplies the guarantee needed by the position search
-(Section~\ref{sec:median-search} and Appendix~\ref{app:geometry}).
+(Section~\ref{sec:median-search}).
 
 \emph{Bounding the cost of graph simplification.}
 Section~\ref{sec:potential} combines node volumes, the order fixed by the
@@ -153,5 +153,10 @@ relates its final value to the single total order determined at termination
 Finally, Section~\ref{sec:runtime} lets the degree and
 path-length bounds grow slowly with $n$, keeping the computation polynomial
 as the comparison coefficient approaches one.
+
+Appendix~\ref{app:geometry} proves the geometric estimates, and
+Appendix~\ref{app:local} the accuracy of finite averaging.
+Appendix~\ref{app:table} bounds the arithmetic required, and
+Appendix~\ref{app:parameters} collects the parameters.
 The manuscript source is available
 online.\footnote{\url{https://github.com/nicknash/sorting-adversary-proofs/tree/main/for-humans}}
