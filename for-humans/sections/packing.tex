@@ -1,6 +1,18 @@
 \subsection{Why a long path requires deep anchors}\label{sec:path-resolutions}
 
-\begin{proof}[Proof of Lemma~\ref{lem:path-address}]
+A complete path batch moves labels that are already ordered relative to
+each other. They must enter different children, forcing many of their
+anchors to lie deep in the implicit anchor tree.
+
+\begin{lemma}[Sum of anchor depths along a path]\label{lem:path-address}
+The $H$ labels of a selected path in an in-node DAG enter distinct children
+of their parent in the adversary's tree. If their anchors have depths
+$m_1,\ldots,m_H$ in the implicit anchor tree, then
+\begin{equation}\label{eq:path-charge}
+\sum_{i=1}^H m_i\ge H(k-2).
+\end{equation}
+\end{lemma}
+\begin{proof}
 Every in-node arc on the selected path records an answered comparison.
 The transcript therefore implies an order between every pair of labels on
 the path. Those implications remain true after the in-node arcs are deleted. By

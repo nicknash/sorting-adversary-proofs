@@ -7,24 +7,30 @@ coordinate updates on bounded neighborhoods. Section 1 introduces the
 derandomization problem, and Section 2 reviews the earlier adversaries.
 Section 3 gives the recursive data structure and comparison procedure.
 
-Section 4 proves the comparison bound by charging each child choice against
-the volume gained during refinement. Section 5 proves legality and the
-unified anchor rule: choose the shortest binary fraction in a central
-interval, obtained from empirical quartiles or effective interval bounds.
-Section 6 gives the finite digit update, its exact preservation of the
-continuous uniform distribution, and the locality argument justifying the
-finite calculation. Section 7 obtains uniform polynomial time from the
-explicit enumeration budget `E_k = S_k^(b_k t_k) <= n`.
-Appendix A supplies the density bounds and the use of Prékopa's theorem;
-Appendix B collects the parameters.
+Section 4 proves the comparison bound from guarantees about volume changes,
+the cost of choosing children, and consistency. Section 5 proves those
+refinement guarantees. Its anchor rule chooses the shortest binary fraction
+in a central interval, obtained from empirical quartiles or effective
+interval bounds. A general fact about log-concave densities explains why
+approximate quartiles work: their density is comparable to the peak.
+Section 6 gives the finite digit update and a theorem approximating queried
+positions without a width assumption. Density bounds then yield comparison
+probabilities. Section 7 obtains uniform polynomial time from the explicit
+enumeration budget `E_k = S_k^(b_k t_k) <= n`.
+Appendix A proves the density bounds using convexity, Prékopa's theorem,
+and Bobkov's characterization of one-dimensional log-concavity.
+Appendix B proves the local approximation theorem, and Appendix C collects
+the parameters.
 
-This revision follows the latest mathematical simplifications in
+The construction follows the mathematical simplifications in
 [Simplify Paper Arguments](https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af20322-5238-83eb-8c1a-60fbea8e1d71).
-It removes exact local volume integration, repeated probability queries
-for anchor selection, forced deep anchors for narrow coordinates, and
-global refinement/depth totals from the comparison proof. The abstract,
-disclosure, related work, and existing figures are unchanged. Sections 1
-and 3 receive only necessary roadmap and interface changes.
+This revision separates the guarantees needed by the comparison proof
+from their implementations, replaces two specialized geometric lemmas
+with the central-quantile bound, and separates approximation of positions
+from approximation of probabilities. One affine inequality covers all
+three refinement costs. The abstract, disclosure, Sections 2 and 3, and
+existing figures are unchanged from the preceding revision. Section 1
+receives only necessary roadmap changes.
 The explicit comparison bound remains
 `(n log₂ n − 3n) / (1 + (2 log₂ k + 17)/k)` for powers of two `k ≥ 64`.
 

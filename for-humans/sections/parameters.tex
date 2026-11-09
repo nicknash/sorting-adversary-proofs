@@ -3,9 +3,8 @@
 Table~\ref{tab:parameters} collects the parameters of the adversary. The last two columns
 distinguish where a parameter's role is introduced from where its value
 is chosen and explained. All choices are fixed before the first query.
-The constants used to bound the estimator's neighborhood are given in
-\eqref{eq:digit-alphabet} and~\eqref{eq:local-radius}; its size is bounded by
-\eqref{eq:local-size}.
+Appendix~\ref{app:coupling} gives explicit choices for the digit alphabet,
+number of sweeps, and neighborhood radius in the local approximation theorem.
 
 \begin{center}
 \begin{minipage}{\linewidth}
@@ -22,7 +21,7 @@ Symbol & Value & Role & Introduced & Choice\\
 \midrule
 $k$ & Power of two, $k\ge64$ & Refine a queried free item when it has this many neighbors. & \S\ref{sec:comparison} & \S\ref{sec:potential}\\
 $H$ & $2^k$ & Number of vertices refined in a selected directed path. & \S\ref{sec:comparison} & \S\ref{sec:refinement-cost}\\
-$B$ & $(k+1)^{2H+1}$ & Bounds the number of other vertices comparable with one vertex in its in-node DAG. & \S\ref{sec:guarantees} & \S\ref{sec:guarantees}\\
+$B$ & $(k+1)^{2H+1}$ & Bounds the number of other vertices comparable with one vertex in its in-node DAG. & \S\ref{sec:anchor-contract} & \S\ref{sec:anchor-contract}\\
 $R$ & $2^{2kB}$ & Sets the width threshold: a coordinate is wide when $W_x\ge1/R$. & \S\ref{sec:comparison} & \S\ref{sec:anchor-guarantee}\\
 $\eta$ & $1/(100k)$ & Maximum additive error in a probability estimate. & \S\ref{sec:comparison} & \S\ref{sec:guarantees}\\
 \bottomrule

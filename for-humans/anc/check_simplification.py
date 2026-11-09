@@ -84,23 +84,25 @@ assertions that a particular geometric state realizes each input.
 def stage(j):
     k = 2**j
     alpha, lam, gamma_bound, loss_bound = coefficients(j, k)
-    delta_bound = lam * alpha - gamma_bound
-    degree_margin = 5 - 4 * lam
-    narrow_margin = delta_bound * k - 4 * gamma_bound - alpha * (j + 1)
-    path_margin = delta_bound * (k - 2) - 4 * lam - j - 1
+    affine_slope = 1 + Fraction(3, k)
+    affine_intercept = j + 5 + Fraction(12, k)
+    slope_difference = lam - affine_slope
+    degree_margin = j + 6 - (affine_intercept + 4 * slope_difference)
+    narrow_margin = slope_difference * k - affine_intercept
+    path_margin = slope_difference * (k - 7) - affine_intercept
     charge, displayed_charge, slack = comparison_charges(j, k)
     checks = {
         "estimation_error_range": 0 < Fraction(1, 100 * k) < Fraction(1, 32),
         "gain_coefficient_range": 1 < lam <= Fraction(5, 4),
-        "depth_difference_identity": delta_bound == Fraction(2 * j + 15, 2 * k) - Fraction(j + 10, k * k),
-        "depth_difference_positive": delta_bound > 0,
+        "affine_slope_majorant": gamma_bound / alpha <= affine_slope,
+        "slope_difference_identity": slope_difference == Fraction(j + 7, k),
         "degree_allowance_margin_identity": degree_margin == 1 - Fraction(4 * (j + 10), k),
         "degree_allowance_margin_nonnegative": degree_margin >= 0,
-        "narrow_margin_identity": narrow_margin == Fraction(5, 2) - Fraction(15, k),
+        "narrow_margin_identity": narrow_margin == 2 - Fraction(12, k),
         "narrow_margin_positive": narrow_margin > 0,
-        "path_margin_identity": path_margin == Fraction(5, 2) - Fraction(7 * j + 65, k) + Fraction(2 * (j + 10), k * k),
+        "path_margin_identity": path_margin == 2 - Fraction(7 * j + 61, k),
         "path_margin_positive": path_margin > 0,
-        "path_margin_sufficient_inequality": 7 * j + 65 <= 2 * k,
+        "path_margin_sufficient_inequality": 7 * j + 61 <= 2 * k,
         "comparison_slack_identity": displayed_charge - charge == slack,
         "comparison_charge_upper_bound": charge <= displayed_charge,
         # Half the probability starts a walk; its stopping depth is geometric
@@ -121,6 +123,8 @@ def stage(j):
         "k": k,
         "volume_gain_coefficient": display(lam),
         "anchor_depth_cost_majorant": display(gamma_bound),
+        "affine_cost_slope": display(affine_slope),
+        "affine_cost_intercept": display(affine_intercept),
         "degree_allowance_margin": display(degree_margin),
         "narrow_refinement_margin": display(narrow_margin),
         "path_batch_margin_per_refinement": display(path_margin),
@@ -163,7 +167,7 @@ def main():
     }
     examples = sum(example_counts.values())
     output = {
-        "purpose": "Finite exact-rational diagnostics of direct volume-gain charges and the +17 comparison coefficient; not a proof of the structural or geometric hypotheses, of all parameter values, or of the adversary.",
+        "purpose": "Finite exact-rational diagnostics of the affine refinement-cost bound, the three direct volume-gain charges, and the +17 comparison coefficient; not a proof of the structural or geometric hypotheses, of all parameter values, or of the adversary.",
         "range": {"first_j": 6, "last_j": 128, "count": len(rows)},
         "all_checks_passed": True,
         "checks_per_stage": len(rows[0]["checks"]),

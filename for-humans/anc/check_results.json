@@ -1,5 +1,5 @@
 {
-  "purpose": "Finite exact-rational diagnostics of direct volume-gain charges and the +17 comparison coefficient; not a proof of the structural or geometric hypotheses, of all parameter values, or of the adversary.",
+  "purpose": "Finite exact-rational diagnostics of the affine refinement-cost bound, the three direct volume-gain charges, and the +17 comparison coefficient; not a proof of the structural or geometric hypotheses, of all parameter values, or of the adversary.",
   "range": {
     "first_j": 6,
     "last_j": 128,
@@ -40,17 +40,25 @@
         "exact": "131/128",
         "decimal": 1.0234375
       },
+      "affine_cost_slope": {
+        "exact": "67/64",
+        "decimal": 1.046875
+      },
+      "affine_cost_intercept": {
+        "exact": "179/16",
+        "decimal": 11.1875
+      },
       "degree_allowance_margin": {
         "exact": "0",
         "decimal": 0.0
       },
       "narrow_refinement_margin": {
-        "exact": "145/64",
-        "decimal": 2.265625
+        "exact": "29/16",
+        "decimal": 1.8125
       },
       "path_batch_margin_per_refinement": {
-        "exact": "107/128",
-        "decimal": 0.8359375
+        "exact": "25/64",
+        "decimal": 0.390625
       },
       "rational_comparison_charge": {
         "exact": "741/512",
@@ -75,8 +83,8 @@
       "checks": {
         "estimation_error_range": true,
         "gain_coefficient_range": true,
-        "depth_difference_identity": true,
-        "depth_difference_positive": true,
+        "affine_slope_majorant": true,
+        "slope_difference_identity": true,
         "degree_allowance_margin_identity": true,
         "degree_allowance_margin_nonnegative": true,
         "narrow_margin_identity": true,
@@ -125,17 +133,25 @@
         "exact": "515/512",
         "decimal": 1.005859375
       },
+      "affine_cost_slope": {
+        "exact": "259/256",
+        "decimal": 1.01171875
+      },
+      "affine_cost_intercept": {
+        "exact": "835/64",
+        "decimal": 13.046875
+      },
       "degree_allowance_margin": {
         "exact": "23/32",
         "decimal": 0.71875
       },
       "narrow_refinement_margin": {
-        "exact": "625/256",
-        "decimal": 2.44140625
+        "exact": "125/64",
+        "decimal": 1.953125
       },
       "path_batch_margin_per_refinement": {
-        "exact": "33225/16384",
-        "decimal": 2.02789306640625
+        "exact": "395/256",
+        "decimal": 1.54296875
       },
       "rational_comparison_charge": {
         "exact": "73865/65536",
@@ -160,8 +176,8 @@
       "checks": {
         "estimation_error_range": true,
         "gain_coefficient_range": true,
-        "depth_difference_identity": true,
-        "depth_difference_positive": true,
+        "affine_slope_majorant": true,
+        "slope_difference_identity": true,
         "degree_allowance_margin_identity": true,
         "degree_allowance_margin_nonnegative": true,
         "narrow_margin_identity": true,
@@ -210,17 +226,25 @@
         "exact": "2051/2048",
         "decimal": 1.00146484375
       },
+      "affine_cost_slope": {
+        "exact": "1027/1024",
+        "decimal": 1.0029296875
+      },
+      "affine_cost_intercept": {
+        "exact": "3843/256",
+        "decimal": 15.01171875
+      },
       "degree_allowance_margin": {
         "exact": "59/64",
         "decimal": 0.921875
       },
       "narrow_refinement_margin": {
-        "exact": "2545/1024",
-        "decimal": 2.4853515625
+        "exact": "509/256",
+        "decimal": 1.98828125
       },
       "path_batch_margin_per_refinement": {
-        "exact": "310405/131072",
-        "decimal": 2.3682022094726562
+        "exact": "1917/1024",
+        "decimal": 1.8720703125
       },
       "rational_comparison_charge": {
         "exact": "542981/524288",
@@ -245,8 +269,8 @@
       "checks": {
         "estimation_error_range": true,
         "gain_coefficient_range": true,
-        "depth_difference_identity": true,
-        "depth_difference_positive": true,
+        "affine_slope_majorant": true,
+        "slope_difference_identity": true,
         "degree_allowance_margin_identity": true,
         "degree_allowance_margin_nonnegative": true,
         "narrow_margin_identity": true,
@@ -295,17 +319,25 @@
         "exact": "8195/8192",
         "decimal": 1.0003662109375
       },
+      "affine_cost_slope": {
+        "exact": "4099/4096",
+        "decimal": 1.000732421875
+      },
+      "affine_cost_intercept": {
+        "exact": "17411/1024",
+        "decimal": 17.0029296875
+      },
       "degree_allowance_margin": {
         "exact": "501/512",
         "decimal": 0.978515625
       },
       "narrow_refinement_margin": {
-        "exact": "10225/4096",
-        "decimal": 2.496337890625
+        "exact": "2045/1024",
+        "decimal": 1.9970703125
       },
       "path_batch_margin_per_refinement": {
-        "exact": "10333195/4194304",
-        "decimal": 2.46362566947937
+        "exact": "8047/4096",
+        "decimal": 1.964599609375
       },
       "rational_comparison_charge": {
         "exact": "16943115/16777216",
@@ -330,8 +362,8 @@
       "checks": {
         "estimation_error_range": true,
         "gain_coefficient_range": true,
-        "depth_difference_identity": true,
-        "depth_difference_positive": true,
+        "affine_slope_majorant": true,
+        "slope_difference_identity": true,
         "degree_allowance_margin_identity": true,
         "degree_allowance_margin_nonnegative": true,
         "narrow_margin_identity": true,
@@ -380,17 +412,25 @@
         "exact": "131075/131072",
         "decimal": 1.0000228881835938
       },
+      "affine_cost_slope": {
+        "exact": "65539/65536",
+        "decimal": 1.0000457763671875
+      },
+      "affine_cost_intercept": {
+        "exact": "344067/16384",
+        "decimal": 21.00018310546875
+      },
       "degree_allowance_margin": {
         "exact": "8179/8192",
         "decimal": 0.9984130859375
       },
       "narrow_refinement_margin": {
-        "exact": "163825/65536",
-        "decimal": 2.4997711181640625
+        "exact": "32765/16384",
+        "decimal": 1.99981689453125
       },
       "path_batch_margin_per_refinement": {
-        "exact": "2681454605/1073741824",
-        "decimal": 2.497299206443131
+        "exact": "130899/65536",
+        "decimal": 1.9973602294921875
       },
       "rational_comparison_charge": {
         "exact": "4298145805/4294967296",
@@ -415,8 +455,8 @@
       "checks": {
         "estimation_error_range": true,
         "gain_coefficient_range": true,
-        "depth_difference_identity": true,
-        "depth_difference_positive": true,
+        "affine_slope_majorant": true,
+        "slope_difference_identity": true,
         "degree_allowance_margin_identity": true,
         "degree_allowance_margin_nonnegative": true,
         "narrow_margin_identity": true,
@@ -465,17 +505,25 @@
         "exact": "2097155/2097152",
         "decimal": 1.0000014305114746
       },
+      "affine_cost_slope": {
+        "exact": "1048579/1048576",
+        "decimal": 1.0000028610229492
+      },
+      "affine_cost_intercept": {
+        "exact": "6553603/262144",
+        "decimal": 25.000011444091797
+      },
       "degree_allowance_margin": {
         "exact": "131057/131072",
         "decimal": 0.9998855590820312
       },
       "narrow_refinement_margin": {
-        "exact": "2621425/1048576",
-        "decimal": 2.499985694885254
+        "exact": "524285/262144",
+        "decimal": 1.9999885559082031
       },
       "path_batch_margin_per_refinement": {
-        "exact": "687141027855/274877906944",
-        "decimal": 2.4998044968197064
+        "exact": "2096951/1048576",
+        "decimal": 1.9998083114624023
       },
       "rational_comparison_charge": {
         "exact": "1099570872335/1099511627776",
@@ -500,8 +548,8 @@
       "checks": {
         "estimation_error_range": true,
         "gain_coefficient_range": true,
-        "depth_difference_identity": true,
-        "depth_difference_positive": true,
+        "affine_slope_majorant": true,
+        "slope_difference_identity": true,
         "degree_allowance_margin_identity": true,
         "degree_allowance_margin_nonnegative": true,
         "narrow_margin_identity": true,

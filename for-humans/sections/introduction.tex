@@ -132,16 +132,18 @@ finite computations on a bounded neighborhood. Each step changes one
 position using a choice from a fixed finite set. Randomizing these choices
 would preserve the continuous uniform distribution exactly. Comparing this
 process with a computation started from the effective lower endpoints
-shows that the finite average estimates the desired probability. The degree
-and path-length bounds control how far differences can propagate
-(Section~\ref{sec:oracle}).
+shows that the computed positions approximate the uniform ones. Bounds on
+coordinate densities then give accurate comparison probabilities
+(Section~\ref{sec:oracle}); the degree and path-length bounds control
+how far differences can propagate.
 
 \emph{Choosing positions with large remaining volume.}
 Moving an item into a child fixes its position in the parent. We choose
 a binary fraction with the fewest digits in a suitable interval, obtained
-from approximate quartiles or from the item's interval bounds. Geometric
-inequalities show that this choice leaves enough volume for the other
-items (Section~\ref{sec:median-search}).
+from approximate quartiles or from the item's interval bounds. The key
+geometric fact is that, for a log-concave density, central quantiles have
+density comparable to the peak. This gives the volume guarantee needed
+for refinement (Section~\ref{sec:median-search}).
 
 \emph{Bounding the cost of graph simplification.}
 Section~\ref{sec:potential} compares the volume gained by moving items with
@@ -156,7 +158,8 @@ Finally, Section~\ref{sec:runtime} lets the degree and
 path-length bounds grow slowly with $n$, keeping the computation polynomial
 as the comparison coefficient approaches one.
 
-Appendix~\ref{app:geometry} proves the density estimates, and
+Appendix~\ref{app:geometry} proves the density estimates,
+Appendix~\ref{app:coupling} proves the local approximation theorem, and
 Appendix~\ref{app:parameters} collects the parameters.
 The manuscript source is available
 online.\footnote{\url{https://github.com/nicknash/sorting-adversary-proofs/tree/main/for-humans}}

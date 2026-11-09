@@ -718,3 +718,63 @@ The draft has 31 pages. The saved source compiles with both the repository
 and editor compilers, with no final warnings or unresolved references.
 Affected pages were visually reviewed. All 18 archive members match saved
 sources. This revision has not replaced the Hexagon deposit.
+
+
+Proof interfaces and central-quantile bound -- 9 November 2026
+-----------------------------------------------------------
+Base: GitHub main at 32ff7242bac9b17bcf7f185b0a34a37b9c0d4a33.
+This revision develops the existing construction; no additional source-chat
+result is used. Its purpose is to make the main comparison proof depend on
+natural, independently stated guarantees.
+
+Section 4 defines volume gain directly as the change in log Z. It completes
+the comparison bound using consistency, a terminal counting inequality,
+and the three refinement-cost bounds. Coordinate densities, the exact
+section identity, the anchor guarantee, and the path-depth bound now sit
+with their proofs in Section 5. One affine inequality proves the degree,
+narrow, and path-batch costs, including negative gains. The exact +17 in
+the comparison denominator is unchanged.
+
+A general central-quantile bound for log-concave densities replaces the
+specialized balance and mass lemmas. It follows from concavity of
+p -> f(F^{-1}(p)), verified against Proposition A.1 (printed pp.45-46) in
+Sergey G. Bobkov, Extremal properties of half-spaces for log-concave
+distributions, Annals of Probability 24(1),35-48(1996),
+doi:10.1214/aop/1042644706. The original author-hosted PDF was consulted.
+The proof uses limiting chords and a supremum, so it does not assume that
+a maximum is attained in the interior. Prekopa supplies log-concavity of
+our coordinate marginals. The elementary conditional convex-section
+argument remains, since it also supplies width-dependent bounds after
+conditioning on incomparable coordinates.
+
+The finite-position approximation theorem now applies to any bounded
+set of queried coordinates without a width assumption. It couples the
+finite list with uniform positions from the full feasible region. The
+conditional density bound then turns coordinate errors into probability
+errors in a short main-text argument. Both density and small-difference
+statements appear before their use. The full contraction/dependency proof
+and explicit parameters remain in Appendix B. The pseudocode explicitly
+receives the restriction of the full-graph topological order. Specializing
+to r=2, alpha=eta/2, delta=eta/(8(B+1)R) leaves the numerical enumeration
+budget and polynomial-time implementation unchanged.
+
+Independent reviews checked proof dependencies and absence of circularity,
+negative gains, all three cost inequalities, the quantile/supremum step,
+empirical ties, copied full-graph bounds, update order, boundary radius,
+dependency choices, independence between sweeps, simultaneous coordinate
+errors, and bit precision. A generic Dobrushin contraction citation was
+considered but not used: bounded degree and directed height alone do not
+satisfy its contraction hypothesis. The necessary locality proof is retained.
+
+All current finite diagnostics pass, including the 5,624 exact accounting
+checks updated for the affine proof. They remain finite diagnostics rather
+than a verification of all adversary trajectories. The related earlier
+Lean formalization is unchanged.
+
+The saved source compiles with both the repository and desktop editor
+compilers, with no final warnings or unresolved references. The 31-page
+PDF's affected main-proof and appendix pages were visually reviewed.
+All 20 archive members match saved sources. The title, abstract,
+disclosure, Sections 2 and 3, and existing figures are unchanged; Section 1
+changes only the technical roadmap. The current revision has not replaced
+the Hexagon deposit.

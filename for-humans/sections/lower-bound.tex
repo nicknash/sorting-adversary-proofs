@@ -28,36 +28,22 @@ the probabilities of the child choices made during refinement. Relating
 those child choices to the volume gained during refinement will leave
 only a small additional loss per comparison.
 
-\subsection{Volume changes and anchor selection}\label{sec:guarantees}
+\subsection{Volume changes}\label{sec:guarantees}
 
-We next introduce the definitions required to state
-Lemma~\ref{lem:anchor-density} and prove Theorem~\ref{thm:fixed-stage}.
-
-To assess an anchor choice $c$ for $x$, we compare the volume left for the
-other items after fixing $X_x=c$ with the node's original feasible volume.
-Their ratio is the density $f_x(c)$. Let $v$ be the node containing $x$;
-its feasible assignments form the region
+We first measure the freedom left within the individual nodes. At a node
+$v$, the feasible assignments form the region
 \begin{equation}\label{eq:node-region}
 K_v=\{X:a_x<X_x<b_x\text{ for every free }x,
        \quad X_x<X_y\text{ for every in-node arc }x\to y\}.
 \end{equation}
-Write $V_v=\vol(K_v)$, and let $S_x(c)$ be the volume of the section
-obtained by fixing $X_x=c$, measured in the remaining coordinates.
-Under the uniform distribution on $K_v$, the density of $X_x$ is
-\[
-f_x(c)=\frac{S_x(c)}{V_v},
-\qquad
-\Prb(a<X_x<b)=\int_a^b f_x(t)\,dt.
-\]
-
-To track volume across the adversary's tree, take the product of the node
-regions. Each item has a position variable at exactly one node, so this
-product has dimension $n$ and volume
+Write $V_v=\vol(K_v)$ and take the product over the adversary's tree:
 \begin{equation}\label{eq:Z}
 Z=\prod_v V_v.
 \end{equation}
-A node with no free items contributes volume one. Initially $Z=1$;
-whenever every node has positive volume, $0<Z\le1$.
+Each item has a position variable at exactly one node, so the product
+region has dimension $n$. A node with no free items contributes volume
+one. Initially $Z=1$; whenever every node has positive volume,
+$0<Z\le1$.
 
 Choose the estimation error to be
 \begin{equation}\label{eq:estimation-error}
@@ -73,56 +59,17 @@ For the inequality, use
 $2^{-1/(2k)}\le1-1/(4k)\le1-1/(50k)=1-2\eta$.
 An answer already determined by the stored constraints leaves $Z$ unchanged.
 
-For refinement we need a lower bound on $f_x(c)$ in terms of the anchor's
-depth in the implicit anchor tree. Put
-\begin{equation}\label{eq:comparable-bound}
-B=(k+1)^{2H+1}.
-\end{equation}
-In an in-node DAG of degree at most $k$ and directed paths of at most
-$2H$ vertices, every coordinate comparable with $x$ lies within undirected
-distance $2H$ of $x$. Thus $B$ bounds the number of other coordinates
-comparable with $x$.
-
-\begin{lemma}[Anchor selection]\label{lem:anchor-density}
-Suppose a node's feasible region has positive volume, its interval
-endpoints are dyadic, and its in-node DAG has degree at most $k$ and
-directed paths of at most $2H$ vertices. For $R=2^{2kB}$ and rational
-$0<\eta<1/32$, \textnormal{\texttt{ChooseAnchor}} deterministically returns an anchor
-$c\in(\ell_x,r_x)$ at depth $m$ in the implicit anchor tree satisfying
-\begin{equation}\label{eq:tariff}
-\log f_x(c)\ge(1-1/k)m-4.
-\end{equation}
-If $x$ is narrow, then
-\begin{equation}\label{eq:narrow-gain}
-\log f_x(c)>k.
-\end{equation}
-\end{lemma}
-
-Section~\ref{sec:anchor-guarantee} proves Lemma~\ref{lem:anchor-density}
-and explains the choice of $R$.
-The density bound controls the change in $Z$ through the following identity.
-Refinement fixes $X_x$ in the parent and gives $x$ a fresh unit coordinate
-in the child.
-
-\begin{lemma}[Refinement identity]\label{lem:section-volume}
-Suppose every node region has positive volume. Refining $x$ at an interior
-anchor $c$ satisfies
-\begin{equation}\label{eq:refine}
-\frac{Z_{\rm after}}{Z_{\rm before}}=f_x(c).
-\end{equation}
-\end{lemma}
-
-Section~\ref{sec:refinement-volume} proves this identity, including when
-the child already contains items. Thus the change in $\log Z$ caused by
-this refinement is
+Refinement fixes an item's position in its parent and gives it a fresh
+unit coordinate in a child. Write
 \begin{equation}\label{eq:refinement-gain}
-g=\log f_x(c).
+g=\log\frac{Z_{\rm after}}{Z_{\rm before}}
 \end{equation}
-We call $g$ the refinement's \emph{volume gain}; it can be negative.
+for the resulting change in $\log Z$. We call $g$ the refinement's
+\emph{volume gain}; it can be negative.
 
-To apply the probability and anchor estimates throughout a call, we need
-positive node volumes and bounds on the in-node DAGs. We also need each
-call to return an answer consistent with the earlier answers.
+The algorithm must preserve positive node volumes and the bounds needed
+by the estimator. It must also return answers consistent with the earlier
+comparisons. The following proposition gives these guarantees.
 
 \begin{proposition}[Consistency and termination]\label{prop:legality}
 With the parameter choices of Theorem~\ref{thm:fixed-stage}, every reached
@@ -132,9 +79,7 @@ refinements. Every in-node DAG has degree at most $k$ and directed paths
 of fewer than $2H$ vertices throughout the interaction.
 \end{proposition}
 
-Section~\ref{sec:repairs} proves Proposition~\ref{prop:legality} from
-the comparison and refinement rules, using
-Lemmas~\ref{lem:estimation} and~\ref{lem:anchor-density}.
+Section~\ref{sec:repairs} proves Proposition~\ref{prop:legality}.
 
 \subsection{The cost of choosing a child}\label{sec:movement-volume}\label{sec:accounting}
 
@@ -208,40 +153,22 @@ random experiment. Comparing these probabilities and taking logarithms
 proves \eqref{eq:terminal}.
 \end{proof}
 
-\subsection{Comparing refinement costs and volume gains}\label{sec:refinement-cost}
+\subsection{The guarantees needed from refinement}\label{sec:refinement-cost}
 
-We now bound each cost $\ell(m)$ using the volume gain $g$ of the same
-refinement. For a narrow coordinate, Lemma~\ref{lem:anchor-density} gives
-$g>k$, even when the chosen anchor has small depth. Path batches obtain
-a large total gain because their anchors must occupy distinct nodes of
-the implicit anchor tree.
-
-Choose the path threshold
+We now compare each child-choice cost with the corresponding volume gain.
+The required bounds distinguish the three reasons for moving an item in
+Algorithm~\ref{alg:compare}. Choose the path threshold
 \begin{equation}\label{eq:path-threshold}
 H=2^k.
 \end{equation}
-The following bound supplies the depth sum needed for a complete batch.
-
-\begin{lemma}[Sum of anchor depths along a path]\label{lem:path-address}
-The $H$ labels of a selected path in an in-node DAG enter distinct children
-of their parent in the adversary's tree. If their anchors have depths
-$m_1,\ldots,m_H$ in the implicit anchor tree, then
-\begin{equation}\label{eq:path-charge}
-\sum_{i=1}^H m_i\ge H(k-2).
-\end{equation}
-\end{lemma}
-
-Section~\ref{sec:path-resolutions} proves the distinct-child claim and
-counts the available anchors. This is why Algorithm~\ref{alg:compare}
-finishes the whole selected path even when earlier refinements have broken it.
-
 Outside a path batch, the algorithm refines a queried item because its
 vertex has degree $k$ or its coordinate is narrow. When both hold, count
-it as a degree refinement. To compare costs with gains, set
+it as a degree refinement. Set
 \begin{equation}\label{eq:charge-coefficient}
 \lambda=1+\frac{\log k+10}{k}.
 \end{equation}
-The factor $\lambda$ approaches one as $k$ increases.
+The following lemma controls the cost of each kind of refinement using
+its volume gain. Degree refinements receive an additional allowance.
 
 \begin{lemma}[Cost of refinement]\label{lem:refinement-cost}
 A degree refinement with anchor depth $m$ and volume gain $g$ satisfies
@@ -254,44 +181,12 @@ For a complete path batch with depths $m_i$ and gains $g_i$,
 \sum_{i=1}^H\ell(m_i)\le\lambda\sum_{i=1}^H g_i.
 \]
 \end{lemma}
-\begin{proof}
-Write $j=\log k$. We use
-\begin{equation}\label{eq:anchor-depth-cost}
-\gamma-1=-\log(1-1/k)
-\le\frac1{(k-1)\ln2}\le\frac3{2k}
-\qquad(k\ge64).
-\end{equation}
-The choice of $\lambda$ gives $\lambda\le5/4$ and
-\[
-\delta:=\lambda(1-1/k)-\gamma
-\ge\frac{j+15/2}{k}-\frac{j+10}{k^2}>0.
-\]
-By the anchor guarantee \eqref{eq:tariff}, every refinement satisfies
-\begin{equation}\label{eq:charge-difference}
-\lambda g-\ell(m)\ge\delta m-4\lambda-j-1.
-\end{equation}
-Since $m\ge0$ and $4\lambda\le5$, this proves the degree-refinement bound.
 
-For a narrow refinement, use $g>k$ and
-$m\le(g+4)/(1-1/k)$ to obtain
-\begin{align*}
-(1-1/k)\bigl(\lambda g-\ell(m)\bigr)
-&\ge\delta g-4\gamma-(1-1/k)(j+1)\\
-&>\delta k-4\gamma-(1-1/k)(j+1)\\
-&\ge\frac52-\frac{15}{k}>0.
-\end{align*}
-Thus its volume gain covers the whole child cost.
-
-For a path batch, sum \eqref{eq:charge-difference} and use
-Lemma~\ref{lem:path-address}:
-\begin{align*}
-\sum_{i=1}^H\bigl(\lambda g_i-\ell(m_i)\bigr)
-&\ge H\bigl(\delta(k-2)-4\lambda-j-1\bigr)\\
-&\ge H\left(\frac52-\frac{7j+65}{k}
-                    +\frac{2(j+10)}{k^2}\right)>0.
-\end{align*}
-The last inequality follows from $7j+65\le2k$ for $j\ge6$.
-\end{proof}
+Section~\ref{sec:refinement-guarantee} proves this lemma. Narrow refinements
+supply a large individual gain, and complete path batches supply a large
+average gain. These gains cover their child-choice costs. Degree
+refinements may need the extra allowance, which we charge to earlier
+comparisons in the proof below.
 
 \subsection{The comparison bound}\label{sec:comparison-cost}
 
@@ -299,6 +194,8 @@ The last inequality follows from $7j+65\le2k$ for $j\ge6$.
 Proposition~\ref{prop:legality} gives consistency and termination of every
 call. The procedures and their tie rules are deterministic.
 Suppose the sorter finishes after $q$ comparisons, and write $j=\log k$.
+Correctness requires its terminating transcript to determine a unique
+total order, so Lemma~\ref{lem:packing} applies.
 
 There are at most $q/k$ degree refinements: each deletes $k$ in-node arcs,
 each comparison inserts at most one arc, and an inserted arc can be deleted

@@ -1,9 +1,10 @@
 \section{Computing comparison probabilities}\label{sec:oracle}
 
-We now implement \texttt{Estimate} and the finite marginal calculation
-used by \texttt{ChooseAnchor}. Both average a finite collection of explicit
-coordinate updates. Their accuracy follows by comparing these updates
-with an assignment uniformly distributed on the full feasible region.
+We implement \texttt{Estimate} and \texttt{Marginal} by computing a finite
+list of positions for the queried items. The list approximates their
+positions under the uniform distribution on the full feasible region.
+Its construction uses only a bounded neighborhood of the queried items,
+once their effective interval bounds have been computed.
 
 \subsection{A coordinate update with finitely many choices}
 
@@ -22,8 +23,9 @@ The coefficients are nonnegative and sum to one. Thus an assignment
 satisfying the interval bounds and arc inequalities weakly continues to
 do so after an update, including when $L_z=U_z$.
 
-This update has a useful exact property. If an assignment is uniform
-on the feasible region, then, conditional on its other coordinates,
+Choosing the digit uniformly preserves the uniform distribution on the
+feasible region. To see this, suppose the assignment is uniform and
+condition on all coordinates other than $z$. Then
 $Y_z$ is uniform on $(L_z,U_z)$. Its normalized position
 $r=(Y_z-L_z)/(U_z-L_z)$ is uniform on $(0,1)$, and
 \eqref{eq:digit-update} sends it to
@@ -35,18 +37,18 @@ equal subintervals. Choosing the digit uniformly therefore makes $r'$
 uniform on $(0,1)$ again. Each update preserves the uniform distribution
 on the whole feasible region.
 
-\subsection{The finite calculation}
+\subsection{A finite list of approximate positions}
 
-Fix a topological order of $G$. For a single queried coordinate $x$,
-retain its radius-$\rho$ neighborhood in the undirected graph. For a
-pair query, retain the union of both neighborhoods. Keep every arc between
-retained vertices and copy their effective endpoints from the full graph.
+Fix a topological order of the full graph $G$. Let $T$ be the set of
+queried coordinates. Retain every vertex within
+undirected distance $\rho$ of $T$, together with every arc between
+retained vertices. Copy their effective endpoints from the full graph.
 These endpoints carry interval restrictions transmitted by paths outside
 the retained neighborhood.
 
 Initialize the retained coordinates at their effective lower endpoints.
 These values satisfy all retained arc inequalities weakly. One pass through
-the retained vertices in topological order is a \emph{sweep}. Perform $t$
+the retained vertices in the restriction of this order is a \emph{sweep}. Perform $t$
 sweeps, using \eqref{eq:digit-update} at each visit. The algorithm enumerates
 every assignment of digits to these updates. If $b'$ vertices are retained,
 there are
@@ -60,13 +62,13 @@ queried values, including repetitions.
 \caption{\texttt{FiniteDigits}: compute the finite list of queried values.}
 \label{alg:finite-digits}
 \DontPrintSemicolon
-\KwIn{The retained in-node DAG, its copied effective bounds, queried coordinates $T$, and integers $S,t$.}
+\KwIn{The retained in-node DAG, its copied effective bounds, the restricted full-graph topological order, queried coordinates $T$, and integers $S,t$.}
 \KwOut{A list $\mathcal L$ of final values at $T$, one entry per digit assignment.}
 $\mathcal L\gets$ the empty list\;
 \ForEach{assignment of digits $j_{z,s}\in\{0,\ldots,S-1\}$ to the $b't$ updates}{
   $Y_z\gets\ell_z$ for every retained vertex $z$\;
   \For{$s=1,\ldots,t$}{
-    \ForEach{retained vertex $z$ in topological order}{
+    \ForEach{retained vertex $z$ in the supplied order}{
       Compute $L_z,U_z$ from its current neighbors and copied bounds\;
       $Y_z\gets\bigl(Y_z+(S-1-j_{z,s})L_z+j_{z,s}U_z\bigr)/S$\;
     }
@@ -76,209 +78,114 @@ $\mathcal L\gets$ the empty list\;
 \Return $\mathcal L$\;
 \end{algorithm}
 
-For a probability query, \texttt{Estimate} returns the fraction of entries
-satisfying the requested strict comparison. A pair already ordered by a
-directed path is answered exactly before this calculation. For a wide
-coordinate $x$, \texttt{Marginal} returns the single-coordinate list
-$\mathcal L_x$. Define its strict empirical distribution function by
-\begin{equation}\label{eq:empirical-cdf}
-\widehat F_x(c)=\frac{\#\{y\in\mathcal L_x:y<c\}}{N}.
-\end{equation}
-Its right limit $\widehat F_x(c+)$ counts values at most $c$. The list may
-contain ties, so these two quantities can differ.
+The next theorem shows that one entry chosen uniformly from this list
+closely approximates the queried coordinates of a uniform feasible
+assignment. We state this by a \emph{coupling}: a joint distribution of
+the two assignments with the specified marginal distributions.
 
-\begin{theorem}[Finite probability estimates]\label{thm:local}
-Let $d,h\ge1$ be integers. Suppose $G$ has degree at most $d$, its
-directed paths have at most $h$ vertices, and its feasible region
-$K\subseteq(0,1)^{V(G)}$ has positive volume. For rational parameters $R\ge1$ and
-$0<\varepsilon<1/4$, computable choices of $S,t,\rho$, depending only
-on these parameters, have the following properties.
-\begin{enumerate}
-\item If $W_x\ge1/R$, the single list $\mathcal L_x$ satisfies, for every real $c$,
-\begin{equation}\label{eq:uniform-cdf-error}
-|\widehat F_x(c)-F_x(c)|\le\varepsilon,\qquad
-|\widehat F_x(c+)-F_x(c)|\le\varepsilon,
+\begin{theorem}[Finite approximation of uniform assignments]\label{thm:local}
+Let $d,h,r\ge1$ be integers and let $\delta,\alpha\in(0,1)$ be rational.
+There are computable parameters $S,t,\rho$ and a bound $E$, depending
+only on $d,h,r,\delta,\alpha$, with the following property.
+
+Suppose $G$ is a finite DAG with dyadic interval bounds, degree at most $d$, and directed
+paths of at most $h$ vertices, and its feasible region
+$K\subseteq(0,1)^{V(G)}$ has positive volume.
+For any nonempty set $T$ of at most $r$ coordinates,
+Algorithm~\ref{alg:finite-digits} produces a list $\mathcal L$ admitting
+a coupling of $X$ uniform on $K$ and $Y$ uniformly chosen from
+$\mathcal L$ such that
+\begin{equation}\label{eq:finite-position-coupling}
+\Prb\left(\max_{x\in T}|X_x-Y_x|>\delta\right)\le\alpha.
 \end{equation}
-where $F_x(c)=\Prb(X_x<c)$ for $X$ uniform on $K$.
-\item For an incomparable pair $x,y$ with at least one of $W_x,W_y$
-at least $1/R$, the fraction of entries satisfying $Y_x<Y_y$ differs
-from $\Prb(X_x<X_y)$ by at most $\varepsilon$.
-\end{enumerate}
-The calculation retains at most
-\begin{equation}\label{eq:local-size}
-b=2(d+1)^{\rho+1}
-\end{equation}
-vertices and enumerates at most $S^{bt}$ digit assignments.
+The calculation enumerates at most $E$ digit assignments. If the interval
+bounds have at most $\Lambda$ fractional binary digits, every computed
+position has at most $\Lambda+\log E$ fractional digits.
 \end{theorem}
 
-\subsection{Why the finite calculation is accurate}
+The proof compares the finite calculation with updates of an assignment
+that is already uniform on the full region. Both computations use the
+same digits at retained vertices. Bounded degree limits the number of
+coordinates that can influence an update. Bounded directed path length
+ensures that following dependencies on newly updated predecessors soon
+reaches a source, whose lower endpoint is fixed. This causes discrepancies
+to shrink for most digit choices. After enough sweeps, the queried
+coordinates are close with high probability, even though the two
+computations can differ at the boundary of the retained neighborhood.
+Appendix~\ref{app:coupling} gives the proof and explicit parameter choices.
 
-The full uniform distribution is preserved by a random digit update.
-We compare it with the local calculation started at the lower endpoints,
-using the same digits wherever a vertex is retained. The following
-argument bounds the probability that their queried coordinates differ
-by more than a prescribed amount.
+\subsection{From positions to comparison answers}
 
-\begin{proof}[Proof of Theorem~\ref{thm:local}]
-\emph{Comparing two computations.}
-Start $X$ uniformly on $K$ and $Y$ at the effective lower endpoints of
-the retained graph. Update the full graph in topological order, and use
-the restriction of that order for $Y$. Share the digit at each retained
-vertex. Digits at different vertices and sweeps are independent and
-uniform in $\{0,\ldots,S-1\}$. The full assignment $X$ remains uniform
-on $K$. Every digit assignment for $Y$ has probability $1/N$, so its final
-queried values have exactly the empirical distribution of the computed list.
-
-\emph{The decrease after one sweep.}
-Write $\Delta_z=|X_z-Y_z|$. Superscripts old and new refer to the start
-of a sweep and the value after a coordinate's update. If all neighbors
-of $z$ are retained, the shared digit $j_z$ gives
-\begin{equation}\label{eq:local-coupling}
-\Delta_z^{\rm new}\le
-\frac1S\Delta_z^{\rm old}
-+\frac{S-1-j_z}{S}\max_{u\to z}\Delta_u^{\rm new}
-+\frac{j_z}{S}\max_{z\to u}\Delta_u^{\rm old},
+To estimate $\Prb(X_x<c)$, use $T=\{x\}$ and count the entries below $c$.
+To estimate $\Prb(X_x<X_y)$, use $T=\{x,y\}$ and count the entries
+satisfying that strict inequality. A pair ordered by a directed path is
+answered exactly before this calculation. The routine \texttt{Marginal}
+returns the single-coordinate list $\mathcal L_x$ itself. Write
+\begin{equation}\label{eq:empirical-cdf}
+\widehat F_x(c)=\frac{\#\{y\in\mathcal L_x:y<c\}}{N},\qquad
+F_x(c)=\Prb(X_x<c).
 \end{equation}
-with an empty maximum equal to zero.
+The right limit $\widehat F_x(c+)$ counts values at most $c$.
 
-Let $B_h(z)$ be the vertices at undirected distance at most $h$ from $z$,
-and suppose they are all retained. Put
-$D=\max_{u\in B_h(z)}\Delta_u^{\rm old}$ and
-$a_u=(S-1-j_u)/S$. At $z$, \eqref{eq:local-coupling} gives
-\[
-\Delta_z^{\rm new}\le(1-a_z)D+
-                           a_z\max_{u\to z}\Delta_u^{\rm new}.
-\]
-Follow a predecessor attaining the maximum, and continue backwards to a
-source. This path has at most $h$ vertices; all its vertices and their
-successors lie in $B_h(z)$. At the source the predecessor term is zero.
-Substitution along the path bounds the new discrepancy by
-$\bigl(1-\prod_u a_u\bigr)D$.
+When coordinate errors are small, a comparison can change only if the true
+positions are close to its threshold. The following consequence of
+Lemma~\ref{lem:fiber} bounds the probability of such a small gap.
 
-Write $\Delta_z(s)$ for the discrepancy after $s$ sweeps.
-Call the pair $(z,s)$ \emph{bad} if, during sweep $s$, the digit at $z$
-or any ancestor of $z$ equals $S-1$. Otherwise all factors $a_u$ in the
-preceding expansion are at least $1/S$, and there are at most $h$ of
-them. Put $\beta=1-S^{-h}$. Consequently,
-\begin{equation}\label{eq:local-one-sweep}
-\Delta_z(s)\le\kappa_z(s)\max_{u\in B_h(z)}\Delta_u(s-1),
-\qquad
-\kappa_z(s)=
-\begin{cases}
-1,&(z,s)\text{ is bad},\\
-\beta,&\text{otherwise}.
-\end{cases}
+\begin{corollary}[A bound for small differences]\label{cor:gap}
+Let $X$ be uniform on a positive-volume node region, and suppose $x$ has
+at most $B$ other comparable coordinates and effective width $W$.
+Let $Y$ be a fixed number or $X_y$ for a coordinate $y$ incomparable with
+$x$. For every interval $I$ of length $a$,
+\begin{equation}\label{eq:gap}
+\Prb(X_x-Y\in I)\le\frac{(B+1)a}{W}.
 \end{equation}
-
-\emph{Following the possible dependencies.}
-Both $B_h(z)$ and the set consisting of $z$ and its ancestors have at most
-$M$ vertices. Choose
-\begin{equation}\label{eq:digit-alphabet}
-M=(d+1)^{h+1},\qquad
-S=\text{the least power of two at least }16M^3.
-\end{equation}
-The probability that $(z,s)$ is bad is at most
-$M/S\le1/(16M^2)$.
-
-For even $t$, iterating \eqref{eq:local-one-sweep} traces sequences
-$z_t=z,z_{t-1},\ldots,z_0$ with $z_{s-1}\in B_h(z_s)$. There are at most
-$M^t$ sequences. If $B_{ht}(z)$ is retained, each $B_h(z_s)$ used at
-sweep $s\ge1$ is retained: its vertices are at distance at most
-$(t-s+1)h\le th$ from $z$. Thus the expansion is valid throughout,
-including at the boundary, where only initial discrepancies occur.
-Since those initial discrepancies are at most one,
-\begin{equation}\label{eq:local-contraction}
-\Delta_z(t)\le
-\max_{z_t=z,\;z_{s-1}\in B_h(z_s)}\prod_{s=1}^t\kappa_{z_s}(s).
-\end{equation}
-
-For a fixed sequence, the events that its pairs are bad use independent
-digits from different sweeps. The probability that at least $t/2$ pairs are bad is
-at most
-\[
-2^t\left(\frac1{16M^2}\right)^{t/2}
-=\left(\frac1{2M}\right)^t.
-\]
-A union bound over the at most $M^t$ sequences gives probability at most
-$2^{-t}$ that any sequence has this many bad pairs. Otherwise every
-product in \eqref{eq:local-contraction} has at least $t/2$ factors at
-most $\beta$. Hence
-\begin{equation}\label{eq:local-interior-error}
-\Prb\bigl(\Delta_z(t)>\beta^{t/2}\bigr)\le2^{-t}.
-\end{equation}
-
-\emph{From coordinate errors to comparison errors.}
-Put $C=M+1$ and choose
-\begin{equation}\label{eq:local-radius}
-\delta=\frac{\varepsilon}{8CR},\qquad
-t=2\left(S^h\ceil{\log(1/\delta)}+
-                  \ceil{\log(4/\varepsilon)}\right),\qquad
-\rho=ht.
-\end{equation}
-The inequality $(1-v)^{-r}\ge1+rv$ gives
-$\beta^{S^h}\le1/2$. Therefore
-$\beta^{t/2}\le\delta$ and $2^{-t}\le\varepsilon/4$.
-Each queried coordinate satisfies
-\[
-\Prb(\Delta_z(t)>\delta)\le\varepsilon/4.
-\]
-
-For an incomparable pair, choose $x$ with $W_x\ge1/R$. There are at most
-$M$ other coordinates comparable with $x$, so Corollary~\ref{cor:gap} gives
-\[
-\Prb(|X_x-X_y|\le2\delta)\le4CR\delta=\varepsilon/2.
-\]
-Outside this event and the two coordinate-error events, the strict
-comparisons in $X$ and $Y$ agree, even if $Y$ can have ties. Their
-probabilities therefore differ by at most
-$\varepsilon/2+2(\varepsilon/4)=\varepsilon$.
-
-For a threshold $c$, disagreement requires either $\Delta_x>\delta$
-or $|X_x-c|\le\delta$. Its probability is at most
-$\varepsilon/4+2CR\delta=\varepsilon/2$. This bound applies to every
-real $c$, using the same computed list. It proves the strict-CDF bound
-in \eqref{eq:uniform-cdf-error}. Taking right limits and using the
-continuity of $F_x$ proves the other bound, including at atoms of the
-empirical distribution.
-
-Finally, each radius-$\rho$ neighborhood has at most
-$1+d+\cdots+d^\rho\le(d+1)^{\rho+1}$ vertices. This gives
-\eqref{eq:local-size}. The choices of $S,t,\rho$ are computable from
-the stated parameters.
+\end{corollary}
+\begin{proof}
+For $Y=X_y$, condition on $X_y$. Lemma~\ref{lem:fiber} bounds the
+conditional density of $x$ by $(B+1)/W$. Integrating over the translate
+$I+X_y$ and then averaging over $X_y$ proves the claim. For fixed $Y$,
+apply the unconditional density bound.
 \end{proof}
 
-\subsection{Exact arithmetic for the digit calculations}\label{sec:digit-arithmetic}
-
-Suppose the retained effective endpoints have at most $\Lambda$
-fractional binary digits. Each update in \eqref{eq:digit-update} takes
-maxima and minima, forms an integer linear combination, and divides by
-$S$. Because $S$ is a power of two, it adds at most $\log S$ fractional
-bits. After all $b't$ updates in a computation, the precision is at most
-\begin{equation}\label{eq:digit-precision}
-\Lambda+b't\log S.
+\begin{proof}[Proof of Lemma~\ref{lem:estimation}]
+A feasible assignment gives positive volume, since the defining
+inequalities are strict. Computing the effective endpoints preserves
+this region by Lemma~\ref{lem:interior}.
+Apply Theorem~\ref{thm:local} with
+\begin{equation}\label{eq:estimator-coupling-parameters}
+d=k,\qquad h=2H,\qquad r=2,\qquad
+\alpha=\frac\eta2,\qquad
+\delta=\frac{\eta}{8(B+1)R}.
 \end{equation}
-All values remain in $[0,1]$, so the corresponding integer numerators
-need at most one additional bit. The digits and tallies have at most
-$\log S$ and $b't\log S+1$ bits, respectively. The comparison rule compares
-the exact tally with $N/2$; a marginal calculation retains the exact final
-values and their multiplicities. These bounds will give polynomial time
-under the explicit enumeration budget in Section~\ref{sec:runtime}.
+These same parameters serve both single-coordinate and pair queries.
+
+For an incomparable pair, choose $x$ with $W_x\ge1/R$.
+Corollary~\ref{cor:gap} gives
+\[
+\Prb(|X_x-X_y|\le2\delta)
+\le4(B+1)R\delta=\frac\eta2.
+\]
+Whenever both coordinate errors are at most $\delta$ and the true gap
+exceeds $2\delta$, the strict comparisons in $X$ and $Y$ agree.
+The probability of disagreement is therefore at most
+$\alpha+\eta/2=\eta$.
+
+For a threshold $c$, disagreement requires either a coordinate error
+greater than $\delta$ or $|X_x-c|\le\delta$. Its probability is at most
+$\alpha+2(B+1)R\delta=3\eta/4$. The same list works for every real $c$.
+Taking right limits and using the continuity of $F_x$ gives both
+\begin{equation}\label{eq:uniform-cdf-error}
+|\widehat F_x(c)-F_x(c)|\le\eta,\qquad
+|\widehat F_x(c+)-F_x(c)|\le\eta.
+\end{equation}
+All calculations enumerate finitely many digit assignments using exact
+dyadic arithmetic, so the routines are deterministic.
+\end{proof}
 
 Finite computations can contain equal coordinates. Accordingly, a pair
 estimate counts the strict event $Y_x<Y_y$, and the comparison rule uses
 its complement for the opposite answer. The continuous probabilities of
 the two orders sum to one, so this complement has the same error bound.
-
-\begin{proof}[Proof of Lemma~\ref{lem:estimation}]
-The strict inequalities defining a feasible region make it open, so a
-feasible assignment gives positive volume. Computing the effective
-endpoints in temporary storage preserves the region by
-Lemma~\ref{lem:interior}. Apply Theorem~\ref{thm:local} with $d=k$,
-$h=2H$, and $\varepsilon=\eta$. It gives the required probability estimates
-and the uniform empirical-CDF bound for \texttt{Marginal}. A pair already
-ordered by a directed path is answered exactly. All other calculations
-enumerate finitely many digit assignments using exact dyadic arithmetic.
-\end{proof}
 
 The next section chooses the parameters as a function of $n$ and bounds
 the work in every comparison call.

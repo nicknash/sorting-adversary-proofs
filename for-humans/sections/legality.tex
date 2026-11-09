@@ -1,11 +1,8 @@
 \section{Refinement and its guarantees}\label{sec:legal}
 
-We now justify the refinement claims used in Section~\ref{sec:potential}.
-First, any interior anchor preserves consistency with previous answers.
-Next we give \texttt{ChooseAnchor} and prove Lemma~\ref{lem:anchor-density}
-using the probability estimates from Lemma~\ref{lem:estimation}. We then
-establish the in-node DAG bounds, legality of the full procedure, and the
-distinct-anchor property used to count path refinements.
+We now prove the refinement guarantees used in Section~\ref{sec:potential}:
+moving an item preserves the answers already given, and the resulting
+change in volume controls the cost of choosing a child.
 
 \subsection{Preserving the represented orders}
 
@@ -149,12 +146,24 @@ remain positive.
 
 \subsection{The volume gained by refinement}\label{sec:refinement-volume}
 
-Recall that $Z=\prod_v V_v$ and that $f_x(c)=S_x(c)/V_v$ is the
-density of $X_x$ under the uniform distribution on its node's feasible
-region. Fixing $X_x=c$ removes one coordinate from the parent; placing
-$x$ in a child adds an independent unit coordinate there.
+Refining an item $x$ stored at node $v$ fixes $X_x=c$ in $v$ and gives
+$x$ a fresh unit coordinate in the child. To measure the volume change, let
+$S_x(c)$ be the volume of the section of $K_v$ obtained by fixing
+$X_x=c$, measured in the remaining coordinates. Under the uniform
+distribution on $K_v$, the coordinate $X_x$ has density
+\[
+f_x(c)=\frac{S_x(c)}{V_v},\qquad
+\Prb(a<X_x<b)=\int_a^b f_x(t)\,dt.
+\]
 
-\begin{proof}[Proof of Lemma~\ref{lem:section-volume}]
+\begin{lemma}[Refinement identity]\label{lem:section-volume}
+Suppose every node region has positive volume. Refining $x$ at an interior
+anchor $c$ satisfies
+\begin{equation}\label{eq:refine}
+\frac{Z_{\rm after}}{Z_{\rm before}}=f_x(c).
+\end{equation}
+\end{lemma}
+\begin{proof}
 Let $u$ be the child at $c$, taking $V_u=1$ if it is newly created. The
 parent loses the coordinate $X_x$ and retains precisely the section of
 volume $S_x(c)$. The child gains a new coordinate $U_x\in(0,1)$, with no
@@ -167,6 +176,8 @@ V_vV_u\quad\longrightarrow\quad S_x(c)V_u.
 Their ratio is $S_x(c)/V_v=f_x(c)$. All other node factors stay unchanged.
 The dimension lost in the parent is restored by the new child coordinate.
 \end{proof}
+
+Thus the refinement's volume gain is $g=\log f_x(c)$.
 
 For example, the parent region $0<X_A<X_B<1$ has area $1/2$. Fixing
 $X_A=1/4$ leaves the interval $X_B\in(1/4,1)$ of length $3/4$. The new
@@ -214,11 +225,36 @@ original area.}
 \label{fig:section-volume}
 \end{figure}
 
-\subsection{Choosing an anchor}\label{sec:median-search}
+\subsection{Choosing an anchor}\label{sec:median-search}\label{sec:anchor-contract}
 
-Consider a positive-volume node whose in-node DAG has degree at most $k$
-and directed paths of at most $2H$ vertices. Algorithm~\ref{alg:choose-anchor}
-gives \texttt{ChooseAnchor}. It first chooses a closed interval of central
+The choice of anchor balances two quantities: a larger density gives
+more volume gain, while a smaller anchor depth costs less in
+\eqref{eq:child-cost}. We will bound the density using the number of
+coordinates comparable with $x$. Put
+\begin{equation}\label{eq:comparable-bound}
+B=(k+1)^{2H+1}.
+\end{equation}
+In an in-node DAG of degree at most $k$ and directed paths of at most
+$2H$ vertices, every coordinate comparable with $x$ lies within undirected
+distance $2H$ of $x$. Thus $B$ bounds the number of other coordinates
+comparable with $x$.
+
+\begin{lemma}[Anchor selection]\label{lem:anchor-density}
+Suppose a node's feasible region has positive volume, its interval
+endpoints are dyadic, and its in-node DAG has degree at most $k$ and
+directed paths of at most $2H$ vertices. For $R=2^{2kB}$ and rational
+$0<\eta<1/32$, \textnormal{\texttt{ChooseAnchor}} deterministically returns an anchor
+$c\in(\ell_x,r_x)$ at depth $m$ in the implicit anchor tree satisfying
+\begin{equation}\label{eq:tariff}
+\log f_x(c)\ge(1-1/k)m-4.
+\end{equation}
+If $x$ is narrow, then
+\begin{equation}\label{eq:narrow-gain}
+\log f_x(c)>k.
+\end{equation}
+\end{lemma}
+
+Algorithm~\ref{alg:choose-anchor} first chooses a closed interval of central
 positions for $x$, then selects the shallowest anchor in that interval.
 For a narrow coordinate, we use the central half of its effective
 interval. For a wide coordinate, \texttt{Marginal} from
@@ -271,31 +307,49 @@ the walk must accept before their length becomes smaller than $b-a$.
 
 \subsubsection{Density bounds for central intervals}
 
-Suppose $x$ has effective interval $(\ell,r)$ of width $W$ and at most
-$B$ other comparable labels. Then
-\begin{equation}\label{eq:density-summary}
-f_x(t)\le\frac{B+1}{W},\qquad
-f_x(t)\ge\frac{4^{-B}}{W}\quad
-\left(\ell+\frac W4\le t\le r-\frac W4\right).
-\end{equation}
+The first bounds use the effective width and the number of comparable
+coordinates.
+
+\begin{lemma}[Coordinate density bounds]\label{lem:fiber}
+Suppose a node's feasible region has positive volume, and $x$ has at most
+$B$ other comparable coordinates and effective interval $(\ell,r)$ of
+width $W$. Its density satisfies
+\begin{align}
+f_x(t)&\le\frac{B+1}{W},\label{eq:fiber-upper}\\
+f_x(t)&\ge\frac{4^{-B}}{W}
+\qquad(\ell+W/4\le t\le r-W/4).\label{eq:fiber-lower}
+\end{align}
+Both bounds also hold for the conditional density after fixing coordinates
+incomparable with $x$, whenever the remaining region has positive volume.
+\end{lemma}
+
 The lower bound applies to every point of the central half. The upper
 bound limits the probability in a short interval; it will bound the depth
-of the anchor chosen for a wide item.
+of the anchor chosen for a wide item. Appendix~\ref{app:geometry} proves
+these bounds by comparing convex sections.
 
-Write $F_x(t)=\Prb(X_x<t)$. We also need a density bound that uses the
-probability contained in an interval: for any $a\le c\le b$,
-\begin{equation}\label{eq:mass-summary}
-(b-a)f_x(c)\ge
-\min\{F_x(c),1-F_x(c)\}\bigl(F_x(b)-F_x(a)\bigr).
-\end{equation}
-If both tails at $c$ and the mass of $[a,b]$ are bounded below, this
-forces the density at $c$ to be a constant times $1/(b-a)$.
-Appendix~\ref{app:geometry} proves \eqref{eq:density-summary} by contracting convex
-sections, and derives \eqref{eq:mass-summary} from log-concavity.
+For wide items we use another consequence of convexity. A density is
+\emph{log-concave} if its positive support is convex and its logarithm
+is concave there. The uniform density on a convex feasible region is
+log-concave, and Pr\'ekopa's marginal theorem gives the same property to
+each coordinate density \cite[Theorem~8]{prekopa}. The following bound says
+that values at central quantiles are comparable to the density's maximum.
+
+\begin{lemma}[Density at central quantiles]\label{lem:central-quantiles}
+Let $f$ be a log-concave probability density with distribution function $F$.
+For $0<\alpha\le1/2$, if $\alpha\le F(c)\le1-\alpha$, then
+\[
+f(c)\ge\alpha\sup_t f(t).
+\]
+\end{lemma}
+
+Appendix~\ref{app:geometry} proves the lemma using Bobkov's characterization
+of one-dimensional log-concavity \cite[Proposition~A.1]{bobkov}.
 
 \subsubsection{Choosing an anchor between approximate quartiles}
 
 The list returned by \texttt{Marginal} may contain repeated values. Write
+$F_x(t)=\Prb(X_x<t)$,
 $\widehat F_x(t)$ for the fraction strictly below $t$, and
 $\widehat F_x(t+)$ for the fraction at most $t$. The guarantee of
 Lemma~\ref{lem:estimation} gives
@@ -325,24 +379,21 @@ including when values are repeated. Consequently
 p-\eta\le F_x(Q_p)\le p+\eta.
 \]
 Since $\eta<1/32$, the quartiles are distinct and lie strictly inside
-$(\ell_x,r_x)$. Lemma~\ref{lem:shortest-anchor} supplies an anchor
-$c\in[Q_{1/4},Q_{3/4}]$ whose node interval $I(u)=[a,b]$ contains both
-quartiles. Thus
+$(\ell_x,r_x)$. Their interval $J=[Q_{1/4},Q_{3/4}]$ has probability
+greater than $7/16$, and every $c\in J$ satisfies
+$7/32<F_x(c)<25/32$. Put $M=\sup_t f_x(t)$. Since $M|J|>7/16$,
+Lemma~\ref{lem:central-quantiles} gives, throughout $J$,
 \[
-\min\{F_x(c),1-F_x(c)\}\ge\frac14-\eta>\frac7{32},\qquad
-F_x(b)-F_x(a)\ge\frac12-2\eta>\frac7{16}.
+f_x(c)\ge\frac7{32}M>\frac{49}{512|J|}>\frac1{16|J|}.
 \]
-As $|I(u)|=2^{-m}$, \eqref{eq:mass-summary} gives
-\[
-2^{-m}f_x(c)\ge\frac7{32}\frac7{16}
-=\frac{49}{512}>\frac1{16},
-\]
-which proves the density guarantee.
+Lemma~\ref{lem:shortest-anchor} selects $c\in J$ at a node $u$ whose
+interval contains $J$. Thus $|J|\le|I(u)|=2^{-m}$, proving
+$f_x(c)\ge2^{m-4}$.
 
-The upper density bound in \eqref{eq:density-summary} also gives
+The upper density bound \eqref{eq:fiber-upper} also gives
 \[
-\frac14<F_x(b)-F_x(a)
-\le\frac{B+1}{W_x}\,2^{-m}.
+\frac14<F_x(Q_{3/4})-F_x(Q_{1/4})
+\le\frac{B+1}{W_x}|J|\le\frac{B+1}{W_x}\,2^{-m}.
 \]
 Rearranging proves the depth bound.
 \end{proof}
@@ -362,7 +413,7 @@ The in-node DAG bounds imply that $x$ has at most $B$ other comparable
 coordinates, by \eqref{eq:comparable-bound}. For a wide item,
 Lemma~\ref{lem:median-search} gives the stronger lower bound $m-4$.
 For a narrow item, write $L=\log(1/W_x)$. The selected anchor is in the
-central half of its effective interval, so \eqref{eq:density-summary}
+central half of its effective interval, so \eqref{eq:fiber-lower}
 gives
 \[
 \log f_x(c)\ge L-2B.

@@ -1,0 +1,133 @@
+\section{Accuracy of the finite position calculation}\label{app:coupling}
+
+We prove Theorem~\ref{thm:local}. The proof follows how a difference
+between two assignments can affect a queried coordinate after several
+sweeps. Bounded degree limits the number of possible dependencies, and
+bounded directed path length makes most sweeps reduce the difference.
+
+\subsection{Comparing the full and local computations}
+Start $X$ uniformly on $K$ and $Y$ at the effective lower endpoints of
+the retained graph. Update the full graph in topological order, and use
+the restriction of that order for $Y$. Share the digit at each retained
+vertex. Digits are independent of the initial assignment and of each other,
+both between vertices and between sweeps, and are uniform in
+$\{0,\ldots,S-1\}$. The full assignment $X$ remains uniform
+on $K$. Every digit assignment for $Y$ has probability $1/N$, so its final
+queried values have exactly the empirical distribution of the computed list.
+
+\subsection{The decrease after one sweep}
+Write $\Delta_z=|X_z-Y_z|$. Superscripts old and new refer to the start
+of a sweep and the value after a coordinate's update. If all neighbors
+of $z$ are retained, the shared digit $j_z$ gives
+\begin{equation}\label{eq:local-coupling}
+\Delta_z^{\rm new}\le
+\frac1S\Delta_z^{\rm old}
++\frac{S-1-j_z}{S}\max_{u\to z}\Delta_u^{\rm new}
++\frac{j_z}{S}\max_{z\to u}\Delta_u^{\rm old},
+\end{equation}
+with an empty maximum equal to zero. The fixed endpoints agree in the
+two computations because they were copied from the full graph.
+
+Let $B_h(z)$ be the vertices at undirected distance at most $h$ from $z$,
+and suppose they are all retained. Put
+$D=\max_{u\in B_h(z)}\Delta_u^{\rm old}$ and
+$a_u=(S-1-j_u)/S$. At $z$, \eqref{eq:local-coupling} gives
+\[
+\Delta_z^{\rm new}\le(1-a_z)D+
+                           a_z\max_{u\to z}\Delta_u^{\rm new}.
+\]
+Follow a predecessor attaining the maximum, and continue backwards to a
+source. This path has at most $h$ vertices; all its vertices and their
+successors lie in $B_h(z)$. At the source the predecessor term is zero.
+Substitution along the path bounds the new discrepancy by
+$\bigl(1-\prod_u a_u\bigr)D$.
+
+Write $\Delta_z(s)$ for the discrepancy after $s$ sweeps.
+Call the pair $(z,s)$ \emph{bad} if, during sweep $s$, the digit at $z$
+or any vertex preceding $z$ on a directed path equals $S-1$. Otherwise all factors $a_u$ in the
+preceding expansion are at least $1/S$, and there are at most $h$ of
+them. Put $\beta=1-S^{-h}$. Consequently,
+\begin{equation}\label{eq:local-one-sweep}
+\Delta_z(s)\le\kappa_z(s)\max_{u\in B_h(z)}\Delta_u(s-1),
+\qquad
+\kappa_z(s)=
+\begin{cases}
+1,&(z,s)\text{ is bad},\\
+\beta,&\text{otherwise}.
+\end{cases}
+\end{equation}
+
+\subsection{Following the dependencies through several sweeps}
+Both $B_h(z)$ and the set consisting of $z$ and its directed-path
+predecessors have at most $M$ vertices. Choose
+\begin{equation}\label{eq:digit-alphabet}
+M=(d+1)^{h+1},\qquad
+S=\text{the least power of two at least }16M^3.
+\end{equation}
+The probability that $(z,s)$ is bad is at most
+$M/S\le1/(16M^2)$.
+
+For even $t$, iterating \eqref{eq:local-one-sweep} traces sequences
+$z_t=z,z_{t-1},\ldots,z_0$ with $z_{s-1}\in B_h(z_s)$. There are at most
+$M^t$ sequences. If $B_{ht}(z)$ is retained, each $B_h(z_s)$ used at
+sweep $s\ge1$ is retained: its vertices are at distance at most
+$(t-s+1)h\le th$ from $z$. Thus the expansion is valid throughout,
+including at the boundary, where only initial discrepancies occur.
+Since those initial discrepancies are at most one,
+\begin{equation}\label{eq:local-contraction}
+\Delta_z(t)\le
+\max_{z_t=z,\;z_{s-1}\in B_h(z_s)}\prod_{s=1}^t\kappa_{z_s}(s).
+\end{equation}
+
+For a fixed sequence, the events that its pairs are bad use independent
+digits from different sweeps. The probability that at least $t/2$ pairs are bad is
+at most
+\[
+2^t\left(\frac1{16M^2}\right)^{t/2}
+=\left(\frac1{2M}\right)^t.
+\]
+A union bound over the at most $M^t$ sequences gives probability at most
+$2^{-t}$ that any sequence has this many bad pairs. Otherwise every
+product in \eqref{eq:local-contraction} has at least $t/2$ factors at
+most $\beta$. Hence
+\begin{equation}\label{eq:local-interior-error}
+\Prb\bigl(\Delta_z(t)>\beta^{t/2}\bigr)\le2^{-t}.
+\end{equation}
+
+\subsection{Explicit accuracy and computation bounds}
+
+To obtain coordinate error at most $\delta$ at all queried coordinates,
+with failure probability at most $\alpha$, choose
+\begin{equation}\label{eq:local-radius}
+t=2\left(S^h\ceil{\log(1/\delta)}+
+                  \ceil{\log(r/\alpha)}\right),\qquad
+\rho=ht.
+\end{equation}
+The inequality $(1-v)^{-q}\ge1+qv$ gives
+$\beta^{S^h}\le1/2$. Thus $\beta^{t/2}\le\delta$ and
+$2^{-t}\le\alpha/r$. Equation~\eqref{eq:local-interior-error} and a
+union bound over the at most $r$ queried coordinates prove
+\eqref{eq:finite-position-coupling}.
+
+Each radius-$\rho$ neighborhood has at most
+$1+d+\cdots+d^\rho\le(d+1)^{\rho+1}$ vertices. We may therefore use
+\begin{equation}\label{eq:local-size}
+b=r(d+1)^{\rho+1},\qquad E=S^{bt}
+\end{equation}
+as bounds on the retained vertices and enumerated digit assignments.
+All these choices are computable from $d,h,r,\delta,\alpha$ alone.
+
+\subsection{Exact arithmetic}\label{sec:digit-arithmetic}
+
+Suppose the effective endpoints have at most $\Lambda$ fractional binary
+digits. An update takes maxima and minima, forms an integer linear
+combination, and divides by the power of two $S$. It adds at most
+$\log S$ fractional digits. If $b'$ vertices are retained, the precision
+after all $b't$ updates is at most
+\begin{equation}\label{eq:digit-precision}
+\Lambda+b't\log S\le\Lambda+\log E.
+\end{equation}
+All positions remain in $[0,1]$, so their integer numerators need at most
+one additional bit. Digits and tallies have at most $\log S$ and
+$\log E+1$ bits, respectively. This proves the remaining claims of
+Theorem~\ref{thm:local}.

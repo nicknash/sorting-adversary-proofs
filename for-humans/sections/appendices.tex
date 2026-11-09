@@ -22,19 +22,7 @@ If some coordinates have already been fixed, we use the same
 definitions in the remaining free coordinates. In dimension zero, the
 volume of the singleton consisting of the empty assignment is one.
 
-\begin{lemma}[Coordinate density bounds]\label{lem:fiber}
-Suppose $K$ has positive volume, and $x$ has at most $B$ other comparable
-labels and effective interval
-$(\ell,r)$ of width $W$. Its density satisfies
-\begin{align}
-f_x(t)&\le\frac{B+1}{W},\label{eq:fiber-upper}\\
-f_x(t)&\ge\frac{4^{-B}}{W}
-\qquad(\ell+W/4\le t\le r-W/4).\label{eq:fiber-lower}
-\end{align}
-These bounds also hold after fixing any set of labels incomparable with $x$,
-for every resulting slice of positive volume.
-\end{lemma}
-\begin{proof}
+\begin{proof}[Proof of Lemma~\ref{lem:fiber}]
 We may first fix any prescribed set of coordinates incomparable with $x$,
 at values leaving a positive-volume slice; write $f_x$ for its coordinate
 density. Fixing a coordinate turns its incident inequalities
@@ -97,76 +85,29 @@ $\omega$, so they hold for $f_x$ at every $t$. This proves both the
 unconditional bounds and the bounds after the initial conditioning.
 \end{proof}
 
-\begin{corollary}[A bound for small differences]\label{cor:gap}
-If $y$ is incomparable with $x$, or $Y$ is a fixed number, then for every
-fixed interval $I$ of length $a$,
-\begin{equation}\label{eq:gap}
-\Prb(X_x-Y\in I)\le\frac{(B+1)a}{W},
-\end{equation}
-where $Y=X_y$ in the first case.
-\end{corollary}
-\begin{proof}
-In the first case, condition on $X_y$. Lemma~\ref{lem:fiber} bounds the
-conditional density of $x$ by $(B+1)/W$. Integrating over the translate
-$I+X_y$ and then averaging over $X_y$ proves the claim. For fixed $Y$,
-apply the unconditional density bound.
-\end{proof}
+The coordinate densities above are log-concave pointwise: the uniform
+density on $K$ is log-concave, and integrating out the other coordinates
+preserves this property by Pr\'ekopa's marginal theorem
+\cite[Theorem~8]{prekopa}. We finish with the general bound used for anchors
+between approximate quartiles.
 
-To bound the density at an anchor selected by the search, we use
-log-concavity. A nonnegative function $g$ is \emph{log-concave} if
+\begin{proof}[Proof of Lemma~\ref{lem:central-quantiles}]
+Bobkov's characterization \cite[Proposition~A.1]{bobkov} states that
 \[
-g((1-\theta)u+\theta v)\ge g(u)^{1-\theta}g(v)^\theta
-\qquad(0<\theta<1).
+I(p)=f(F^{-1}(p)),\qquad 0<p<1,
 \]
-Pr\'ekopa's marginal theorem states that integrating out coordinates of a
-log-concave probability density preserves log-concavity
-\cite[Theorem~8]{prekopa}.
-
-\begin{lemma}[Log-concavity of coordinate densities]\label{lem:balance}
-Every coordinate density $f$, extended by zero outside its effective
-interval, is log-concave. In particular, for $u\le c\le v$,
-\begin{equation}\label{eq:balance}
-f(u)f(v)\le f(c)f(u+v-c).
-\end{equation}
-\end{lemma}
-\begin{proof}
-The feasible region $K$ is convex, so its uniform density, equal to
-$1/\vol K$ on $K$ and zero elsewhere, is log-concave. Pr\'ekopa's theorem
-therefore applies to the coordinate density obtained by integrating out
-the other coordinates.
-
-For the displayed inequality, the cases $c=u$, $c=v$, and
-$f(u)f(v)=0$ are immediate. Otherwise put $\theta=(c-u)/(v-u)$.
-The points $c$ and $u+v-c$ are the convex combinations of $u,v$ with
-weights $(1-\theta,\theta)$ and $(\theta,1-\theta)$, respectively.
-Multiplying the two log-concavity inequalities proves the claim.
-\end{proof}
-
-\begin{lemma}[Density from mass on both sides]\label{lem:midpoint-certificate}
-For a coordinate density $f$, its cumulative distribution $F$, and
-$a\le c\le b$,
-\begin{equation}\label{eq:midpoint-certificate}
-(b-a)f(c)\ge
-\min\{F(c),1-F(c)\}\bigl(F(b)-F(a)\bigr).
-\end{equation}
-\end{lemma}
-\begin{proof}
-Lemma~\ref{lem:balance} gives
-$f(u)f(v)\le f(c)f(u+v-c)$ for $u\le c\le v$.
-For fixed $v\ge c$, integration over $u\le c$ gives
+is concave. Here $F^{-1}$ is the inverse of the strictly increasing
+distribution function on the interior of its support. Concavity and
+nonnegativity give, for $p,q\in(0,1)$,
 \[
-F(c)f(v)\le f(c)\int_{-\infty}^c f(u+v-c)\,du\le f(c),
+I(p)\ge
+\begin{cases}
+\dfrac{p}{q}I(q),&p\le q,\\[5pt]
+\dfrac{1-p}{1-q}I(q),&p\ge q.
+\end{cases}
 \]
-because the integral of a density over any interval is at most one.
-Integrating this inequality over $c\le v\le b$ yields
-\[
-F(c)\bigl(F(b)-F(c)\bigr)\le(b-c)f(c).
-\]
-Likewise, for fixed $u\le c$, integration over $v\ge c$ gives
-$f(u)(1-F(c))\le f(c)$. Integrating over $a\le u\le c$ yields
-\[
-\bigl(F(c)-F(a)\bigr)\bigl(1-F(c)\bigr)\le(c-a)f(c).
-\]
-Add these inequalities and replace the two tail factors on the left by
-their minimum.
+The first inequality follows by taking chords from $q$ to points tending
+to $0$; the second uses points tending to $1$. Thus
+$I(p)\ge\min\{p,1-p\}I(q)$ for every $q$. Taking the supremum over $q$
+and setting $p=F(c)$ proves the lemma.
 \end{proof}
