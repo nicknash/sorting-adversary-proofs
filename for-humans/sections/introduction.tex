@@ -115,19 +115,36 @@ comparisons.
 \end{theorem}
 
 Merge sort uses at most $n\ceil{\log n}$ comparisons, so this bound is
-asymptotically optimal. The derandomization uses a restricted recursive
-representation of the remaining orders. The structure of these regions
-allows the adversary to calculate the required volume estimates
-deterministically in polynomial time. Its running-time guarantee is
-asymptotic and involves very large parameter thresholds.
+asymptotically optimal. The running-time guarantee is asymptotic and
+involves very large parameter thresholds.
 
-Section~\ref{sec:related} reviews the classical tree adversaries and the
-construction of Kaplan, Zamir, and Zwick. Section~\ref{sec:overview} describes
-our state and comparison procedure. Section~\ref{sec:potential} proves the
-comparison bound using two lemmas on probability estimation and anchor
-selection, whose proofs are deferred. Section~\ref{sec:legal} establishes the refinement
-properties and the geometric bound at termination; Section~\ref{sec:oracle}
-supplies the estimator. Section~\ref{sec:runtime} proves polynomial running
-time. The geometric density estimates and the accuracy proof for finite
-averaging are in the appendices. The manuscript source is available
+Section~\ref{sec:related} reviews the earlier adversaries.
+Section~\ref{sec:overview} gives our data structure and comparison procedure.
+Items are stored at nodes of a rooted tree, with a directed acyclic graph
+recording comparisons within each node. Interval bounds and the graph's
+inequalities define a region of real positions representing the possible
+orders there. The adversary estimates the fraction of this region's volume
+retained by each answer.
+
+Section~\ref{sec:potential} proves the comparison bound by accounting for
+both answered comparisons and the restrictions imposed when items move
+into children. Section~\ref{sec:legal} supplies the geometric arguments.
+Probability estimates guide the choice of where to move an item, ensuring
+that fixing its position leaves a sufficiently large region for the
+remaining items. A recursive placement of all items on a common line then
+relates the volumes within nodes to the final total order.
+
+Section~\ref{sec:oracle} gives the deterministic estimator: it averages
+over finitely many sequences of updates to individual positions. The number
+of passes through the positions needed for a prescribed accuracy depends
+on the degree, path-length and interval-width bounds, independently of the total number of
+items. During these passes, each queried position depends only on a bounded
+graph neighborhood. After propagating interval bounds through the full graph, we can therefore
+perform the averaging within these neighborhoods.
+Appendix~\ref{app:local} proves these accuracy and neighborhood
+bounds; Appendix~\ref{app:geometry} proves the geometric estimates used to
+choose positions. Finally, Section~\ref{sec:runtime} lets the degree and
+path-length bounds grow slowly with $n$, keeping the computation polynomial
+as the comparison coefficient approaches one.
+The manuscript source is available
 online.\footnote{\url{https://github.com/nicknash/sorting-adversary-proofs/tree/main/for-humans}}

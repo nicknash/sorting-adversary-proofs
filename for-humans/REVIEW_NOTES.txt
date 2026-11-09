@@ -388,3 +388,16 @@ arc inequality. Lemma 3.1 now incorporates the uniform-distribution clause
 into its setup, replacing the detached final sentence. Both compilers pass
 without final repository warnings; the PDF and source bundle were rebuilt
 and archive members match the saved files.
+
+
+Abstract and introduction roadmap -- 9 November 2026
+---------------------------------------------------
+Expanded the abstract to identify deterministic probability estimates from
+bounded graph neighborhoods and the geometric analysis of item movements.
+Replaced the introductory section list with a roadmap explaining the
+representation, comparison accounting, geometric choice of movement
+positions, finite averaging, and uniform polynomial implementation. Regions
+and their volume are introduced before use. The estimator overview states
+both graph-size-independent convergence and the finite range of influence,
+with full-graph interval propagation retained. Both compilers pass; the final
+repository log has no warnings. Source archive members match the saved files.
