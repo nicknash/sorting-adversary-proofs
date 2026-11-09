@@ -7,14 +7,16 @@ section, after their roles have been explained.
 
 \subsection{A tree of groups, each with its own coordinates}
 
-Each item has a record $(x,X_x,a_x,b_x)$ stored at exactly one node of a
-rooted tree. The label $x$ identifies its key, and the symbolic variable
+The state is a rooted tree. Each node stores item records and a single
+directed acyclic graph (DAG) on the items stored there. We call this DAG
+the node's \emph{active graph}.
+
+Each item has a record $(x,X_x,a_x,b_x)$ stored at exactly one node.
+The label $x$ identifies its key, and the symbolic variable
 $X_x$ describes its position among the items at that node. The record's
 bounds impose $a_x<X_x<b_x$, with $(a_x,b_x)\subseteq(0,1)$. We call the
-item \emph{free} while its position remains variable. The free items at a node
-are the vertices of a directed acyclic graph (DAG).
-We call this the node's \emph{active graph}. An
-arc $x\to y$ records the requirement $X_x<X_y$.
+item \emph{free} while its position remains variable. An arc $x\to y$
+in the node's active graph records the requirement $X_x<X_y$.
 
 A child occupies a fixed position $c\in(0,1)$ in its parent. This position,
 called its \emph{anchor}, determines how the child's items compare with

@@ -6,25 +6,26 @@ algorithm.
 
 \subsection{The data structure}
 
-Figure~\ref{fig:overview-state} shows the data structure used by the
-comparison procedure in Algorithm~\ref{alg:overview-compare}.
+Our data structure is a rooted tree. Each node stores item records and
+a single directed acyclic graph (DAG), whose vertices are the items
+recorded at that node. Figure~\ref{fig:overview-state} shows an example;
+Algorithm~\ref{alg:overview-compare} gives the comparison procedure.
 
-An item is represented by a record $(x,X_x,a_x,b_x)$, where $x$ is the label
-identifying its key and $X_x$ is a symbolic variable for its position.
-The fields $a_x,b_x$ restrict this variable to the open interval
-$(a_x,b_x)\subseteq(0,1)$. Each record is stored at exactly one node
-of a rooted tree, where the positions describe the relative order of its
-items. We call an item \emph{free} at its node while its position remains
-variable.
+Each item has a record $(x,X_x,a_x,b_x)$ stored at exactly one node.
+The label $x$ identifies its key, and $X_x$ is a symbolic variable for
+its position among the items at that node. The fields $a_x,b_x$ restrict
+this variable to the open interval $(a_x,b_x)\subseteq(0,1)$.
+We call an item \emph{free} at its node while its position remains variable.
 
-The items at a node are also the vertices of a directed acyclic graph
-(DAG). An arc $x\to y$ records a comparison answered $x<y$, imposing
-$X_x<X_y$ on their positions. Thus a feasible assignment of positions
-satisfies both the interval bounds and the arc inequalities. Each answered
-comparison between free items contributes at most one arc.
+In a node's DAG, an arc $x\to y$ records a comparison answered $x<y$
+between two items stored there, imposing $X_x<X_y$ on their positions.
+A feasible assignment of positions at that node satisfies both its
+interval bounds and its arc inequalities. Each answered comparison
+between free items contributes at most one arc.
 
-Initially all records are at the root, with bounds $a_x=0$ and $b_x=1$.
-The position variables $X_x$ are unassigned, and the DAG has no arcs.
+Initially the tree consists of just the root, containing all records
+with bounds $a_x=0$ and $b_x=1$. The position variables $X_x$ are
+unassigned, and the root's DAG has no arcs.
 Thus every assignment in $(0,1)^n$ is feasible, and every total order
 can be obtained by assigning distinct positions.
 
