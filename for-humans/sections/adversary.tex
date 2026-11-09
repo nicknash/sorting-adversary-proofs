@@ -17,10 +17,13 @@ We call this the node's \emph{active graph}. An
 arc $x\to y$ records the requirement $X_x<X_y$.
 
 A child occupies a fixed position $c\in(0,1)$ in its parent. This position,
-called its \emph{anchor}, represents the entire child subtree as one
-consecutive block. Inside the child, positions again range over $(0,1)$ and order items
-within that block. Comparisons between items in different children are
-determined by their anchors in the parent.
+called its \emph{anchor}, determines how the child's items compare with
+items at the parent: $X_x<c$ places $x$ before every item in the child
+subtree, and $X_x>c$ places it after every item in that subtree. If two
+children have anchors $c<d$, every item in the subtree at $c$ precedes
+every item in the subtree at $d$. Each child subtree thus occupies a
+consecutive block in the represented order. Its internal order is
+determined recursively, using position variables in $(0,1)$ at the child.
 Different children of a node have different anchors.
 The allowed assignments at each node must have positive volume;
 Section~\ref{sec:legal} proves that every operation preserves this property.
@@ -247,6 +250,14 @@ volume factor whose logarithm is at least $(1-1/k)m-4$.
 
 \subsection{The mechanical rules}
 
+Every answer is also recorded in a separate graph on the original labels,
+before restoration or, for an answer between anchors, before returning.
+This routine update is implicit in the pseudocode. We call the comparison
+history the \emph{transcript} and the graph the \emph{public comparison graph}.
+Its arcs are never counted as part of a node's active graph.
+In Section~\ref{sec:runtime} we use it to
+finish with a compatible fixed order after a prescribed number of queries.
+
 Resolve choices between eligible items by label order. Select a directed
 path by the lexicographically first eligible label sequence. Degree counts
 neighbors regardless of arc direction; the length of a directed path
@@ -277,7 +288,6 @@ counts its vertices.
   Descend from the root through common children to the first node $v$ where the representations differ\;
   \If{both labels are represented by child anchors}{
     $\mathit{answer}\gets$ their left-to-right order\;
-    Record $\mathit{answer}$ in the public graph\;
     \Return $\mathit{answer}$\;
   }
   \texttt{Tighten}$(v)$\;
@@ -290,7 +300,7 @@ $\widehat p\gets$ an estimate of $\Prb(A<B)$ to error $\eta$\;
 }{
   $\mathit{answer}\gets(B<A)$\;
 }
-Record $\mathit{answer}$ in the public graph and store its arc or interval bound at $v$\;
+Store the arc or interval bound for $\mathit{answer}$ at $v$\;
 \texttt{Tighten}$(v)$\;
 \texttt{Restore}$(v)$\;
 \Return $\mathit{answer}$\;
@@ -302,13 +312,6 @@ comparison is answered. There are at most two preparation
 refinements: once either queried item has received a fresh wide coordinate,
 it cannot need preparation again before this answer
 (Lemma~\ref{lem:preparation}).
-
-Every answer is also recorded in a separate graph on the original labels,
-before restoration or, for an answer between anchors, before returning.
-This graph stores the public history of comparisons, which we call the
-\emph{transcript}. Its arcs are never counted as part of a group's active
-graph. In Section~\ref{sec:runtime} we use it to finish with a compatible
-fixed order after a prescribed number of queries.
 
 For completeness, the parameters used by these rules are
 \begin{equation}\label{eq:parameters}

@@ -28,12 +28,14 @@ The position variables $X_x$ are unassigned, and the DAG has no arcs.
 Thus every assignment in $(0,1)^n$ is feasible, and every total order
 can be obtained by assigning distinct positions.
 
-Each child is attached to a fixed position in its parent's unit interval,
-called its \emph{anchor}. The anchor represents the whole child subtree
-as one consecutive block. Within the child, positions range from $0$ to $1$ again and order its
-contents inside that block. The child's DAG and interval bounds constrain
-these positions. The parent anchor determines the block's place among the
-parent's items and other children.
+Each child is attached to a fixed position $c\in(0,1)$ in its parent,
+called its \emph{anchor}. For any feasible assignment at the parent, an
+item with position below $c$ precedes every item in that child's subtree;
+an item with position above $c$ follows every item in it. Subtrees of
+different children are ordered by their anchors. All items of each child
+subtree therefore occur consecutively in the resulting total order.
+Within the child, position variables again range over $(0,1)$, and its
+DAG and interval bounds describe the possible orders inside this block.
 
 \begin{center}
 \begin{minipage}{\linewidth}
@@ -62,7 +64,7 @@ parent's items and other children.
   \draw[accent,fill=white] (\lo,\y) circle (1.7pt);
   \draw[accent,fill=white] (\hi,\y) circle (1.7pt);
 }
-\node at (0,1.4) {Child anchors in the root's unit interval};
+\node at (0,1.6) {Child anchors in the root's unit interval};
 \draw[thick] (-5.8,.7)--(5.8,.7);
 \node[below] at (-5.8,.65) {$0$};
 \node[below] at (5.8,.65) {$1$};
@@ -246,7 +248,6 @@ the procedure; all selections use fixed tie-breaking rules.
   $v\gets$ first node, starting from the root, where the labels' representations differ\;
   \If{both labels are represented by child anchors}{
     $\mathit{answer}\gets$ their left-to-right order\;
-    Record $\mathit{answer}$ publicly\;
     \Return $\mathit{answer}$\;
   }
   Propagate interval bounds through the DAG at $v$\;
@@ -255,7 +256,7 @@ the procedure; all selections use fixed tie-breaking rules.
 }
 Estimate the volume fraction supporting each answer, using a local DAG\;
 $\mathit{answer}\gets$ the answer with the larger estimate\;
-Record $\mathit{answer}$ publicly and store its arc or interval bound at $v$\;
+Store the arc or interval bound for $\mathit{answer}$ at $v$\;
 Propagate interval bounds through the DAG at $v$\;
 \While{a vertex at $v$ has too many neighbors}{
   \texttt{Refine}(such a vertex)\;
