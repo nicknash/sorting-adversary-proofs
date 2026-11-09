@@ -205,7 +205,7 @@ and the fixed parameters $R,\eta$.}
 $W_x\gets r_x-\ell_x$\;
 \If{$W_x<1/R$}{
   Choose the integer $m$ with $W_x/8<2^{-m}\le W_x/4$\;
-  $c\gets$ the level-$m$ anchor nearest to $(\ell_x+r_x)/2$, taking the smaller one on a tie\;
+  $c\gets$ the anchor at resolution $m$ nearest to $(\ell_x+r_x)/2$, taking the smaller one on a tie\;
   \Return $c$\;
 }
 $a\gets0$; $b\gets1$\;
@@ -219,7 +219,7 @@ $a\gets0$; $b\gets1$\;
 \end{algorithm}
 
 For a wide item, each rejected midpoint halves the search interval $[a,b]$.
-The accepted interval's length is $2^{-m}$, where $m$ is the anchor's level.
+The accepted interval's length is $2^{-m}$, where $m$ is the anchor's resolution.
 Both branches leave the stored state unchanged.
 
 \subsubsection{Density estimates used by the two rules}
@@ -299,7 +299,7 @@ therefore permits at most the stated number of tests.
 
 The wide-item search gives $\log f_x(c)\ge m-4$. For a narrow item,
 the central density estimate gives the weaker bound $m-3-2B$. To absorb
-this extra loss into the allowed fraction $m/k$ of the level, choose
+this extra loss into the allowance $m/k$, choose
 \begin{equation}\label{eq:width-threshold}
 R=2^{2kB}.
 \end{equation}
@@ -311,7 +311,7 @@ bound.
 The in-node DAG bounds imply that $x$ has at most $B$ other comparable coordinates, by
 \eqref{eq:comparable-bound}. For a wide item, Lemma~\ref{lem:median-search} gives the stronger lower
 bound $m-4$. For a narrow item, write $b=2^{-m}$ for the spacing between
-consecutive level-$m$ anchors, so $W_x/8<b\le W_x/4$. The chosen midpoint is at distance at
+consecutive anchors at resolution $m$, so $W_x/8<b\le W_x/4$. The chosen midpoint is at distance at
 most $b/2\le W_x/8$ from the interval center. It belongs to the central
 half and is therefore interior. By \eqref{eq:density-summary} and
 $W_x<8b$,
@@ -326,8 +326,8 @@ dyadic calculation. Both use deterministic tie rules and leave the stored
 state unchanged.
 \end{proof}
 
-The narrow rule must use its prescribed level even if an anchor of
-lower level lies inside the effective interval. Its high level is what allows
+The narrow rule must use its prescribed anchor resolution even if an anchor at a
+coarser resolution lies inside the effective interval. The resulting lower bound on $m$ allows
 the weaker central density estimate to satisfy the same bound as the
 wide-item search.
 

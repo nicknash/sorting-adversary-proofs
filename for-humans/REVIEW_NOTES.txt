@@ -432,3 +432,18 @@ described all four appendices: geometric estimates, finite averaging
 accuracy, arithmetic bounds, and parameter reference. Both compilers pass
 without final repository warnings; source archive members match the saved
 files.
+
+
+Anchor resolution and Tighten pseudocode -- 9 November 2026
+----------------------------------------------------------
+Removed the elementary midpoint examples and the ambiguous uniqueness
+sentence. Defined anchors at resolution m directly as the midpoints of the
+2^m equal subintervals; replaced anchor-level terminology throughout the
+manuscript, including the proofs, pseudocode, and parameter table. Added
+Tighten pseudocode beside the effective-interval definition: a forward
+topological pass propagates lower bounds and a reverse pass upper bounds.
+The in-place updates compute exactly the existing ancestor/descendant
+formula, with deterministic topological ordering. Both compilers pass
+without final repository warnings. The affected algorithms, definition,
+proof heading, and parameter table were visually checked; source archive
+members match the saved files.

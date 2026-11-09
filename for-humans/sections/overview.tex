@@ -184,9 +184,27 @@ leads from $y$ to $x$. The resulting \emph{effective interval} is
 \ell_x=\max_{y\preceq x}a_y,\qquad
 r_x=\min_{y\succeq x}b_y,\qquad W_x=r_x-\ell_x.
 \end{equation}
-The operation \texttt{Tighten} stores these bounds as $a_x,b_x$. It is
-performed after every change to its in-node DAG or intervals. Bounds remain
-stored even if the arcs that implied them are later removed.
+The operation \texttt{Tighten} (Algorithm~\ref{alg:tighten}) stores these
+bounds as $a_x,b_x$. It propagates lower bounds in topological order and
+upper bounds in reverse topological order. It is performed after every
+change to its in-node DAG or intervals. Bounds remain stored even if the
+arcs that implied them are later removed.
+
+\begin{algorithm}[H]
+\caption{\texttt{Tighten}$(v)$: propagate interval bounds through an in-node DAG.}
+\label{alg:tighten}
+\DontPrintSemicolon
+\KwIn{A tree node $v$, its in-node DAG, and the stored interval bounds.}
+\KwOut{The stored bounds $a_x=\ell_x$ and $b_x=r_x$ of \eqref{eq:effective} for every item $x$ at $v$.}
+$T\gets$ a topological order of the in-node DAG at $v$, choosing by item label whenever several vertices are eligible\;
+\ForEach{$x$ in $T$}{
+  $a_x\gets\max\bigl(\{a_x\}\cup\{a_y:y\to x\}\bigr)$\;
+}
+\ForEach{$x$ in reverse order of $T$}{
+  $b_x\gets\min\bigl(\{b_x\}\cup\{b_y:x\to y\}\bigr)$\;
+}
+\end{algorithm}
+
 An interval bound or a directed path may already decide the comparison;
 in that case return the determined answer.
 
@@ -304,15 +322,12 @@ from its current node into a child. After tightening the parent's interval
 bounds, it calls \texttt{ChooseAnchor} to select a position $c$ inside
 $x$'s effective interval.
 
-The permitted anchor positions are obtained by repeatedly halving $[0,1]$
-and taking the midpoints of the resulting subintervals. Before any halving,
-the midpoint is $1/2$; after one halving, the two midpoints are $1/4$ and
-$3/4$. After $m$ halvings there are $2^m$ equal subintervals, whose midpoints are
+For each integer $m\ge0$, the anchors at \emph{resolution} $m$ are the
+midpoints of the $2^m$ equal subintervals of $[0,1]$:
 \begin{equation}\label{eq:dyadic}
 c=(i+\tfrac12)2^{-m},\qquad i=0,\ldots,2^m-1.
 \end{equation}
-We call $m$ the anchor's \emph{level}. There are $2^m$ anchors at level $m$,
-and each anchor has a unique level. These positions are dyadic rationals,
+These positions are dyadic rationals,
 so using them as interval endpoints preserves the form of the stored bounds.
 Algorithm~\ref{alg:choose-anchor} in Section~\ref{sec:median-search} gives
 the rule for selecting an anchor inside the effective interval.

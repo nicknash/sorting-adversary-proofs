@@ -120,12 +120,12 @@ hyperplanes have volume zero. Hence $2^{-n}Z\mathcal W\le1/n!$.
 The items on a directed path in an in-node DAG have already been compared, directly or
 through intermediate items. Two of them therefore cannot enter the same
 child. A long path needs many distinct anchors, but there are few anchors
-at low levels. The following estimate makes this observation quantitative.
-This is the path-level bound used in Proposition~\ref{prop:repairs}.
+at coarse resolutions. The following estimate makes this observation
+quantitative and is used in Proposition~\ref{prop:repairs}.
 
-\begin{lemma}[Total level of a path batch]\label{lem:path-address}
+\begin{lemma}[Sum of anchor resolutions along a path]\label{lem:path-address}
 The $H$ labels of a selected path in an in-node DAG enter distinct children of their
-parent. If their levels are $m_1,\ldots,m_H$, then
+parent. If the anchors have resolutions $m_1,\ldots,m_H$, then
 \begin{equation}\label{eq:path-charge}
 \sum_{i=1}^H m_i\ge H(k-2).
 \end{equation}
@@ -137,11 +137,11 @@ and remain so after the in-node arcs are deleted. By Lemma~\ref{lem:admission}, 
 be admitted to the same child. The procedure completes all $H=2^k$
 refinements in this parent, so it uses $H$ distinct anchors.
 
-There are exactly $2^m$ possible anchors of level $m$. The smallest
-possible total level therefore uses all anchors of levels $0,\ldots,k-1$
-and one anchor of level $k$. Its value is
+There are exactly $2^m$ possible anchors at resolution $m$. The smallest
+possible sum uses all anchors at resolutions $0,\ldots,k-1$
+and one anchor at resolution $k$. Its value is
 \[
 \sum_{m=0}^{k-1}m2^m+k=(k-2)2^k+k+2\ge H(k-2).
 \]
-Every other choice of $H$ distinct anchors has at least this total level.
+Every other choice of $H$ distinct anchors has at least this sum of resolutions.
 \end{proof}
