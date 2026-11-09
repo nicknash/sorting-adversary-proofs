@@ -117,17 +117,13 @@ DAG and interval bounds describe the possible orders inside this block.
 \end{scope}
 \end{tikzpicture}
 \captionof{figure}{A state of the adversary. Each large box is a tree node,
-containing a DAG and one open interval for each of its items. Blue segments
-show the interval bounds; blue arcs impose additional inequalities between
-positions. Solid dots are fixed child anchors, and gray lines connect them
-to their children. Vertices are arranged to display the DAG's arcs;
-the horizontal bars specify their allowed positions.}
+containing a DAG and one open interval for each of its items.}
 \label{fig:overview-state}
 \end{minipage}
 \end{center}
 
 In the root of Figure~\ref{fig:overview-state}, the DAG records $a<b$ and
-$a<c$, while the bars give $X_a\in(0,3/4)$, $X_b\in(1/4,1)$, and
+$a<c$. The allowed intervals are $X_a\in(0,3/4)$, $X_b\in(1/4,1)$, and
 $X_c\in(1/4,1)$. The children contain $p<q$ and $r<s$.
 To read an order from this state, choose feasible positions at each node,
 avoiding ties with other items or child anchors. List the items and anchors
