@@ -476,3 +476,11 @@ Replaced the vague claim that dyadic anchors preserve the form of stored
 bounds with the explicit statement that the interval endpoints a_x,b_x
 remain dyadic when refinement updates them. Both compilers pass without
 final repository warnings; source archive members match the saved files.
+
+
+Purpose of the Section 4.1 definitions -- 9 November 2026
+-------------------------------------------------------
+Reworded the opening of Section 4.1 to explain that the definitions are
+needed both to state the anchor-selection lemma and to prove the comparison
+bound theorem. Both compilers pass without final repository warnings;
+source archive members match the saved files.
