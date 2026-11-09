@@ -99,3 +99,19 @@ built-in compiler. Cross-references and citations resolve, all 33 pages were
 rendered and checked for layout, and the rebuilt source archive contains 16
 files matching the saved sources. No new formal or external mathematical
 verification is claimed. The previous Hexagon deposit is unchanged.
+
+
+Further Section 3 revision -- 9 November 2026
+-------------------------------------------
+The overview now opens by stating its purpose. The state diagram shows a
+branching DAG, explicit interval bounds, and child anchors at the root; each
+child has its own DAG and intervals. A worked example explains how the state
+represents a total order, and the same labels illustrate the three query cases.
+High-level pseudocode gives query preparation, volume-based answer selection,
+recording the answer, and degree/path restoration. The full thresholds and
+position-selection rules remain in Section 4 and the subsequent analysis.
+
+The pseudocode was checked against the saved mechanical rules. Both compilers
+pass, cross-references resolve, and the affected pages and figures were rendered
+and checked. The current PDF has 34 pages; the source archive was rebuilt and
+compared with the saved files. No proof or formalization changes were made.

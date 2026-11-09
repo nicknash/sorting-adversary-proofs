@@ -1,27 +1,33 @@
 \section{Overview of our adversary}\label{sec:overview}
 
-The adversary retains comparisons within groups and moves items down a
-tree when needed to keep its calculations tractable. Section~\ref{sec:algorithm}
-gives the complete rules.
+We now give an overview of the data structure maintained by our adversary
+and how it is updated in response to comparison queries from the sorting
+algorithm. We describe the stored information, the operation that moves
+an item into a child, and the procedure for answering a query.
+Section~\ref{sec:algorithm} gives the complete rules and their parameters.
 
-\subsection{A tree of groups}
+\subsection{The data structure}
 
-Each item $x$ is stored at exactly one tree node, where it has a variable
-coordinate $X_x$ in an open subinterval of $(0,1)$ and is called \emph{free}.
-The free items form a directed acyclic graph (DAG). An arc $x\to y$
-records an answered comparison $X_x<X_y$; transitive consequences are not
-added as arcs. The intervals and arc inequalities define a region of
-allowed coordinate assignments at each node. Initially all items are at
-the root, with unit intervals and no arcs.
+Each item is stored at exactly one node of a rooted tree. Within each node,
+the items form a directed acyclic graph (DAG): an arc $x\to y$ records a
+comparison answered $x<y$. We store the answered comparisons, without
+adding their transitive consequences as further arcs. Initially all items
+are at the root and there are no arcs.
 
-Each child has a fixed \emph{anchor} in its parent's unit interval,
-locating the whole child subtree as a consecutive block. The child has
-its own unit interval and DAG. Coordinates specify possible orders, not
-numerical key values. Choose feasible coordinates without ties, order
-each node's free items and child anchors by position, and recursively
-replace anchors by child orders. Every resulting total order must respect
-the public answers, which remain recorded in a separate graph.
-Figure~\ref{fig:overview-state} shows the two levels of representation.
+Each node also has its own copy of the unit interval. An item $x$ at that
+node has a variable position $X_x$ and an open interval of allowed values.
+The positions must lie in their intervals and satisfy $X_x<X_y$ for each
+arc $x\to y$. We call these items \emph{free}, because their positions
+have not been fixed. Initially every allowed interval is $(0,1)$.
+The positions describe possible orders of the items; they are not numerical
+values of the keys being sorted.
+
+Each child is attached to a fixed position in its parent's unit interval,
+called its \emph{anchor}. The anchor represents the whole child subtree
+as one consecutive block. The child has its own DAG and interval bounds
+for ordering items within that block. Positions in different nodes belong
+to different copies of $(0,1)$ and cannot be compared directly.
+Figure~\ref{fig:overview-state} shows these parts of the data structure.
 
 \begin{center}
 \begin{minipage}{\linewidth}
@@ -30,54 +36,118 @@ Figure~\ref{fig:overview-state} shows the two levels of representation.
 \begin{tikzpicture}[>=Latex,font=\small,
   group/.style={draw=ink!65,rounded corners=2pt,fill=pale},
   item/.style={circle,draw=ink,fill=white,minimum size=6mm,inner sep=1pt}]
-\draw[group] (-5.6,0) rectangle (5.6,1.9);
-\node at (0,2.2) {One node $v$};
-\node at (-3.2,1.5) {DAG of free items};
-\node[item] (oa) at (-4.1,.75) {$a$};
-\node[item] (ob) at (-2.3,.75) {$b$};
+% Root: the graph, the interval bounds, and the child anchors.
+\draw[group] (-6.8,0) rectangle (6.8,4.7);
+\node[font=\bfseries] at (0,4.35) {Root};
+\node at (-3.8,3.85) {Stored DAG};
+\node at (3.2,3.85) {Allowed intervals};
+\draw[ink!20] (-.5,1.85)--(-.5,4.05);
+\node[item] (oa) at (-5,2.7) {$a$};
+\node[item] (ob) at (-2.5,3.3) {$b$};
+\node[item] (oc) at (-2.5,2.1) {$c$};
 \draw[->,thick,accent] (oa)--(ob);
-\node at (-3.2,.2) {$X_a,X_b\in(0,1)$};
-\draw[ink!30] (-.8,.15)--(-.8,1.7);
-\node at (2.4,1.5) {Anchors in $v$'s unit interval};
-\draw[thick] (0,.75)--(4.8,.75);
-\fill (1.2,.75) circle (2pt);
-\fill (3.6,.75) circle (2pt);
-\node[above=3pt] at (0,.75) {$0$};
-\node[above=3pt] at (4.8,.75) {$1$};
-\node[above=3pt] at (1.2,.75) {$1/4$};
-\node[above=3pt] at (3.6,.75) {$3/4$};
-\draw[thick,ink!55] (1.2,.75)--(1.2,-.65);
-\draw[thick,ink!55] (3.6,.75)--(4.2,-.65);
-\draw[group] (-.25,-1.95) rectangle (2.65,-.65);
-\draw[group] (2.75,-1.95) rectangle (5.65,-.65);
-\node at (1.2,-.95) {Child at $1/4$};
-\node at (1.2,-1.35) {$p,q$ free; no arc};
-\node[font=\footnotesize] at (1.2,-1.73) {own unit interval};
-\node at (4.2,-.95) {Child at $3/4$};
-\node at (4.2,-1.35) {$r$ free};
-\node[font=\footnotesize] at (4.2,-1.73) {own unit interval};
+\draw[->,thick,accent] (oa)--(oc);
+\foreach \x/\label in {1/0,2.15/{1/4},3.3/{1/2},4.45/{3/4},5.6/1}
+  \node[font=\scriptsize] at (\x,3.45) {$\label$};
+\foreach \y/\label/\lo/\hi in {3.05/a/1/4.45,2.55/b/2.15/5.6,2.05/c/2.15/5.6}{
+  \node[left] at (.65,\y) {$X_{\label}$};
+  \draw[ink!25] (1,\y)--(5.6,\y);
+  \draw[accent,very thick] (\lo,\y)--(\hi,\y);
+  \draw[accent,fill=white] (\lo,\y) circle (1.7pt);
+  \draw[accent,fill=white] (\hi,\y) circle (1.7pt);
+}
+\node at (0,1.4) {Child anchors in the root's unit interval};
+\draw[thick] (-5.8,.7)--(5.8,.7);
+\node[below] at (-5.8,.65) {$0$};
+\node[below] at (5.8,.65) {$1$};
+\fill (-2.9,.7) circle (2.3pt);
+\fill (2.9,.7) circle (2.3pt);
+\node[above=3pt] at (-2.9,.7) {$1/4$};
+\node[above=3pt] at (2.9,.7) {$3/4$};
+\draw[thick,ink!55] (-2.9,.7)--(-2.9,-.2)--(-3.55,-.9);
+\draw[thick,ink!55] (2.9,.7)--(2.9,-.2)--(3.55,-.9);
+% Each child repeats both kinds of information on its own unit interval.
+\begin{scope}[shift={(-3.55,-.9)}]
+\draw[group] (-3.25,-3) rectangle (3.25,0);
+\node[font=\bfseries] at (0,-.35) {Child at $1/4$};
+\node[font=\footnotesize] at (-1.9,-.85) {Stored DAG};
+\node[font=\footnotesize] at (1.5,-.85) {Allowed intervals};
+\draw[ink!20] (-.55,-1.1)--(-.55,-2.5);
+\node[item] (op) at (-2.55,-1.7) {$p$};
+\node[item] (oq) at (-1.25,-1.7) {$q$};
+\draw[->,thick,accent] (op)--(oq);
+\foreach \x/\label in {.4/0,2.8/1}
+  \node[font=\scriptsize] at (\x,-1.25) {$\label$};
+\foreach \y/\label/\lo/\hi in {-1.7/p/.4/2.8,-2.2/q/.4/2.8}{
+  \node[left] at (.15,\y) {$X_{\label}$};
+  \draw[ink!25] (.4,\y)--(2.8,\y);
+  \draw[accent,very thick] (\lo,\y)--(\hi,\y);
+  \draw[accent,fill=white] (\lo,\y) circle (1.7pt);
+  \draw[accent,fill=white] (\hi,\y) circle (1.7pt);
+}
+\node[font=\footnotesize] at (0,-2.7) {Its own copy of $(0,1)$};
+\end{scope}
+\begin{scope}[shift={(3.55,-.9)}]
+\draw[group] (-3.25,-3) rectangle (3.25,0);
+\node[font=\bfseries] at (0,-.35) {Child at $3/4$};
+\node[font=\footnotesize] at (-1.9,-.85) {Stored DAG};
+\node[font=\footnotesize] at (1.5,-.85) {Allowed intervals};
+\draw[ink!20] (-.55,-1.1)--(-.55,-2.5);
+\node[item] (orr) at (-2.55,-1.7) {$r$};
+\node[item] (os) at (-1.25,-1.7) {$s$};
+\draw[->,thick,accent] (orr)--(os);
+\foreach \x/\label in {.4/0,2.8/1}
+  \node[font=\scriptsize] at (\x,-1.25) {$\label$};
+\foreach \y/\label in {-1.7/r,-2.2/s}{
+  \node[left] at (.15,\y) {$X_{\label}$};
+  \draw[accent,very thick] (.4,\y)--(2.8,\y);
+  \draw[accent,fill=white] (.4,\y) circle (1.7pt);
+  \draw[accent,fill=white] (2.8,\y) circle (1.7pt);
+}
+\node[font=\footnotesize] at (0,-2.7) {Its own copy of $(0,1)$};
+\end{scope}
 \end{tikzpicture}
-\captionof{figure}{The DAG drawing does not assign values to $X_a,X_b$.
-To compare $p$ with $q$, descend into their child. To compare $p$ with $r$,
-compare the anchors $1/4$ and $3/4$. To compare $a$ with $p$, compare
-$X_a$ with $1/4$ at $v$. The gray lines are tree edges.}
+\captionof{figure}{A state of the adversary. Each large box is a tree node,
+containing a DAG and one open interval for each of its items. Blue segments
+show the interval bounds; blue arcs impose additional inequalities between
+positions. Solid dots are fixed child anchors, and gray lines connect them
+to their children. The locations of vertices in the DAG drawings do not
+assign values to their coordinates.}
 \label{fig:overview-state}
 \end{minipage}
 \end{center}
 
+In the root of Figure~\ref{fig:overview-state}, the DAG records $a<b$ and
+$a<c$, while the bars give $X_a\in(0,3/4)$, $X_b\in(1/4,1)$, and
+$X_c\in(1/4,1)$. The children contain $p<q$ and $r<s$.
+To read an order from this state, choose feasible positions at each node,
+avoiding ties with other items or child anchors. List the items and anchors
+from left to right, and recursively replace each anchor by its child's
+order. For example, root positions
+$(X_a,X_b,X_c)=(1/3,1/2,7/8)$ give
+\[
+p<q<a<b<r<s<c.
+\]
+Other feasible choices give other orders. Every order represented this way
+must respect all previous answers to the sorter. Those answers are also
+kept in a separate graph on the original item labels.
+
 \subsection{Moving an item into a child}
 
-Propagating interval bounds through the DAG gives each coordinate's
-\emph{effective interval}, its full range of feasible values. These implied
-bounds remain stored when arcs are deleted.
+The operation that moves an item $x$ into a child is called a
+\emph{refinement}, denoted \textsc{Refine}$(x)$. First propagate all interval
+bounds implied by the DAG.
+This gives each item's \emph{effective interval}, its full range of
+feasible positions. Choose a point $c$ inside $x$'s effective interval
+and fix its parent position at $X_x=c$.
 
-A \emph{refinement} fixes an item's parent coordinate at a point $c$
-inside its effective interval. Incoming arcs become upper bounds $c$ on their other
-endpoints; outgoing arcs become lower bounds $c$. Delete the item and its
-incident arcs, retain the other constraints, and propagate the new bounds.
-The item enters the child anchored at $c$, creating it if necessary, with
-a fresh unconstrained unit coordinate. The child's previous constraints
-remain unchanged (Figure~\ref{fig:overview-refine}).
+The incident arcs then become interval bounds: $y\to x$ gives $X_y<c$,
+and $x\to z$ gives $X_z>c$. Remove $x$ and these arcs from the parent,
+retain the bounds, and propagate them through the remaining DAG.
+Insert $x$ into the child anchored at $c$, creating it if needed. In that
+child, $x$ receives a fresh interval $(0,1)$ and no incident arcs; the
+child's existing constraints remain unchanged.
+Figure~\ref{fig:overview-refine} illustrates reuse of an existing child.
 
 \begin{center}
 \begin{minipage}{\linewidth}
@@ -122,41 +192,74 @@ location, not the order of its contents.}
 \end{minipage}
 \end{center}
 
-Reusing a child leaves the arriving item's order within it open.
-Lemma~\ref{lem:admission} proves that an interior choice of $c$ implies
-that the public answers have not ordered the item relative to any label
-in that child subtree. Section~\ref{sec:median-search} explains how to
-choose $c$ to control the volume change.
+Thus the parent fixes where the child block occurs, while the order of
+$x$ within that block stays open. Lemma~\ref{lem:admission} proves that
+this operation preserves all answered comparisons.
+The deterministic rule for choosing $c$ is given in
+Section~\ref{sec:median-search}; its role is to control how many possible
+orders refinement discards.
 
 \subsection{Answering a comparison}
 
-Descend from the root while both queried labels belong to the same child
-subtree. Where they first differ, each is represented by a free item or
-a child anchor. Two anchors determine an answer, which is recorded
-publicly and returned immediately.
+A query on labels $A,B$ is handled at the first node where they are
+represented differently. Starting at the root, descend while both labels
+belong to the same child subtree. At the stopping node, each is either a
+free item or the anchor of a child containing it.
+In Figure~\ref{fig:overview-state}, comparing $p$ with $q$ descends into
+the left child; comparing $p$ with $r$ uses the anchors $1/4$ and $3/4$;
+and comparing $a$ with $p$ compares $X_a$ with $1/4$ at the root.
 
-Otherwise, estimate the fraction of this node's allowed assignments
-supporting each answer, measured by volume. Retain a small neighborhood
-of the queried vertices, with effective intervals inherited from the full
-DAG, and compute its volumes exactly. This deterministic calculation is
-accurate when degrees and directed path lengths are bounded and at least
-one queried coordinate has an effective interval of sufficient width
+Two distinct anchors already determine an answer. Otherwise, the allowed
+position assignments at this node form a region, cut into two parts by
+the possible answers. The adversary estimates their relative volumes
+and chooses the answer with the larger estimate. This keeps at least
+half the old volume, up to a small error. The estimates are calculated
+deterministically using only a small neighborhood of the queried items
+in the DAG, with interval bounds inherited from the full graph
 (Theorem~\ref{thm:local}).
 
-Before calculating the estimate, if no queried coordinate has sufficient
-width, refine one of the queried free items and restart from the root. The handling node may
-change. Choose the answer with the larger estimate; it retains at least
-half the full node volume, up to a small error. Record the answer publicly
-and store it as an arc or interval bound, then restore this node's degree
-and path-length bounds by refinement.
+An answer between two free items adds an arc to their DAG; an answer
+between a free item and an anchor tightens the item's interval.
+For the volume estimates to be accurate, degrees and directed paths must
+stay below prescribed limits, and at least one queried free item must have
+an effective interval of sufficient width. If all queried free intervals
+are too narrow, refine one of those items before answering. After
+answering, we restore the graph bounds by
+refining vertices with too many neighbors, then refining every vertex of
+any selected path that is too long. The following pseudocode summarizes
+the procedure; all selections use fixed tie-breaking rules.
 
-The proof must establish legality, sufficient comparison cost, and
-polynomial work. Moving items can discard orders beyond those excluded
-by comparison answers, so this additional loss must be controlled. A
-\emph{potential}, a number used only in the analysis, starts at $n!$ and
-ends at most $2^n$. Preparing the state and restoring its graph bounds do
-not decrease this potential overall, while each comparison decreases its
-logarithm by at most $1+o(1)$, forcing the claimed bound
-(Proposition~\ref{prop:repairs} and Theorem~\ref{thm:fixed-stage}). Legality
-is proved in Proposition~\ref{prop:legality}; Section~\ref{sec:runtime}
-bounds all work by one fixed polynomial.
+\begin{quote}
+\begin{minipage}{\linewidth}
+\textbf{Compare$(A,B)$}\par\smallskip
+\begin{tabbing}
+\hspace{1.1em}\=\hspace{1.1em}\=\hspace{1.1em}\=\kill
+\textbf{loop}\\
+\> $v\gets$ first node where $A,B$ are not in the same child subtree\\
+\> \textbf{if} both are represented by child anchors \textbf{then}\\
+\>\> record and \textbf{return} their left-to-right order\\
+\> propagate interval bounds through the DAG at $v$\\
+\> \textbf{if} at least one queried free interval is wide enough \textbf{then break}\\
+\> \textsc{Refine}(one of the queried free items)\\
+\textbf{end loop}\\[3pt]
+Estimate the volume fraction supporting each answer, using a local DAG.\\
+Choose the answer with the larger estimate and record it publicly.\\
+Store the answer at $v$ as an arc or an interval bound; propagate bounds.\\
+\textbf{while} some vertex at $v$ has too many neighbors \textbf{do}\\
+\> \textsc{Refine}(such a vertex)\\
+\textbf{while} the DAG at $v$ has a directed path that is too long \textbf{do}\\
+\> select such a path and \textsc{Refine} all its vertices\\
+\textbf{return} the chosen answer
+\end{tabbing}
+\end{minipage}
+\end{quote}
+
+Refining a queried item restarts the search from the root because the node
+that handles the query may change. In the last loop, the whole selected
+path is refined before another is selected.
+
+The proofs must account for the orders discarded by refinements as well
+as by comparison answers. Section~\ref{sec:legal} establishes legality;
+Sections~\ref{sec:accounting} and~\ref{sec:potential} bound the total loss
+and prove the comparison lower bound. Section~\ref{sec:runtime} shows
+that the local calculations and all updates take polynomial time.

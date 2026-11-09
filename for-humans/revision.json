@@ -4,11 +4,11 @@
   "argument": "unit-interval adversary with a single repair potential",
   "source_pdf_sha256": "3f83f2dc85d014f502c559961e5f49f4cf923bf3b8708a57c4941b8438bbdc41",
   "source_zip_sha256": "d66ddee35fef71a974c96fda7aa2c9e1701a7b3d6134c20199ddd8f635a92ddc",
-  "local_pdf_sha256": "5ca772ad2aa1359312e1b934b1cd739b732ad58be551698e87a21913c0567d4f",
-  "prepared_zip_sha256": "b8cddb1e23b828521e52b30bf18694c4ffaf3e2fc21b341b47531ba9d0d378ec",
+  "local_pdf_sha256": "23255ab5359f3f3280e035d493cb01e21df697f13910410e4536718e18e443e8",
+  "prepared_zip_sha256": "012ca2e42c452620f067db39c3371996138391e6f73bc68c6f7b4959b12af71e",
   "previous_hexagon_submission": "hexagon:2611.00196",
   "previous_submission_metadata": "submission.json",
   "formalization": "Related earlier integer-colour construction; this continuous presentation is not formally verified.",
-  "exposition": "Separate related-work section with worked binary-tree examples and the KZZ interval lattice, retained pairs, comparison bound, and open question; concise illustrated overview of the new state, refinement, and comparison flow; consistent DAG terminology throughout.",
-  "pages": 33
+  "exposition": "Separate related-work section with binary-tree examples and KZZ lattice and pair diagrams; overview introduces the data structure, illustrates DAGs and interval bounds inside tree nodes, reads a total order from a worked state, and gives high-level query pseudocode before the full algorithm and proofs.",
+  "pages": 34
 }

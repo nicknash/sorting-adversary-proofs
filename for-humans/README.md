@@ -5,8 +5,8 @@ Nicholas Nash · 8 November 2026 · ORCID [0009-0003-0475-7852](https://orcid.or
 The current manuscript presents the unit-interval adversary with a single
 potential for repairs. It introduces the derandomization problem, reviews
 the classical binary-tree adversaries and the interval lattice of Kaplan,
-Zamir, and Zwick, then gives an illustrated overview and the complete
-mechanical algorithm. The later sections develop legality, local
+Zamir, and Zwick, then gives an illustrated data-structure overview with high-level query
+pseudocode, followed by the complete mechanical algorithm. The later sections develop legality, local
 probabilities, geometric packing, the comparison bound, and a uniform
 polynomial-time implementation. Worked examples distinguish fixed parent
 positions from fresh child coordinates. TikZ figures illustrate the
