@@ -323,8 +323,8 @@ bounds, it calls \texttt{ChooseAnchor} to select a position $c$ inside
 $x$'s effective interval.
 
 We select anchor positions using a fixed infinite binary tree, the
-\emph{anchor tree}, shown in Figure~\ref{fig:anchor-tree}. The same
-auxiliary tree is used at every node of the adversary's tree. Each
+\emph{implicit anchor tree}, shown in Figure~\ref{fig:anchor-tree}. The same
+tree is used at every node of the adversary's tree. Each
 anchor-tree node $u$ has an interval $I(u)=[a,b]$ and a position
 $c(u)=(a+b)/2$; write $|I(u)|=b-a$. The root has interval $[0,1]$; the left and right children
 of $u$ have intervals $[a,c(u)]$ and $[c(u),b]$, respectively.
@@ -336,8 +336,8 @@ c=(i+\tfrac12)2^{-m},\qquad i=0,\ldots,2^m-1.
 \end{equation}
 We call $m$ the \emph{anchor depth}, always measured in the anchor tree.
 These positions are dyadic rationals, so refinement keeps the interval
-endpoints $a_x,b_x$ dyadic. The anchor tree is implicit: a finite path
-from its root specifies an anchor.
+endpoints $a_x,b_x$ dyadic. A finite path from the anchor tree's root
+specifies an anchor.
 Algorithm~\ref{alg:choose-anchor} in Section~\ref{sec:median-search} gives
 the walks that select an anchor inside the effective interval.
 
@@ -367,7 +367,7 @@ the walks that select an anchor inside the effective interval.
   \draw[ink!35] (\name.south east)--+(.2,-.3);
 }
 \end{tikzpicture}
-\caption{The anchor tree. The highlighted path selects $5/8$ at depth $2$.}
+\caption{The implicit anchor tree. The highlighted path selects $5/8$ at depth $2$.}
 \label{fig:anchor-tree}
 \end{figure}
 

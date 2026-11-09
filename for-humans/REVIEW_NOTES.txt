@@ -540,3 +540,12 @@ proof references to retain statements before use. Both compilers pass
 without final repository warnings; the changed figure, algorithm, proof,
 and implementation layouts were visually checked. All 18 source archive
 members match the saved files.
+
+
+Implicit anchor tree terminology -- 9 November 2026
+--------------------------------------------------
+Named the structure the implicit anchor tree in its definition and figure
+caption, removing the auxiliary-tree wording from the manuscript and
+README. Existing auxiliary-graph terminology is unchanged. Both compilers
+pass without final repository warnings; the affected page was visually
+checked and all source archive members match the saved files.

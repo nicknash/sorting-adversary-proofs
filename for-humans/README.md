@@ -10,7 +10,7 @@ Zamir, and Zwick. Section 3 describes the state and algorithm once, with
 diagrams and one comparison procedure. It introduces the parameters alongside
 the operations that need them and states a probability-estimation lemma.
 An implicit binary anchor tree specifies positions by root-to-node paths;
-both branches of anchor selection are walks in this auxiliary tree.
+both branches of anchor selection are walks in this tree.
 Section 4 states the comparison bound in terms of the degree threshold k
 and states each refinement, consistency, and geometric guarantee before
 using it in the proof. Section 5 gives the anchor rules and the deferred
