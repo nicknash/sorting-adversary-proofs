@@ -64,9 +64,9 @@ checks agree, and otherwise use a general sorting algorithm. That
 permutation then costs only $n-1$ comparisons. The deterministic adversary
 must choose its answers in response to the questions it receives.
 
-\paragraph{Randomized approximation of the larger-class rule.}
-Randomization also makes it possible to approximate the global counts
-used by the larger-class rule. Given the current partial order $P$,
+\paragraph{Randomized approximation of the number of linear extensions.}
+Randomization also makes it possible to estimate how many linear extensions
+remain after each possible answer. Given the current partial order $P$,
 assign each label a real coordinate in $(0,1)$ and form the region
 \[
 K(P)=\{X\in(0,1)^n:X_i<X_j\text{ whenever }i<_Pj\}.
