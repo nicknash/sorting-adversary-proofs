@@ -23,10 +23,9 @@ without bound while the adversary's running time remains polynomial.
 For this section, fix a power of two $k\ge64$.
 
 The proof rests on two essential guarantees. Lemma~\ref{lem:estimation}
-controls the error when choosing a comparison answer. The anchor-selection
-lemma below controls the restrictions imposed when moving an item into a
-child. We state it after defining the feasible regions and the density
-that measures the effect of such a move.
+controls the error when choosing a comparison answer. Lemma~\ref{lem:anchor-density}
+(Anchor selection) controls the restrictions imposed when moving an item
+into a child.
 
 The proof uses a potential that starts at $n!$ and is at most $2^n$ when
 sorting finishes. The parameter choices make the maximum decrease in its
@@ -35,6 +34,9 @@ increase it, so comparisons must account for a total decrease of nearly
 $\log(n!)$.
 
 \subsection{Feasible regions and anchor selection}\label{sec:guarantees}
+
+To state Lemma~\ref{lem:anchor-density} (Anchor selection), we first define
+the feasible region at a node and the density of an item's position.
 
 At a node $v$, the stored coordinates range over
 \begin{equation}\label{eq:node-region}
@@ -66,11 +68,11 @@ Refinement replaces $X_x$ by a fresh unit coordinate in a child, so the
 volume change is $Z_{\rm after}/Z_{\rm before}=f_x(c)$
 (Lemma~\ref{lem:section-volume}). This is why the choice of anchor matters.
 
-The estimation lemma makes each selected answer retain at least
+Lemma~\ref{lem:estimation} makes each selected answer retain at least
 $1/2-\eta$ of its node's volume: a report at least $1/2$ implies
 $p\ge1/2-\eta$, and a smaller report implies $1-p>1/2-\eta$.
 For refinement we need a lower bound on $f_x(c)$ in terms of the anchor's
-level. The next lemma provides this second guarantee.
+level. Lemma~\ref{lem:anchor-density} gives this bound.
 
 Set
 \begin{equation}\label{eq:comparable-bound}
@@ -98,18 +100,28 @@ m>2kB+2.
 The calculation leaves the stored state unchanged.
 \end{lemma}
 
-Section~\ref{sec:anchor-guarantee} proves this lemma and explains the choice
+Section~\ref{sec:anchor-guarantee} proves Lemma~\ref{lem:anchor-density} and explains the choice
 of $R$. We will also use the structural lemmas in Section~\ref{sec:legal},
 which show that all answers remain consistent and that comparable items
 cannot enter the same child.
 
-\subsection{Accounting for movement down the tree}
+\subsection{Relating volume to the final order}\label{sec:movement-volume}
 
-An item's coordinate orders it within its own node. To relate $Z$ to the
-number of remaining total orders, we must also account for the anchors
-above that node. Section~\ref{sec:accounting} places every item on one
-common line, reserving a small interval for each child subtree. For an
-anchor of level $m$, the reserved width is
+To use the fact that sorting ends with a single total order, we must
+account for the order fixed by the tree. The product $Z$ measures freedom
+within individual nodes. For example, two items stored alone in separate
+children can each retain the full interval $(0,1)$, giving $Z=1$, even
+though the child anchors fix their order.
+
+We therefore place all items on a common line, with coordinates whose
+order agrees with the total order represented by the tree. Each child
+subtree receives a small interval on its parent's line, and its positions
+are scaled to fit inside that interval. The construction is recursive;
+Section~\ref{sec:accounting} gives the precise map and proves that it
+preserves order. The weights below record how much this construction
+shrinks volume.
+
+For a child at an anchor of level $m$, reserve an interval of width
 \begin{equation}\label{eq:child-weight}
 w(m)=\frac{2^{-(1+1/k)m}}{4k}.
 \end{equation}
@@ -127,17 +139,26 @@ A comparison leaves $\mathcal W$ unchanged. Refinement at level $m$
 multiplies it by $w(m)$: one item crosses that parent--child edge, and its
 membership in every other subtree stays unchanged. Initially $\mathcal W=1$.
 
-The placement on a common line has volume $2^{-n}Z\mathcal W$
-(Lemma~\ref{lem:packing}). At termination, all its assignments must give
+The construction also scales each item's own free coordinate by $1/2$
+to make room for child intervals. These $n$ factors, together with the
+scalings recorded in $\mathcal W$, give a region of volume
+$2^{-n}Z\mathcal W$ (Lemma~\ref{lem:packing}). At termination, all its assignments must give
 the same total order and hence lie in one of the $n!$ equal-volume order
 regions of $(0,1)^n$. Consequently,
 \[
 n!Z\mathcal W\le2^n.
 \]
-Refinements can decrease $Z\mathcal W$. We now modify it so that every
-completed repair increases the resulting potential.
+Thus $n!Z\mathcal W$ starts at $n!$ and is at most $2^n$ when sorting
+finishes. To use this decrease to count comparisons, we must also account
+for the changes made by refinements.
 
-\subsection{A potential with one coefficient}\label{sec:potential-coefficient}
+\subsection{The potential function}\label{sec:potential-coefficient}
+
+Refinement reduces $\mathcal W$. Lemma~\ref{lem:anchor-density} gives a
+compensating increase in $Z$ when the anchor's level is large, and refining
+a vertex of high degree removes many in-node arcs. We give additional
+weight to these two effects so that every completed repair increases the
+potential.
 
 For the calculations, write $j=\log k$, so $j\ge6$ and $k=2^j$.
 Let $e$ count the arcs in all in-node DAGs, and put
@@ -146,11 +167,9 @@ s=\frac{j+10}{k},\qquad
 \Psi=n!Z\mathcal W\,(Z2^{-e})^s
     =n!Z^{1+s}\mathcal W\,2^{-se}.
 \end{equation}
-The factor $Z^s$ gives additional weight to the volume recovered by
-refinement. The factor $2^{-se}$ charges for storing an in-node arc and returns
-that amount when the arc is deleted. The same coefficient $s$ serves
-both purposes. These quantities are used in the proof; computing them
-is unnecessary for answering a query.
+The exponent $1+s$ gives extra weight to changes in $\log Z$. Deleting $r$ in-node arcs
+increases the factor $2^{-se}$ by $2^{sr}$. These quantities are used in
+the proof; computing them is unnecessary for answering a query.
 
 Initially $Z=\mathcal W=1$ and $e=0$, so $\Psi=n!$. At termination,
 Lemma~\ref{lem:packing}, $Z\le1$, and $e\ge0$ give

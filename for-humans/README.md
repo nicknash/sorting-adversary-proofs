@@ -3,8 +3,8 @@
 Nicholas Nash · 9 November 2026 · ORCID [0009-0003-0475-7852](https://orcid.org/0009-0003-0475-7852)
 
 The current manuscript presents the unit-interval adversary using finite
-averaging to estimate comparison probabilities and one coefficient to
-account for refinements. It introduces the derandomization problem, reviews
+averaging to estimate comparison probabilities and a potential function to
+account for comparisons and refinements. It introduces the derandomization problem, reviews
 the classical binary-tree adversaries and the interval lattice of Kaplan,
 Zamir, and Zwick. Section 3 describes the state and algorithm once, with
 diagrams and one comparison procedure. It introduces the parameters alongside

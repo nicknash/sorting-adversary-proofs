@@ -1,21 +1,10 @@
 \subsection{The geometric bound at termination}\label{sec:accounting}
 
-A correct sorter can finish only when the answers in the global transcript determine a single
-order. We want to turn that fact into an upper bound on the volume of the
-final state. An item's position orders it within the node storing it;
-its place in the full order also depends on the anchors above that node.
-Consider a feasible assignment in
-which $A$ is free at position $3/4$ in the root, while $B$ has position
-$7/8$ inside a child anchored at $1/4$. The represented order is $B<A$, although the two raw
-coordinates satisfy $3/4<7/8$. Applying the usual $1/n!$ volume bound
-requires coordinates whose numerical order agrees with the full item order.
-
-We therefore put all items onto one common line. Replace each anchor by a
-small interval, and place the child's recursively constructed line inside
-it. The order of items on the resulting line is exactly their represented
-order. Each item now has a coordinate in the same $(0,1)$, so at termination
-all resulting assignments lie in one of the $n!$ equal-volume order regions.
-The only remaining question is how much this placement shrinks volume.
+We now construct the common coordinates used in
+Section~\ref{sec:movement-volume} and calculate their effect on volume.
+The map expands each child anchor into an interval and fits the child
+subtree recursively inside it. We prove that this map is injective and
+preserves the represented order, giving the required bound at termination.
 
 \subsubsection{Placing the children on a common line}
 
@@ -44,7 +33,9 @@ from $(0,1)$ to $J_c$. The intervals $J_c$ are disjoint, occur in anchor
 order, and fit in $(0,1)$ by \eqref{eq:weight-sum}. Free positions stay in
 the gaps between them. All these widths are used only in the proof.
 
-\begin{figure}[tb]
+\begin{center}
+\begin{minipage}{\linewidth}
+\captionsetup{hypcap=false}
 \centering
 \begin{tikzpicture}[x=11cm,y=1cm,>=Latex,font=\small]
 \draw[thick] (0,0)--(1,0);
@@ -67,11 +58,12 @@ the gaps between them. All these widths are used only in the proof.
 \node[below] at (0,-1.30) {$0$};
 \node[below] at (1,-1.30) {$1$};
 \end{tikzpicture}
-\caption{The packing map has slope $1/2$ between anchors. Its jump at each
+\captionof{figure}{The packing map has slope $1/2$ between anchors. Its jump at each
 anchor reserves an interval for the entire child subtree. The widths are
 shown schematically; their values are given by \eqref{eq:child-weight}.}
 \label{fig:packing}
-\end{figure}
+\end{minipage}
+\end{center}
 
 An item is scaled by a child interval's width every time its route from the
 root passes through that child. For example, an item at depth two has final

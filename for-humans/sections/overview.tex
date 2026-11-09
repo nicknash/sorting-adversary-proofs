@@ -30,6 +30,8 @@ Each item has a record $(x,X_x,a_x,b_x)$ stored at exactly one node.
 The label $x$ identifies its key, and $X_x$ is a symbolic variable for
 its position among the items at that node. The fields $a_x,b_x$ restrict
 this variable to the open interval $(a_x,b_x)\subseteq(0,1)$.
+The bounds $a_x,b_x$ are fractions whose denominators are powers of two;
+we call such numbers \emph{dyadic rationals}.
 We call an item \emph{free} at its node while its position remains variable.
 
 In an in-node DAG, an arc $x\to y$ records a comparison answered $x<y$
@@ -189,8 +191,8 @@ in that case return the determined answer.
 For an undecided comparison, let $p$ be the probability that $A$ precedes
 $B$ when positions at this node are assigned uniformly subject to its
 interval bounds and in-node DAG inequalities. The subroutine \texttt{Estimate}
-returns a deterministic estimate $\widehat p$. We require its error to be
-at most a parameter $\eta$.
+returns a deterministic estimate $\widehat p$. Fix a rational error
+tolerance $0<\eta<1/4$.
 Choose $A<B$ if $\widehat p\ge1/2$, and $B<A$ otherwise. For two free
 items, the event being estimated is $X_A<X_B$. For a free item $x$ and an
 anchor $c$, estimate $X_x<c$, taking the complement if the queried order
@@ -199,14 +201,16 @@ an answer involving an anchor adds an interval bound. Repeated comparisons
 never add duplicate arcs.
 
 The estimator also requires a lower bound on the width of at least one
-queried free coordinate. Write this threshold as $1/R$. Call a coordinate
+queried free coordinate. Write this threshold as $1/R$, with rational
+$R\ge1$. Call a coordinate
 \emph{wide} when $W_x\ge1/R$, and \emph{narrow}
 otherwise. If all queried free coordinates are narrow, move one of their
 items into a child before trying the query again. Such a move is called a
 \emph{refinement}, denoted \texttt{Refine}$(x)$; Section~\ref{sec:overview-refine}
 gives the operation in Algorithm~\ref{alg:refine}.
 
-The calculation also needs bounds on the in-node DAG. We limit each
+The calculation also needs bounds on the in-node DAG. Fix positive
+integers $k$ and $H$. We limit each
 vertex to fewer than $k$ neighbors, counting both incoming and outgoing
 arcs, and each directed path to fewer than $H$ vertices. After answering,
 refine vertices with at least $k$ neighbors until none remain. Then select
@@ -221,16 +225,16 @@ and the anchor search. Its degree and path bounds also cover intermediate
 states during a repair. Section~\ref{sec:oracle} gives the estimator and
 proves the lemma.
 
-\begin{lemma}[Deterministic probability estimation]\label{lem:estimation}
-Let $k,H\ge1$ be integers, and let $R\ge1$ and $0<\eta<1/4$ be rational.
-Suppose a node's dyadic interval bounds and in-node DAG admit a feasible
-assignment, and the in-node DAG has degree at most $k$ and directed paths
-of at most $2H$ vertices. For a threshold event $X_x<c$ with dyadic $c$
-and $W_x\ge1/R$, or a pair event $X_x<X_y$ with at least one of
-$W_x,W_y$ at least $1/R$, \textnormal{\texttt{Estimate}} deterministically
-terminates and returns a value within $\eta$ of the event's probability
-under the uniform distribution on feasible assignments. The calculation
-leaves the stored state unchanged.
+\begin{lemma}[Probability estimation]\label{lem:estimation}
+Suppose a node admits a feasible assignment, and its in-node DAG has
+degree at most $k$ and directed paths of at most $2H$ vertices.
+\textnormal{\texttt{Estimate}} deterministically computes, with error at most $\eta$:
+\begin{enumerate}[label=(\roman*)]
+\item $\Prb(X_x<c)$, when $x$ is wide and $c$ is dyadic;
+\item $\Prb(X_x<X_y)$, when at least one of $x,y$ is wide.
+\end{enumerate}
+Probabilities use the uniform distribution on feasible assignments.
+The calculation terminates and leaves the stored state unchanged.
 \end{lemma}
 
 \begin{algorithm}[H]
@@ -296,11 +300,23 @@ $H$ vertices in the in-node DAG at $v$.}
 
 Algorithm~\ref{alg:refine} gives \texttt{Refine}$(x)$, which moves $x$
 from its current node into a child. After tightening the parent's interval
-bounds, it calls \texttt{ChooseAnchor} to obtain a dyadic point $c$ inside
-$x$'s effective interval. Algorithm~\ref{alg:choose-anchor} in
-Section~\ref{sec:median-search} gives the anchor-selection rule.
-Fixing $X_x=c$ places $x$ in the child block anchored at $c$.
+bounds, it calls \texttt{ChooseAnchor} to select a position $c$ inside
+$x$'s effective interval.
 
+The permitted anchor positions are obtained by repeatedly halving $[0,1]$
+and taking the midpoints of the resulting subintervals. Before any halving,
+the midpoint is $1/2$; after one halving, the two midpoints are $1/4$ and
+$3/4$. After $m$ halvings there are $2^m$ equal subintervals, whose midpoints are
+\begin{equation}\label{eq:dyadic}
+c=(i+\tfrac12)2^{-m},\qquad i=0,\ldots,2^m-1.
+\end{equation}
+We call $m$ the anchor's \emph{level}. There are $2^m$ anchors at level $m$,
+and each anchor has a unique level. These positions are dyadic rationals,
+so using them as interval endpoints preserves the form of the stored bounds.
+Algorithm~\ref{alg:choose-anchor} in Section~\ref{sec:median-search} gives
+the rule for selecting an anchor inside the effective interval.
+
+Fixing $X_x=c$ places $x$ in the child block anchored at $c$.
 The arcs incident to $x$ in that in-node DAG become interval bounds: $y\to x$ gives $X_y<c$,
 and $x\to z$ gives $X_z>c$. Remove $x$ and these arcs from the parent,
 retain the bounds, and propagate them through the remaining in-node DAG.
@@ -389,21 +405,9 @@ restricts $B$ to $(1/2,1)$. Refining $C$ into the same child then leaves
 both $A<C<B$ and $C<A<B$ possible, while fixing the additional relation
 $C<B$. The comparison-bound proof accounts for these restrictions.
 
-\subsection{Dyadic anchors}
-
-The permitted anchors are midpoints of dyadic cells. A cell obtained after
-$m$ halvings of $[0,1]$ has length $2^{-m}$ and midpoint
-\begin{equation}\label{eq:dyadic}
-c=(i+\tfrac12)2^{-m},\qquad 0\le i<2^m.
-\end{equation}
-We call $m$ the anchor's \emph{level}. Thus $1/2$ has level $0$, and
-$1/4,3/4$ have level $1$. There are $2^m$ anchors at level $m$, and every
-anchor has a unique level. The level measures resolution within the
-parent's unit interval. Every refinement moves an item down one tree edge.
-
 All thresholds are fixed before the first query. We choose their values
 where the proof needs them; Table~\ref{tab:parameters} collects the values,
 their roles, and the sections introducing them. Section~\ref{sec:potential}
-proves the comparison bound using Lemma~\ref{lem:estimation} and the
-anchor-selection lemma stated there. Sections~\ref{sec:legal} and~\ref{sec:oracle}
+proves the comparison bound using Lemmas~\ref{lem:estimation}
+and~\ref{lem:anchor-density}. Sections~\ref{sec:legal} and~\ref{sec:oracle}
 prove these lemmas, and Section~\ref{sec:runtime} proves polynomial running time.

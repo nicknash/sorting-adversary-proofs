@@ -218,8 +218,8 @@ $a\gets0$; $b\gets1$\;
 }
 \end{algorithm}
 
-For a wide item, each rejected midpoint halves the search cell $[a,b]$.
-The accepted cell's length is $2^{-m}$, where $m$ is the anchor's level.
+For a wide item, each rejected midpoint halves the search interval $[a,b]$.
+The accepted interval's length is $2^{-m}$, where $m$ is the anchor's level.
 Both branches leave the stored state unchanged.
 
 \subsubsection{Density estimates used by the two rules}
@@ -236,7 +236,7 @@ half has this much density. The upper bound limits the probability in a
 short interval; it will ensure that the midpoint search cannot continue
 halving its search interval indefinitely.
 
-For the search we also need a density bound that improves as its cell
+For the search we also need a density bound that improves as its search interval
 shrinks. For any $a\le c\le b$,
 \begin{equation}\label{eq:mass-summary}
 (b-a)f_x(c)\ge
@@ -255,7 +255,7 @@ endpoints. Only the queried threshold changes.
 
 \begin{lemma}[Midpoint search]\label{lem:median-search}
 The midpoint search for a wide item terminates at an interior anchor $c$.
-If its accepted cell has length $2^{-m}$, then
+If its accepted search interval has length $2^{-m}$, then
 \[
 f_x(c)\ge2^{m-4}.
 \]
@@ -277,7 +277,7 @@ At acceptance, the report lies in $[1/4,3/4]$, so
 F_x(b)-F_x(a)\ge\frac7{16}.
 \]
 The first bounds put $c$ strictly inside its support. Applying
-\eqref{eq:mass-summary} to the accepted cell gives
+\eqref{eq:mass-summary} to the accepted search interval gives
 \[
 2^{-m}f_x(c)\ge\frac7{32}\frac7{16}
 =\frac{49}{512}>\frac1{16},
@@ -285,7 +285,7 @@ The first bounds put $c$ strictly inside its support. Applying
 which proves the density guarantee.
 
 For termination, the upper density bound in \eqref{eq:density-summary}
-gives, at every cell reached,
+gives, at every search interval reached,
 \[
 \frac7{16}\le F_x(b)-F_x(a)
 \le\frac{B+1}{W_x}\,2^{-m}.
@@ -310,8 +310,8 @@ bound.
 \begin{proof}[Proof of Lemma~\ref{lem:anchor-density}]
 The in-node DAG bounds imply that $x$ has at most $B$ other comparable coordinates, by
 \eqref{eq:comparable-bound}. For a wide item, Lemma~\ref{lem:median-search} gives the stronger lower
-bound $m-4$. For a narrow item, write $b=2^{-m}$ for the selected cell
-length, so $W_x/8<b\le W_x/4$. The chosen midpoint is at distance at
+bound $m-4$. For a narrow item, write $b=2^{-m}$ for the spacing between
+consecutive level-$m$ anchors, so $W_x/8<b\le W_x/4$. The chosen midpoint is at distance at
 most $b/2\le W_x/8$ from the interval center. It belongs to the central
 half and is therefore interior. By \eqref{eq:density-summary} and
 $W_x<8b$,
@@ -326,8 +326,8 @@ dyadic calculation. Both use deterministic tie rules and leave the stored
 state unchanged.
 \end{proof}
 
-The narrow rule must use its prescribed fine grid even if a coarser
-dyadic midpoint lies inside the interval. Its high level is what allows
+The narrow rule must use its prescribed level even if an anchor of
+lower level lies inside the effective interval. Its high level is what allows
 the weaker central density estimate to satisfy the same bound as the
 wide-item search.
 
