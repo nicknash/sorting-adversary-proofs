@@ -1,0 +1,38 @@
+\section{Parameter reference}\label{app:parameters}
+
+Table~\ref{tab:parameters} collects the parameters of the adversary and
+the coefficients used in its comparison bound. The last two columns
+distinguish where a parameter's role is introduced from where its value
+is chosen and explained. All choices are fixed before the first query.
+The constants for the finite estimator are given separately in
+\eqref{eq:finite-moment}--\eqref{eq:finite-size}.
+
+\begin{center}
+\begin{minipage}{\linewidth}
+\captionsetup{hypcap=false}
+\captionof{table}{Parameters and their roles. Section references lead to
+the explanations in the main text.}
+\label{tab:parameters}
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{@{}p{.07\linewidth}p{.21\linewidth}p{.37\linewidth}p{.12\linewidth}p{.12\linewidth}@{}}
+\toprule
+Symbol & Value & Role & Introduced & Choice\\
+\midrule
+\multicolumn{5}{@{}l}{\textbf{Adversary parameters}}\\
+$j$ & Integer $j\ge6$ & Indexes the degree thresholds; selected from the input size $n$. & \S\ref{sec:guarantees} & \S\ref{sec:parameter-selection}\\
+$k$ & $2^j$ & Refine a vertex when it has at least this many neighbors. & \S\ref{sec:comparison} & \S\ref{sec:guarantees}\\
+$H$ & $2^k$ & Number of vertices refined in a selected directed path. & \S\ref{sec:comparison} & \S\ref{sec:repair-monotonicity}\\
+$B$ & $(k+1)^{2H+1}$ & Bounds the number of other vertices comparable with one vertex during a repair. & \S\ref{sec:guarantees} & \S\ref{sec:guarantees}\\
+$R$ & $2^{2kB}$ & Sets the width threshold: a coordinate is wide when $W_x\ge1/R$. & \S\ref{sec:comparison} & \S\ref{sec:anchor-guarantee}\\
+$\eta$ & $1/(100k)$ & Maximum additive error in a probability estimate. & \S\ref{sec:comparison} & \S\ref{sec:comparison-cost}\\
+\midrule
+\multicolumn{5}{@{}l}{\textbf{Comparison-bound coefficients}}\\
+$s$ & $(j+10)/k$ & Coefficient of the volume and arc terms in the potential. & \S\ref{sec:potential-coefficient} & \S\ref{sec:potential-coefficient}\\
+$a$ & $s-(s+2)/k$ & Coefficient of the anchor level in the refinement inequality. & \S\ref{sec:potential-coefficient} & \S\ref{sec:potential-coefficient}\\
+$C_j$ & $j+6+4s$ & Constant loss term in the refinement inequality. & \S\ref{sec:potential-coefficient} & \S\ref{sec:potential-coefficient}\\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\end{center}

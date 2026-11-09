@@ -13,6 +13,10 @@ and proves the comparison bound subject to them. Section 5 gives the anchor
 rules and proves the refinement, consistency, graph, and geometric bounds.
 Section 6 supplies the finite probability estimator, and Section 7 proves
 uniform polynomial running time with exact dyadic arithmetic.
+Parameter values are chosen alongside the bounds they ensure; Appendix D
+collects their values, roles, and introduction points. The comparison
+pseudocode explicitly updates the global transcript and global comparison
+DAG on every answer path.
 
 The source for this simplification is the
 [finite-averaging audit](https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af1b5f8-a1d0-83ed-b93d-fe7efd94df67).

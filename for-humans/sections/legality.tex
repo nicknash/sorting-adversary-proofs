@@ -19,7 +19,7 @@ The state may discard some orders that still respect the answers. Legality
 requires only that at least one remains. Positive volume in every node
 will ensure this.
 
-The public comparison graph records every answered relation. The invariant
+The global comparison DAG records every answered relation. The invariant
 must continue to hold when refinement removes an arc from an active graph.
 
 \begin{lemma}[Effective intervals and sections]\label{lem:interior}
@@ -70,7 +70,7 @@ applied to the remaining graph, shows that the section has positive volume.
 \begin{lemma}[Refinement and child admission]\label{lem:admission}
 Suppose the node regions have positive volume and the order invariant holds.
 Refining $x$ at an interior anchor $c$ preserves both properties, including
-when the child at $c$ already exists. The public transcript implies no
+when the child at $c$ already exists. The global transcript implies no
 relation between $x$ and any label already in that child subtree.
 \end{lemma}
 \begin{proof}
@@ -87,7 +87,7 @@ while keeping the old state feasible. The resulting two represented orders
 place $x$ immediately before or immediately after the entire block $S$.
 Both orders respect the transcript. For each $y\in S$, one has $x<y$ and
 the other has $y<x$; neither relation can therefore be implied by the
-public comparison graph.
+global comparison DAG.
 
 Now take any order represented after the refinement. Deleting $x$ from the
 child leaves an assignment of its old coordinates and hence an old child
@@ -280,14 +280,17 @@ $1/4<7/16$. Starting at $m=0$ and increasing it by one at each rejection
 therefore permits at most the stated number of tests.
 \end{proof}
 
-\subsubsection{The anchor guarantee}
+\subsubsection{The anchor guarantee}\label{sec:anchor-guarantee}
 
-The lower-bound proof compares the logarithmic volume gain from
-refinement with the anchor's level $m$. The wide-item search gives
-$\log f_x(c)\ge m-4$. The narrow-item rule gives the weaker bound
-$m-3-2B$, but the choice $R=2^{2kB}$ forces $m>2kB$ whenever that rule
-is used. Thus its additional loss $2B$ is less than the fraction $m/k$
-of the level. Both choices satisfy the following bound.
+The wide-item search gives $\log f_x(c)\ge m-4$. For a narrow item,
+the central density estimate gives the weaker bound $m-3-2B$. To absorb
+this extra loss into the allowed fraction $m/k$ of the level, choose
+\begin{equation}\label{eq:width-threshold}
+R=2^{2kB}.
+\end{equation}
+The rule $2^{-m}\le W_x/4<1/(4R)$ then forces $m>2kB+2$.
+In particular $2B<m/k$, so both anchor rules satisfy the required density
+bound.
 
 \begin{lemma}[Refinement density]\label{lem:anchor-density}
 Assume the estimation guarantee from Section~\ref{sec:guarantees}, and
@@ -303,8 +306,8 @@ m>2kB+2.
 \end{equation}
 \end{lemma}
 \begin{proof}
-The graph bounds imply that $x$ has at most $B=(k+1)^{2H+1}$ other
-comparable coordinates. For a wide item, Lemma~\ref{lem:median-search} gives the stronger lower
+The graph bounds imply that $x$ has at most $B$ other comparable coordinates, by
+\eqref{eq:comparable-bound}. For a wide item, Lemma~\ref{lem:median-search} gives the stronger lower
 bound $m-4$. For a narrow item, write $b=2^{-m}$ for the selected cell
 length, so $W_x/8<b\le W_x/4$. The chosen midpoint is at distance at
 most $b/2\le W_x/8$ from the interval center. It belongs to the central
@@ -372,7 +375,7 @@ child requires restoration.
 \end{proof}
 
 Consequently a complete call makes at most $n+2$ refinements. During the
-call, every coordinate has at most $B=(k+1)^{2H+1}$ other comparable
+call, every coordinate has at most $B$ other comparable
 coordinates in its active graph: all lie within undirected distance $2H$
 in a graph of degree at most $k$. These are the bounds used by the local
 estimator and the anchor rules.
@@ -380,7 +383,7 @@ estimator and the anchor rules.
 \begin{proposition}[Legality]\label{prop:legality}
 Assume the two guarantees from Section~\ref{sec:guarantees}.
 Every reached state has positive volume and represents only orders
-consistent with the public transcript. After every complete call, all
+consistent with the global transcript. After every complete call, all
 nodes satisfy the strict degree and path-length bounds.
 \end{proposition}
 \begin{proof}
@@ -400,7 +403,7 @@ least $1/2-\eta>0$ of the volume and makes that comparison true in every
 represented order. In particular, a new arc cannot create a directed
 cycle. An answer determined by anchors, interval bounds, or a directed path
 was already true in every represented order and leaves the state unchanged.
-The selected answer is recorded in the public graph before any
+The selected answer is recorded in the global comparison DAG before any
 restoration refinement.
 
 Lemma~\ref{lem:restoration} gives degree at most $k$ and directed paths

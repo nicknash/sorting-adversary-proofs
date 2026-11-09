@@ -1,6 +1,6 @@
 \subsection{The geometric bound at termination}\label{sec:accounting}
 
-A correct sorter can finish only when the public answers determine a single
+A correct sorter can finish only when the answers in the global transcript determine a single
 order. We want to turn that fact into an upper bound on the volume of the
 final state. An item's position orders it within the node storing it;
 its place in the full order also depends on the anchors above that node.
@@ -140,7 +140,7 @@ parent. If their levels are $m_1,\ldots,m_H$, then
 \end{lemma}
 \begin{proof}
 Every arc on the selected path records an answered comparison. The path's
-labels are therefore pairwise comparable in the public transcript, and
+labels are therefore pairwise comparable in the global transcript, and
 remain so after arcs are deleted. By Lemma~\ref{lem:admission}, two of these labels cannot
 be admitted to the same child. The procedure completes all $H=2^k$
 refinements in this parent, so it uses $H$ distinct anchors.

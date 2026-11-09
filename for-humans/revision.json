@@ -4,12 +4,12 @@
   "argument": "finite averaging over dyadic coordinate updates, with a single coefficient for refinement accounting",
   "source_pdf_sha256": "577836ef3235bd8c452b8bdf0b5cbf3840c943c1a1837bed8c9f7ce3f41ab907",
   "source_zip_sha256": "4c4545e4e96e6ad4eb1389e5a1cfc91c6d22b35bf9180a2bedfbfc1885515fc7",
-  "local_pdf_sha256": "a3798dcffb78d6a677de7cf911f7fd0915a0373e25015f67e8f438a3c1545c63",
-  "prepared_zip_sha256": "a573e8442c640a30aab1973d9b13cf1bc46c0f22739cee572bb72ac3516d93da",
+  "local_pdf_sha256": "c1926a114217bec7e581f5daa146166bb30c89853c671730afbb8a7370c13ea6",
+  "prepared_zip_sha256": "7cdf0c4d547283293b61c60f7c3477afc2966dafbed6dadac2f448f22f1befef",
   "previous_hexagon_submission": "hexagon:2611.00196",
   "previous_submission_metadata": "submission.json",
   "formalization": "Related earlier integer-colour construction; this continuous presentation is not formally verified.",
-  "exposition": "Top-down presentation: one state and comparison procedure in Section 3; conditional comparison theorem under two subroutine guarantees in Section 4; refinement and structural proofs in Section 5; finite estimator in Section 6; uniform running time in Section 7. Parameters are introduced when needed. The introduction changes only in its roadmap; the abstract, disclosure, and related work are preserved.",
-  "pages": 32,
+  "exposition": "Top-down presentation with one comparison procedure and an early conditional bound. Parameter values are chosen where the proof needs them and collected in Appendix D with roles and section references. Every answer explicitly updates the global transcript and global comparison DAG; the cutoff replaces the comparison procedure with rank lookup and discards those records.",
+  "pages": 33,
   "source_chat": "https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af1b5f8-a1d0-83ed-b93d-fe7efd94df67"
 }

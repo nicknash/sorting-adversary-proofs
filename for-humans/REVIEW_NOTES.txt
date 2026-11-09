@@ -220,3 +220,30 @@ were checked for uniqueness and completeness, and the rendered 32-page
 document was reviewed, including individual checks of the revised comparison
 explanation, conditional theorem, and path-batch proof. No new formal proof
 verification or Hexagon submission was performed.
+
+
+Parameter reference and explicit global records -- 9 November 2026
+----------------------------------------------------------------
+Removed the numerical parameter block from Section 3. The degree index j
+and threshold k are introduced with the fixed-parameter comparison theorem;
+B is introduced with the bound on comparable coordinates; H is chosen in
+the path-repair argument; eta is chosen with the comparison-cost bound;
+and R is chosen when proving the narrow-item anchor guarantee. All choices
+are fixed before the first query. The theorem and implementation refer to
+Table 1 in Appendix D, which records values, roles, introduction sections,
+and sections explaining the choices. The table also includes the three
+comparison-bound coefficients. Numerical values and bounds are unchanged.
+
+Renamed the public comparison graph to the global comparison DAG. The
+transcript and DAG are explicitly initialized and updated in all three
+answer paths of Compare. The updates use the original queried labels and
+precede every return or restoration. At the cutoff, rank lookup replaces
+Compare and the stored transcript and DAG are discarded along with the
+recursive state. Before that switch the transcript has at most Q_stop
+entries, using O(n log^2(n+1)) bits.
+
+Both compilers pass, cross-references resolve, and the updated comparison
+procedure, parameter choices, runtime discussion, and reference table were
+checked in the rendered PDF. The final document has 33 pages. The source
+archive was rebuilt and checked against the saved files. The previous
+Hexagon submission and Lean formalization remain unchanged.

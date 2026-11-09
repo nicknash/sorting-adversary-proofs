@@ -8,8 +8,9 @@ assume the estimation guarantee and establish the anchor guarantee.
 Section~\ref{sec:oracle} supplies the estimator independently.
 
 The proof uses a potential that starts at $n!$ and is at most $2^n$ when
-sorting finishes. Each comparison decreases its logarithm by at most
-$1+O(j/2^j)$, and completed repairs increase it. Thus comparisons must account
+sorting finishes. The parameter choices make the maximum decrease in its
+logarithm per comparison arbitrarily close to one. Completed repairs
+increase it, so comparisons must account
 for a total decrease of nearly $\log(n!)$. We first define the quantities
 in this potential and the two guarantees needed to prove these claims.
 
@@ -45,10 +46,16 @@ Refinement replaces $X_x$ by a fresh unit coordinate in a child, so the
 volume change is $Z_{\rm after}/Z_{\rm before}=f_x(c)$
 (Lemma~\ref{lem:section-volume}). This is why the choice of anchor matters.
 
-Here are the required guarantees, with the parameters from
-\eqref{eq:parameters}. They concern any positive-volume region defined by
-dyadic intervals and a DAG of degree at most $k$, with directed paths of
-at most $2H$ vertices. All effective endpoints are computed using that DAG.
+The guarantees below concern any positive-volume region defined by dyadic
+intervals and a DAG of degree at most $k$, with directed paths of at most
+$2H$ vertices. All effective endpoints are computed using that DAG.
+To bound the number of other coordinates comparable with a given one, set
+\begin{equation}\label{eq:comparable-bound}
+B=(k+1)^{2H+1}.
+\end{equation}
+Every comparable coordinate lies within undirected distance $2H$ in a
+graph of degree at most $k$, so this value bounds their number. The anchor
+guarantee uses $B$ to require a sufficiently fine position for a narrow item.
 \begin{enumerate}[label=(\roman*)]
 \item\label{req:estimate}\textbf{Probability estimation.}
 For a threshold event $X_x<c$ with $W_x\ge1/R$, or a pair event
@@ -71,10 +78,18 @@ $p\ge1/2-\eta$, and a smaller report implies $1-p>1/2-\eta$.
 The second guarantee bounds the volume gained by every refinement in
 terms of its anchor's level.
 
+To state the comparison bound, index the degree threshold by an integer
+$j\ge6$, writing
+\begin{equation}\label{eq:degree-parameter}
+k=2^j.
+\end{equation}
+Section~\ref{sec:parameter-selection} will choose $j$ from the input size $n$.
+For now it is fixed for the entire interaction.
+
 \begin{theorem}[Conditional comparison bound]\label{thm:fixed-stage}
 Suppose \textnormal{\texttt{Estimate}} and \textnormal{\texttt{ChooseAnchor}} satisfy the guarantees
 in Section~\ref{sec:guarantees}. For every integer $j\ge6$, the adversary
-of Algorithm~\ref{alg:compare}, with parameters \eqref{eq:parameters}, is
+of Algorithm~\ref{alg:compare}, with the parameter choices in Table~\ref{tab:parameters}, is
 deterministic and legal, and every call terminates. If a correct sorter
 terminates after $q$ calls, then
 \begin{equation}\label{eq:exact-bound}
@@ -121,7 +136,7 @@ n!Z\mathcal W\le2^n.
 Refinements can decrease $Z\mathcal W$. We now modify it so that every
 completed repair increases the resulting potential.
 
-\subsection{A potential with one coefficient}
+\subsection{A potential with one coefficient}\label{sec:potential-coefficient}
 
 Keep the chosen parameter $j\ge6$ fixed, and recall that $k=2^j$.
 Let $e$ count the active arcs over all tree nodes, and put
@@ -182,7 +197,16 @@ Its coefficient of $m$ is $s-(s+2)/k$, and its constant term is
 $-(j+6+4s)$. Finally, $ks=j+10\ge16>s+2$, so $a>0$.
 \end{proof}
 
-\subsection{Every complete repair increases the potential}
+\subsection{Every complete repair increases the potential}\label{sec:repair-monotonicity}
+
+A path repair moves its items to distinct child anchors. Since there are
+only $2^m$ anchors at level $m$, a long path forces many of these moves
+to use high levels. We choose the path threshold
+\begin{equation}\label{eq:path-threshold}
+H=2^k.
+\end{equation}
+Lemma~\ref{lem:path-address} then gives a total level of at least $H(k-2)$,
+which is enough to make the whole batch increase the potential.
 
 \begin{proposition}[Repair monotonicity]\label{prop:repairs}
 Each query-preparation refinement, each degree refinement, and each
@@ -215,11 +239,17 @@ The proposition applies to the completed batch, which is why the final
 loop of Algorithm~\ref{alg:compare} finishes its selected list before
 selecting another path or returning an answer.
 
-\subsection{The decrease caused by a comparison}
+\subsection{The decrease caused by a comparison}\label{sec:comparison-cost}
 
 The endpoint bounds require a net decrease of at least $\log(n!)-n$ in
 $\log\Psi$. Complete repairs increase this quantity. We now bound the
 amount by which a single comparison can decrease it.
+
+Choose the estimation error to be
+\begin{equation}\label{eq:estimation-error}
+\eta=\frac1{100k}.
+\end{equation}
+This makes the volume loss per answer at most $1+1/k$ bits, as shown below.
 
 
 \begin{proof}[Proof of Theorem~\ref{thm:fixed-stage}]

@@ -7,10 +7,10 @@ computation of the parameters and the size of every subsequent finite
 average. Computation is measured on a fixed deterministic multitape Turing
 machine, with integers represented in binary.
 
-\subsection{Selecting the parameter}
+\subsection{Selecting the parameter}\label{sec:parameter-selection}
 
-For $j=6,7,\ldots$, compute $k=2^j$, the parameters in
-\eqref{eq:parameters}, and the estimator parameters in
+For $j=6,7,\ldots$, compute the adversary parameters in
+Table~\ref{tab:parameters} and the estimator parameters in
 \eqref{eq:finite-moment}--\eqref{eq:finite-size}, using
 $d=k$, $h=2H$, and $\varepsilon=\eta$. Write $t_j,S_j,\rho_j,b_j$ for
 the resulting values, and put
@@ -96,15 +96,19 @@ A sorter may repeat comparisons indefinitely. After
 \begin{equation}\label{eq:cutoff}
 Q_{\rm stop}=2n\ceil{\log(n+1)}
 \end{equation}
-complete calls, choose a total order extending the comparison history by
-topologically sorting the public comparison graph. Answer subsequent
-queries from the ranks in this fixed order and discard the recursive
-state. The graph records every previous answer, including directly
+complete calls, stop using Algorithm~\ref{alg:compare}. Choose a total
+order extending the comparison history by topologically sorting the
+global comparison DAG. Answer subsequent queries from the ranks in this
+fixed order and discard the recursive
+state, the stored transcript, and the global comparison DAG. The graph records every previous answer, including directly
 determined answers, so the fixed order respects the full history.
 
 The cutoff exceeds $n\log n$. A sorter reaching it has already made
 more comparisons than required by Theorem~\ref{thm:fixed-stage}.
-Before the cutoff, $P=O(n^2\log(n+1))$, and \eqref{eq:precision} gives
+Before the cutoff, the stored transcript has at most $Q_{\rm stop}$
+entries, each recording two labels and their order, so it uses
+$O(n\log^2(n+1))$ bits. Also $P=O(n^2\log(n+1))$, and
+\eqref{eq:precision} gives
 \[
 \Lambda=O(n^2\log(n+1)).
 \]
