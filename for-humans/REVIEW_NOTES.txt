@@ -401,3 +401,13 @@ and their volume are introduced before use. The estimator overview states
 both graph-size-independent convergence and the finite range of influence,
 with full-graph interval propagation retained. Both compilers pass; the final
 repository log has no warnings. Source archive members match the saved files.
+
+
+Transition to Section 4.2 -- 9 November 2026
+------------------------------------------
+Removed the general forward reference to the structural lemmas. The end of
+Section 4.1 now motivates the next step: relating node volumes to the single
+total order determined at termination while accounting for order fixed by
+the tree. Removed the repeated motivation from the opening of Section 4.2.
+Both compilers pass without final repository warnings, and source archive
+members match the saved files.

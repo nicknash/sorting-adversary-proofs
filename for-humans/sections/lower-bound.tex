@@ -100,16 +100,16 @@ m>2kB+2.
 The calculation leaves the stored state unchanged.
 \end{lemma}
 
-Section~\ref{sec:anchor-guarantee} proves Lemma~\ref{lem:anchor-density} and explains the choice
-of $R$. We will also use the structural lemmas in Section~\ref{sec:legal},
-which show that all answers remain consistent and that comparable items
-cannot enter the same child.
+Section~\ref{sec:anchor-guarantee} proves Lemma~\ref{lem:anchor-density}
+and explains the choice of $R$.
+
+We next relate the node volumes to the single total order determined at
+termination. This requires accounting for the order fixed by the tree.
 
 \subsection{Relating volume to the final order}\label{sec:movement-volume}
 
-To use the fact that sorting ends with a single total order, we must
-account for the order fixed by the tree. The product $Z$ measures freedom
-within individual nodes. For example, two items stored alone in separate
+The product $Z$ measures freedom within individual nodes. For example,
+two items stored alone in separate
 children can each retain the full interval $(0,1)$, giving $Z=1$, even
 though the child anchors fix their order.
 
