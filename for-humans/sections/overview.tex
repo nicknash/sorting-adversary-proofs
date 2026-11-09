@@ -419,11 +419,11 @@ Refinement can impose additional order relations. For example, suppose
 the root contains $A,B,C$ with only $A<B$ recorded. Refining $A$ at $1/2$
 restricts $B$ to $(1/2,1)$. Refining $C$ into the same child then leaves
 both $A<C<B$ and $C<A<B$ possible, while fixing the additional relation
-$C<B$. The comparison-bound proof accounts for these restrictions.
+$C<B$. Sections~\ref{sec:potential-coefficient} and~\ref{sec:repair-monotonicity}
+show that we can afford this loss of possible orders while retaining the
+optimal asymptotic comparison bound.
 
-All thresholds are fixed before the first query. We choose their values
-where the proof needs them; Table~\ref{tab:parameters} collects the values,
-their roles, and the sections introducing them. Section~\ref{sec:potential}
-proves the comparison bound using Lemmas~\ref{lem:estimation}
-and~\ref{lem:anchor-density}. Sections~\ref{sec:legal} and~\ref{sec:oracle}
-prove these lemmas, and Section~\ref{sec:runtime} proves polynomial running time.
+Table~\ref{tab:parameters} collects the thresholds used by
+Algorithms~\ref{alg:compare}, \ref{alg:repair}, and~\ref{alg:refine} above.
+In the next section, we explain why the adversary forces any correct
+sorter to perform many comparisons.

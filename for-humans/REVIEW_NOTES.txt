@@ -447,3 +447,15 @@ formula, with deterministic topological ordering. Both compilers pass
 without final repository warnings. The affected algorithms, definition,
 proof heading, and parameter table were visually checked; source archive
 members match the saved files.
+
+
+Closing the adversary overview -- 9 November 2026
+------------------------------------------------
+Retained the example of refinement imposing an additional order relation,
+and replaced its vague proof reference with references to Sections 4.3
+and 4.4, explaining the connection to retaining the optimal comparison
+bound. Replaced the repeated roadmap at the end of Section 3 with the
+parameter-table reference for Compare, Repair, and Refine, followed by a
+transition to the comparison-bound proof in the next section. Both
+compilers pass without final repository warnings; source archive members
+match the saved files.
