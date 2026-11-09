@@ -264,3 +264,16 @@ unresolved references; changed figure, algorithm, and proof pages were
 visually checked. The 33-page PDF and source archive were rebuilt, and all
 18 archive members match the saved files. The abstract, disclosure,
 introduction, related work, and mathematical rules are unchanged.
+
+
+ChooseAnchor pseudocode -- 9 November 2026
+----------------------------------------
+Replaced the procedural prose in Section 5.3 with a single ChooseAnchor
+listing and referenced it at the first use in Section 3.3. Both the narrow
+coordinate rule and the midpoint search preserve the existing thresholds,
+tie-breaking, and return value. The text states that neither branch changes
+the stored state. The comparison procedure and proofs are unchanged.
+
+Both compilers succeed without final repository warnings. Cross-references
+resolve, and the listing and its first reference were checked in the rendered
+34-page PDF. The source archive matches all 18 saved source files.

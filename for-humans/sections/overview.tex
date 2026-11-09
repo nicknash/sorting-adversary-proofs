@@ -266,8 +266,11 @@ deterministic.
 \subsection{Moving an item into a child}\label{sec:overview-refine}
 
 To carry out \texttt{Refine}$(x)$, first propagate all interval bounds
-implied by the parent's in-node DAG. The subroutine \texttt{ChooseAnchor} selects a dyadic
-point $c$ inside $x$'s effective interval. Fix its parent position at $X_x=c$.
+implied by the parent's in-node DAG. The subroutine \texttt{ChooseAnchor}
+selects a dyadic point $c$ inside $x$'s effective interval, using probability
+estimates for a wide item and interval endpoints for a narrow one.
+Algorithm~\ref{alg:choose-anchor} in Section~\ref{sec:median-search} gives
+the rule. Fix its parent position at $X_x=c$.
 
 The arcs incident to $x$ in that in-node DAG become interval bounds: $y\to x$ gives $X_y<c$,
 and $x\to z$ gives $X_z>c$. Remove $x$ and these arcs from the parent,
@@ -330,10 +333,6 @@ the root contains $A,B,C$ with only $A<B$ recorded. Refining $A$ at $1/2$
 restricts $B$ to $(1/2,1)$. Refining $C$ into the same child then leaves
 both $A<C<B$ and $C<A<B$ possible, while fixing the additional relation
 $C<B$. The comparison-bound proof accounts for these restrictions.
-
-Section~\ref{sec:median-search} gives \texttt{ChooseAnchor}: it uses
-probability estimates for a wide item and interval endpoints for a narrow
-one.
 
 \subsection{Dyadic anchors}
 

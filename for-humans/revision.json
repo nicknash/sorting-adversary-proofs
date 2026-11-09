@@ -4,12 +4,12 @@
   "argument": "finite averaging over dyadic coordinate updates, with a single coefficient for refinement accounting",
   "source_pdf_sha256": "577836ef3235bd8c452b8bdf0b5cbf3840c943c1a1837bed8c9f7ce3f41ab907",
   "source_zip_sha256": "4c4545e4e96e6ad4eb1389e5a1cfc91c6d22b35bf9180a2bedfbfc1885515fc7",
-  "local_pdf_sha256": "072df99df92a022f5a3673b73aa096674106267c598b4ab7e2dc3d99b6a4326e",
-  "prepared_zip_sha256": "88a16c6458967cbdea29f6c60d7d9ddee57561d8e6f9b2581764788851dd95ec",
+  "local_pdf_sha256": "05f69830da4691a33f0efed661be64e94e6c6c39c75eaf83687e0792d343a845",
+  "prepared_zip_sha256": "fb8117c5e3b8154d530eeb8faf2ba60cd121f2e1bab7db5bd0599c9053ad4802",
   "previous_hexagon_submission": "hexagon:2611.00196",
   "previous_submission_metadata": "submission.json",
   "formalization": "Related earlier integer-colour construction; this continuous presentation is not formally verified.",
-  "exposition": "Top-down presentation with one comparison procedure and an early conditional bound. Parameter values are chosen where the proof needs them and collected in Appendix D with roles and section references. Every answer explicitly updates the global transcript and global comparison DAG; the cutoff replaces the comparison procedure with rank lookup and discards those records. Node-specific comparisons are consistently identified as in-node DAGs, distinct from the global comparison DAG.",
-  "pages": 33,
+  "exposition": "Top-down presentation with one comparison procedure and an early conditional bound. Parameter values are chosen where the proof needs them and collected in Appendix D with roles and section references. Every answer explicitly updates the global transcript and global comparison DAG; the cutoff replaces the comparison procedure with rank lookup and discards those records. Node-specific comparisons are consistently identified as in-node DAGs, distinct from the global comparison DAG. ChooseAnchor has explicit pseudocode in Section 5.3, referenced at its first use in Section 3.3.",
+  "pages": 34,
   "source_chat": "https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af1b5f8-a1d0-83ed-b93d-fe7efd94df67"
 }

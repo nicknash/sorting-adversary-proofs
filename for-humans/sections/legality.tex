@@ -184,8 +184,9 @@ original area.}
 
 \subsection{Choosing an anchor}\label{sec:median-search}
 
-Consider a positive-volume node with degree at most $k$ and directed paths
-of at most $2H$ vertices. The anchor guarantee asks for a high enough
+Consider a positive-volume node whose in-node DAG has degree at most $k$
+and directed paths of at most $2H$ vertices. Algorithm~\ref{alg:choose-anchor}
+gives \texttt{ChooseAnchor}. The anchor guarantee asks for a high enough
 density at the chosen position.
 For a wide coordinate we find one by estimating its cumulative probability
 \[
@@ -195,17 +196,32 @@ For a narrow coordinate the effective endpoints alone suffice. Throughout
 this subsection we assume the estimation guarantee from
 Section~\ref{sec:guarantees}.
 
-For a wide item, start with the search cell $[a,b]=[0,1]$ and test its
-midpoint $c$. Use \texttt{Estimate} to approximate $F_x(c)$ within $\eta$.
-If the report is below $1/4$, retain the right half of the cell; if it is
-above $3/4$, retain the left half. Otherwise accept $c$. Repeat after
-any rejection. The accepted cell's length is $2^{-m}$, where $m$ is the
-anchor's level.
+\begin{algorithm}[H]
+\caption{\texttt{ChooseAnchor}$(x)$: choose a position for refinement.}
+\label{alg:choose-anchor}
+\DontPrintSemicolon
+\KwIn{A free item $x$ stored at node $v$, its effective interval $(\ell_x,r_x)$,
+and the fixed parameters $R,\eta$.}
+\KwOut{A dyadic anchor $c\in(\ell_x,r_x)$.}
+$W_x\gets r_x-\ell_x$\;
+\If{$W_x<1/R$}{
+  Choose the integer $m$ with $W_x/8<2^{-m}\le W_x/4$\;
+  $c\gets$ the level-$m$ anchor nearest to $(\ell_x+r_x)/2$, taking the smaller one on a tie\;
+  \Return $c$\;
+}
+$a\gets0$; $b\gets1$\;
+\While{true}{
+  $c\gets(a+b)/2$\;
+  $\widehat p\gets$ \texttt{Estimate}$(v,X_x<c,\eta)$\;
+  \uIf{$\widehat p<1/4$}{$a\gets c$\;}
+  \uElseIf{$\widehat p>3/4$}{$b\gets c$\;}
+  \Else{\Return $c$\;}
+}
+\end{algorithm}
 
-For a narrow item, choose the unique dyadic cell length $b=2^{-m}$ with
-$W_x/8<b\le W_x/4$. Among the grid's midpoints, choose the one nearest
-to $(\ell_x+r_x)/2$, taking the smaller one on a tie. This defines
-\texttt{ChooseAnchor} in both cases.
+For a wide item, each rejected midpoint halves the search cell $[a,b]$.
+The accepted cell's length is $2^{-m}$, where $m$ is the anchor's level.
+Both branches leave the stored state unchanged.
 
 \subsubsection{Density estimates used by the two rules}
 
