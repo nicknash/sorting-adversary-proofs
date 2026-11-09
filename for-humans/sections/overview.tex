@@ -171,8 +171,8 @@ the left child; comparing $p$ with $r$ uses the anchors $1/4$ and $3/4$;
 and comparing $a$ with $p$ compares $X_a$ with $1/4$ at the root.
 
 Two distinct anchors determine the answer immediately. In the other cases,
-first propagate the interval bounds through the DAG. If $y\to x$, every
-lower bound on $X_y$ is also a lower bound on $X_x$; upper bounds propagate
+first propagate the interval bounds through the DAG. If there is an arc
+$y\to x$, every lower bound on $X_y$ is also a lower bound on $X_x$; upper bounds propagate
 in the reverse direction. Write $y\preceq x$ when $y=x$ or a directed path
 leads from $y$ to $x$. The resulting \emph{effective interval} is
 \begin{equation}\label{eq:effective}
