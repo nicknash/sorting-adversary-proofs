@@ -55,7 +55,7 @@ f_x(c)=\frac{S_x(c)}{V_v},
 \Prb(a<X_x<b)=\int_a^b f_x(t)\,dt.
 \]
 
-To track volume across the whole tree, we take the product of the node
+To track volume across the adversary's tree, we take the product of the node
 regions. Each item has a position variable at exactly one node, so this
 product has dimension $n$ and volume
 \begin{equation}\label{eq:Z}
@@ -68,7 +68,7 @@ Lemma~\ref{lem:estimation} makes each selected answer retain at least
 $1/2-\eta$ of its node's volume: a report at least $1/2$ implies
 $p\ge1/2-\eta$, and a smaller report implies $1-p>1/2-\eta$.
 For refinement we need a lower bound on $f_x(c)$ in terms of the anchor's
-resolution. Lemma~\ref{lem:anchor-density} gives this bound.
+depth in the anchor tree. Lemma~\ref{lem:anchor-density} gives this bound.
 
 Set
 \begin{equation}\label{eq:comparable-bound}
@@ -84,8 +84,8 @@ Suppose a node's feasible region has positive volume, its interval
 endpoints are dyadic, and its in-node DAG has degree at most $k$ and
 directed paths of at most $2H$ vertices. For $R=2^{2kB}$ and rational
 $0<\eta<1/32$, \textnormal{\texttt{ChooseAnchor}} deterministically
-terminates for every free item $x$ and returns a dyadic anchor
-$c\in(\ell_x,r_x)$ at resolution $m$ satisfying
+terminates for every free item $x$ and returns an anchor
+$c\in(\ell_x,r_x)$ at depth $m$ in the anchor tree satisfying
 \begin{equation}\label{eq:tariff}
 \log f_x(c)\ge(1-1/k)m-4.
 \end{equation}
@@ -148,12 +148,13 @@ Section~\ref{sec:accounting} gives the precise map and proves that it
 preserves order. The weights below record how much this construction
 shrinks volume.
 
-For a child at an anchor of resolution $m$, reserve an interval of width
+For a child whose anchor has depth $m$ in the anchor tree, reserve an
+interval of width
 \begin{equation}\label{eq:child-weight}
 w(m)=\frac{2^{-(1+1/k)m}}{4k}.
 \end{equation}
-There are $2^m$ possible anchors at resolution $m$. The extra factor
-$2^{-m/k}$ makes the sum of the widths finite over all resolutions; the factor
+The anchor tree has $2^m$ nodes at depth $m$. The extra factor
+$2^{-m/k}$ makes the sum of the widths finite over all depths; the factor
 $4k$ leaves space for items stored in the parent.
 
 Let $s_c$ be the number of original labels in the subtree below a
@@ -162,7 +163,7 @@ parent--child edge $c$, and let $w_c$ be its reserved width. Define
 \mathcal W=\prod_{\text{parent--child edges }c} w_c^{s_c}.
 \end{equation}
 Each item contributes the product of the widths on its path from the root.
-A comparison leaves $\mathcal W$ unchanged. Refinement using an anchor of resolution $m$
+A comparison leaves $\mathcal W$ unchanged. Refinement using an anchor of depth $m$
 multiplies it by $w(m)$: one item crosses that parent--child edge, and its
 membership in every other subtree stays unchanged. Initially $\mathcal W=1$.
 
@@ -185,7 +186,7 @@ for the changes made by refinements.
 \subsection{The potential function}\label{sec:potential-coefficient}
 
 Refinement reduces $\mathcal W$. Lemma~\ref{lem:anchor-density} gives a
-compensating increase in $Z$ when the anchor's resolution $m$ is large, and refining
+compensating increase in $Z$ when the anchor depth $m$ is large, and refining
 a vertex of high degree removes many in-node arcs. We give additional
 weight to these two effects so that every completed repair increases the
 potential.
@@ -209,7 +210,7 @@ Lemma~\ref{lem:packing}, $Z\le1$, and $e\ge0$ give
 For $j\ge6$, the coefficient satisfies $0<s\le1/4$: its value at $j=6$
 is $1/4$, and increasing $j$ decreases it.
 
-Consider a refinement using an anchor of resolution $m$ that deletes $r$ incident in-node arcs.
+Consider a refinement using an anchor of depth $m$ that deletes $r$ incident in-node arcs.
 Lemmas~\ref{lem:section-volume} and~\ref{lem:anchor-density}, together with the child width, give
 \begin{center}
 \begin{tabular}{ll}
@@ -225,12 +226,13 @@ $e$ & exactly $-r$\\
 The second row uses $\log(4k)=j+2$. Combining these changes gives the
 following bound, which we will apply to all three repair rules.
 
+\Needspace{9\baselineskip}
 \begin{lemma}[Refinement inequality]\label{lem:repair-potential}
 Set
 \begin{equation}\label{eq:coefficients}
 a=s-\frac{s+2}{k},\qquad C_j=j+6+4s.
 \end{equation}
-A refinement using an anchor of resolution $m$ and deleting $r$ in-node arcs satisfies
+A refinement using an anchor of depth $m$ and deleting $r$ in-node arcs satisfies
 \begin{equation}\label{eq:repair-potential}
 \log\Psi_{\rm new}-\log\Psi_{\rm old}\ge am+sr-C_j.
 \end{equation}
@@ -249,18 +251,20 @@ $-(j+6+4s)$. Finally, $ks=j+10\ge16>s+2$, so $a>0$.
 
 \subsection{Every complete repair increases the potential}\label{sec:repair-monotonicity}
 
-A path repair moves its items to distinct child anchors. Since there are
-only $2^m$ anchors at resolution $m$, a long path forces many of these moves
-to use fine resolutions. We choose the path threshold
+A path repair moves its items to distinct children of their node in the
+adversary's tree. Their anchors occupy distinct nodes of the anchor tree.
+Since only $2^m$ nodes occur at depth $m$, a long path requires many deep
+anchors. We choose the path threshold
 \begin{equation}\label{eq:path-threshold}
 H=2^k.
 \end{equation}
-The following bound on the anchor resolutions is enough to make the whole
+The following bound on the sum of anchor depths is enough to make the whole
 batch increase the potential.
 
-\begin{lemma}[Sum of anchor resolutions along a path]\label{lem:path-address}
+\begin{lemma}[Sum of anchor depths along a path]\label{lem:path-address}
 The $H$ labels of a selected path in an in-node DAG enter distinct children
-of their parent. If the anchors have resolutions $m_1,\ldots,m_H$, then
+of their parent in the adversary's tree. If their anchors have depths
+$m_1,\ldots,m_H$ in the anchor tree, then
 \begin{equation}\label{eq:path-charge}
 \sum_{i=1}^H m_i\ge H(k-2).
 \end{equation}
@@ -268,7 +272,7 @@ of their parent. If the anchors have resolutions $m_1,\ldots,m_H$, then
 
 Section~\ref{sec:path-resolutions} proves Lemma~\ref{lem:path-address} by
 showing that the anchors must be distinct and counting how many are
-available at each resolution.
+available at each depth.
 
 \begin{proposition}[Repair monotonicity]\label{prop:repairs}
 Each query-preparation refinement, each degree refinement, and each
@@ -284,7 +288,7 @@ A preparation refines a narrow item. Lemma~\ref{lem:anchor-density} gives $m>2kB
 \Delta\log\Psi>2ka-C_j=j+10-6s>0.
 \]
 
-For a path batch, let $m_i$ be the resolution of the anchor chosen at its $i$th refinement.
+For a path batch, let $m_i$ be the depth of the anchor chosen at its $i$th refinement.
 There are $H=2^k$ refinements. Lemma~\ref{lem:path-address} gives
 $\sum_i m_i\ge H(k-2)$. Summing \eqref{eq:repair-potential} over the
 whole batch and dropping the nonnegative arc terms gives

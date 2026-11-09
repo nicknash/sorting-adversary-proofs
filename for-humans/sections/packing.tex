@@ -2,16 +2,17 @@
 
 We now construct the common coordinates used in
 Section~\ref{sec:movement-volume} and calculate their effect on volume.
-The map expands each child anchor into an interval and fits the child
-subtree recursively inside it. We prove that this map is injective and
-preserves the represented order, giving the required bound at termination.
+At each node of the adversary's tree, the map expands each child anchor
+into an interval and fits the child subtree recursively inside it. We prove
+that this map is injective and preserves the represented order, giving the required bound at termination.
 
 \subsubsection{Placing the children on a common line}
 
 Use the widths $w(m)$ defined in \eqref{eq:child-weight}. Only children currently present receive intervals. The sum over all
 possible anchors below is a bound on every such finite set.
-The factor $4k$ leaves at least half the line for free positions. Indeed,
-at every node
+The factor $4k$ leaves at least half the line for free positions. Grouping
+the possible anchors by their depth in the anchor tree gives, at every
+node of the adversary's tree,
 \begin{equation}\label{eq:weight-sum}
 \sum_c w_c\le\frac1{4k}\sum_{m\ge0}2^{-m/k}
 =\frac1{4k(1-2^{-1/k})}\le\frac12.
@@ -66,8 +67,8 @@ shown schematically; their values are given by \eqref{eq:child-weight}.}
 \end{center}
 
 An item is scaled by a child interval's width every time its route from the
-root passes through that child. For example, an item at depth two has final
-position
+root passes through that child. For example, an item at depth two in the
+adversary's tree has final position
 \[
 a_1+w_1\bigl(a_2+w_2G_v(X_x)\bigr),
 \]
@@ -106,20 +107,20 @@ volume $1/n!$, since coordinate permutations preserve volume and equality
 hyperplanes have volume zero. Hence $2^{-n}Z\mathcal W\le1/n!$.
 \end{proof}
 
-\subsection{Why a long path must use fine anchors}\label{sec:path-resolutions}
+\subsection{Why a long path requires deep anchors}\label{sec:path-resolutions}
 
 \begin{proof}[Proof of Lemma~\ref{lem:path-address}]
 Every in-node arc on the selected path records an answered comparison. The path's
 labels are therefore pairwise comparable in the global comparison DAG,
 and remain so after the in-node arcs are deleted. By Lemma~\ref{lem:admission}, two of these labels cannot
-be admitted to the same child. The procedure completes all $H=2^k$
-refinements in this parent, so it uses $H$ distinct anchors.
+be admitted to the same child of their parent in the adversary's tree.
+The procedure completes all $H=2^k$ refinements in this parent, so its
+anchors occupy $H$ distinct nodes of the anchor tree.
 
-There are exactly $2^m$ possible anchors at resolution $m$. The smallest
-possible sum uses all anchors at resolutions $0,\ldots,k-1$
-and one anchor at resolution $k$. Its value is
+The smallest possible sum of depths uses the $2^k-1$ nodes at depths
+$0,\ldots,k-1$ and one node at depth $k$. Its value is
 \[
 \sum_{m=0}^{k-1}m2^m+k=(k-2)2^k+k+2\ge H(k-2).
 \]
-Every other choice of $H$ distinct anchors has at least this sum of resolutions.
+Every other choice of $H$ distinct nodes has at least this sum of depths.
 \end{proof}

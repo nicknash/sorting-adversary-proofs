@@ -182,12 +182,14 @@ Consider a positive-volume node whose in-node DAG has degree at most $k$
 and directed paths of at most $2H$ vertices. Algorithm~\ref{alg:choose-anchor}
 gives \texttt{ChooseAnchor}. Lemma~\ref{lem:anchor-density} requires a
 lower bound on the density at the chosen position.
-For a wide coordinate we find one by estimating its cumulative probability
+\texttt{ChooseAnchor} starts at the root of the anchor tree. For a wide coordinate,
+we decide which child to visit by estimating the cumulative probability
 \[
-F_x(t)=\Prb(X_x<t).
+F_x(t)=\Prb(X_x<t)
 \]
-For a narrow coordinate the effective endpoints alone suffice. Each
-probability estimate uses Lemma~\ref{lem:estimation}.
+at the current anchor. For a narrow coordinate, we walk toward the centre
+of its effective interval until the anchor-tree interval is sufficiently
+short. Each probability estimate uses Lemma~\ref{lem:estimation}.
 
 \begin{algorithm}[H]
 \caption{\texttt{ChooseAnchor}$(x)$: choose a position for refinement.}
@@ -197,24 +199,26 @@ probability estimate uses Lemma~\ref{lem:estimation}.
 and the fixed parameters $R,\eta$.}
 \KwOut{A dyadic anchor $c\in(\ell_x,r_x)$.}
 $W_x\gets r_x-\ell_x$\;
+$u\gets$ the root of the anchor tree\;
 \If{$W_x<1/R$}{
-  Choose the integer $m$ with $W_x/8<2^{-m}\le W_x/4$\;
-  $c\gets$ the anchor at resolution $m$ nearest to $(\ell_x+r_x)/2$, taking the smaller one on a tie\;
-  \Return $c$\;
+  $t\gets(\ell_x+r_x)/2$\;
+  \While{$|I(u)|>W_x/4$}{
+    \uIf{$t\le c(u)$}{$u\gets$ the left child of $u$\;}
+    \Else{$u\gets$ the right child of $u$\;}
+  }
+  \Return $c(u)$\;
 }
-$a\gets0$; $b\gets1$\;
 \While{true}{
-  $c\gets(a+b)/2$\;
-  $\widehat p\gets$ \texttt{Estimate}$(v,X_x<c,\eta)$\;
-  \uIf{$\widehat p<1/4$}{$a\gets c$\;}
-  \uElseIf{$\widehat p>3/4$}{$b\gets c$\;}
-  \Else{\Return $c$\;}
+  $\widehat p\gets$ \texttt{Estimate}$(v,X_x<c(u),\eta)$\;
+  \uIf{$\widehat p<1/4$}{$u\gets$ the right child of $u$\;}
+  \uElseIf{$\widehat p>3/4$}{$u\gets$ the left child of $u$\;}
+  \Else{\Return $c(u)$\;}
 }
 \end{algorithm}
 
-For a wide item, each rejected midpoint halves the search interval $[a,b]$.
-The accepted interval's length is $2^{-m}$, where $m$ is the anchor's resolution.
-Both branches leave the stored state unchanged.
+Each step increases the anchor depth by one and halves $|I(u)|$. The
+narrow branch follows the child interval containing $t$, taking the left
+child when $t=c(u)$. This fixes its tie rule.
 
 \subsubsection{Density estimates used by the two rules}
 
@@ -227,8 +231,8 @@ f_x(t)\ge\frac{4^{-B}}{W}\quad
 \end{equation}
 The lower bound gives an endpoint-only choice: every point in the central
 half has this much density. The upper bound limits the probability in a
-short interval; it will ensure that the midpoint search cannot continue
-halving its search interval indefinitely.
+short interval; it will bound how far the wide-item search descends in
+the anchor tree.
 
 For the search we also need a density bound that improves as its search interval
 shrinks. For any $a\le c\le b$,
@@ -241,15 +245,15 @@ forces the density at $c$ to be a constant times $1/(b-a)$.
 Appendix~\ref{app:geometry} proves \eqref{eq:density-summary} and
 \eqref{eq:mass-summary} by explicit maps between sections.
 
-\subsubsection{The midpoint search}
+\subsubsection{The search for a wide item}
 
 Every test uses the same feasible region $K$ and distribution $F_x$.
 Each test calls \texttt{Estimate} for $X_x<c$ with the same tightened
 endpoints. Only the queried threshold changes.
 
-\begin{lemma}[Midpoint search]\label{lem:median-search}
-The midpoint search for a wide item terminates at an interior anchor $c$.
-If its accepted search interval has length $2^{-m}$, then
+\begin{lemma}[Wide-item search]\label{lem:median-search}
+The anchor-tree search for a wide item terminates at an interior anchor $c$.
+If the selected node has depth $m$, then
 \[
 f_x(c)\ge2^{m-4}.
 \]
@@ -257,10 +261,11 @@ The search makes at most
 $\ceil{\log(4(B+1)/W_x)}+1$ tests.
 \end{lemma}
 \begin{proof}
+At the current node $u$ of depth $m$, write $I(u)=[a,b]$ and $c=c(u)$.
 Every estimate has error at most $\eta<1/32$. A test reported below
-$1/4$ has true value below $9/32$, and its midpoint becomes the new
-left endpoint. A test reported above $3/4$ has true value above $23/32$,
-and its midpoint becomes the new right endpoint. Since the initial
+$1/4$ has true value below $9/32$; the walk moves right, making $c$ the
+new left endpoint. A test reported above $3/4$ has true value above $23/32$;
+the walk moves left, making $c$ the new right endpoint. Since the initial
 endpoint values are $F_x(0)=0$ and $F_x(1)=1$, the search maintains
 \[
 F_x(a)<9/32,\qquad F_x(b)>23/32.
@@ -270,8 +275,8 @@ At acceptance, the report lies in $[1/4,3/4]$, so
 \frac7{32}\le F_x(c)\le\frac{25}{32},\qquad
 F_x(b)-F_x(a)\ge\frac7{16}.
 \]
-The first bounds put $c$ strictly inside its support. Applying
-\eqref{eq:mass-summary} to the accepted search interval gives
+The first bounds put $c$ strictly inside its support. The node's interval
+has length $2^{-m}$, so \eqref{eq:mass-summary} gives
 \[
 2^{-m}f_x(c)\ge\frac7{32}\frac7{16}
 =\frac{49}{512}>\frac1{16},
@@ -279,34 +284,37 @@ The first bounds put $c$ strictly inside its support. Applying
 which proves the density guarantee.
 
 For termination, the upper density bound in \eqref{eq:density-summary}
-gives, at every search interval reached,
+gives, at every anchor-tree node reached,
 \[
 \frac7{16}\le F_x(b)-F_x(a)
 \le\frac{B+1}{W_x}\,2^{-m}.
 \]
 At $m\ge\ceil{\log(4(B+1)/W_x)}$, the upper bound would be at most
-$1/4<7/16$. Starting at $m=0$ and increasing it by one at each rejection
+$1/4<7/16$. Starting at the root and descending one edge at each rejection
 therefore permits at most the stated number of tests.
 \end{proof}
 
 \subsubsection{The anchor guarantee}\label{sec:anchor-guarantee}
 
-The wide-item search gives $\log f_x(c)\ge m-4$. For a narrow item,
+For an anchor at depth $m$, the wide-item search gives $\log f_x(c)\ge m-4$.
+For a narrow item,
 the central density estimate gives the weaker bound $m-3-2B$. To absorb
 this extra loss into the allowance $m/k$, choose
 \begin{equation}\label{eq:width-threshold}
 R=2^{2kB}.
 \end{equation}
-The rule $2^{-m}\le W_x/4<1/(4R)$ then forces $m>2kB+2$.
+The narrow walk stops when its node's interval first has length at most
+$W_x/4$. Thus $2^{-m}\le W_x/4<1/(4R)$, forcing $m>2kB+2$.
 In particular $2B<m/k$, so both anchor rules satisfy the required density
 bound.
 
 \begin{proof}[Proof of Lemma~\ref{lem:anchor-density}]
 The in-node DAG bounds imply that $x$ has at most $B$ other comparable coordinates, by
 \eqref{eq:comparable-bound}. For a wide item, Lemma~\ref{lem:median-search} gives the stronger lower
-bound $m-4$. For a narrow item, write $b=2^{-m}$ for the spacing between
-consecutive anchors at resolution $m$, so $W_x/8<b\le W_x/4$. The chosen midpoint is at distance at
-most $b/2\le W_x/8$ from the interval center. It belongs to the central
+bound $m-4$. For a narrow item, let $b=2^{-m}$ be the length of the
+selected node's interval. The stopping rule gives $W_x/8<b\le W_x/4$.
+That interval contains $t=(\ell_x+r_x)/2$, so its midpoint $c$ is at distance
+at most $b/2\le W_x/8$ from $t$. It belongs to the central
 half and is therefore interior. By \eqref{eq:density-summary} and
 $W_x<8b$,
 \[
@@ -314,14 +322,14 @@ f_x(c)\ge\frac{4^{-B}}{W_x}>2^{m-3-2B}.
 \]
 Moreover, $b\le W_x/4<1/(4R)$, so
 $m>\log R+2=2kB+2$. In particular $2B<m/k$, and hence
-$m-3-2B>(1-1/k)m-4$, proving \eqref{eq:tariff}. The midpoint search
-terminates by Lemma~\ref{lem:median-search}; the narrow rule makes a finite
-dyadic calculation. Both use deterministic tie rules and leave the stored
-state unchanged.
+$m-3-2B>(1-1/k)m-4$, proving \eqref{eq:tariff}. The wide-item search
+terminates by Lemma~\ref{lem:median-search}. The narrow walk terminates
+because $W_x>0$ and each step halves the interval length. Both walks are
+deterministic.
 \end{proof}
 
-The narrow rule must use its prescribed anchor resolution even if an anchor at a
-coarser resolution lies inside the effective interval. The resulting lower bound on $m$ allows
+The narrow walk continues to its prescribed depth even when an earlier
+anchor lies inside the effective interval. The resulting lower bound on $m$ allows
 the weaker central density estimate to satisfy the same bound as the
 wide-item search.
 

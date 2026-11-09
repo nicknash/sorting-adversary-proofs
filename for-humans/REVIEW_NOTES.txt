@@ -511,3 +511,32 @@ equation. Independent mathematical and editorial reviews found no new
 circularity or missing assumption. Both compilers pass without final
 repository warnings; the affected statements and proof pages were
 visually checked. All source archive members match the saved files.
+
+
+Binary-tree representation of anchors -- 9 November 2026
+-------------------------------------------------------
+Introduced a fixed implicit binary anchor tree in Section 3.3, with a
+figure and explicit distinction from the adversary's tree of item records.
+Each node has its midpoint position and interval; its depth replaces the
+former anchor resolution. Rewrote both ChooseAnchor branches as walks.
+The wide branch follows probability estimates. The narrow branch follows
+the effective interval's centre, choosing left on equality and stopping
+when the tree interval first has length at most W_x/4.
+
+The narrow walk returns exactly the former nearest anchor at the prescribed
+depth, including boundary ties. An independent exact-rational check covered
+44,946 intervals, including 5,296 walks encountering equality; the cases
+included exhaustive endpoint grids through 2^-8 and 1,000 random intervals
+with up to 512 fractional bits. Independent review checked equivalence of
+the wide walk, the unchanged density constants, and the finite path storage
+and polynomial arithmetic bounds. These checks concern the reformulation;
+they do not constitute formal verification of the full adversary.
+
+Updated the packing and path arguments to use anchor depths, and the
+running-time proof to account for the walks and path representation.
+Anchor comparisons use numerical positions. Sections 1 and 2, the abstract,
+and the algorithm's comparison bound are unchanged. Audited Section 4's
+proof references to retain statements before use. Both compilers pass
+without final repository warnings; the changed figure, algorithm, proof,
+and implementation layouts were visually checked. All 18 source archive
+members match the saved files.

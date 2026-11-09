@@ -4,12 +4,12 @@
   "argument": "finite averaging over dyadic coordinate updates, with a single coefficient for refinement accounting",
   "source_pdf_sha256": "577836ef3235bd8c452b8bdf0b5cbf3840c943c1a1837bed8c9f7ce3f41ab907",
   "source_zip_sha256": "4c4545e4e96e6ad4eb1389e5a1cfc91c6d22b35bf9180a2bedfbfc1885515fc7",
-  "local_pdf_sha256": "9ca5134408a0eaa856bdd54b667a9591e842710f439241f5e6cf7ec1bfcd008c",
-  "prepared_zip_sha256": "04e5aac6a4baee1ee9db10fefea7c724d110ed7f95546e8e56c6f62418ecf66e",
+  "local_pdf_sha256": "afe774404e9e725dea859521c2aeb9d8c23bfb3651073a428fa3612343ba1837",
+  "prepared_zip_sha256": "d71f4c4a08d09e419b00143092700ba3306474e66b3cd5458dd2a76c5ef21235",
   "previous_hexagon_submission": "hexagon:2611.00196",
   "previous_submission_metadata": "submission.json",
   "formalization": "Related earlier integer-colour construction; this continuous presentation is not formally verified.",
-  "exposition": "Top-down presentation with the estimation, anchor-selection, refinement, consistency, and geometric guarantees stated before use. Section 4 proves the comparison bound from these statements; Sections 5 and 6 supply their deferred proofs. The estimation lemma separates threshold and pair queries; dyadic rationals are defined with the stored endpoints. Anchor positions and resolutions are defined beside Refine as the midpoints of equal subdivisions of the unit interval. Section 4 motivates its definitions, the relation between local volume and the final order, and the potential function. The unconditional comparison theorem uses the degree threshold k; j=log k is introduced for the potential calculation. Tighten, Compare, Repair, and Refine have pseudocode in Section 3, and ChooseAnchor in Section 5.3. Parameter choices are collected in Appendix D. In-node DAGs are distinguished from the global comparison DAG.",
-  "pages": 35,
+  "exposition": "Top-down presentation with the estimation, anchor-selection, refinement, consistency, and geometric guarantees stated before use. Section 4 proves the comparison bound from these statements; Sections 5 and 6 supply their deferred proofs. The estimation lemma separates threshold and pair queries; dyadic rationals are defined with the stored endpoints. A fixed implicit binary anchor tree is defined and illustrated beside Refine. Anchor depth replaces resolution, and both branches of ChooseAnchor walk in this tree. Root-to-node paths represent anchors, with exact coordinates used for comparisons and volume calculations. Section 4 motivates its definitions, the relation between local volume and the final order, and the potential function. The unconditional comparison theorem uses the degree threshold k; j=log k is introduced for the potential calculation. Tighten, Compare, Repair, and Refine have pseudocode in Section 3, and ChooseAnchor in Section 5.3. Parameter choices are collected in Appendix D. In-node DAGs are distinguished from the global comparison DAG.",
+  "pages": 36,
   "source_chat": "https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af1b5f8-a1d0-83ed-b93d-fe7efd94df67"
 }

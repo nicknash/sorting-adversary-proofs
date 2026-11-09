@@ -322,15 +322,54 @@ from its current node into a child. After tightening the parent's interval
 bounds, it calls \texttt{ChooseAnchor} to select a position $c$ inside
 $x$'s effective interval.
 
-For each integer $m\ge0$, the anchors at \emph{resolution} $m$ are the
-midpoints of the $2^m$ equal subintervals of $[0,1]$:
+We select anchor positions using a fixed infinite binary tree, the
+\emph{anchor tree}, shown in Figure~\ref{fig:anchor-tree}. The same
+auxiliary tree is used at every node of the adversary's tree. Each
+anchor-tree node $u$ has an interval $I(u)=[a,b]$ and a position
+$c(u)=(a+b)/2$; write $|I(u)|=b-a$. The root has interval $[0,1]$; the left and right children
+of $u$ have intervals $[a,c(u)]$ and $[c(u),b]$, respectively.
+
+At depth $m$, the $2^m$ nodes have intervals of length $2^{-m}$ and
+positions
 \begin{equation}\label{eq:dyadic}
 c=(i+\tfrac12)2^{-m},\qquad i=0,\ldots,2^m-1.
 \end{equation}
-These positions are dyadic rationals, so the interval endpoints $a_x,b_x$
-remain dyadic when refinement updates them.
+We call $m$ the \emph{anchor depth}, always measured in the anchor tree.
+These positions are dyadic rationals, so refinement keeps the interval
+endpoints $a_x,b_x$ dyadic. The anchor tree is implicit: a finite path
+from its root specifies an anchor.
 Algorithm~\ref{alg:choose-anchor} in Section~\ref{sec:median-search} gives
-the rule for selecting an anchor inside the effective interval.
+the walks that select an anchor inside the effective interval.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[font=\small,
+  anchorpos/.style={draw=ink!65,rounded corners=2pt,fill=pale,
+    minimum width=13mm,minimum height=8mm},
+  chosen/.style={anchorpos,draw=accent,very thick}]
+\node[chosen] (aroot) at (0,0) {$\frac12$};
+\node[anchorpos] (al) at (-3,-1.3) {$\frac14$};
+\node[chosen] (ar) at (3,-1.3) {$\frac34$};
+\node[anchorpos] (all) at (-4.5,-2.6) {$\frac18$};
+\node[anchorpos] (alr) at (-1.5,-2.6) {$\frac38$};
+\node[chosen] (arl) at (1.5,-2.6) {$\frac58$};
+\node[anchorpos] (arr) at (4.5,-2.6) {$\frac78$};
+\draw[ink!65] (aroot)--(al);
+\draw[accent,very thick] (aroot)--(ar);
+\draw[ink!65] (al)--(all) (al)--(alr) (ar)--(arr);
+\draw[accent,very thick] (ar)--(arl);
+\node[above=2pt of aroot] {$I=[0,1]$};
+\node[above left=1pt and 3pt of al] {$I=[0,\frac12]$};
+\node[above right=1pt and 3pt of ar] {$I=[\frac12,1]$};
+\node[below=2pt of arl,align=center] {$I=[\frac12,\frac34]$};
+\foreach \name in {all,alr,arl,arr}{
+  \draw[ink!35] (\name.south west)--+(-.2,-.3);
+  \draw[ink!35] (\name.south east)--+(.2,-.3);
+}
+\end{tikzpicture}
+\caption{The anchor tree. The highlighted path selects $5/8$ at depth $2$.}
+\label{fig:anchor-tree}
+\end{figure}
 
 Fixing $X_x=c$ places $x$ in the child block anchored at $c$.
 The arcs incident to $x$ in that in-node DAG become interval bounds: $y\to x$ gives $X_y<c$,
