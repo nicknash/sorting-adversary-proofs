@@ -204,7 +204,7 @@ queried free coordinate. Write this threshold as $1/R$. Call a coordinate
 otherwise. If all queried free coordinates are narrow, move one of their
 items into a child before trying the query again. Such a move is called a
 \emph{refinement}, denoted \texttt{Refine}$(x)$; Section~\ref{sec:overview-refine}
-describes the operation.
+gives the operation in Algorithm~\ref{alg:refine}.
 
 The calculation also needs bounds on the in-node DAG. We limit each
 vertex to fewer than $k$ neighbors, counting both incoming and outgoing
@@ -265,12 +265,12 @@ deterministic.
 
 \subsection{Moving an item into a child}\label{sec:overview-refine}
 
-To carry out \texttt{Refine}$(x)$, first propagate all interval bounds
-implied by the parent's in-node DAG. The subroutine \texttt{ChooseAnchor}
-selects a dyadic point $c$ inside $x$'s effective interval, using probability
-estimates for a wide item and interval endpoints for a narrow one.
-Algorithm~\ref{alg:choose-anchor} in Section~\ref{sec:median-search} gives
-the rule. Fix its parent position at $X_x=c$.
+Algorithm~\ref{alg:refine} gives \texttt{Refine}$(x)$, which moves $x$
+from its current node into a child. After tightening the parent's interval
+bounds, it calls \texttt{ChooseAnchor} to obtain a dyadic point $c$ inside
+$x$'s effective interval. Algorithm~\ref{alg:choose-anchor} in
+Section~\ref{sec:median-search} gives the anchor-selection rule.
+Fixing $X_x=c$ places $x$ in the child block anchored at $c$.
 
 The arcs incident to $x$ in that in-node DAG become interval bounds: $y\to x$ gives $X_y<c$,
 and $x\to z$ gives $X_z>c$. Remove $x$ and these arcs from the parent,
@@ -279,6 +279,32 @@ Insert $x$ into the child anchored at $c$, creating it if needed. In that
 child, $x$ receives a fresh position variable with interval $(0,1)$ and no incident arcs; the
 child's existing constraints remain unchanged.
 Figure~\ref{fig:overview-refine} illustrates reuse of an existing child.
+
+\begin{algorithm}[H]
+\caption{\texttt{Refine}$(x)$: move an item into a child.}
+\label{alg:refine}
+\DontPrintSemicolon
+\KwIn{A free item $x$ and the current adversary state.}
+\KwOut{The updated state, with $x$ stored in a child of its former node.}
+$v\gets$ the node storing $x$\;
+\texttt{Tighten}$(v)$\;
+$c\gets$ \texttt{ChooseAnchor}$(x)$\;
+\ForEach{arc $y\to x$ in the in-node DAG at $v$}{
+  $b_y\gets\min(b_y,c)$\;
+}
+\ForEach{arc $x\to z$ in the in-node DAG at $v$}{
+  $a_z\gets\max(a_z,c)$\;
+}
+Remove $x$'s record from $v$ and its vertex and incident arcs from the in-node DAG at $v$\;
+\texttt{Tighten}$(v)$\;
+\If{$v$ has no child anchored at $c$}{
+  Create a child of $v$ at $c$, with no records and an empty in-node DAG\;
+}
+$u\gets$ the child of $v$ anchored at $c$\;
+Insert a record $(x,X_x,0,1)$ at $u$, with a fresh, unassigned position variable $X_x$\;
+Insert $x$ as an isolated vertex in the in-node DAG at $u$\;
+\texttt{Tighten}$(u)$\;
+\end{algorithm}
 
 \begin{center}
 \begin{minipage}{\linewidth}

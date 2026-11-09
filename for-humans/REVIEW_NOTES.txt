@@ -277,3 +277,20 @@ the stored state. The comparison procedure and proofs are unchanged.
 Both compilers succeed without final repository warnings. Cross-references
 resolve, and the listing and its first reference were checked in the rendered
 34-page PDF. The source archive matches all 18 saved source files.
+
+
+Refine pseudocode -- 9 November 2026
+----------------------------------
+Added one Refine listing beside the Section 3.3 explanation. It tightens
+the parent bounds, calls ChooseAnchor, replaces incident in-node arcs with
+interval bounds, deletes the parent record and vertex, and inserts a fresh
+unit-interval record and isolated vertex in the selected child. It creates
+the child only when needed and explicitly tightens both affected nodes.
+The child tightening is harmless because the inserted vertex is isolated.
+Global comparison records remain unchanged by refinement.
+
+Section 3.3 states the required interior-anchor return value and points to
+the existing ChooseAnchor listing in Section 5.3. Refine is Algorithm 2;
+ChooseAnchor is now Algorithm 3. Both compilers pass, cross-references
+resolve, and the two listings and refinement diagram were visually checked.
+The PDF has 34 pages; all 18 source-archive members match saved files.
