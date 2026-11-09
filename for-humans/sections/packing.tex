@@ -1,121 +1,13 @@
-\subsection{The geometric bound at termination}\label{sec:accounting}
-
-We now construct the common coordinates used in
-Section~\ref{sec:movement-volume} and calculate their effect on volume.
-At each node of the adversary's tree, the map expands each child anchor
-into an interval and fits the child subtree recursively inside it. We prove
-that this map is injective and preserves the represented order, giving the required bound at termination.
-
-\subsubsection{Placing the children on a common line}
-
-Use the widths $w(m)$ defined in \eqref{eq:child-weight}. Only children currently present receive intervals. The sum over all
-possible anchors below is a bound on every such finite set.
-The factor $4k$ leaves at least half the line for free positions. Grouping
-the possible anchors by their depth in the anchor tree gives, at every
-node of the adversary's tree,
-\begin{equation}\label{eq:weight-sum}
-\sum_c w_c\le\frac1{4k}\sum_{m\ge0}2^{-m/k}
-=\frac1{4k(1-2^{-1/k})}\le\frac12.
-\end{equation}
-For the last inequality, convexity gives $2^{-t}\le1-t/2$ for
-$0\le t\le1$, and we take $t=1/k$.
-
-At a node, map a free position $t$ distinct from all anchors to
-\begin{equation}\label{eq:packing-map}
-G(t)=\frac t2+\sum_{c<t}w_c.
-\end{equation}
-The jump at an anchor $c$ leaves the open interval
-\[
-J_c=\left(\frac c2+\sum_{a<c}w_a,
-          \frac c2+\sum_{a<c}w_a+w_c\right).
-\]
-Place the recursively mapped child state inside $J_c$, using an affine map
-from $(0,1)$ to $J_c$. The intervals $J_c$ are disjoint, occur in anchor
-order, and fit in $(0,1)$ by \eqref{eq:weight-sum}. Free positions stay in
-the gaps between them. All these widths are used only in the proof.
-
-\begin{center}
-\begin{minipage}{\linewidth}
-\captionsetup{hypcap=false}
-\centering
-\begin{tikzpicture}[x=11cm,y=1cm,>=Latex,font=\small]
-\draw[thick] (0,0)--(1,0);
-\node[anchor=east] at (-.03,0) {parent};
-\foreach \p/\s in {0/0,.28/{c_1},.7/{c_2},1/1}{
-  \draw (\p,.05)--(\p,-.05); \node[above] at (\p,.1) {$\s$};}
-\fill (.28,0) circle(1.6pt); \fill (.7,0) circle(1.6pt);
-\draw[thick] (0,-1.25)--(1,-1.25);
-\node[anchor=east] at (-.03,-1.25) {image};
-\filldraw[draw=accent,fill=pale] (.14,-1.45) rectangle (.32,-1.05);
-\filldraw[draw=accent,fill=pale] (.53,-1.45) rectangle (.67,-1.05);
-\node at (.23,-1.25) {$J_{c_1}$};
-\node at (.60,-1.25) {$J_{c_2}$};
-\draw[->,accent] (.28,-.12)--(.23,-.94);
-\draw[->,accent] (.70,-.12)--(.60,-.94);
-\draw[decorate,decoration={brace,mirror,amplitude=4pt}]
-  (.14,-1.55)--(.32,-1.55) node[midway,below=5pt] {$w_{c_1}$};
-\draw[decorate,decoration={brace,mirror,amplitude=4pt}]
-  (.53,-1.55)--(.67,-1.55) node[midway,below=5pt] {$w_{c_2}$};
-\node[below] at (0,-1.30) {$0$};
-\node[below] at (1,-1.30) {$1$};
-\end{tikzpicture}
-\captionof{figure}{The packing map has slope $1/2$ between anchors. Its jump at each
-anchor reserves an interval for the entire child subtree. The widths are
-shown schematically; their values are given by \eqref{eq:child-weight}.}
-\label{fig:packing}
-\end{minipage}
-\end{center}
-
-An item is scaled by a child interval's width every time its route from the
-root passes through that child. For example, an item at depth two in the
-adversary's tree has final position
-\[
-a_1+w_1\bigl(a_2+w_2G_v(X_x)\bigr),
-\]
-where $a_i$ is the left endpoint of the chosen child interval, measured
-in its own parent's unit interval,
-and $G_v$ is the map in the group where the item is free. Its scale factor
-is $w_1w_2/2$. The factor $1/2$ occurs once, at its free coordinate; the
-ancestor groups contribute only their child widths.
-
-An edge width $w_c$ scales the $s_c$ labels in its subtree. Multiplying
-these factors over all items gives exactly $\mathcal W$ from
-\eqref{eq:W}, together with one factor $1/2$ for each free coordinate.
-
-\begin{proof}[Proof of Lemma~\ref{lem:packing}]
-The map $G$ puts each free position on the correct side of every child
-interval. Recursion therefore preserves the order of the original labels.
-Anchors and widths are fixed within the state. The image coordinate of a
-label depends only on its one free coordinate, through a strictly increasing
-map, so the whole map is injective.
-
-Partition the domain at the finitely many anchor hyperplanes. On each piece,
-the map of a label is affine. Its slope is $1/2$ at its free coordinate,
-multiplied by the widths of the child intervals containing that label along
-the path to the root. There are exactly $n$ factors of $1/2$, one per free
-coordinate. An edge width $w_c$ occurs $s_c$ times. Multiplying these coordinate scale factors shows that every
-piece has its volume multiplied by $2^{-n}\mathcal W$. The domain, a product of the node regions,
-has volume $Z$. Injectivity lets us add the image volumes of the pieces.
-Thus the image $\mathcal I\subseteq(0,1)^n$ has volume
-\begin{equation}\label{eq:packed-volume}
-\vol(\mathcal I)=2^{-n}Z\mathcal W.
-\end{equation}
-
-At completion, consistency with the transcript places the image in the region of the cube realizing
-the unique transcript order. The $n!$ coordinate-order regions have equal
-volume $1/n!$, since coordinate permutations preserve volume and equality
-hyperplanes have volume zero. Hence $2^{-n}Z\mathcal W\le1/n!$.
-\end{proof}
-
 \subsection{Why a long path requires deep anchors}\label{sec:path-resolutions}
 
 \begin{proof}[Proof of Lemma~\ref{lem:path-address}]
-Every in-node arc on the selected path records an answered comparison. The path's
-labels are therefore pairwise comparable in the global comparison DAG,
-and remain so after the in-node arcs are deleted. By Lemma~\ref{lem:admission}, two of these labels cannot
-be admitted to the same child of their parent in the adversary's tree.
-The procedure completes all $H=2^k$ refinements in this parent, so its
-anchors occupy $H$ distinct nodes of the anchor tree.
+Every in-node arc on the selected path records an answered comparison.
+The path's labels are therefore pairwise comparable in the global comparison
+DAG, and remain so after the in-node arcs are deleted. By
+Lemma~\ref{lem:admission}, two of these labels cannot be admitted to the
+same child of their parent in the adversary's tree. The procedure completes
+all $H=2^k$ refinements in this parent, so its anchors occupy $H$ distinct
+nodes of the implicit anchor tree.
 
 The smallest possible sum of depths uses the $2^k-1$ nodes at depths
 $0,\ldots,k-1$ and one node at depth $k$. Its value is

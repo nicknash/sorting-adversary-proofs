@@ -154,9 +154,11 @@ p<q<a<b<r<s<c.
 \]
 Other feasible choices give other orders. Every order represented this way
 must respect all previous answers to the sorter. These answers form the
-\emph{global transcript}. We also maintain a \emph{global comparison DAG}
-on the original item labels, inserting an arc $A\to B$ whenever the
-adversary answers $A<B$. An in-node DAG contains the comparisons
+\emph{global transcript}, an output stream of answers to the sorter.
+We retain their order constraints in a \emph{global comparison DAG}
+on the original item labels. When a comparison starts with incomparable
+labels in this DAG, its answer $A<B$ adds the arc $A\to B$.
+An in-node DAG contains the comparisons
 between items currently stored at that node.
 Initially the global transcript is empty, and the global comparison DAG
 has all $n$ labels as vertices and no arcs.
@@ -166,7 +168,9 @@ has all $n$ labels as vertices and no arcs.
 Algorithm~\ref{alg:compare} shows the algorithm the adversary uses to answer
 a comparison by the sorter.
 
-To compare $A$ and $B$, start at the root and descend into a child whenever
+To compare $A$ and $B$, first return any answer already implied by a
+directed path in the global comparison DAG. Otherwise, start at the root
+and descend into a child whenever
 its subtree contains both items. Stop when at least one item is stored at
 the current node, or when the items lie in different child subtrees.
 At this node, use an item's free coordinate if it is stored here, and the
@@ -262,6 +266,11 @@ Under the uniform distribution on these assignments,
 \DontPrintSemicolon
 \KwIn{Distinct item labels $A,B$ and the current adversary state.}
 \KwOut{An answer $A<B$ or $B<A$, with the state updated.}
+\If{a directed path in the global comparison DAG determines the answer}{
+  $\mathit{answer}\gets$ the determined answer\;
+  Append $\mathit{answer}$ to the output transcript\;
+  \Return $\mathit{answer}$\;
+}
 \While{true}{
   $v\gets$ the root\;
   \While{$A$ and $B$ lie in the same child subtree of $v$}{
@@ -269,14 +278,14 @@ Under the uniform distribution on these assignments,
   }
   \If{$A$ and $B$ lie in different child subtrees of $v$}{
     $\mathit{answer}\gets$ the left-to-right order of their child anchors\;
-    Append $\mathit{answer}$ to the global transcript\;
+    Append $\mathit{answer}$ to the output transcript\;
     Insert its arc into the global comparison DAG\;
     \Return $\mathit{answer}$\;
   }
   \texttt{Tighten}$(v)$\;
   \If{interval bounds or a directed path in the in-node DAG at $v$ determine the answer}{
     $\mathit{answer}\gets$ the determined answer\;
-    Append $\mathit{answer}$ to the global transcript\;
+    Append $\mathit{answer}$ to the output transcript\;
     Insert its arc into the global comparison DAG\;
     \Return $\mathit{answer}$\;
   }
@@ -285,7 +294,7 @@ Under the uniform distribution on these assignments,
 }
 $\widehat p\gets$ \texttt{Estimate}$(v,A<B,\eta)$\;
 $\mathit{answer}\gets A<B$ if $\widehat p\ge1/2$, and $B<A$ otherwise\;
-Append $\mathit{answer}$ to the global transcript\;
+Append $\mathit{answer}$ to the output transcript\;
 Insert its arc into the global comparison DAG\;
 Store $\mathit{answer}$ as an arc in the in-node DAG at $v$ or as an interval bound\;
 \texttt{Tighten}$(v)$\;
@@ -458,8 +467,8 @@ Refinement can impose additional order relations. For example, suppose
 the root contains $A,B,C$ with only $A<B$ recorded. Refining $A$ at $1/2$
 restricts $B$ to $(1/2,1)$. Refining $C$ into the same child then leaves
 both $A<C<B$ and $C<A<B$ possible, while fixing the additional relation
-$C<B$. Sections~\ref{sec:potential-coefficient} and~\ref{sec:repair-monotonicity}
-show that we can afford this loss of possible orders while retaining the
+$C<B$. Section~\ref{sec:potential}
+shows that we can afford this loss of possible orders while retaining the
 optimal asymptotic comparison bound.
 
 Table~\ref{tab:parameters} collects the thresholds used by

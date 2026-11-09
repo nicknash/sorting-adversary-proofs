@@ -1,159 +1,253 @@
 \section{Computing comparison probabilities}\label{sec:oracle}
 
 We now implement \texttt{Estimate} and prove Lemma~\ref{lem:estimation}.
-The same subroutine chooses comparison answers
-and guides the wide-item anchor search. It averages the outcomes of a
-finite collection of coordinate updates, using exact dyadic arithmetic.
-The proof applies to any positive-volume region of the stated form,
-independently of how the adversary reached it.
+The calculation retains a bounded neighborhood of the queried items and
+computes the probability of the requested event exactly in that smaller
+region. We first show why this probability approximates the one in the
+full region, then give the finite calculation.
 
-\subsection{Estimating a probability by a finite average}
+\subsection{The region used by the estimator}
 
-Fix the node handling the calculation, and let $K$ be its region of feasible
-positions. The requested event is either $X_x<c$ for a dyadic threshold $c$,
-or $X_x<X_y$. First compute the effective endpoints using the full in-node
-DAG, keeping these bounds in temporary storage.
-The calculation uses a temporary vector $Y$ of dyadic numbers, initialized
-at the effective lower endpoints. It visits the vertices in a
-fixed topological order, updating one number at a time. We call one such
-pass a \emph{sweep}.
+Let $G$ be the in-node DAG and $K$ its feasible region. First compute the
+effective endpoints $\ell_z,r_z$ using all of $G$, in temporary storage.
+These endpoints preserve interval restrictions transmitted by paths that
+may extend beyond the neighborhood we will retain.
 
-At the visit to $x$, compute the interval permitted by its current
-neighbors:
-\begin{equation}\label{eq:finite-update}
-L_x=\max\bigl(\{\ell_x\}\cup\{Y_z:z\to x\}\bigr),\qquad
-U_x=\min\bigl(\{r_x\}\cup\{Y_z:x\to z\}\bigr).
+For a threshold query $X_x<c$, retain the vertices at undirected distance
+at most $\rho$ from $x$. For a pair query $X_x<X_y$, retain the union of
+the two such neighborhoods. Keep every arc between retained vertices and
+copy their effective endpoints from $G$. Write $V'$ for this set of
+vertices, and let
+\[
+K'=\{z\in\mathbb R^{V'}:\ell_i<z_i<r_i\text{ for all }i\in V',\quad
+                z_i<z_j\text{ for every retained arc }i\to j\}.
+\]
+The region $K'$ has positive volume: it contains the projection onto
+$V'$ of every feasible assignment in $K$, including an open set.
+For the requested event $E$, the estimator returns
+\begin{equation}\label{eq:local-probability}
+\widehat p=\frac{\vol(K'\cap E)}{\vol(K')}.
 \end{equation}
-Choose a number $u$ from the finite set
-\begin{equation}\label{eq:finite-mesh}
-\mathcal U_S=\left\{\frac{1}{2S},\frac{3}{2S},\ldots,
-                         \frac{2S-1}{2S}\right\},
-\end{equation}
-and replace $Y_x$ by $(1-u)L_x+uU_x$. Here $S$ is a power of two.
-The same update can be applied repeatedly, because the tightened lower
-endpoints satisfy all arc inequalities weakly, and every update preserves
-these weak inequalities. The interval $[L_x,U_x]$ can have length zero;
-the update then leaves $Y_x$ at its sole permitted value.
+If a directed path in $G$ already decides a pair query, or the threshold
+lies outside the queried effective interval, the answer is exactly zero
+or one and no volume calculation is needed.
 
-The adversary enumerates every assignment of mesh values to a prescribed
-number of updates. Its estimate is the fraction of these computations
-whose final vector satisfies the requested event. This definition gives a
-deterministic calculation using maxima, minima, and dyadic arithmetic.
+The following theorem supplies the radius. Its dependence only on the
+stated parameters is what makes the exact calculation possible in
+polynomial time after the parameter choice in Section~\ref{sec:runtime}.
 
-\subsection{How much of the in-node DAG to retain}
-
-Suppose the full in-node DAG has maximum degree at most $d$ and every directed
-path has at most $h$ vertices. Degree counts neighbors without regard to
-arc direction. Fix the required error $\varepsilon$ and the width bound
-$1/R$. The following choices specify all sizes in the finite calculation:
-\begin{align}
-M&=(d+1)^{h+1}, & C&=M+1, & p&=(4M^2)^{h+1},\label{eq:finite-moment}\\
-\delta&=\frac{\varepsilon}{32CR}, &
-\lambda&=\ceil{\log(1/\delta)}, &
-\mu&=\ceil{\log(8/\varepsilon)},\label{eq:finite-accuracy}\\
-t&=p\lambda+\mu, & \rho&=ht.\label{eq:finite-radius}
-\end{align}
-Take $S$ to be the least power of two at least
-$\max\{2,ht/(2\delta)\}$. These integers can be computed using rational
-arithmetic and comparisons with powers of two. The proof in
-Appendix~\ref{app:local} explains their roles: $t$ controls the number of
-sweeps, $S$ controls the rounding error, and $\rho$ includes every vertex
-that can influence a queried coordinate during those sweeps.
-
-Retain all vertices within undirected distance $\rho$ of a queried
-coordinate, together with all arcs between them. For a pair query, take
-the union of the two neighborhoods. Copy their effective endpoints from
-the full in-node DAG. These endpoints retain the interval restrictions implied
-by vertices outside the neighborhood. The retained subgraph has at most
-\begin{equation}\label{eq:finite-size}
+\begin{theorem}[Local probability estimate]\label{thm:local}
+Let $d,h\ge1$ be integers. Suppose $G$ has degree at most $d$, its
+directed paths have at most $h$ vertices, and $K\subseteq(0,1)^{V(G)}$
+has positive volume. For every rational
+$R\ge1$ and $0<\varepsilon<1/4$, there is a computable integer
+$\rho=\rho(d,h,R,\varepsilon)$ with the following properties.
+\begin{enumerate}
+\item If $W_x\ge1/R$, the estimate in \eqref{eq:local-probability} for
+$X_x<c$ differs from its probability in $K$ by at most $\varepsilon$.
+\item If at least one of $W_x,W_y$ is at least $1/R$, the same holds for
+$X_x<X_y$.
+\end{enumerate}
+The retained region has at most
+\begin{equation}\label{eq:local-size}
 b=2(d+1)^{\rho+1}
 \end{equation}
-vertices. Write $b'$ for its actual number of vertices. Fix a topological
-order of this retained subgraph, choosing by item label whenever several vertices
-are eligible.
-
-If a directed path already decides a pair query, its probability is zero
-or one. For a threshold outside the queried effective interval, the
-probability is likewise known. In the remaining cases use the following
-finite calculation. It leaves the adversary's stored state unchanged.
-
-\begin{algorithm}[H]
-\caption{\texttt{Average}: estimate one comparison probability.}
-\label{alg:finite-average}
-\DontPrintSemicolon
-\KwIn{The retained subgraph of the in-node DAG and its effective intervals, the integers $t,S$, and the requested event $E$.}
-\KwOut{A rational estimate of the probability of $E$.}
-$N_E\gets0$\;
-\ForEach{assignment of mesh values to the $b't$ updates}{
-  $Y_x\gets\ell_x$ for every retained vertex $x$\;
-  \For{$i=1,\ldots,t$}{
-    \ForEach{vertex $x$ in the fixed topological order}{
-      Compute $L_x,U_x$ from \eqref{eq:finite-update}\;
-      $u\gets$ the mesh value assigned to this update\;
-      $Y_x\gets(1-u)L_x+uU_x$\;
-    }
-  }
-  \If{$E$ holds for the final vector $Y$}{$N_E\gets N_E+1$\;}
-}
-\Return $N_E/S^{b't}$\;
-\end{algorithm}
-
-\begin{theorem}[Finite averaging]\label{thm:local}
-Let $K$ have positive volume and be defined by intervals with dyadic endpoints and
-the arc inequalities of a DAG with degree at most $d\ge1$ and directed
-paths of at most $h\ge1$ vertices. Let $R\ge1$ and
-$0<\varepsilon<1/4$ be rational. Use the globally tightened endpoints
-and the parameters above. Under the uniform distribution on $K$:
-\begin{enumerate}
-\item If $W_x\ge1/R$, the estimate of $\Prb(X_x<c)$ has error at most
-$\varepsilon$ for every dyadic threshold $c$.
-\item If at least one of $W_x,W_y$ is at least $1/R$, the estimate of
-$\Prb(X_x<X_y)$ has error at most $\varepsilon$.
-\end{enumerate}
-The calculation enumerates $S^{b't}\le S^{bt}$ sequences of updates,
-each with $b't$ coordinate updates. Apart from finding the neighborhood
-and handling the input endpoints, its cost depends only on
-$d,h,R,\varepsilon$.
+coordinates. All its interval bounds are the effective bounds computed
+in the full graph.
 \end{theorem}
 
-The proof compares the finite calculation with an assignment uniformly
-distributed on the full region. Updating a coordinate by a uniform point
-in its currently permitted interval preserves that distribution. When
-both this assignment and a vector started at the lower endpoints use the
-same update choices, their queried coordinates approach one another.
-Rounding the choices to the finite mesh adds a controlled error. After
-$t$ sweeps the queried values depend only on vertices within distance
-$ht$, which justifies restricting the calculation to the retained subgraph.
+\subsection{Why distant coordinates have little effect}
 
-The width assumption controls the probability of an almost tied
-comparison. If $x$ has at most $M$ other comparable vertices, and $y$ is
-incomparable with it, Corollary~\ref{cor:gap} gives
+We put uniform assignments on $K$ and $K'$ in a common random experiment
+and bound the probability that they disagree on the query.
+
+\begin{proof}[Proof of Theorem~\ref{thm:local}]
+\emph{Updating the two assignments.}
+Choose a topological order of $G$ and use its
+restriction to $V'$ for the local region. One pass through this order
+will be called a \emph{sweep}.
+
+For an assignment uniform on either region, conditioning on the other
+coordinates leaves a uniform distribution for $X_z$ on the interval between
 \[
-\Prb(|X_x-X_y|\le a)\le\frac{2(M+1)a}{W_x}.
+L_z^X=\max\bigl(\{\ell_z\}\cup\{X_u:u\to z\}\bigr),\qquad
+R_z^X=\min\bigl(\{r_z\}\cup\{X_u:z\to u\}\bigr).
 \]
-The corresponding bound also holds for a fixed threshold. Thus a wide
-queried coordinate converts a bound on coordinate error into a bound on
-comparison error. Appendix~\ref{app:local} proves the theorem, and
-Appendix~\ref{app:table} bounds the exact arithmetic.
+Thus replacing $X_z$ by $(1-U_z)L_z^X+U_zR_z^X$, with $U_z$ uniform on
+$(0,1)$, preserves the uniform distribution on the feasible region. This applies to each update
+in either graph.
 
-Finite computations can end with equal coordinates. For instance, one
-sweep on two independent unit intervals with $S=4$ gives frequencies
-$3/8$ for each strict order and $1/4$ for equality. Accordingly, the
-comparison rule uses the estimate $\widehat p$ for one strict event and
-$1-\widehat p$ for the opposite answer. Since the continuous probabilities
-sum to one, this preserves the accuracy guarantee for both answers.
+Start $X$ uniformly on $K$ and $Y$ uniformly on $K'$. At every retained
+vertex, use the same fresh uniform number for their two updates. Use
+independent fresh numbers at different vertices and sweeps. Both
+assignments remain uniform on their own regions throughout this joint
+experiment.
 
-\begin{proof}[Proof of Lemma~\ref{lem:estimation}]
-The interval and arc inequalities are strict, so a feasible assignment has
-an open neighborhood of feasible assignments. The region therefore has
-positive volume. Computing the effective endpoints in temporary storage
-preserves this region by Lemma~\ref{lem:interior}.
-Apply Theorem~\ref{thm:local} with $d=k$, $h=2H$, and
-$\varepsilon=\eta$ to obtain the stated accuracy for both kinds of event.
-The calculation enumerates finitely many choices in a fixed order and
-uses exact arithmetic, so it terminates deterministically. It uses copies
-of the stored constraints and leaves the adversary's state unchanged.
+\emph{The decrease after one sweep.}
+For $z\in V'$, write $\Delta_z=|X_z-Y_z|$. Superscripts old and new
+refer to the start of a sweep and to the value after a coordinate's
+update. Whenever all neighbors of $z$ are retained, the two updates use
+the same interval bounds and give
+\begin{equation}\label{eq:local-coupling}
+\Delta_z^{\rm new}\le
+(1-U_z)\max_{u\to z}\Delta_u^{\rm new}
++U_z\max_{z\to u}\Delta_u^{\rm old},
+\end{equation}
+where $U_z$ is their shared random number and an empty maximum is zero.
+The predecessors have already been updated, while the successors retain
+their old values.
+
+Let $B_h(z)$ denote the vertices within undirected distance $h$ of $z$,
+and suppose this whole set is retained. Follow a predecessor attaining
+the first maximum in \eqref{eq:local-coupling}, and continue backwards
+until reaching a source. The resulting path has at most $h$ vertices.
+All its vertices and their successors lie in $B_h(z)$, so every inequality
+used in this expansion is valid in both graphs. At the source, the
+lower-endpoint term in \eqref{eq:local-coupling} is zero. It follows that
+\begin{equation}\label{eq:local-one-sweep}
+\Delta_z^{\rm new}\le(1-A_z^h)
+                 \max_{u\in B_h(z)}\Delta_u^{\rm old},
+\end{equation}
+where $A_z$ is the minimum of $1-U_u$ over $z$ and all its ancestors.
+Indeed, expansion along the selected path gives a factor
+$1-\prod_u(1-U_u)$, which is at most $1-A_z^h$.
+
+We next bound a high moment of the discrepancy. This lets the decrease
+in \eqref{eq:local-one-sweep} outweigh the number of possible vertices
+in its maximum. Both $B_h(z)$ and the set of ancestors used to define
+$A_z$ have at most $M$ vertices, where we set
+\begin{equation}\label{eq:local-moment}
+M=(d+1)^{h+1},\qquad p=(4M^2)^{h+1}.
+\end{equation}
+Put $a_0=1/(4M^2)$. A union bound gives
+$\Prb(A_z<a_0)\le Ma_0=1/(4M)$. On the complementary event,
+\[
+(1-A_z^h)^p\le(1-a_0^h)^p
+\le\frac1{1+pa_0^h}
+=\frac1{1+4M^2}\le\frac1{4M}.
+\]
+Here $(1-v)^{-p}\ge1+pv$ for $0\le v<1$ gives the middle inequality.
+Consequently $\E[(1-A_z^h)^p]\le1/(2M)$. The fresh numbers defining
+$A_z$ are independent of all discrepancies at the start of the sweep.
+Raising \eqref{eq:local-one-sweep} to the power $p$ and bounding the
+maximum by a sum therefore gives
+\begin{equation}\label{eq:local-contraction}
+\E[(\Delta_z^{\rm new})^p]
+\le\frac1{2M}\sum_{u\in B_h(z)}\E[(\Delta_u^{\rm old})^p]
+\le\frac12\max_{u\in B_h(z)}\E[(\Delta_u^{\rm old})^p].
+\end{equation}
+
+\emph{Keeping the boundary far enough away.}
+This estimate is used only where the needed neighbors are retained.
+Write $\Delta_z(s)$ for the discrepancy after $s$ sweeps. If
+$B_{sh}(z)\subseteq V'$, induction on $s$ gives
+\begin{equation}\label{eq:local-interior-error}
+\E[\Delta_z(s)^p]\le2^{-s}.
+\end{equation}
+For $s=0$, every discrepancy is at most one. For the induction step,
+apply \eqref{eq:local-contraction}; each $u\in B_h(z)$ has
+$B_{(s-1)h}(u)\subseteq V'$, so the induction hypothesis applies to it.
+Thus a radius $ht$ suffices for $t$ sweeps. At its outer boundary the
+argument uses only the initial discrepancy bound.
+
+\emph{From coordinate errors to comparison errors.}
+To turn this into the required probability estimate, put $C=M+1$ and
+choose
+\begin{align}
+\delta&=\frac{\varepsilon}{8CR},&
+\lambda&=\ceil{\log(1/\delta)},&
+\mu&=\ceil{\log(4/\varepsilon)},\nonumber\\
+t&=p\lambda+\mu,& \rho&=ht.\label{eq:local-radius}
+\end{align}
+For each queried coordinate, \eqref{eq:local-interior-error} and
+Markov's inequality imply
+\[
+\Prb(\Delta_z(t)>\delta)\le2^{-t}\delta^{-p}
+\le2^{-\mu}\le\varepsilon/4.
+\]
+For an incomparable pair, choose the queried coordinate $x$ with
+$W_x\ge1/R$. There are at most $M$ other coordinates comparable with
+$x$. Corollary~\ref{cor:gap} gives
+\[
+\Prb(|X_x-X_y|\le2\delta)\le4CR\delta=\varepsilon/2.
+\]
+If both queried discrepancies are at most $\delta$, the two assignments
+can disagree on $X_x<X_y$ only when $|X_x-X_y|\le2\delta$.
+The disagreement probability is at most
+$2(\varepsilon/4)+\varepsilon/2=\varepsilon$.
+For a threshold, disagreement requires either $\Delta_x>\delta$ or
+$|X_x-c|\le\delta$, so its probability is at most
+$\varepsilon/4+2CR\delta=\varepsilon/2$.
+
+The difference between the probabilities of an event is at most the
+probability that its two indicators disagree. Since $X$ and $Y$ remain
+uniform on $K$ and $K'$, these are precisely the probabilities being
+compared. Finally, a radius-$\rho$ neighborhood has at most
+$1+d+\cdots+d^\rho\le(d+1)^{\rho+1}$ vertices, proving
+\eqref{eq:local-size}. All constants above are computable from the stated
+parameters.
 \end{proof}
 
-The next section chooses $k$ as a function of $n$ and bounds the running
-time uniformly.
+\subsection{Calculating the local volumes exactly}\label{sec:exact-local-volume}
+
+The number of retained coordinates is bounded independently of $n$ for
+fixed adversary parameters. We can therefore enumerate their possible
+orders and positions relative to the interval endpoints. This gives a
+particularly direct exact calculation of \eqref{eq:local-probability}.
+
+Suppose there are $r$ retained coordinates. Sort their interval endpoints,
+together with $0,1$ and the threshold $c$ if present. Consecutive distinct
+endpoints divide $(0,1)$ into at most $2r+2$ open segments. Enumerate a
+segment for each coordinate and a permutation of all $r$ coordinates.
+Keep a case exactly when the assigned segments lie inside the coordinates'
+allowed intervals, their segment indices are nondecreasing along the
+permutation, and that permutation respects all retained arcs. Each feasible assignment
+outside a set of volume zero occurs in exactly one such case.
+
+If segment $j$ has length $\Delta_j$ and contains $r_j$ coordinates in
+the specified order, the case has volume
+\begin{equation}\label{eq:exact-local-volume}
+\prod_j\frac{\Delta_j^{r_j}}{r_j!}.
+\end{equation}
+Sum these volumes over all kept cases to obtain $\vol(K')$, and over
+those satisfying the query to obtain $\vol(K'\cap E)$. A pair query is
+decided by the permutation; a threshold query is decided by the assigned
+segment. The denominator is positive, as established above.
+
+\begin{lemma}[Cost of the local calculation]\label{lem:exact-local-volume}
+For $r\le b$ coordinates numbered $1,\ldots,r$, and dyadic endpoints and threshold with at most
+$\Lambda$ fractional binary digits, the two volumes and their ratio can
+be computed in at most $C_0(b)(\Lambda+1)^2$ bit operations, for a
+computable function $C_0$. The exponent of $\Lambda+1$ is independent of $b$.
+\end{lemma}
+\begin{proof}
+There are at most $(2r+2)^r r!$ cases. Write each segment length as
+$\Delta_j=a_j/2^\Lambda$. Every case volume in
+\eqref{eq:exact-local-volume} has the common denominator
+$2^{r\Lambda}r!$, because $\prod_j r_j!$ divides $r!$.
+Its integer numerator is
+\[
+\frac{r!}{\prod_j r_j!}\prod_j a_j^{r_j}.
+\]
+The cases have disjoint interiors and lie in the unit cube. Both summed
+numerators are therefore at most $2^{r\Lambda}r!$ and have
+$O(r\Lambda+r\log(r+1))$ bits. Their ratio is the requested probability.
+Sorting the endpoints, checking the cases, and forming their numerators
+uses a number of operations depending only on $b$. Ordinary integer
+arithmetic gives the stated bound.
+\end{proof}
+
+\begin{proof}[Proof of Lemma~\ref{lem:estimation}]
+The strict inequalities defining the feasible region make it open, so
+the existence of a feasible assignment gives positive volume.
+Computing the effective endpoints in temporary storage preserves the
+full feasible region by Lemma~\ref{lem:interior}. Apply
+Theorem~\ref{thm:local} with $d=k$, $h=2H$, and
+$\varepsilon=\eta$. The exact local calculation above returns the
+probability to which that theorem applies, so it has the required
+accuracy. It uses a finite deterministic enumeration with exact rational
+arithmetic.
+\end{proof}
+
+The next section chooses the parameters as a function of $n$ and bounds
+the running time over the entire interaction.

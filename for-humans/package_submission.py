@@ -8,8 +8,10 @@ from zipfile import ZIP_DEFLATED, ZipFile
 def main():
     root = Path(__file__).resolve().parent
     files = [root / "paper.tex", *sorted((root / "sections").glob("*.tex"))]
-    files += sorted((root / "anc").glob("*.py"))
-    files += sorted((root / "anc").glob("*.json"))
+    files += [root / "anc" / name for name in (
+        "check_simplification.py", "check_results.json",
+        "check_packing_primitives.py", "check_packing_primitives.json",
+    )]
     destination = root / "output" / "submission" / "hexagon-source.zip"
     destination.parent.mkdir(parents=True, exist_ok=True)
     with ZipFile(destination, "w", compression=ZIP_DEFLATED) as archive:

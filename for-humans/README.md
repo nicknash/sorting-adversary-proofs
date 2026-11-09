@@ -2,32 +2,27 @@
 
 Nicholas Nash · 9 November 2026 · ORCID [0009-0003-0475-7852](https://orcid.org/0009-0003-0475-7852)
 
-The current manuscript presents the unit-interval adversary using finite
-averaging to estimate comparison probabilities and a potential function to
-account for comparisons and refinements. It introduces the derandomization problem, reviews
-the classical binary-tree adversaries and the interval lattice of Kaplan,
-Zamir, and Zwick. Section 3 describes the state and algorithm once, with
-diagrams and one comparison procedure. It introduces the parameters alongside
-the operations that need them and states a probability-estimation lemma.
-An implicit binary anchor tree specifies positions by root-to-node paths;
-both branches of anchor selection are walks in this tree.
-Section 4 states the comparison bound in terms of the degree threshold k
-and states each refinement, consistency, and geometric guarantee before
-using it in the proof. Section 5 gives the anchor rules and the deferred
-proofs of these guarantees; the preparation and repair bounds support its
-proof of consistency and termination.
-Section 6 supplies the finite probability estimator, and Section 7 proves
-uniform polynomial running time with exact dyadic arithmetic.
-Parameter values are chosen alongside the bounds they ensure; Appendix D
-collects their values, roles, and introduction points. The comparison
-pseudocode explicitly updates the global transcript and global comparison
-DAG on every answer path.
+The current manuscript presents the unit-interval adversary with exact
+probability calculations on bounded neighborhoods. Section 1 introduces the
+derandomization problem, and Section 2 reviews the earlier adversaries.
+Section 3 gives the data structure and comparison procedure, including the
+implicit binary anchor tree and the global-DAG check for an implied answer.
 
-The source for this simplification is the
-[finite-averaging audit](https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af1b5f8-a1d0-83ed-b93d-fe7efd94df67).
-The abstract, disclosure, and related work are unchanged; the introduction's
-roadmap reflects the new order. The top-down presentation preserves the
-adversary, parameter values, numerical guarantees, and comparison bound.
+Section 4 proves the comparison bound by counting refinements and summing
+their anchor depths. A probability argument relates the final state to the
+unique order determined by the sorter. Section 5 proves the refinement and
+anchor guarantees. Section 6 establishes the accuracy of the neighborhood
+calculation and explains its exact evaluation. Section 7 chooses parameters
+to obtain one uniform polynomial-time adversary. Appendix A gives the density
+bounds, using Prékopa's theorem for log-concavity; Appendix B collects the
+parameters.
+
+This revision follows the mathematical simplifications in
+[Simplify Paper Arguments](https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af20322-5238-83eb-8c1a-60fbea8e1d71).
+The abstract, disclosure, and related work are unchanged. The introduction's
+roadmap and the global-DAG check are the necessary updates to Sections 1–3.
+The exact comparison bound is now
+`(n log₂ n − 3n) / (1 + (2 log₂ k + 18)/k)` for powers of two `k ≥ 64`.
 
 - [Current paper](output/pdf/paper.pdf)
 - `paper.tex`: title, approved abstract, methodological disclosure, and section inputs
@@ -49,11 +44,14 @@ make submission
 source and ancillary checks. It excludes build intermediates, review notes,
 Lean files, and the precompiled PDF.
 
-The exact-rational diagnostics cover 1,353 accounting checks, 320 comparisons
-of full and truncated update sequences, and 45,756 update/rounding checks.
-The earlier geometric checks cover 51 volume systems, 393 midpoint searches,
-and 131 narrow-coordinate choices. These are finite diagnostics; the proofs
-of convergence, locality, and the asymptotic bound are in the manuscript.
+The current exact-rational diagnostics check the two accounting inequalities
+and their comparison coefficient, and compare two independent volume
+calculations on 51 systems. The geometric checks also cover 393 anchor
+searches and 131 narrow-coordinate choices. These are finite diagnostics;
+the general density, locality, and comparison arguments are proved in the
+manuscript. The earlier finite-averaging script and its recorded results
+remain in `anc/` as historical material, outside the current check target
+and submission archive.
 The related Lean
 development in this repository concerns the earlier integer-colour
 construction; it does not formally verify this unit-interval proof.

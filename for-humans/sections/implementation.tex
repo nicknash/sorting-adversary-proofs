@@ -1,153 +1,102 @@
 \section{A uniform polynomial-time implementation}\label{sec:runtime}
 
-For each fixed $j$, the estimator uses a finite number of coordinate
-updates and mesh choices. To obtain the leading constant one, we must let
-$j$ grow with $n$ while keeping this work polynomial. We bound both the
-computation of the parameters and the size of every subsequent finite
-average. Computation is measured on a fixed deterministic multitape Turing
-machine, with integers represented in binary.
+For each fixed degree threshold $k$, the preceding sections give a
+finite deterministic algorithm. Its local calculations depend on $k$,
+while its interval endpoints depend on the comparison history. We first
+bound the size of the maintained state, then choose $k$ slowly
+enough that the local calculations also take polynomial time.
+Computation is measured on a fixed deterministic multitape Turing machine,
+with integers represented in binary.
 
-\subsection{Selecting the parameter}\label{sec:parameter-selection}
+\subsection{Bounding the state throughout the interaction}
 
-For $j=6,7,\ldots$, set $k=2^j$ and compute the remaining adversary parameters in
-Table~\ref{tab:parameters} and the estimator parameters in
-\eqref{eq:finite-moment}--\eqref{eq:finite-size}, using
-$d=k$, $h=2H$, and $\varepsilon=\eta$. Write $t_j,S_j,\rho_j,b_j$ for
-the resulting values, and put
-\[
-E_j=S_j^{b_jt_j}.
-\]
-Here $b_j$ bounds the size of every query neighborhood, so $E_j$ bounds
-the number of update sequences for every estimate made with parameter $j$.
+The first test in Algorithm~\ref{alg:compare} answers any comparison
+already implied by the global comparison DAG. Such a call leaves the
+stored state unchanged. Every other call starts with an incomparable pair
+and makes that pair comparable permanently. Thus at most $\binom n2$
+calls can change the state, however often the sorter repeats a comparison.
 
-Fix a program that writes these complete parameter tuples successively,
-including $E_j$, in ordinary binary notation with delimiters. On input
-size $n$, simulate it for $n$ machine steps. Among its completed tuples,
-choose the largest $j$ satisfying
-\begin{equation}\label{eq:stage-gate}
-E_j\le n.
+Lemmas~\ref{lem:preparation} and~\ref{lem:restoration} bound the number of
+refinements in one call by $n+2$. Consequently the total number $P$ of
+refinements, including those in a call still in progress, satisfies
+\begin{equation}\label{eq:refinement-runtime}
+P\le(n+2)\binom n2.
 \end{equation}
-Use that parameter for the entire interaction. If no tuple qualifies,
-answer according to the fixed label order. The simulation writes only
-$O(n)$ bits; parsing the completed tuples and checking the inequality
-therefore take polynomial time as well.
+Each refinement creates at most one node in the adversary's tree, so
+that tree has at most $P+1$ nodes. The global comparison DAG has $n$
+vertices and at most $\binom n2$ arcs. The transcript is the output stream;
+its order constraints are retained in this DAG.
 
-These restrictions allow the selected parameter to grow without bound.
-For each fixed $j$, let $T_j$ be the finite time required to finish its
-tuple. Whenever $n\ge\max\{T_j,E_j\}$, that tuple is available and
-qualifies. The selected $j(n)$ is then at least $j$. Thus $j(n)\to\infty$.
+We store an anchor by its path in the implicit anchor tree. A path of
+length $m$ gives its interval and position by $m$ halvings of $[0,1]$;
+the position has $m+1$ fractional binary digits. Anchor comparisons use
+these exact numerical positions.
 
-\subsection{The cost of a finite average}
-
-For a chosen tuple, abbreviate its parameters by $b,t,S$. The bound
-\eqref{eq:stage-gate} gives
-\begin{equation}\label{eq:enumeration-bits}
-bt\log S\le\log n.
-\end{equation}
-Since $S\ge2$, every enumerated sequence contains at most
-$bt\le\log n$ updates. Scanning the retained neighbors to form each
-update interval costs a polynomial in $\log n$ arithmetic operations.
-There are at most $n$ sequences to enumerate.
-
-If the input endpoints and threshold have at most $\Lambda$ fractional
-binary digits, Appendix~\ref{app:table} bounds the extra precision during
-a sequence by
+For a wide item, Lemma~\ref{lem:median-search} bounds both the number of
+search tests and the anchor precision by
 \[
-bt\log(2S)\le2bt\log S\le2\log n.
+K_0(k)=\ceil{\log(4(B+1)R)}+2.
 \]
-The event tally has $O(\log n)$ bits. Thus the arithmetic cost of an
-estimate is polynomial in $n$ and $\Lambda$, with an exponent independent
-of the chosen parameter.
-
-\subsection{Bounding the stored precision}
-
-We store an anchor by its left/right path in the anchor tree. A path of
-length $m$ determines its interval and position by $m$ halvings of
-$[0,1]$; the position has $m+1$ fractional binary digits. A search keeps
-only its current path and interval endpoints. Comparisons between anchors
-use their exact numerical positions. It therefore suffices to bound the
-path lengths and the binary precision of the coordinates they specify.
-
-Every stored endpoint is $0$, $1$, or a previously chosen anchor.
-For a wide coordinate, Lemma~\ref{lem:median-search} bounds the number of
-anchor-tree nodes tested and the precision of the chosen anchor by
-\[
-K_0=\ceil{\log(4(B+1)R)}+2.
-\]
-In this application the estimator has $M=B$ and
-$\delta=\eta/[32(B+1)R]$. Its choice
-$t\ge\ceil{\log(1/\delta)}$ implies $K_0\le t+2=O(\log n)$.
-A wide refinement therefore makes $O(\log n)$ estimator calls and
-chooses an anchor with $O(\log n)$ fractional digits.
-
-For a narrow coordinate, suppose all current endpoints have at most
-$\Lambda$ fractional digits. A positive effective width is at least
-$2^{-\Lambda}$. If the selected anchor-tree node has depth $m$, its interval
-length satisfies
-$2^{-m}>W_x/8\ge2^{-\Lambda-3}$, so $m<\Lambda+3$. An anchor at depth $m$
-has at most $m+1\le\Lambda+3$ fractional digits. A narrow refinement
-therefore adds at most three digits. Its walk takes at most $\Lambda+2$
-steps, using arithmetic on $O(\Lambda)$-bit integers. Tightening takes maxima and minima
-of stored endpoints and introduces no new numbers.
-
-After $P$ refinements, these facts give
+For a narrow item, suppose the current endpoints have at most $\Lambda$
+fractional digits. Its positive effective width is at least $2^{-\Lambda}$.
+The selected anchor-tree interval has length $2^{-m}>W_x/8$, so
+$m<\Lambda+3$. The new anchor therefore has at most $\Lambda+3$ fractional
+digits. Tightening takes maxima and minima of endpoints and adds no digits.
+After $P$ refinements,
 \begin{equation}\label{eq:precision}
-\Lambda\le K_0+3P.
+\Lambda\le K_0(k)+3P.
 \end{equation}
-Lemmas~\ref{lem:preparation} and~\ref{lem:restoration} give
-$P\le(n+2)q$ after $q$ complete calls, with at most $n+2$ further
-refinements during the next call. Each refinement creates at most one
-node in the adversary's tree, so that tree has at most $P+1$ nodes.
+The narrow walk makes at most $\Lambda+2$ steps, using integers with
+$O(\Lambda)$ bits at each step.
 
-\subsection{Bounding the state for every query sequence}
+\subsection{Choosing the degree threshold}\label{sec:parameter-selection}
 
-A sorter may repeat comparisons indefinitely. After
-\begin{equation}\label{eq:cutoff}
-Q_{\rm stop}=2n\ceil{\log(n+1)}
+Lemma~\ref{lem:exact-local-volume} bounds a local volume calculation by
+$C_0(b)(\Lambda+1)^2$ bit operations, where the number $b$ of retained
+coordinates depends only on $k$. The function $C_0$ is computable from
+the finite enumeration in its proof. Finding the neighborhood and its
+effective endpoints uses graph operations on at most $n$ vertices, with
+a fixed polynomial cost in $n$ and $\Lambda$.
+
+Choose a computable integer $C(k)$ that bounds $K_0(k)$ and all
+parameter-dependent factors in one local calculation, including
+$C_0(b)$. For powers of two $k=64,128,\ldots$, a fixed program writes the
+complete parameter tuple and $C(k)$ in binary. On input size $n$, simulate
+this program for $n$ steps. Among the tuples it has completed, choose the
+largest $k$ satisfying
+\begin{equation}\label{eq:stage-gate}
+C(k)\le n.
 \end{equation}
-complete calls, stop using Algorithm~\ref{alg:compare}. Choose a total
-order extending the comparison history by topologically sorting the
-global comparison DAG. Answer subsequent queries from the ranks in this
-fixed order and discard the recursive
-state, the stored transcript, and the global comparison DAG. The global comparison DAG records every previous answer, including directly
-determined answers, so the fixed order respects the full history.
+Use these parameters for the entire interaction. If no tuple qualifies,
+answer all comparisons according to the fixed label order.
 
-The cutoff exceeds $n\log n$. A sorter reaching it has already made
-more comparisons than required by Theorem~\ref{thm:fixed-stage}.
-Before the cutoff, the stored transcript has at most $Q_{\rm stop}$
-entries, each recording two labels and their order, so it uses
-$O(n\log^2(n+1))$ bits. Also $P=O(n^2\log(n+1))$, and
-\eqref{eq:precision} gives
-\[
-\Lambda=O(n^2\log(n+1)).
-\]
-The adversary's tree has polynomially many nodes. Every estimate enumerates at most
-$n$ sequences, with $O(\log n)$ updates in each and operands of polynomial
-binary length. Ordinary integer addition, comparison, and multiplication
-therefore give a fixed polynomial bit bound for an estimate.
+The initialization is polynomial: the simulation writes at most $n$
+bits, and its completed tuples can be parsed and compared within a
+polynomial bound. For every fixed $k$, the tuple is written in some finite
+time $T(k)$. Once $n\ge\max\{T(k),C(k)\}$, it is available and affordable.
+Hence the chosen $k(n)$ tends to infinity.
 
-A call makes at most $n+2$ refinements. Each wide refinement makes
-$O(\log n)$ estimates; a narrow refinement uses only its endpoints.
-The call also makes at most one estimate to select its answer. All remaining
-operations are polynomial graph computations: routing the query,
-propagating bounds, finding neighborhoods, testing reachability, and
-selecting a long directed path in an in-node DAG. Path lengths are computed in reverse
-topological order. If $H$ exceeds the number of vertices, no path qualifies;
-otherwise the selected path has at most $n$ vertices. The fixed label rules
-can be implemented by these same computations. Thus every call, including
-the one that chooses the final fixed order, uses one fixed polynomial
-number of bit operations in $n$.
+For a selected tuple, \eqref{eq:refinement-runtime}--\eqref{eq:stage-gate}
+give $\Lambda=O(n^3)$ and a polynomial number of stored nodes. Every local
+volume calculation has a fixed polynomial bit cost. A comparison call
+makes at most $n+2$ refinements, and each wide refinement uses at most
+$K_0(k)\le n$ estimates. Narrow refinements use the bounded walks described
+above. Routing queries, propagating bounds, and testing reachability take
+polynomial time in the stored state. Directed-path lengths are computed
+in reverse topological order; if $H>n$, no path can require repair.
+All tie rules can be implemented by scanning labels in order. Thus each
+comparison is answered within one fixed polynomial number of bit
+operations, independent of the chosen parameter and of the length of
+the preceding interaction.
 
 \begin{proof}[Proof of Theorem~\ref{thm:main}]
-The bounded initialization, finite averaging procedure, and cutoff define
-a single deterministic polynomial-time adversary. For sufficiently large
-$n$ a tuple qualifies, and the chosen parameter satisfies $j(n)\to\infty$.
-If sorting finishes before the cutoff, Theorem~\ref{thm:fixed-stage} gives
+Initialization and every comparison call are deterministic and take
+polynomial time. For all sufficiently large $n$, a parameter tuple
+qualifies. Theorem~\ref{thm:fixed-stage} gives legality and forces
 \[
-q\ge\frac{n\log n-3n}{1+(2j(n)+22)/2^{j(n)}}
-=(1-o(1))n\log n.
+q\ge\frac{n\log n-3n}{1+(2\log k(n)+18)/k(n)}
+=(1-o(1))n\log n,
 \]
-If the cutoff is reached, the sorter has already made more than $n\log n$
-comparisons. Legality holds before the cutoff and is preserved by choosing
-a fixed order consistent with every answer. This proves the theorem.
+since $k(n)\to\infty$. The fixed-order rule for the remaining input sizes
+is also deterministic and legal.
 \end{proof}

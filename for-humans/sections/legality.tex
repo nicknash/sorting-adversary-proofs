@@ -3,8 +3,9 @@
 We now justify the refinement claims used in Section~\ref{sec:potential}.
 First, any interior anchor preserves consistency with previous answers.
 Next we give \texttt{ChooseAnchor} and prove Lemma~\ref{lem:anchor-density}
-using the probability estimates from Lemma~\ref{lem:estimation}. We then establish the in-node DAG bounds,
-legality of the full procedure, and the geometric bound at termination.
+using the probability estimates from Lemma~\ref{lem:estimation}. We then
+establish the in-node DAG bounds, legality of the full procedure, and the
+distinct-anchor property used to count path refinements.
 
 \subsection{Preserving the represented orders}
 
@@ -394,6 +395,10 @@ estimator and the anchor rules.
 We induct on comparison calls and, within a call, on refinements. Initially
 the root region is the unit cube, every order is represented, and its
 in-node DAG has no arcs. Suppose the claims hold at the start of a call.
+
+If the global comparison DAG already determines the answer, returning it
+preserves the represented orders and leaves the stored state unchanged.
+Otherwise the call proceeds with the recursive state.
 
 Preparation refines only narrow coordinates. Lemma~\ref{lem:anchor-density}
 supplies an interior position, so Lemma~\ref{lem:admission} preserves

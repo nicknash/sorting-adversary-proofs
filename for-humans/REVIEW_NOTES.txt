@@ -549,3 +549,61 @@ caption, removing the auxiliary-tree wording from the manuscript and
 README. Existing auxiliary-graph terminology is unchanged. Both compilers
 pass without final repository warnings; the affected page was visually
 checked and all source archive members match the saved files.
+
+
+Simplification by counting refinements and local volumes -- 9 November 2026
+-------------------------------------------------------------------------
+Source: the full final message in the linked ChatGPT conversation
+https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af20322-5238-83eb-8c1a-60fbea8e1d71
+retrieved with the connected chat reader. Its linked PDF and source ZIP
+were not downloaded. The mathematical proposals were integrated into the
+existing exposition, with independent checks of the new arguments.
+
+Section 4 now bounds the number P of refinements and their total anchor
+depth D by counting deleted arcs and summing volume changes. An IID
+experiment on the fixed state gives the terminal bound. Removed the tuned
+potential, its auxiliary coefficients, the common-line embedding, subtree
+weights, and the associated Jacobian calculation. The exact comparison
+bound has 18 instead of 22 in its denominator coefficient.
+
+The estimator now computes the uniform probability exactly in a retained
+neighborhood, with the effective interval bounds copied from the full
+in-node DAG. A stationary coupling proves accuracy, using an induction
+whose radius shrinks by h per sweep; the outer boundary enters only at
+time zero. Exact segment/permutation enumeration uses a common denominator
+2^(r Lambda) r!, giving a fixed quadratic dependence on endpoint precision.
+Removed the finite mesh, rounding error, trajectory enumeration, and their
+appendices. The density appendix now invokes Prekopa's marginal theorem
+(Theorem 8 of his 1973 paper, checked against primary-source copies) and
+retains the short integration argument for the anchor-density bound.
+
+Compare first answers any relation implied by the global comparison DAG.
+The global transcript is an output stream, so redundant queries do not
+accumulate stored history. At most binom(n,2) calls can change the recursive
+state, giving O(n^3) refinements and polynomial precision. This replaces
+the runtime cutoff and final fixed-order switch. The finite-averaging
+runtime estimate discussed earlier does not apply unchanged to this
+replacement estimator; the manuscript proves a uniform polynomial bound.
+
+The main file (including abstract/disclosure) and Section 2 are unchanged.
+Section 1 changes only its now-inaccurate roadmap. Section 3 changes only
+the global-DAG shortcut, the necessary transcript-storage wording, and a
+reference to removed proof subsections. The implicit anchor tree and its
+walks are preserved. Supporting guarantees remain stated before use in
+Section 4; all label references were audited.
+
+Independent reviews checked both accounting inequalities, the exact +18
+coefficient, path multiplicities in the terminal probability event,
+stationarity and boundary handling for locality, the small-gap estimate,
+exact-integration arithmetic, and uniformity of the runtime argument.
+The current finite diagnostics pass 3,533 rational accounting checks and
+51 independent volume comparisons, 393 anchor searches, and 131 narrow
+choices. These are finite checks, not a formal verification of the entire
+adversary. Earlier finite-averaging diagnostics remain as historical files
+but are excluded from make checks and the current source archive.
+
+Both compilers pass without final repository warnings. The affected
+introductory, algorithm, proof, appendix, reference, and parameter-table
+pages were visually checked. The revision has 30 pages, down from 36;
+all 16 source archive members match the saved files. No replacement has
+been sent to Hexagon.

@@ -2,9 +2,8 @@
 
 Recall from Algorithm~\ref{alg:repair} that a larger degree threshold $k$
 lets the adversary retain more comparisons involving each item before
-moving it into a child. Increasing $k$ lets
-the adversary force a comparison count closer to $n\log n$. The following
-bound quantifies this dependence.
+moving it into a child. Increasing $k$ lets the adversary force a comparison
+count closer to $n\log n$. The following bound quantifies this dependence.
 
 \begin{theorem}[Comparison bound]\label{thm:fixed-stage}
 For every power of two $k\ge64$, the adversary of
@@ -12,28 +11,21 @@ Algorithm~\ref{alg:compare}, with the remaining parameter choices in
 Table~\ref{tab:parameters}, is deterministic and legal, and every call
 terminates. Every correct sorter makes at least
 \begin{equation}\label{eq:exact-bound}
-\frac{n\log n-3n}{1+(2\log k+22)/k}
+\frac{n\log n-3n}{1+(2\log k+18)/k}
 \end{equation}
 comparisons.
 \end{theorem}
 
-The coefficient of $n\log n$ tends to one as $k$ increases.
+For this section, fix a power of two $k\ge64$.
 Section~\ref{sec:runtime} chooses $k$ as a function of $n$ so that it grows
 without bound while the adversary's running time remains polynomial.
-For this section, fix a power of two $k\ge64$.
 
-Lemma~\ref{lem:estimation}
-controls the error when choosing a comparison answer. Lemma~\ref{lem:anchor-density}
-(Anchor selection) controls the restrictions imposed when moving an item
-into a child.
+To measure the cost of refinement, we count how often it occurs and sum
+the chosen anchor depths over the whole interaction. We will bound both
+totals in terms of the number of comparisons. A final probability argument
+connects these bounds to the $n!$ possible orders of the items.
 
-The proof uses a potential that starts at $n!$ and is at most $2^n$ when
-sorting finishes. The parameter choices make the maximum decrease in its
-logarithm per comparison arbitrarily close to one. Completed repairs
-increase it, so comparisons must account for a total decrease of nearly
-$\log(n!)$.
-
-\subsection{Feasible regions and anchor selection}\label{sec:guarantees}
+\subsection{Volume changes and anchor selection}\label{sec:guarantees}
 
 We next introduce the definitions required to state
 Lemma~\ref{lem:anchor-density} and prove Theorem~\ref{thm:fixed-stage}.
@@ -55,7 +47,7 @@ f_x(c)=\frac{S_x(c)}{V_v},
 \Prb(a<X_x<b)=\int_a^b f_x(t)\,dt.
 \]
 
-To track volume across the adversary's tree, we take the product of the node
+To track volume across the adversary's tree, take the product of the node
 regions. Each item has a position variable at exactly one node, so this
 product has dimension $n$ and volume
 \begin{equation}\label{eq:Z}
@@ -64,13 +56,22 @@ Z=\prod_v V_v.
 A node with no free items contributes volume one. Initially $Z=1$;
 whenever every node has positive volume, $0<Z\le1$.
 
-Lemma~\ref{lem:estimation} makes each selected answer retain at least
-$1/2-\eta$ of its node's volume: a report at least $1/2$ implies
-$p\ge1/2-\eta$, and a smaller report implies $1-p>1/2-\eta$.
-For refinement we need a lower bound on $f_x(c)$ in terms of the anchor's
-depth in the anchor tree. Lemma~\ref{lem:anchor-density} gives this bound.
+Choose the estimation error to be
+\begin{equation}\label{eq:estimation-error}
+\eta=\frac1{100k}.
+\end{equation}
+By Lemma~\ref{lem:estimation}, each estimated answer retains at least
+$1/2-\eta$ of its node's volume. Its decrease in $\log Z$ is therefore
+at most
+\begin{equation}\label{eq:comparison-loss}
+a_\eta=-\log(1/2-\eta)\le1+\frac1k.
+\end{equation}
+For the inequality, use
+$2^{-1/k}\le1-1/(2k)\le1-1/(50k)=1-2\eta$.
+An answer already determined by the stored constraints leaves $Z$ unchanged.
 
-Set
+For refinement we need a lower bound on $f_x(c)$ in terms of the anchor's
+depth in the implicit anchor tree. Put
 \begin{equation}\label{eq:comparable-bound}
 B=(k+1)^{2H+1}.
 \end{equation}
@@ -83,13 +84,12 @@ comparable with $x$.
 Suppose a node's feasible region has positive volume, its interval
 endpoints are dyadic, and its in-node DAG has degree at most $k$ and
 directed paths of at most $2H$ vertices. For $R=2^{2kB}$ and rational
-$0<\eta<1/32$, \textnormal{\texttt{ChooseAnchor}} deterministically
-terminates for every free item $x$ and returns an anchor
-$c\in(\ell_x,r_x)$ at depth $m$ in the anchor tree satisfying
+$0<\eta<1/32$, \textnormal{\texttt{ChooseAnchor}} deterministically returns an anchor
+$c\in(\ell_x,r_x)$ at depth $m$ in the implicit anchor tree satisfying
 \begin{equation}\label{eq:tariff}
 \log f_x(c)\ge(1-1/k)m-4.
 \end{equation}
-If $x$ is narrow, $m$ also satisfies
+If $x$ is narrow, then
 \begin{equation}\label{eq:narrow-address}
 m>2kB+2.
 \end{equation}
@@ -97,7 +97,6 @@ m>2kB+2.
 
 Section~\ref{sec:anchor-guarantee} proves Lemma~\ref{lem:anchor-density}
 and explains the choice of $R$.
-
 The density bound controls the change in $Z$ through the following identity.
 Refinement fixes $X_x$ in the parent and gives $x$ a fresh unit coordinate
 in the child.
@@ -120,245 +119,189 @@ call to return an answer consistent with the earlier answers.
 \begin{proposition}[Consistency and termination]\label{prop:legality}
 With the parameter choices of Theorem~\ref{thm:fixed-stage}, every reached
 state has positive node volumes and represents only orders consistent with
-the global transcript. Every comparison call terminates. During a call,
-every in-node DAG has degree at most $k$ and directed paths of at most
-$2H$ vertices. At the end of the call, the degrees are below $k$ and the
-directed paths have fewer than $H$ vertices.
+the global transcript. Every comparison call terminates and performs at
+most $n+2$ refinements. During a call, every in-node DAG has degree at most
+$k$ and directed paths of at most $2H$ vertices. At the end of the call,
+the degrees are below $k$ and the directed paths have fewer than $H$ vertices.
 \end{proposition}
 
 Section~\ref{sec:repairs} proves Proposition~\ref{prop:legality} from
 the comparison and refinement rules, using
 Lemmas~\ref{lem:estimation} and~\ref{lem:anchor-density}.
 
-We next relate the node volumes to the single total order determined at
-termination. This requires accounting for the order fixed by the tree.
+\subsection{Counting refinements}\label{sec:refinement-count}
 
-\subsection{Relating volume to the final order}\label{sec:movement-volume}
+After $q$ completed comparison calls, let $P$ be the number of refinements
+and $D$ the sum of their anchor depths. We first bound $P$ using the arcs
+removed by degree repairs and the depths used by the other refinements.
 
-The product $Z$ measures freedom within individual nodes. For example,
-two items stored alone in separate
-children can each retain the full interval $(0,1)$, giving $Z=1$, even
-though the child anchors fix their order.
+Each degree refinement removes at least $k$ in-node arcs. At most one such
+arc is inserted per comparison, and each inserted arc is removed at most
+once. Thus there are at most $q/k$ degree refinements.
+A preparation refinement uses a narrow coordinate, so its anchor depth
+exceeds $2k$ by Lemma~\ref{lem:anchor-density}.
 
-We therefore place all items on a common line, with coordinates whose
-order agrees with the total order represented by the tree. Each child
-subtree receives a small interval on its parent's line, and its positions
-are scaled to fit inside that interval. The construction is recursive;
-Section~\ref{sec:accounting} gives the precise map and proves that it
-preserves order. The weights below record how much this construction
-shrinks volume.
-
-For a child whose anchor has depth $m$ in the anchor tree, reserve an
-interval of width
-\begin{equation}\label{eq:child-weight}
-w(m)=\frac{2^{-(1+1/k)m}}{4k}.
-\end{equation}
-The anchor tree has $2^m$ nodes at depth $m$. The extra factor
-$2^{-m/k}$ makes the sum of the widths finite over all depths; the factor
-$4k$ leaves space for items stored in the parent.
-
-Let $s_c$ be the number of original labels in the subtree below a
-parent--child edge $c$, and let $w_c$ be its reserved width. Define
-\begin{equation}\label{eq:W}
-\mathcal W=\prod_{\text{parent--child edges }c} w_c^{s_c}.
-\end{equation}
-Each item contributes the product of the widths on its path from the root.
-A comparison leaves $\mathcal W$ unchanged. Refinement using an anchor of depth $m$
-multiplies it by $w(m)$: one item crosses that parent--child edge, and its
-membership in every other subtree stays unchanged. Initially $\mathcal W=1$.
-
-The common-line construction gives the following bound at termination.
-
-\begin{lemma}[Volume at termination]\label{lem:packing}
-Suppose the state represents only total orders consistent with the global
-transcript. If the transcript determines a unique total order, then
-\begin{equation}\label{eq:terminal}
-n!Z\mathcal W\le2^n.
-\end{equation}
-\end{lemma}
-
-Section~\ref{sec:accounting} proves Lemma~\ref{lem:packing} by constructing
-the common-line placement and calculating its volume.
-Thus $n!Z\mathcal W$ starts at $n!$ and is at most $2^n$ when sorting
-finishes. To use this decrease to count comparisons, we must also account
-for the changes made by refinements.
-
-\subsection{The potential function}\label{sec:potential-coefficient}
-
-Refinement reduces $\mathcal W$. Lemma~\ref{lem:anchor-density} gives a
-compensating increase in $Z$ when the anchor depth $m$ is large, and refining
-a vertex of high degree removes many in-node arcs. We give additional
-weight to these two effects so that every completed repair increases the
-potential.
-
-For the calculations, write $j=\log k$, so $j\ge6$ and $k=2^j$.
-Let $e$ count the arcs in all in-node DAGs, and put
-\begin{equation}\label{eq:potential}
-s=\frac{j+10}{k},\qquad
-\Psi=n!Z\mathcal W\,(Z2^{-e})^s
-    =n!Z^{1+s}\mathcal W\,2^{-se}.
-\end{equation}
-The exponent $1+s$ gives extra weight to changes in $\log Z$. Deleting $r$ in-node arcs
-increases the factor $2^{-se}$ by $2^{sr}$. These quantities are used in
-the proof; computing them is unnecessary for answering a query.
-
-Initially $Z=\mathcal W=1$ and $e=0$, so $\Psi=n!$. At termination,
-Lemma~\ref{lem:packing}, $Z\le1$, and $e\ge0$ give
-\begin{equation}\label{eq:psi-endpoints}
-\Psi=(n!Z\mathcal W)(Z2^{-e})^s\le2^n.
-\end{equation}
-For $j\ge6$, the coefficient satisfies $0<s\le1/4$: its value at $j=6$
-is $1/4$, and increasing $j$ decreases it.
-
-Consider a refinement using an anchor of depth $m$ that deletes $r$ incident in-node arcs.
-Lemmas~\ref{lem:section-volume} and~\ref{lem:anchor-density}, together with the child width, give
-\begin{center}
-\begin{tabular}{ll}
-\toprule
-Quantity & Change caused by the refinement\\
-\midrule
-$\log Z$ & at least $(1-1/k)m-4$\\
-$\log\mathcal W$ & exactly $-(1+1/k)m-(j+2)$\\
-$e$ & exactly $-r$\\
-\bottomrule
-\end{tabular}
-\end{center}
-The second row uses $\log(4k)=j+2$. Combining these changes gives the
-following bound, which we will apply to all three repair rules.
-
-\Needspace{9\baselineskip}
-\begin{lemma}[Refinement inequality]\label{lem:repair-potential}
-Set
-\begin{equation}\label{eq:coefficients}
-a=s-\frac{s+2}{k},\qquad C_j=j+6+4s.
-\end{equation}
-A refinement using an anchor of depth $m$ and deleting $r$ in-node arcs satisfies
-\begin{equation}\label{eq:repair-potential}
-\log\Psi_{\rm new}-\log\Psi_{\rm old}\ge am+sr-C_j.
-\end{equation}
-Moreover, $a>0$.
-\end{lemma}
-\begin{proof}
-The child receives an isolated coordinate, so exactly the $r$ incident
-arcs in the parent's in-node DAG are deleted. The change in $\log\Psi$ is at least
-\[
-(1+s)\bigl((1-1/k)m-4\bigr)
- -(1+1/k)m-(j+2)+sr.
-\]
-Its coefficient of $m$ is $s-(s+2)/k$, and its constant term is
-$-(j+6+4s)$. Finally, $ks=j+10\ge16>s+2$, so $a>0$.
-\end{proof}
-
-\subsection{Every complete repair increases the potential}\label{sec:repair-monotonicity}
-
-A path repair moves its items to distinct children of their node in the
-adversary's tree. Their anchors occupy distinct nodes of the anchor tree.
-Since only $2^m$ nodes occur at depth $m$, a long path requires many deep
-anchors. We choose the path threshold
+For path repairs, choose
 \begin{equation}\label{eq:path-threshold}
 H=2^k.
 \end{equation}
-The following bound on the sum of anchor depths is enough to make the whole
-batch increase the potential.
+The items on a selected path must enter distinct children. Their anchors
+therefore occupy distinct nodes of the implicit anchor tree. Since there
+are few nodes at small depths, a batch of $H$ such refinements has large
+total anchor depth.
 
 \begin{lemma}[Sum of anchor depths along a path]\label{lem:path-address}
 The $H$ labels of a selected path in an in-node DAG enter distinct children
 of their parent in the adversary's tree. If their anchors have depths
-$m_1,\ldots,m_H$ in the anchor tree, then
+$m_1,\ldots,m_H$ in the implicit anchor tree, then
 \begin{equation}\label{eq:path-charge}
 \sum_{i=1}^H m_i\ge H(k-2).
 \end{equation}
 \end{lemma}
 
-Section~\ref{sec:path-resolutions} proves Lemma~\ref{lem:path-address} by
-showing that the anchors must be distinct and counting how many are
-available at each depth.
+Section~\ref{sec:path-resolutions} proves the distinct-child claim and
+counts the available anchors. This is why Algorithm~\ref{alg:repair}
+finishes the whole selected path even when earlier refinements have broken it.
 
-\begin{proposition}[Repair monotonicity]\label{prop:repairs}
-Each query-preparation refinement, each degree refinement, and each
-complete path batch increases $\Psi$.
-\end{proposition}
+\begin{lemma}[Refinement count]\label{lem:refinement-count}
+After $q$ completed calls,
+\begin{equation}\label{eq:refinement-count}
+P\le\frac qk+\frac{D}{k-2}.
+\end{equation}
+\end{lemma}
 \begin{proof}
-A degree refinement deletes at least $k$ in-node arcs. Since $m\ge0$ and $a>0$,
-\[
-\Delta\log\Psi\ge sk-C_j=4(1-s)>0.
-\]
-A preparation refines a narrow item. Lemma~\ref{lem:anchor-density} gives $m>2kB+2>2k$, and hence
-\[
-\Delta\log\Psi>2ka-C_j=j+10-6s>0.
-\]
-
-For a path batch, let $m_i$ be the depth of the anchor chosen at its $i$th refinement.
-There are $H=2^k$ refinements. Lemma~\ref{lem:path-address} gives
-$\sum_i m_i\ge H(k-2)$. Summing \eqref{eq:repair-potential} over the
-whole batch and dropping the nonnegative arc terms gives
-\begin{align*}
-\log\frac{\Psi_{\rm after}}{\Psi_{\rm before}}
-&\ge H\bigl(a(k-2)-C_j\bigr)\\
-&=H\left(2-7s+\frac{2s+4}{k}\right)>H/4>0,
-\end{align*}
-where the last inequality uses $s\le1/4$.
+There are at most $q/k$ degree refinements. Every preparation refinement
+has depth greater than $k-2$, and every complete path batch has average
+depth at least $k-2$. The number of these remaining refinements is therefore
+at most $D/(k-2)$.
 \end{proof}
 
-An individual refinement within a path batch may decrease the potential.
-The proposition applies to the completed batch, which is why the final
-loop of Algorithm~\ref{alg:repair} finishes its selected list before
-selecting another path or returning to \texttt{Compare}.
+\subsection{Bounding the total anchor depth}\label{sec:depth-total}
 
-\subsection{The decrease caused by a comparison}\label{sec:comparison-cost}
-
-The endpoint bounds require a net decrease of at least $\log(n!)-n$ in
-$\log\Psi$. Complete repairs increase this quantity. We now bound the
-amount by which a single comparison can decrease it.
-
-Choose the estimation error to be
-\begin{equation}\label{eq:estimation-error}
-\eta=\frac1{100k}.
+Refinement increases $\log Z$ by at least $(1-1/k)m-4$ when its anchor
+has depth $m$, by Lemmas~\ref{lem:anchor-density} and~\ref{lem:section-volume}.
+Starting from $Z=1$ and adding the changes over $q$ completed calls gives
+\begin{equation}\label{eq:volume-total}
+\log Z\ge-a_\eta q+(1-1/k)D-4P.
 \end{equation}
-This makes the volume loss per answer at most $1+1/k$ bits, as shown below.
+But $Z\le1$. Hence the volume gained by deep refinements is limited by the
+volume removed by comparisons:
+\begin{equation}\label{eq:depth-volume}
+(1-1/k)D\le a_\eta q+4P.
+\end{equation}
+Together with the refinement count, this bounds $D$ in terms of $q$.
 
+\begin{lemma}[Total anchor depth]\label{lem:depth-total}
+After $q$ completed calls,
+\begin{equation}\label{eq:depth-bound}
+D\le\frac{(k+5)(k-2)}{k^2-7k+2}\,q.
+\end{equation}
+Consequently $D\le(1+O(1/k))q$ and $P=O(q/k)$.
+\end{lemma}
+\begin{proof}
+Substitute \eqref{eq:refinement-count} into \eqref{eq:depth-volume} and use
+$a_\eta\le1+1/k$:
+\[
+\left(1-\frac1k-\frac4{k-2}\right)D
+\le\left(1+\frac5k\right)q.
+\]
+The coefficient on the left is positive for $k\ge64$. Rearranging gives
+\eqref{eq:depth-bound}; substituting it back into
+\eqref{eq:refinement-count} gives the bound on $P$.
+\end{proof}
+
+\subsection{The state at termination}\label{sec:movement-volume}\label{sec:accounting}
+
+The product $Z$ measures freedom within individual nodes. For example,
+two items stored alone in separate children can each retain the full
+interval $(0,1)$, giving $Z=1$, even though the child anchors fix their order.
+To account for the order determined by the tree, we use a random experiment
+on a fixed state.
+
+Start at the root. At a visited node, each existing child whose anchor has
+depth $m$ is chosen with probability
+\begin{equation}\label{eq:child-weight}
+w(m)=\frac{2^{-(1+1/k)m}}{4k}.
+\end{equation}
+Choosing a child continues the experiment there. With the remaining
+probability, stop and choose a uniform coordinate in
+$(0,1)$ at that node. The probabilities of the children sum to at most
+\begin{equation}\label{eq:weight-sum}
+\frac1{4k}\sum_{m\ge0}2^m2^{-(1+1/k)m}
+=\frac1{4k(1-2^{-1/k})}\le\frac12,
+\end{equation}
+so the stopping probability is at least $1/2$. Each state has a finite
+tree, so the experiment produces a node and a coordinate.
+
+Sample one such position independently for each of the $n$ labels.
+The tree orders these positions by the same rule as in
+Section~\ref{sec:overview}: compare a coordinate with the child anchors,
+and order positions inside one child recursively. Ties have probability
+zero, and all labels use the same distribution. Permuting the labels
+therefore shows that each relative order has probability $1/n!$.
+
+\begin{lemma}[Bound at termination]\label{lem:packing}
+If the transcript determines a unique total order after $q$ completed
+calls, then
+\begin{equation}\label{eq:terminal}
+\log(n!)\le n-\log Z+(1+1/k)D+(\log k+2)P.
+\end{equation}
+\end{lemma}
+\begin{proof}
+Consider the event that every label stops at the node where its record is
+stored, and that the sampled coordinates satisfy all the in-node
+constraints. Conditional on the chosen stopping nodes, the coordinates
+are independent and uniform, so the probability of satisfying the
+constraints is $Z$.
+
+The stopping probabilities contribute at least $2^{-n}$. Since records
+only move downward, their required paths, counted separately for each label,
+contain exactly the $P$ edge
+traversals made by refinements, with total anchor depth $D$. The child
+choices therefore contribute
+$2^{-(1+1/k)D-(\log k+2)P}$. Thus the event has probability at least
+\[
+Z\,2^{-n-(1+1/k)D-(\log k+2)P}.
+\]
+By Proposition~\ref{prop:legality}, the event produces an order consistent
+with the transcript. The unique such order has probability $1/n!$ in the
+random experiment. Comparing these probabilities and taking logarithms
+proves \eqref{eq:terminal}.
+\end{proof}
+
+\subsection{The comparison bound}\label{sec:comparison-cost}
 
 \begin{proof}[Proof of Theorem~\ref{thm:fixed-stage}]
-Lemmas~\ref{lem:estimation} and~\ref{lem:anchor-density} give deterministic
-termination and the required accuracy and anchor bounds. With these lemmas,
-Proposition~\ref{prop:legality} establishes legality and termination of
-every comparison call. All procedures and tie rules are deterministic.
-
-Suppose the sorter terminates after $q$ calls. Put
-$a_\eta=-\log(1/2-\eta)$. By Lemma~\ref{lem:estimation}, an estimated answer retains at least
-$1/2-\eta$ of its node volume, leaves $\mathcal W$ unchanged, and adds
-at most one arc to the affected in-node DAG. Its decrease in $\log\Psi$ is therefore at most
-\[
-A_j=(1+s)a_\eta+s.
-\]
-A directly determined answer leaves the represented region and the
-potential unchanged. Preparations and complete restorations increase it
-by Proposition~\ref{prop:repairs}. Summing over calls and using the final
-bound \eqref{eq:psi-endpoints} yields
+Proposition~\ref{prop:legality} gives consistency and termination of every
+call. The procedures and their tie rules are deterministic.
+Suppose the sorter finishes after $q$ comparisons. Substitute the volume
+bound \eqref{eq:volume-total} into \eqref{eq:terminal}:
 \begin{equation}\label{eq:comparison-total}
-\log(n!)\le A_jq+n.
+\log(n!)\le n+a_\eta q+\frac{2D}{k}+(\log k+6)P.
 \end{equation}
+The two depth terms have nearly cancelled. Lemmas~\ref{lem:refinement-count}
+and~\ref{lem:depth-total} now give the desired coefficient.
 
-For $0\le u\le1$, convexity gives $2^{-u}\le1-u/2$. Taking $u=1/k$
-shows
-\[
-2^{-1/k}\le1-\frac1{2k}\le1-\frac1{50k}.
-\]
-Since $\eta=1/(100k)$, it follows that $a_\eta\le1+1/k$. Consequently
+For the explicit bound, write $j=\log k$. Using $a_\eta\le1+1/k$ and
+substituting \eqref{eq:refinement-count} and \eqref{eq:depth-bound} into
+\eqref{eq:comparison-total} gives
 \begin{equation}\label{eq:comparison-charge}
-A_j\le1+2s+\frac{1+s}{k}
-<1+\frac{2j+22}{2^j}.
+\log(n!)\le n+\left(1+\frac{2j+18}{k}\right)q.
 \end{equation}
+The coefficient inequality reduces, after multiplying by
+$k(k^2-7k+2)$, to
+\[
+3k^2-(12j+113)k+2j+42\ge0.
+\]
+Indeed, $3\cdot2^j\ge12j+113$ for $j\ge6$: the difference is positive at
+$j=6$ and increases thereafter.
 Finally,
 \[
 \log(n!)\ge\int_1^n\log x\,dx
 =n\log n-\frac{n}{\ln2}+\frac1{\ln2}.
 \]
-Combining this estimate with \eqref{eq:comparison-total},
-\eqref{eq:comparison-charge}, and $1+1/\ln2<3$ gives
-$n\log n\le[1+(2j+22)/2^j]q+3n$. Substitute $j=\log k$ and rearrange
-to obtain \eqref{eq:exact-bound}.
+Combining this estimate with \eqref{eq:comparison-charge} and
+$1+1/\ln2<3$ proves \eqref{eq:exact-bound}.
 \end{proof}
 
-The next section proves the refinement, consistency, and geometric
-guarantees used above.
+The next section proves the refinement and consistency guarantees used above.

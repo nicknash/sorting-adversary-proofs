@@ -127,13 +127,13 @@ orders there. The adversary estimates the fraction of this region's volume
 retained by each answer. Three technical ingredients make this possible.
 
 \emph{Deterministic estimates from bounded neighborhoods.}
-Repeated updates to individual positions approximate the required
-probabilities at a rate independent of the total number of items, for
-fixed degree, path-length and interval-width bounds. Only bounded
-neighborhoods can influence the queried positions during these updates.
-After propagating interval bounds through the full graph, averaging
-finitely many update sequences within these neighborhoods gives a
-deterministic estimate (Section~\ref{sec:oracle}).
+After propagating interval bounds through the full graph, we compute the
+required probability exactly in a bounded neighborhood. To prove accuracy,
+we compare uniform assignments to the full region and to this smaller
+region. Updating corresponding positions with the same random choices
+makes the queried coordinates approach one another; the degree and
+path-length bounds control how far these updates can transmit a difference
+(Section~\ref{sec:oracle}).
 
 \emph{Choosing positions with large remaining volume.}
 Moving an item into a child fixes its position in the parent.
@@ -143,20 +143,17 @@ This supplies the guarantee needed by the position search
 (Section~\ref{sec:median-search}).
 
 \emph{Bounding the cost of graph simplification.}
-Section~\ref{sec:potential} combines node volumes, the order fixed by the
-tree, and retained comparisons into a potential function. Completed
-simplifications increase it, while each comparison decreases its logarithm
-by at most $1+o(1)$. A recursive placement of all items on a common line
-relates its final value to the single total order determined at termination
-(Section~\ref{sec:accounting}).
+Section~\ref{sec:potential} bounds the number of refinements and the sum
+of their anchor depths over the whole run. Counting removed arcs and
+tracking changes in volume give two inequalities controlling these totals.
+A probability argument then relates the final state to the single total
+order determined by the sorter.
 
 Finally, Section~\ref{sec:runtime} lets the degree and
 path-length bounds grow slowly with $n$, keeping the computation polynomial
 as the comparison coefficient approaches one.
 
-Appendix~\ref{app:geometry} proves the geometric estimates, and
-Appendix~\ref{app:local} the accuracy of finite averaging.
-Appendix~\ref{app:table} bounds the arithmetic required, and
+Appendix~\ref{app:geometry} proves the density estimates, and
 Appendix~\ref{app:parameters} collects the parameters.
 The manuscript source is available
 online.\footnote{\url{https://github.com/nicknash/sorting-adversary-proofs/tree/main/for-humans}}
