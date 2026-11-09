@@ -459,3 +459,12 @@ parameter-table reference for Compare, Repair, and Refine, followed by a
 transition to the comparison-bound proof in the next section. Both
 compilers pass without final repository warnings; source archive members
 match the saved files.
+
+
+Routine assurances in lemma statements -- 9 November 2026
+-------------------------------------------------------
+Audited the lemma statements and removed the remaining stored-state
+assurance from the anchor-selection lemma. Retained the substantive
+claim that tightening preserves the feasible region. Operational details
+remain with the algorithms and proofs. Both compilers pass without final
+repository warnings; source archive members match the saved files.
