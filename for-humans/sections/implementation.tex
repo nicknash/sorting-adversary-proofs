@@ -100,7 +100,7 @@ complete calls, stop using Algorithm~\ref{alg:compare}. Choose a total
 order extending the comparison history by topologically sorting the
 global comparison DAG. Answer subsequent queries from the ranks in this
 fixed order and discard the recursive
-state, the stored transcript, and the global comparison DAG. The graph records every previous answer, including directly
+state, the stored transcript, and the global comparison DAG. The global comparison DAG records every previous answer, including directly
 determined answers, so the fixed order respects the full history.
 
 The cutoff exceeds $n\log n$. A sorter reaching it has already made
@@ -122,7 +122,7 @@ $O(\log n)$ estimates; a narrow refinement uses only its endpoints.
 The call also makes at most one estimate to select its answer. All remaining
 operations are polynomial graph computations: routing the query,
 propagating bounds, finding neighborhoods, testing reachability, and
-selecting a long directed path. Path lengths are computed in reverse
+selecting a long directed path in an in-node DAG. Path lengths are computed in reverse
 topological order. If $H$ exceeds the number of vertices, no path qualifies;
 otherwise the selected path has at most $n$ vertices. The fixed label rules
 can be implemented by these same computations. Thus every call, including

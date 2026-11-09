@@ -11,7 +11,7 @@ independently of how the adversary reached it.
 
 Fix the node handling the calculation, and let $K$ be its region of feasible
 positions. The requested event is either $X_x<c$ for a dyadic threshold $c$,
-or $X_x<X_y$. All interval bounds have been tightened using the full DAG.
+or $X_x<X_y$. All interval bounds have been tightened using the full in-node DAG.
 The calculation uses a temporary vector $Y$ of dyadic numbers, initialized
 at the effective lower endpoints. It visits the vertices in a
 fixed topological order, updating one number at a time. We call one such
@@ -39,9 +39,9 @@ number of updates. Its estimate is the fraction of these computations
 whose final vector satisfies the requested event. This definition gives a
 deterministic calculation using maxima, minima, and dyadic arithmetic.
 
-\subsection{How much of the graph to retain}
+\subsection{How much of the in-node DAG to retain}
 
-Suppose the full DAG has maximum degree at most $d$ and every directed
+Suppose the full in-node DAG has maximum degree at most $d$ and every directed
 path has at most $h$ vertices. Degree counts neighbors without regard to
 arc direction. Fix the required error $\varepsilon$ and the width bound
 $1/R$. The following choices specify all sizes in the finite calculation:
@@ -62,13 +62,13 @@ that can influence a queried coordinate during those sweeps.
 Retain all vertices within undirected distance $\rho$ of a queried
 coordinate, together with all arcs between them. For a pair query, take
 the union of the two neighborhoods. Copy their effective endpoints from
-the full graph. These endpoints retain the interval restrictions implied
-by vertices outside the neighborhood. The retained graph has at most
+the full in-node DAG. These endpoints retain the interval restrictions implied
+by vertices outside the neighborhood. The retained subgraph has at most
 \begin{equation}\label{eq:finite-size}
 b=2(d+1)^{\rho+1}
 \end{equation}
 vertices. Write $b'$ for its actual number of vertices. Fix a topological
-order of this graph, choosing by item label whenever several vertices
+order of this retained subgraph, choosing by item label whenever several vertices
 are eligible.
 
 If a directed path already decides a pair query, its probability is zero
@@ -80,7 +80,7 @@ finite calculation. It leaves the adversary's stored state unchanged.
 \caption{\texttt{Average}: estimate one comparison probability.}
 \label{alg:finite-average}
 \DontPrintSemicolon
-\KwIn{The retained DAG and its effective intervals, the integers $t,S$, and the requested event $E$.}
+\KwIn{The retained subgraph of the in-node DAG and its effective intervals, the integers $t,S$, and the requested event $E$.}
 \KwOut{A rational estimate of the probability of $E$.}
 $N_E\gets0$\;
 \ForEach{assignment of mesh values to the $b't$ updates}{
@@ -122,7 +122,7 @@ both this assignment and a vector started at the lower endpoints use the
 same update choices, their queried coordinates approach one another.
 Rounding the choices to the finite mesh adds a controlled error. After
 $t$ sweeps the queried values depend only on vertices within distance
-$ht$, which justifies restricting the calculation to the retained graph.
+$ht$, which justifies restricting the calculation to the retained subgraph.
 
 The width assumption controls the probability of an almost tied
 comparison. If $x$ has at most $M$ other comparable vertices, and $y$ is

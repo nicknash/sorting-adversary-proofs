@@ -125,23 +125,23 @@ hyperplanes have volume zero. Hence $2^{-n}Z\mathcal W\le1/n!$.
 
 \subsection{Why a long path must use fine anchors}
 
-The items on a directed path have already been compared, directly or
+The items on a directed path in an in-node DAG have already been compared, directly or
 through intermediate items. Two of them therefore cannot enter the same
 child. A long path needs many distinct anchors, but there are few anchors
 at low levels. The following estimate makes this observation quantitative.
 This is the path-level bound used in Proposition~\ref{prop:repairs}.
 
 \begin{lemma}[Total level of a path batch]\label{lem:path-address}
-The $H$ labels of a selected directed path enter distinct children of their
+The $H$ labels of a selected path in an in-node DAG enter distinct children of their
 parent. If their levels are $m_1,\ldots,m_H$, then
 \begin{equation}\label{eq:path-charge}
 \sum_{i=1}^H m_i\ge H(k-2).
 \end{equation}
 \end{lemma}
 \begin{proof}
-Every arc on the selected path records an answered comparison. The path's
-labels are therefore pairwise comparable in the global transcript, and
-remain so after arcs are deleted. By Lemma~\ref{lem:admission}, two of these labels cannot
+Every in-node arc on the selected path records an answered comparison. The path's
+labels are therefore pairwise comparable in the global comparison DAG,
+and remain so after the in-node arcs are deleted. By Lemma~\ref{lem:admission}, two of these labels cannot
 be admitted to the same child. The procedure completes all $H=2^k$
 refinements in this parent, so it uses $H$ distinct anchors.
 

@@ -17,14 +17,14 @@ items into child nodes, creating children when needed. Constraints at the
 parent preserve the comparisons involving the moved items, while their
 order within a child can remain unresolved. These simplifications allow
 comparison answers to be chosen by deterministic calculations on small
-neighborhoods in the DAG. The analysis must show that the resulting loss
+neighborhoods in that node's DAG. The analysis must show that the resulting loss
 of possible orders is small enough to retain the optimal comparison bound.
 
 \subsection{The data structure}
 
 Our data structure is a rooted tree. Each node stores item records and
 a single directed acyclic graph (DAG), whose vertices are the items
-recorded at that node. We call it the node's \emph{active graph}. Figure~\ref{fig:overview-state} shows an example.
+recorded at that node. We call this its \emph{in-node DAG}. Figure~\ref{fig:overview-state} shows an example.
 
 Each item has a record $(x,X_x,a_x,b_x)$ stored at exactly one node.
 The label $x$ identifies its key, and $X_x$ is a symbolic variable for
@@ -32,7 +32,7 @@ its position among the items at that node. The fields $a_x,b_x$ restrict
 this variable to the open interval $(a_x,b_x)\subseteq(0,1)$.
 We call an item \emph{free} at its node while its position remains variable.
 
-In a node's DAG, an arc $x\to y$ records a comparison answered $x<y$
+In an in-node DAG, an arc $x\to y$ records a comparison answered $x<y$
 between two items stored there, imposing $X_x<X_y$ on their positions.
 A feasible assignment of positions at that node satisfies both its
 interval bounds and its arc inequalities. Each answered comparison
@@ -40,7 +40,7 @@ between free items contributes at most one arc.
 
 Initially the tree consists of just the root, containing all records
 with bounds $a_x=0$ and $b_x=1$. The position variables $X_x$ are
-unassigned, and the root's DAG has no arcs.
+unassigned, and the root's in-node DAG has no arcs.
 Thus every assignment in $(0,1)^n$ is feasible, and every total order
 can be obtained by assigning distinct positions.
 
@@ -52,7 +52,7 @@ an item with position above $c$ follows every item in it. Subtrees of
 different children are ordered by their anchors. All items of each child
 subtree therefore occur consecutively in the resulting total order.
 Within the child, position variables again range over $(0,1)$, and its
-DAG and interval bounds describe the possible orders inside this block.
+in-node DAG and interval bounds describe the possible orders inside this block.
 
 \begin{center}
 \begin{minipage}{\linewidth}
@@ -64,7 +64,7 @@ DAG and interval bounds describe the possible orders inside this block.
 % Root: the graph, the interval bounds, and the child anchors.
 \draw[group] (-6.8,0) rectangle (6.8,4.7);
 \node[font=\bfseries] at (0,4.35) {Root};
-\node at (-3.8,3.85) {Stored DAG};
+\node at (-3.8,3.85) {In-node DAG};
 \node at (3.2,3.85) {Allowed intervals};
 \draw[ink!20] (-.5,1.85)--(-.5,4.05);
 \node[item] (oa) at (-5,2.7) {$a$};
@@ -95,7 +95,7 @@ DAG and interval bounds describe the possible orders inside this block.
 \begin{scope}[shift={(-3.55,-.9)}]
 \draw[group] (-3.25,-3) rectangle (3.25,0);
 \node[font=\bfseries] at (0,-.35) {Child at $1/4$};
-\node[font=\footnotesize] at (-1.9,-.85) {Stored DAG};
+\node[font=\footnotesize] at (-1.9,-.85) {In-node DAG};
 \node[font=\footnotesize] at (1.5,-.85) {Allowed intervals};
 \draw[ink!20] (-.55,-1.1)--(-.55,-2.5);
 \node[item] (op) at (-2.55,-1.7) {$p$};
@@ -115,7 +115,7 @@ DAG and interval bounds describe the possible orders inside this block.
 \begin{scope}[shift={(3.55,-.9)}]
 \draw[group] (-3.25,-3) rectangle (3.25,0);
 \node[font=\bfseries] at (0,-.35) {Child at $3/4$};
-\node[font=\footnotesize] at (-1.9,-.85) {Stored DAG};
+\node[font=\footnotesize] at (-1.9,-.85) {In-node DAG};
 \node[font=\footnotesize] at (1.5,-.85) {Allowed intervals};
 \draw[ink!20] (-.55,-1.1)--(-.55,-2.5);
 \node[item] (orr) at (-2.55,-1.7) {$r$};
@@ -133,12 +133,12 @@ DAG and interval bounds describe the possible orders inside this block.
 \end{scope}
 \end{tikzpicture}
 \captionof{figure}{A state of the adversary. Each large box is a tree node,
-containing a DAG and one open interval for each of its items.}
+containing an in-node DAG and one open interval for each of its items.}
 \label{fig:overview-state}
 \end{minipage}
 \end{center}
 
-In the root of Figure~\ref{fig:overview-state}, the DAG records $a<b$ and
+In the root of Figure~\ref{fig:overview-state}, the in-node DAG records $a<b$ and
 $a<c$.
 To read an order from this state, choose feasible positions at each node,
 avoiding ties with other items or child anchors. List the items and anchors
@@ -152,7 +152,7 @@ Other feasible choices give other orders. Every order represented this way
 must respect all previous answers to the sorter. These answers form the
 \emph{global transcript}. We also maintain a \emph{global comparison DAG}
 on the original item labels, inserting an arc $A\to B$ whenever the
-adversary answers $A<B$. A node's active DAG contains the comparisons
+adversary answers $A<B$. An in-node DAG contains the comparisons
 between items currently stored at that node.
 Initially the global transcript is empty, and the global comparison DAG
 has all $n$ labels as vertices and no arcs.
@@ -172,7 +172,7 @@ the left child; comparing $p$ with $r$ uses the anchors $1/4$ and $3/4$;
 and comparing $a$ with $p$ compares $X_a$ with $1/4$ at the root.
 
 Two distinct anchors determine the answer immediately. In the other cases,
-first propagate the interval bounds through the DAG. If there is an arc
+first propagate the interval bounds through the in-node DAG. If there is an arc
 $y\to x$, every lower bound on $X_y$ is also a lower bound on $X_x$; upper bounds propagate
 in the reverse direction. Write $y\preceq x$ when $y=x$ or a directed path
 leads from $y$ to $x$. The resulting \emph{effective interval} is
@@ -181,20 +181,20 @@ leads from $y$ to $x$. The resulting \emph{effective interval} is
 r_x=\min_{y\succeq x}b_y,\qquad W_x=r_x-\ell_x.
 \end{equation}
 The operation \texttt{Tighten} stores these bounds as $a_x,b_x$. It is
-performed after every change to a node's arcs or intervals. Bounds remain
+performed after every change to its in-node DAG or intervals. Bounds remain
 stored even if the arcs that implied them are later removed.
 An interval bound or a directed path may already decide the comparison;
 in that case return the determined answer.
 
 For an undecided comparison, let $p$ be the probability that $A$ precedes
 $B$ when positions at this node are assigned uniformly subject to its
-interval bounds and DAG inequalities. The subroutine \texttt{Estimate}
+interval bounds and in-node DAG inequalities. The subroutine \texttt{Estimate}
 returns a deterministic estimate $\widehat p$. We require its error to be
 at most a parameter $\eta$.
 Choose $A<B$ if $\widehat p\ge1/2$, and $B<A$ otherwise. For two free
 items, the event being estimated is $X_A<X_B$. For a free item $x$ and an
 anchor $c$, estimate $X_x<c$, taking the complement if the queried order
-is reversed. An answer between two free items adds an arc to the DAG;
+is reversed. An answer between two free items adds an arc to the in-node DAG;
 an answer involving an anchor adds an interval bound. Repeated comparisons
 never add duplicate arcs.
 
@@ -206,7 +206,7 @@ items into a child before trying the query again. Such a move is called a
 \emph{refinement}, denoted \texttt{Refine}$(x)$; Section~\ref{sec:overview-refine}
 describes the operation.
 
-The calculation also needs bounds on the node's DAG. We limit each
+The calculation also needs bounds on the in-node DAG. We limit each
 vertex to fewer than $k$ neighbors, counting both incoming and outgoing
 arcs, and each directed path to fewer than $H$ vertices. After answering,
 refine vertices with at least $k$ neighbors until none remain. Then select
@@ -232,7 +232,7 @@ the entire selected list, even if earlier moves break the path.
     \Return $\mathit{answer}$\;
   }
   \texttt{Tighten}$(v)$\;
-  \If{interval bounds or a directed path in the DAG determine the answer}{
+  \If{interval bounds or a directed path in the in-node DAG at $v$ determine the answer}{
     $\mathit{answer}\gets$ the determined answer\;
     Append $\mathit{answer}$ to the global transcript\;
     Insert its arc into the global comparison DAG\;
@@ -245,12 +245,12 @@ $\widehat p\gets$ \texttt{Estimate}$(v,A<B,\eta)$\;
 $\mathit{answer}\gets A<B$ if $\widehat p\ge1/2$, and $B<A$ otherwise\;
 Append $\mathit{answer}$ to the global transcript\;
 Insert its arc into the global comparison DAG\;
-Store the arc or interval bound for $\mathit{answer}$ at $v$\;
+Store $\mathit{answer}$ as an arc in the in-node DAG at $v$ or as an interval bound\;
 \texttt{Tighten}$(v)$\;
-\While{a vertex at $v$ has degree at least $k$}{
+\While{the in-node DAG at $v$ has a vertex of degree at least $k$}{
   \texttt{Refine}(such a vertex)\;
 }
-\While{the DAG at $v$ has a directed path on $H$ vertices}{
+\While{the in-node DAG at $v$ has a directed path on $H$ vertices}{
   $P\gets$ the selected path\;
   \ForEach{$x\in P$ in label order}{\texttt{Refine}$(x)$\;}
 }
@@ -266,12 +266,12 @@ deterministic.
 \subsection{Moving an item into a child}\label{sec:overview-refine}
 
 To carry out \texttt{Refine}$(x)$, first propagate all interval bounds
-implied by the DAG. The subroutine \texttt{ChooseAnchor} selects a dyadic
+implied by the parent's in-node DAG. The subroutine \texttt{ChooseAnchor} selects a dyadic
 point $c$ inside $x$'s effective interval. Fix its parent position at $X_x=c$.
 
-The incident arcs then become interval bounds: $y\to x$ gives $X_y<c$,
+The arcs incident to $x$ in that in-node DAG become interval bounds: $y\to x$ gives $X_y<c$,
 and $x\to z$ gives $X_z>c$. Remove $x$ and these arcs from the parent,
-retain the bounds, and propagate them through the remaining DAG.
+retain the bounds, and propagate them through the remaining in-node DAG.
 Insert $x$ into the child anchored at $c$, creating it if needed. In that
 child, $x$ receives a fresh position variable with interval $(0,1)$ and no incident arcs; the
 child's existing constraints remain unchanged.

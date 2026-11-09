@@ -3,7 +3,7 @@
 We now justify the refinement claims used in Section~\ref{sec:potential}.
 First, any interior anchor preserves consistency with previous answers.
 Next we give \texttt{ChooseAnchor} and prove its density and level bounds,
-assuming the estimation guarantee. We then establish the graph bounds,
+assuming the estimation guarantee. We then establish the in-node DAG bounds,
 legality of the full procedure, and the geometric bound at termination.
 
 \subsection{Preserving the represented orders}
@@ -20,10 +20,10 @@ requires only that at least one remains. Positive volume in every node
 will ensure this.
 
 The global comparison DAG records every answered relation. The invariant
-must continue to hold when refinement removes an arc from an active graph.
+must continue to hold when refinement removes an arc from an in-node DAG.
 
 \begin{lemma}[Effective intervals and sections]\label{lem:interior}
-For an active DAG, tightening leaves the feasible region unchanged.
+For an in-node DAG, tightening leaves the feasible region unchanged.
 The region has positive volume if and only if every effective width is
 positive. Moreover, fixing $X_x=c$ at any $c\in(\ell_x,r_x)$ leaves a
 positive-volume section in the remaining coordinates.
@@ -60,11 +60,11 @@ stored, the new effective intervals are therefore
 (\ell_y,r_y),&y\text{ is incomparable with }x.
 \end{cases}
 \]
-The first two cases are disjoint because the graph is acyclic. A predecessor
+The first two cases are disjoint because the in-node DAG is acyclic. A predecessor
 retains positive width: $r_y>\ell_y$ and
 $c>\ell_x\ge\ell_y$. A successor does too: $r_y>\ell_y$ and
 $c<r_x\le r_y$. All other widths stay positive. The criterion just proved,
-applied to the remaining graph, shows that the section has positive volume.
+applied to the remaining in-node DAG, shows that the section has positive volume.
 \end{proof}
 
 \begin{lemma}[Refinement and child admission]\label{lem:admission}
@@ -306,7 +306,7 @@ m>2kB+2.
 \end{equation}
 \end{lemma}
 \begin{proof}
-The graph bounds imply that $x$ has at most $B$ other comparable coordinates, by
+The in-node DAG bounds imply that $x$ has at most $B$ other comparable coordinates, by
 \eqref{eq:comparable-bound}. For a wide item, Lemma~\ref{lem:median-search} gives the stronger lower
 bound $m-4$. For a narrow item, write $b=2^{-m}$ for the selected cell
 length, so $W_x/8<b\le W_x/4$. The chosen midpoint is at distance at
@@ -328,15 +328,15 @@ wide-item search.
 
 \subsection{Bounds during a comparison call}\label{sec:repairs}
 
-We next check how the graph conditions evolve, assuming the two guarantees
+We next check how the in-node DAGs evolve, assuming the two guarantees
 from Section~\ref{sec:guarantees}. The preceding anchor rule satisfies the
 second guarantee whenever the first holds. We first bound the changes to
-the graphs, then combine these facts in an induction over calls.
+the in-node DAGs, then combine these facts in an induction over calls.
 
 \begin{lemma}[Query preparation]\label{lem:preparation}
 Before selecting its answer, \textnormal{\textsc{Compare}} performs at most
 two refinements. Each selected coordinate is narrow, and preparation
-preserves the graph bounds.
+preserves the in-node DAG bounds.
 \end{lemma}
 \begin{proof}
 A preparation refines one of the two original queried items. Its new
@@ -349,19 +349,20 @@ test ensures narrowness. Deleting vertices and admitting isolated vertices
 preserve the degree and path-length bounds.
 \end{proof}
 
-\begin{lemma}[Graph bounds and termination]\label{lem:restoration}
-Suppose a call starts with degree less than $k$ and every directed path
-has fewer than $H$ vertices. If its selected answer leaves positive volume,
-then degree is at most $k$ and every directed path has at most $2H$ vertices
-throughout the call. At its end, every graph again satisfies the strict bounds. Restoration
+\begin{lemma}[In-node DAG bounds and termination]\label{lem:restoration}
+Suppose every in-node DAG has degree less than $k$ and directed paths
+of fewer than $H$ vertices at the start of a call. If its selected answer leaves positive volume,
+then every in-node DAG has degree at most $k$ and directed paths of at most
+$2H$ vertices throughout the call. At its end, every in-node DAG again satisfies the strict bounds. Restoration
 performs at most $n$ refinements, all at the node changed by the answer.
 \end{lemma}
 \begin{proof}
 Preparation preserves the strict bounds by Lemma~\ref{lem:preparation}.
-The answer adds at most one arc, raising any degree by at most one.
+The answer adds at most one arc to the affected in-node DAG, raising
+any degree there by at most one.
 Any new directed path consists of two old paths joined by that arc, so
 it has fewer than $2H$ vertices. A positive-volume answer cannot create a
-directed cycle. An interval change adds no arcs.
+directed cycle. An interval change adds no in-node arcs.
 
 Every refinement removes a vertex and its incident arcs from the parent.
 Thus degrees and path lengths cannot increase during restoration. The first
@@ -376,8 +377,8 @@ child requires restoration.
 
 Consequently a complete call makes at most $n+2$ refinements. During the
 call, every coordinate has at most $B$ other comparable
-coordinates in its active graph: all lie within undirected distance $2H$
-in a graph of degree at most $k$. These are the bounds used by the local
+coordinates in its in-node DAG: all lie within undirected distance $2H$
+in an in-node DAG of degree at most $k$. These are the bounds used by the local
 estimator and the anchor rules.
 
 \begin{proposition}[Legality]\label{prop:legality}
@@ -388,8 +389,8 @@ nodes satisfy the strict degree and path-length bounds.
 \end{proposition}
 \begin{proof}
 We induct on comparison calls and, within a call, on refinements. Initially
-the root region is the unit cube, every order is represented, and the graph
-is empty. Suppose the claims hold at the start of a call.
+the root region is the unit cube, every order is represented, and its
+in-node DAG has no arcs. Suppose the claims hold at the start of a call.
 
 Preparation refines only narrow coordinates. The anchor guarantee
 supplies an interior position, so Lemma~\ref{lem:admission} preserves
@@ -398,7 +399,7 @@ preparation terminates with the width needed for a probability query,
 unless anchors, interval bounds, or a directed path already decide it.
 
 The estimation guarantee now applies to the positive queried region
-with the strict graph bounds. Its chosen answer retains at
+with the strict in-node DAG bounds. Its chosen answer retains at
 least $1/2-\eta>0$ of the volume and makes that comparison true in every
 represented order. In particular, a new arc cannot create a directed
 cycle. An answer determined by anchors, interval bounds, or a directed path
@@ -412,7 +413,7 @@ allow the anchor guarantee to be used.
 The chosen anchor is interior, and Lemma~\ref{lem:admission} preserves the
 invariant and positivity for the next step. Restoration terminates with
 the strict bounds. This completes the induction. The anchor estimates used at each step
-apply to arbitrary positive-volume node regions with the stated graph
+apply to arbitrary positive-volume node regions with the stated in-node DAG
 bounds. Section~\ref{sec:oracle} proves the estimation guarantee for such
 regions independently of the adversary's history.
 \end{proof}

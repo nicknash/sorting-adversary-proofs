@@ -247,3 +247,20 @@ procedure, parameter choices, runtime discussion, and reference table were
 checked in the rendered PDF. The final document has 33 pages. The source
 archive was rebuilt and checked against the saved files. The previous
 Hexagon submission and Lean formalization remain unchanged.
+
+
+In-node DAG terminology -- 9 November 2026
+-----------------------------------------
+Defined "in-node DAG" for the comparisons stored at a tree node and used
+that term throughout the data structure, figures, pseudocode, and relevant
+proofs. The global comparison DAG retains its separate name. In particular,
+the arc count in the potential counts only in-node arcs, and path labels
+remain comparable in the global comparison DAG after refinement removes
+in-node arcs. Generic DAG statements in the estimator theorem and geometric
+appendices retain their general terminology.
+
+Both compilers succeed. The final repository log has no warnings or
+unresolved references; changed figure, algorithm, and proof pages were
+visually checked. The 33-page PDF and source archive were rebuilt, and all
+18 archive members match the saved files. The abstract, disclosure,
+introduction, related work, and mathematical rules are unchanged.

@@ -19,7 +19,7 @@ in this potential and the two guarantees needed to prove these claims.
 At a node $v$, the stored coordinates range over
 \begin{equation}\label{eq:node-region}
 K_v=\{X:a_x<X_x<b_x\text{ for every free }x,
-       \quad X_x<X_y\text{ for every active arc }x\to y\}.
+       \quad X_x<X_y\text{ for every in-node arc }x\to y\}.
 \end{equation}
 Write $V_v=\vol(K_v)$. Under the uniform distribution on $K_v$, the
 probability of an event is the volume of the assignments satisfying it,
@@ -47,14 +47,14 @@ volume change is $Z_{\rm after}/Z_{\rm before}=f_x(c)$
 (Lemma~\ref{lem:section-volume}). This is why the choice of anchor matters.
 
 The guarantees below concern any positive-volume region defined by dyadic
-intervals and a DAG of degree at most $k$, with directed paths of at most
-$2H$ vertices. All effective endpoints are computed using that DAG.
+intervals and an in-node DAG of degree at most $k$, with directed paths of at most
+$2H$ vertices. All effective endpoints are computed using that in-node DAG.
 To bound the number of other coordinates comparable with a given one, set
 \begin{equation}\label{eq:comparable-bound}
 B=(k+1)^{2H+1}.
 \end{equation}
-Every comparable coordinate lies within undirected distance $2H$ in a
-graph of degree at most $k$, so this value bounds their number. The anchor
+Every comparable coordinate lies within undirected distance $2H$ in an
+in-node DAG of degree at most $k$, so this value bounds their number. The anchor
 guarantee uses $B$ to require a sufficiently fine position for a narrow item.
 \begin{enumerate}[label=(\roman*)]
 \item\label{req:estimate}\textbf{Probability estimation.}
@@ -139,14 +139,14 @@ completed repair increases the resulting potential.
 \subsection{A potential with one coefficient}\label{sec:potential-coefficient}
 
 Keep the chosen parameter $j\ge6$ fixed, and recall that $k=2^j$.
-Let $e$ count the active arcs over all tree nodes, and put
+Let $e$ count the arcs in all in-node DAGs, and put
 \begin{equation}\label{eq:potential}
 s=\frac{j+10}{k},\qquad
 \Psi=n!Z\mathcal W\,(Z2^{-e})^s
     =n!Z^{1+s}\mathcal W\,2^{-se}.
 \end{equation}
 The factor $Z^s$ gives additional weight to the volume recovered by
-refinement. The factor $2^{-se}$ charges for storing an arc and returns
+refinement. The factor $2^{-se}$ charges for storing an in-node arc and returns
 that amount when the arc is deleted. The same coefficient $s$ serves
 both purposes. These quantities are used in the proof; computing them
 is unnecessary for answering a query.
@@ -159,7 +159,7 @@ Lemma~\ref{lem:packing}, $Z\le1$, and $e\ge0$ give
 For $j\ge6$, the coefficient satisfies $0<s\le1/4$: its value at $j=6$
 is $1/4$, and increasing $j$ decreases it.
 
-Consider a refinement at level $m$ that deletes $r$ incident arcs.
+Consider a refinement at level $m$ that deletes $r$ incident in-node arcs.
 Lemma~\ref{lem:section-volume}, the anchor guarantee, and the child width give
 \begin{center}
 \begin{tabular}{ll}
@@ -180,7 +180,7 @@ Set
 \begin{equation}\label{eq:coefficients}
 a=s-\frac{s+2}{k},\qquad C_j=j+6+4s.
 \end{equation}
-A refinement at level $m$ deleting $r$ arcs satisfies
+A refinement at level $m$ deleting $r$ in-node arcs satisfies
 \begin{equation}\label{eq:repair-potential}
 \log\Psi_{\rm new}-\log\Psi_{\rm old}\ge am+sr-C_j.
 \end{equation}
@@ -188,7 +188,7 @@ Moreover, $a>0$.
 \end{lemma}
 \begin{proof}
 The child receives an isolated coordinate, so exactly the $r$ incident
-parent arcs are deleted. The change in $\log\Psi$ is at least
+arcs in the parent's in-node DAG are deleted. The change in $\log\Psi$ is at least
 \[
 (1+s)\bigl((1-1/k)m-4\bigr)
  -(1+1/k)m-(j+2)+sr.
@@ -213,7 +213,7 @@ Each query-preparation refinement, each degree refinement, and each
 complete path batch increases $\Psi$.
 \end{proposition}
 \begin{proof}
-A degree refinement deletes at least $k$ arcs. Since $m\ge0$ and $a>0$,
+A degree refinement deletes at least $k$ in-node arcs. Since $m\ge0$ and $a>0$,
 \[
 \Delta\log\Psi\ge sk-C_j=4(1-s)>0.
 \]
@@ -261,7 +261,7 @@ stated guarantees.
 
 Put $a_\eta=-\log(1/2-\eta)$. An estimated answer retains at least
 $1/2-\eta$ of its node volume, leaves $\mathcal W$ unchanged, and adds
-at most one active arc. Its decrease in $\log\Psi$ is therefore at most
+at most one arc to the affected in-node DAG. Its decrease in $\log\Psi$ is therefore at most
 \[
 A_j=(1+s)a_\eta+s.
 \]
