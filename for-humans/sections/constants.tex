@@ -1,0 +1,54 @@
+\section{The explicit comparison coefficient}\label{app:constants}
+
+We verify the choices of $a,b$ in Lemma~\ref{lem:refinement-cost} and the
+coefficient claimed in Theorem~\ref{thm:fixed-stage}. Write $j=\log k$,
+so $j$ is an integer at least six. Since
+\[
+-\log(1-1/k)\le\frac1{(k-1)\ln2}\le\frac3{2k},
+\]
+we may take
+\begin{equation}\label{eq:explicit-affine-coefficients}
+a=\frac{1+3/(2k)}{1-1/k}
+ =1+\frac5{2(k-1)},\qquad b=4a+j+1.
+\end{equation}
+These choices satisfy $a\ge\gamma/(1-1/k)$ as required by the refinement
+proof. They also give $a\ge1$ and $b\ge1$.
+
+Put
+\[
+D=k^2-(j+5)k+j-6.
+\]
+The inequality $k\ge j+6$ gives $D>0$, and
+$k+1-b=D/(k-1)>0$. Hence $b<k+1$, and the coefficients
+\eqref{eq:charge-coefficient} and~\eqref{eq:degree-allowance} become
+\[
+\lambda=\frac{(k+1)(2k+3)}{2D},\qquad
+\sigma=j+1+4\lambda.
+\]
+Using $a_\eta\le1+1/(2k)$ from \eqref{eq:comparison-loss}, direct
+simplification gives
+\begin{align}
+1+\frac{2j+17}{k}
+ -\left(\lambda\left(1+\frac1{2k}\right)+\frac\sigma k\right)
+&=\frac{P}{4kD},\label{eq:comparison-charge}\\
+P&=16k^2-(4j^2+80j+395)k+4j^2+40j-411.\nonumber
+\end{align}
+For $j=6$ and $k=64$, $P=293>0$.
+For $j\ge7$, the inequality
+\[
+4j^2+80j+395\le16\cdot2^j=16k
+\]
+holds at $j=7$ and persists as $j$ increases: the polynomial on the
+left grows by less than a factor of two at each step. Also
+$4j^2+40j-411>0$ in this range. Thus $P>0$, proving
+\[
+\lambda a_\eta+\frac\sigma k\le1+\frac{2\log k+17}{k}.
+\]
+Finally,
+\[
+\log(n!)\ge\int_1^n\log x\,dx
+=n\log n-\frac n{\ln2}+\frac1{\ln2},
+\]
+and $1+1/\ln2<3$ gives $\log(n!)-n\ge n\log n-3n$.
+Substitution into \eqref{eq:comparison-total} at termination yields
+\eqref{eq:exact-bound}.

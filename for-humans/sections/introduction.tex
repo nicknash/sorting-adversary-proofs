@@ -123,27 +123,28 @@ Section~\ref{sec:overview} gives our data structure and comparison procedure.
 Items are stored at nodes of a rooted tree, with a directed acyclic graph
 recording comparisons within each node. Interval bounds and the graph's
 inequalities define a region of real positions representing the possible
-orders there. The adversary estimates the fraction of this region's volume
-retained by each answer. Three technical ingredients make this possible.
+orders there. The adversary computes lower bounds on the fraction of this
+region's volume retained by each answer. Three technical ingredients make
+this possible.
 
-\emph{Deterministic estimates from bounded neighborhoods.}
-After propagating interval bounds through the full graph, we average
-finite computations on a bounded neighborhood. Each step changes one
-position using a choice from a fixed finite set. Randomizing these choices
-would preserve the continuous uniform distribution exactly. Comparing this
-process with a computation started from the effective lower endpoints
-shows that the computed positions approximate the uniform ones. Bounds on
-coordinate densities then give accurate comparison probabilities
-(Section~\ref{sec:oracle}); the degree and path-length bounds control
-how far differences can propagate.
+\emph{Certifying comparisons with enclosing intervals.}
+After propagating interval bounds through the full graph, we perform
+finite computations on a bounded neighborhood. Each computation returns
+intervals enclosing uniformly distributed feasible positions. Disjoint
+intervals establish a comparison, so counting these cases gives certified
+lower bounds on the probabilities of the two answers. Degree and
+path-length bounds ensure that almost all returned intervals are short;
+density bounds then show that few comparisons remain unresolved
+(Section~\ref{sec:oracle}).
 
 \emph{Choosing positions with large remaining volume.}
 Moving an item into a child fixes its position in the parent. We choose
-a binary fraction with the fewest digits in a suitable interval, obtained
-from approximate quartiles or from the item's interval bounds. The key
-geometric fact is that, for a log-concave density, central quantiles have
-density comparable to the peak. This gives the volume guarantee needed
-for refinement (Section~\ref{sec:median-search}).
+a binary fraction with the fewest digits in a suitable interval. For a
+wide coordinate, the finite calculation certifies substantial probability
+inside this interval and on both sides. Log-concavity then gives every
+point inside a density comparable to the peak. For a narrow coordinate,
+the middle half of its allowed interval supplies the required volume gain
+(Section~\ref{sec:median-search}).
 
 \emph{Bounding the cost of graph simplification.}
 Section~\ref{sec:potential} compares the volume gained by moving items with
@@ -151,15 +152,17 @@ the probability of choosing their children in a counting experiment.
 Items confined to very short intervals and groups of items from long
 directed paths supply enough gain to pay for these choices. Moves triggered by
 high degree are charged to the comparisons whose arcs they remove.
-The experiment then relates the final state to the single total order
-determined by the sorter.
+The experiment gives a lower bound on the number of orders represented
+by any state, connecting the analysis to the sorter's task of determining
+one order.
 
 Finally, Section~\ref{sec:runtime} lets the degree and
 path-length bounds grow slowly with $n$, keeping the computation polynomial
 as the comparison coefficient approaches one.
 
 Appendix~\ref{app:geometry} proves the density estimates,
-Appendix~\ref{app:coupling} proves the local approximation theorem, and
+Appendix~\ref{app:coupling} proves the local enclosure theorem,
+Appendix~\ref{app:constants} verifies the explicit comparison coefficient, and
 Appendix~\ref{app:parameters} collects the parameters.
 The manuscript source is available
 online.\footnote{\url{https://github.com/nicknash/sorting-adversary-proofs/tree/main/for-humans}}

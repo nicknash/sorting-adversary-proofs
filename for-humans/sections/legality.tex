@@ -229,7 +229,7 @@ original area.}
 
 The choice of anchor balances two quantities: a larger density gives
 more volume gain, while a smaller anchor depth costs less in
-\eqref{eq:child-cost}. We will bound the density using the number of
+\eqref{eq:anchor-cost}. We will bound the density using the number of
 coordinates comparable with $x$. Put
 \begin{equation}\label{eq:comparable-bound}
 B=(k+1)^{2H+1}.
@@ -242,8 +242,8 @@ comparable with $x$.
 \begin{lemma}[Anchor selection]\label{lem:anchor-density}
 Suppose a node's feasible region has positive volume, its interval
 endpoints are dyadic, and its in-node DAG has degree at most $k$ and
-directed paths of at most $2H$ vertices. For $R=2^{2kB}$ and rational
-$0<\eta<1/32$, \textnormal{\texttt{ChooseAnchor}} deterministically returns an anchor
+directed paths of at most $2H$ vertices. For $R=2^{2kB}$,
+\textnormal{\texttt{ChooseAnchor}} deterministically returns an anchor
 $c\in(\ell_x,r_x)$ at depth $m$ in the implicit anchor tree satisfying
 \begin{equation}\label{eq:tariff}
 \log f_x(c)\ge(1-1/k)m-4.
@@ -257,26 +257,25 @@ If $x$ is narrow, then
 Algorithm~\ref{alg:choose-anchor} first chooses a closed interval of central
 positions for $x$, then selects the shallowest anchor in that interval.
 For a narrow coordinate, we use the central half of its effective
-interval. For a wide coordinate, \texttt{Marginal} from
-Lemma~\ref{lem:estimation} supplies a finite list of positions approximating
-the distribution of $X_x$; we use the interval between the list's first
-and third quartiles. We will show that either choice gives the density
-bound required by Lemma~\ref{lem:anchor-density}.
+interval. For a wide coordinate, \texttt{CentralInterval} from
+Lemma~\ref{lem:central-interval} supplies an interval with at least a
+quarter of the probability on each side and at least a quarter inside.
+We will show that either choice gives the density bound required by
+Lemma~\ref{lem:anchor-density}.
 
 \begin{algorithm}[H]
 \caption{\texttt{ChooseAnchor}$(x)$: choose a position for refinement.}
 \label{alg:choose-anchor}
 \DontPrintSemicolon
 \KwIn{A free item $x$ stored at node $v$, its effective interval $(\ell_x,r_x)$,
-and the fixed parameters $R,\eta$.}
+and the fixed width threshold $R$.}
 \KwOut{A dyadic anchor $c\in(\ell_x,r_x)$.}
 $W_x\gets r_x-\ell_x$\;
 \uIf{$W_x<1/R$}{
   $a\gets\ell_x+W_x/4$; $b\gets r_x-W_x/4$\;
 }
 \Else{
-  $(z_1,\ldots,z_N)\gets$ \texttt{Marginal}$(v,x,\eta)$, sorted increasingly\;
-  $a\gets z_{\ceil{N/4}}$; $b\gets z_{\ceil{3N/4}}$\;
+  $[a,b]\gets$ \texttt{CentralInterval}$(v,x)$\;
 }
 $u\gets$ the root of the implicit anchor tree\;
 \While{true}{
@@ -333,66 +332,47 @@ For wide items we use another consequence of convexity. A density is
 is concave there. The uniform density on a convex feasible region is
 log-concave, and Pr\'ekopa's marginal theorem gives the same property to
 each coordinate density \cite[Theorem~8]{prekopa}. The following bound says
-that values at central quantiles are comparable to the density's maximum.
+that a position with substantial probability on each side has density
+comparable to the largest value.
 
-\begin{lemma}[Density at central quantiles]\label{lem:central-quantiles}
-Let $f$ be a log-concave probability density with distribution function $F$.
-For $0<\alpha\le1/2$, if $\alpha\le F(c)\le1-\alpha$, then
+\begin{lemma}[Density at central positions]\label{lem:central-quantiles}
+Let $X$ have a log-concave density $f$. If
+$\Prb(X\le c)\ge p$ and $\Prb(X\ge c)\ge p$ for some $0<p\le1/2$, then
 \[
-f(c)\ge\alpha\sup_t f(t).
+f(c)\ge p\sup_t f(t).
 \]
 \end{lemma}
 
-Appendix~\ref{app:geometry} proves the lemma using Bobkov's characterization
-of one-dimensional log-concavity \cite[Proposition~A.1]{bobkov}.
+Appendix~\ref{app:geometry} proves the lemma directly from log-concavity.
 
-\subsubsection{Choosing an anchor between approximate quartiles}
-
-The list returned by \texttt{Marginal} may contain repeated values. Write
-$F_x(t)=\Prb(X_x<t)$,
-$\widehat F_x(t)$ for the fraction strictly below $t$, and
-$\widehat F_x(t+)$ for the fraction at most $t$. The guarantee of
-Lemma~\ref{lem:estimation} gives
-\[
-|\widehat F_x(t)-F_x(t)|\le\eta,
-\qquad
-|\widehat F_x(t+)-F_x(t)|\le\eta.
-\]
-The second inequality follows from the first by taking a right limit,
-since $F_x$ is continuous. Both hold at every real $t$ for this one list.
+\subsubsection{Anchors for wide coordinates}
 
 \begin{lemma}[Wide anchors]\label{lem:median-search}
 For a wide item, Algorithm~\ref{alg:choose-anchor} returns an interior
 anchor $c$ of depth $m$ satisfying
 \[
 f_x(c)\ge2^{m-4},\qquad
-m<\log\frac{4(B+1)}{W_x}.
+m\le\log\frac{4(B+1)}{W_x}.
 \]
 \end{lemma}
 \begin{proof}
-For $p\in\{1/4,3/4\}$, let $Q_p=z_{\ceil{pN}}$. Its rank gives
-\[
-\widehat F_x(Q_p)\le p\le\widehat F_x(Q_p+),
-\]
-including when values are repeated. Consequently
-\[
-p-\eta\le F_x(Q_p)\le p+\eta.
-\]
-Since $\eta<1/32$, the quartiles are distinct and lie strictly inside
-$(\ell_x,r_x)$. Their interval $J=[Q_{1/4},Q_{3/4}]$ has probability
-greater than $7/16$, and every $c\in J$ satisfies
-$7/32<F_x(c)<25/32$. Put $M=\sup_t f_x(t)$. Since $M|J|>7/16$,
-Lemma~\ref{lem:central-quantiles} gives, throughout $J$,
-\[
-f_x(c)\ge\frac7{32}M>\frac{49}{512|J|}>\frac1{16|J|}.
-\]
+Let $J$ be the interval returned by \texttt{CentralInterval}, and put
+$M=\sup_t f_x(t)$. By Lemma~\ref{lem:central-interval}, $J$ is contained
+in $(\ell_x,r_x)$ and has probability at least $1/4$, so $M|J|\ge1/4$.
+Every position $c\in J$ also has probability at least $1/4$ on each side.
+Lemma~\ref{lem:central-quantiles} therefore gives $f_x(c)\ge M/4$
+throughout $J$.
+
 Lemma~\ref{lem:shortest-anchor} selects $c\in J$ at a node $u$ whose
-interval contains $J$. Thus $|J|\le|I(u)|=2^{-m}$, proving
-$f_x(c)\ge2^{m-4}$.
+interval contains $J$. Its interval has length $2^{-m}$, so
+\[
+2^{-m}f_x(c)\ge |J|\frac M4\ge\frac1{16}.
+\]
+This is the required density bound.
 
 The upper density bound \eqref{eq:fiber-upper} also gives
 \[
-\frac14<F_x(Q_{3/4})-F_x(Q_{1/4})
+\frac14\le\Prb(X_x\in J)
 \le\frac{B+1}{W_x}|J|\le\frac{B+1}{W_x}\,2^{-m}.
 \]
 Rearranging proves the depth bound.
@@ -488,7 +468,7 @@ Recording its arc or interval bound makes that answer true in every
 represented order and preserves every earlier constraint. This completes
 the induction.
 
-The probability estimator and anchor search terminate by
+The comparison calculation and anchor search terminate by
 Lemmas~\ref{lem:estimation} and~\ref{lem:anchor-density}. Together with
 Lemma~\ref{lem:restoration}, this proves termination of the full call.
 These analytic lemmas apply to arbitrary positive-volume regions with

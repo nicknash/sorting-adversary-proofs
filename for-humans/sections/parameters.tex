@@ -4,7 +4,7 @@ Table~\ref{tab:parameters} collects the parameters of the adversary. The last tw
 distinguish where a parameter's role is introduced from where its value
 is chosen and explained. All choices are fixed before the first query.
 Appendix~\ref{app:coupling} gives explicit choices for the digit alphabet,
-number of sweeps, and neighborhood radius in the local approximation theorem.
+number of sweeps, and neighborhood radius in the local enclosure theorem.
 
 \begin{center}
 \begin{minipage}{\linewidth}
@@ -23,7 +23,7 @@ $k$ & Power of two, $k\ge64$ & Refine a queried free item when it has this many 
 $H$ & $2^k$ & Number of vertices refined in a selected directed path. & \S\ref{sec:comparison} & \S\ref{sec:refinement-cost}\\
 $B$ & $(k+1)^{2H+1}$ & Bounds the number of other vertices comparable with one vertex in its in-node DAG. & \S\ref{sec:anchor-contract} & \S\ref{sec:anchor-contract}\\
 $R$ & $2^{2kB}$ & Sets the width threshold: a coordinate is wide when $W_x\ge1/R$. & \S\ref{sec:comparison} & \S\ref{sec:anchor-guarantee}\\
-$\eta$ & $1/(100k)$ & Maximum additive error in a probability estimate. & \S\ref{sec:comparison} & \S\ref{sec:guarantees}\\
+$\eta$ & $1/(100k)$ & The certified answer fractions sum to at least $1-2\eta$. & \S\ref{sec:comparison} & \S\ref{sec:guarantees}\\
 \bottomrule
 \end{tabular}
 \end{minipage}

@@ -14,8 +14,7 @@ Here $K_x(t)$ is the $(N-1)$-dimensional section obtained by fixing
 coordinate $x$ at $t$. The uniform distribution on $K$
 therefore gives $x$ the density
 \[
-f_x(t)=\frac{S_x(t)}{\vol_N K},\qquad
-F_x(t)=\int_{-\infty}^t f_x(s)\,ds.
+f_x(t)=\frac{S_x(t)}{\vol_N K}.
 \]
 These formulas define $f_x$ pointwise, and we use this definition throughout.
 If some coordinates have already been fixed, we use the same
@@ -88,26 +87,23 @@ unconditional bounds and the bounds after the initial conditioning.
 The coordinate densities above are log-concave pointwise: the uniform
 density on $K$ is log-concave, and integrating out the other coordinates
 preserves this property by Pr\'ekopa's marginal theorem
-\cite[Theorem~8]{prekopa}. We finish with the general bound used for anchors
-between approximate quartiles.
+\cite[Theorem~8]{prekopa}. We finish with the density bound used for
+positions having substantial probability on each side.
 
 \begin{proof}[Proof of Lemma~\ref{lem:central-quantiles}]
-Bobkov's characterization \cite[Proposition~A.1]{bobkov} states that
+For $s\le c\le t$, log-concavity gives
 \[
-I(p)=f(F^{-1}(p)),\qquad 0<p<1,
+f(s)f(t)\le f(c)f(s+t-c).
 \]
-is concave. Here $F^{-1}$ is the inverse of the strictly increasing
-distribution function on the interior of its support. Concavity and
-nonnegativity give, for $p,q\in(0,1)$,
+Indeed, $c$ and $s+t-c$ are complementary convex combinations of $s,t$;
+multiply the two log-concavity inequalities. Fixing $t\ge c$ and
+integrating over $s\le c$ gives
 \[
-I(p)\ge
-\begin{cases}
-\dfrac{p}{q}I(q),&p\le q,\\[5pt]
-\dfrac{1-p}{1-q}I(q),&p\ge q.
-\end{cases}
+p f(t)\le f(c)\int_{-\infty}^c f(s+t-c)\,ds\le f(c).
 \]
-The first inequality follows by taking chords from $q$ to points tending
-to $0$; the second uses points tending to $1$. Thus
-$I(p)\ge\min\{p,1-p\}I(q)$ for every $q$. Taking the supremum over $q$
-and setting $p=F(c)$ proves the lemma.
+Here the first inequality uses the mass at least $p$ to the left of $c$,
+and the last uses that a density integrates to one. Fixing $s\le c$ and
+integrating over $t\ge c$ instead uses the right-hand mass and gives
+$p f(s)\le f(c)$. Taking the supremum over both sides of $c$ proves the
+claim.
 \end{proof}

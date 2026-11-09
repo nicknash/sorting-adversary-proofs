@@ -7,30 +7,33 @@ coordinate updates on bounded neighborhoods. Section 1 introduces the
 derandomization problem, and Section 2 reviews the earlier adversaries.
 Section 3 gives the recursive data structure and comparison procedure.
 
-Section 4 proves the comparison bound from guarantees about volume changes,
-the cost of choosing children, and consistency. Section 5 proves those
-refinement guarantees. Its anchor rule chooses the shortest binary fraction
-in a central interval, obtained from empirical quartiles or effective
-interval bounds. A general fact about log-concave densities explains why
-approximate quartiles work: their density is comparable to the peak.
-Section 6 gives the finite digit update and a theorem approximating queried
-positions without a width assumption. Density bounds then yield comparison
-probabilities. Section 7 obtains uniform polynomial time from the explicit
-enumeration budget `E_k = S_k^(b_k t_k) <= n`.
-Appendix A proves the density bounds using convexity, Prékopa's theorem,
-and Bobkov's characterization of one-dimensional log-concavity.
-Appendix B proves the local approximation theorem, and Appendix C collects
-the parameters.
+Section 4 counts the orders represented by any state and proves the
+comparison bound from one inequality relating refinement cost to volume
+gain. AM–GM handles the distinct children used by a path batch. Section 5
+proves consistency and the anchor guarantee. Its anchor rule chooses the
+shortest binary fraction in an interval with substantial probability
+inside and on both sides, or in the middle half of a narrow coordinate's
+effective interval.
+
+Section 6 implements the probability routines by finite calculations of
+enclosing intervals. Disjoint intervals certify a comparison; sorting and
+counting endpoints certifies a central interval. Monotonicity makes these
+certificates valid, while a contraction theorem ensures enough calculations
+succeed. Section 7 obtains uniform polynomial time from the enumeration
+budget `E_k = S_k^(b_k t_k) <= n`.
+Appendix A proves the density bounds using convexity and Prékopa's theorem.
+Appendix B proves contraction, Appendix C verifies the exact comparison
+coefficient, and Appendix D collects the parameters.
 
 The construction follows the mathematical simplifications in
 [Simplify Paper Arguments](https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af20322-5238-83eb-8c1a-60fbea8e1d71).
-This revision separates the guarantees needed by the comparison proof
-from their implementations, replaces two specialized geometric lemmas
-with the central-quantile bound, and separates approximation of positions
-from approximation of probabilities. One affine inequality covers all
-three refinement costs. The abstract, disclosure, Sections 2 and 3, and
-existing figures are unchanged from the preceding revision. Section 1
-receives only necessary roadmap changes.
+This revision replaces approximate CDFs and empirical-quantile transfer
+with certified interval counts. A short direct log-concavity argument
+supplies the central-density bound. The remaining-order lemma applies to
+every state; the explicit numerical tuning is separated from the main
+comparison proof. The abstract, disclosure, Section 2, and existing figures
+are unchanged. Sections 1 and 3 receive only the necessary roadmap and
+probability-interface changes.
 The explicit comparison bound remains
 `(n log₂ n − 3n) / (1 + (2 log₂ k + 17)/k)` for powers of two `k ≥ 64`.
 
@@ -54,10 +57,10 @@ make submission
 source and ancillary checks. It excludes build intermediates, review notes,
 Lean files, and the precompiled PDF.
 
-The exact-rational diagnostics check the direct charging inequalities,
-continuous moments of the finite digit update, shortest anchors, narrow
-anchor precision, and empirical quartiles with ties. Small chain examples
-retain every digit sequence with its multiplicity. Independent volume
+The exact-rational diagnostics check the charging inequalities, continuous
+moments of the finite digit update, shortest anchors, narrow-anchor
+precision, and interval certificates against small-instance probabilities.
+Small examples retain every digit sequence with its multiplicity. Independent volume
 calculations remain as references for the local certainty and refinement
 section checks; volume integration is no longer part of the adversary.
 These are finite diagnostics. The general density, locality, and comparison

@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
-"""Finite exact-rational diagnostics of the direct volume-gain accounting.
+"""Finite exact-rational diagnostics of refinement and comparison accounting.
 
-Section 4 proves the inequalities for every power of two k >= 64. This
-script checks its rational bounds on a finite parameter grid, checks the
-final coefficient identity with j and k varied independently, and exercises
-the three refinement bounds on synthetic gains satisfying their hypotheses.
-It does not verify the geometric or structural hypotheses, simulate full
-adversary histories, or prove the inequalities for all parameters.
+These checks exercise the affine refinement bound, its use with the AM-GM
+path-batch bound, negative degree gains, and the explicit +17 coefficient.
+They do not prove the geometric or structural hypotheses, simulate full
+adversary histories, or establish the inequalities for all parameters.
 """
 
 import json
@@ -19,30 +17,33 @@ def display(value):
 
 
 def coefficients(j, k):
-    """Rational upper bounds for the comparison loss and child depth cost."""
     alpha = 1 - Fraction(1, k)
-    lam = 1 + Fraction(j + 10, k)
     gamma_bound = 1 + Fraction(3, 2 * k)
+    a = gamma_bound / alpha
+    b = 4 * a + j + 1
+    lam = a / (1 - b / (k + 1))
+    sigma = b + 4 * (lam - a)
     loss_bound = 1 + Fraction(1, 2 * k)
-    return alpha, lam, gamma_bound, loss_bound
+    return alpha, gamma_bound, a, b, lam, sigma, loss_bound
 
 
 def comparison_charges(j, k):
-    _, lam, _, loss_bound = coefficients(j, k)
-    charge = lam * loss_bound + Fraction(j + 6, k)
+    _, _, _, _, lam, sigma, loss_bound = coefficients(j, k)
+    charge = lam * loss_bound + sigma / k
     displayed_charge = 1 + Fraction(2 * j + 17, k)
-    slack = Fraction(k - j - 10, 2 * k * k)
-    return charge, displayed_charge, slack
+    denominator = k * k - (j + 5) * k + j - 6
+    numerator = 16 * k * k - (4 * j * j + 80 * j + 395) * k + 4 * j * j + 40 * j - 411
+    return charge, displayed_charge, Fraction(numerator, 4 * k * denominator)
 
 
 def refinement_examples(j, k):
-    """Test boundary gains, including negative degree gains and shallow anchors.
+    """Test boundary inputs for the affine contract and its three uses.
 
-The path examples specify averages over an entire batch; their depth
-averages obey the distinct-anchor bound. They are algebra inputs, not
-assertions that a particular geometric state realizes each input.
+Path examples give mean costs at or above the AM-GM bound and the smallest
+mean gains allowed by the affine contract. These are algebraic inputs,
+not claims that a geometric state realizes each input.
     """
-    alpha, lam, gamma_bound, _ = coefficients(j, k)
+    alpha, gamma_bound, a, b, lam, sigma, _ = coefficients(j, k)
     counts = {"degree": 0, "narrow": 0, "path_batch": 0}
     minimum_slack = {}
     negative_degree_gains = 0
@@ -50,7 +51,7 @@ assertions that a particular geometric state realizes each input.
     for m in (0, 1, k - 2, k, 2 * k):
         cost = gamma_bound * m + j + 1
         degree_gain = alpha * m - 4
-        degree_slack = lam * degree_gain + j + 6 - cost
+        degree_slack = lam * degree_gain + sigma - cost
         if degree_slack < 0:
             raise AssertionError((j, k, "degree", m, degree_gain, degree_slack))
         counts["degree"] += 1
@@ -65,12 +66,11 @@ assertions that a particular geometric state realizes each input.
         shallow_narrow_anchors += m <= 1
         minimum_slack["narrow"] = min(minimum_slack.get("narrow", narrow_slack), narrow_slack)
 
-    for mean_depth in (k - 2, k, 2 * k):
-        mean_gain = alpha * mean_depth - 4
-        mean_cost = gamma_bound * mean_depth + j + 1
+    for mean_cost in (k + 1, k + 2, 2 * (k + 1)):
+        mean_gain = (mean_cost - b) / a
         path_slack = lam * mean_gain - mean_cost
         if path_slack < 0:
-            raise AssertionError((j, k, "path_batch", mean_depth, mean_gain, path_slack))
+            raise AssertionError((j, k, "path_batch", mean_cost, mean_gain, path_slack))
         counts["path_batch"] += 1
         minimum_slack["path_batch"] = min(minimum_slack.get("path_batch", path_slack), path_slack)
     return {
@@ -83,37 +83,34 @@ assertions that a particular geometric state realizes each input.
 
 def stage(j):
     k = 2**j
-    alpha, lam, gamma_bound, loss_bound = coefficients(j, k)
-    affine_slope = 1 + Fraction(3, k)
-    affine_intercept = j + 5 + Fraction(12, k)
-    slope_difference = lam - affine_slope
-    degree_margin = j + 6 - (affine_intercept + 4 * slope_difference)
-    narrow_margin = slope_difference * k - affine_intercept
-    path_margin = slope_difference * (k - 7) - affine_intercept
+    alpha, gamma_bound, a, b, lam, sigma, loss_bound = coefficients(j, k)
+    denominator = k * k - (j + 5) * k + j - 6
     charge, displayed_charge, slack = comparison_charges(j, k)
+    polynomial = 4 * j * j + 80 * j + 395
+    constant_term = 4 * j * j + 40 * j - 411
     checks = {
         "estimation_error_range": 0 < Fraction(1, 100 * k) < Fraction(1, 32),
-        "gain_coefficient_range": 1 < lam <= Fraction(5, 4),
-        "affine_slope_majorant": gamma_bound / alpha <= affine_slope,
-        "slope_difference_identity": slope_difference == Fraction(j + 7, k),
-        "degree_allowance_margin_identity": degree_margin == 1 - Fraction(4 * (j + 10), k),
-        "degree_allowance_margin_nonnegative": degree_margin >= 0,
-        "narrow_margin_identity": narrow_margin == 2 - Fraction(12, k),
-        "narrow_margin_positive": narrow_margin > 0,
-        "path_margin_identity": path_margin == 2 - Fraction(7 * j + 61, k),
-        "path_margin_positive": path_margin > 0,
-        "path_margin_sufficient_inequality": 7 * j + 61 <= 2 * k,
+        "affine_coefficient_identity": a == 1 + Fraction(5, 2 * (k - 1)),
+        "affine_coefficient_positive": a >= 1 and b >= 1,
+        "affine_coefficient_growth_bound": a <= 1 + Fraction(3, k),
+        "affine_intercept_growth_bound": b <= j + 6,
+        "path_budget_denominator_identity": k + 1 - b == Fraction(denominator, k - 1),
+        "path_budget_denominator_positive": denominator > 0,
+        "batch_factor_identity": lam == Fraction((k + 1) * (2 * k + 3), 2 * denominator),
+        "narrow_factor_covered": lam >= a + b / k,
+        "negative_gain_allowance_identity": sigma == j + 1 + 4 * lam,
+        "am_gm_batch_boundary": lam * ((k + 1 - b) / a) == k + 1,
         "comparison_slack_identity": displayed_charge - charge == slack,
         "comparison_charge_upper_bound": charge <= displayed_charge,
-        # Half the probability starts a walk; its stopping depth is geometric
-        # with parameter 1/k. The 2**m anchor choices cancel 2**(-m).
-        "anchor_walk_probability_mass": Fraction(1, 2 * k) / (1 - alpha) == Fraction(1, 2),
-        # ln 2 >= 2*(1/3 + (1/3)**3/3) = 56/81, from the first
-        # two positive terms of the logarithm series. Combined with
-        # -ln(1-x) <= x/(1-x), this bounds gamma-1 by 3/(2k).
+        "comparison_residue_majorant": (j == 6 and slack > 0) or (j >= 7 and polynomial <= 16 * k and constant_term > 0),
+        "polynomial_majorant_doubling": 4 * (j + 1)**2 + 80 * (j + 1) + 395 < 2 * polynomial,
+        # Summing over the 2**m anchors at each depth cancels 2**(-m).
+        "child_weight_probability_mass": Fraction(1, 2 * k) / (1 - alpha) == Fraction(1, 2),
+        # ln 2 >= 56/81 follows from the first two positive terms of
+        # 2*atanh(1/3). With -ln(1-x) <= x/(1-x), it supplies this
+        # sufficient condition for gamma <= 1+3/(2k).
         "anchor_depth_logarithm_majorant": Fraction(81, 56 * (k - 1)) <= gamma_bound - 1,
-        # The same log inequality and ln 2 >= 1/2 give
-        # -log2(1-1/(50k)) <= 2/(50k-1) <= 1/(2k).
+        # -log2(1-1/(50k)) <= 2/(50k-1), using ln 2 >= 1/2.
         "comparison_loss_rational_majorant": Fraction(2, 50 * k - 1) <= loss_bound - 1,
     }
     if not all(checks.values()):
@@ -121,13 +118,12 @@ def stage(j):
     return {
         "j": j,
         "k": k,
-        "volume_gain_coefficient": display(lam),
         "anchor_depth_cost_majorant": display(gamma_bound),
-        "affine_cost_slope": display(affine_slope),
-        "affine_cost_intercept": display(affine_intercept),
-        "degree_allowance_margin": display(degree_margin),
-        "narrow_refinement_margin": display(narrow_margin),
-        "path_batch_margin_per_refinement": display(path_margin),
+        "affine_cost_slope": display(a),
+        "affine_cost_intercept": display(b),
+        "batch_gain_coefficient": display(lam),
+        "degree_refinement_allowance": display(sigma),
+        "narrow_gain_coefficient_margin": display(lam - a - b / k),
         "rational_comparison_charge": display(charge),
         "displayed_comparison_charge": display(displayed_charge),
         "comparison_charge_slack": display(slack),
@@ -139,10 +135,15 @@ def stage(j):
 
 
 def slack_identity_grid():
-    """Check the final coefficient identity without requiring k=2**j."""
+    """Check the coefficient identity independently of the relation k=2**j."""
     count = 0
+    skipped = []
     for j in range(17):
         for k in range(8, 129):
+            denominator = k * k - (j + 5) * k + j - 6
+            if denominator == 0:
+                skipped.append({"j": j, "k": k, "reason": "zero denominator"})
+                continue
             charge, displayed_charge, slack = comparison_charges(j, k)
             if displayed_charge - charge != slack:
                 raise AssertionError({"j": j, "k": k, "check": "slack_identity"})
@@ -153,7 +154,8 @@ def slack_identity_grid():
         "first_k": 8,
         "last_k": 128,
         "count": count,
-        "scope": "Identity only; this grid does not assert the comparison inequality when k is unrelated to 2**j.",
+        "skipped": skipped,
+        "scope": "Identity only where its denominator is nonzero; this grid does not assert the comparison inequality when k is unrelated to 2**j.",
     }
 
 
@@ -167,7 +169,7 @@ def main():
     }
     examples = sum(example_counts.values())
     output = {
-        "purpose": "Finite exact-rational diagnostics of the affine refinement-cost bound, the three direct volume-gain charges, and the +17 comparison coefficient; not a proof of the structural or geometric hypotheses, of all parameter values, or of the adversary.",
+        "purpose": "Finite exact-rational diagnostics of the affine refinement contract, AM-GM batch accounting, and the +17 comparison coefficient; not a proof of structural or geometric hypotheses, all parameter values, or the adversary.",
         "range": {"first_j": 6, "last_j": 128, "count": len(rows)},
         "all_checks_passed": True,
         "checks_per_stage": len(rows[0]["checks"]),
@@ -177,7 +179,7 @@ def main():
             "total": examples,
             "negative_degree_gains": sum(row["refinement_examples"]["negative_degree_gains"] for row in rows),
             "narrow_anchor_depth_zero_or_one": sum(row["refinement_examples"]["narrow_anchor_depth_zero_or_one"] for row in rows),
-            "scope": "Synthetic gains satisfying the anchor inequalities; not full adversary trajectories or claims of geometric realizability.",
+            "scope": "Synthetic costs and gains satisfying the affine and AM-GM inequalities; not full adversary trajectories or claims of geometric realizability.",
         },
         "slack_identity_grid": identity_grid,
         "total_checks": stage_checks + examples + identity_grid["count"],

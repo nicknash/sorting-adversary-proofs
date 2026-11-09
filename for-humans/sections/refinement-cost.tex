@@ -1,52 +1,24 @@
 \subsection{The refinement guarantee}\label{sec:refinement-guarantee}
 
-We can now prove the cost bounds used in Section~\ref{sec:refinement-cost}.
-The anchor guarantee relates each child-choice cost to its volume gain
-through a linear bound with an additive term of order $\log k$. Large
-gains absorb this term: narrow refinements supply them individually, and
-path batches supply them on average.
+We finish by relating an anchor's child-choice cost to the volume change
+it produces. The density guarantee controls its depth, while the chosen
+weights make the cost almost proportional to that depth.
 
 \begin{proof}[Proof of Lemma~\ref{lem:refinement-cost}]
-Write $j=\log k$. The refinement identity gives $g=\log f_x(c)$, and the
-anchor guarantee \eqref{eq:tariff} implies
+The refinement identity gives $g=\log f_x(c)$. If the selected anchor has
+depth $m$, the anchor guarantee \eqref{eq:tariff} implies
 \[
 g\ge-4,\qquad m\le\frac{g+4}{1-1/k}.
 \]
-Since $-\log(1-1/k)\le1/((k-1)\ln2)\le3/(2k)$ for $k\ge64$,
-\begin{equation}\label{eq:anchor-depth-cost}
-\frac{\gamma}{1-1/k}
-\le\frac{1+3/(2k)}{1-1/k}\le1+\frac3k.
-\end{equation}
-Thus every refinement satisfies
+Consequently, \eqref{eq:anchor-cost} gives
 \[
-\ell(m)=\gamma m+j+1
-\le\left(1+\frac3k\right)(g+4)+j+1.
+\ell(c)\le\frac{\gamma}{1-1/k}(g+4)+\log k+1.
 \]
-Subtracting $\lambda g$ gives the bound used in all three cases:
-\begin{equation}\label{eq:charge-difference}
-\ell(m)-\lambda g
-\le j+5+\frac{12}{k}-\frac{j+7}{k}\,g.
-\end{equation}
-
-For a degree refinement, the lower bound $g\ge-4$ gives
-\[
-\ell(m)-\lambda g
-\le j+5+\frac{4(j+10)}{k}\le j+6,
-\]
-because $4(j+10)\le k$ for $j\ge6$.
-For a narrow refinement, $g>k$ by \eqref{eq:narrow-gain}, so
-\eqref{eq:charge-difference} is less than $-2+12/k<0$.
-
-For a complete path batch, Lemma~\ref{lem:path-address} and the anchor
-guarantee give the average gain
-\[
-\overline g=\frac1H\sum_{i=1}^H g_i
-\ge(1-1/k)(k-2)-4\ge k-7.
-\]
-Averaging \eqref{eq:charge-difference} over the batch therefore gives
-\[
-\frac1H\sum_{i=1}^H\bigl(\ell(m_i)-\lambda g_i\bigr)
-\le-2+\frac{7j+61}{k}\le0,
-\]
-since $7j+61\le2k$ for $j\ge6$. This proves the path-batch bound.
+Choose any $a\ge\gamma/(1-1/k)$ and put $b=4a+\log k+1$.
+Because $g+4\ge0$, increasing the coefficient to $a$ preserves the
+inequality, including when $g$ is negative. We obtain $\ell(c)\le ag+b$.
+The estimate $\gamma=1+O(1/k)$ permits $a=1+O(1/k)$ and
+$b=O(\log k)$. Appendix~\ref{app:constants} supplies explicit choices
+satisfying $a\ge1$ and $1\le b<k+1$ for every permitted $k$.
+For a narrow coordinate, $g>k$ is precisely \eqref{eq:narrow-gain}.
 \end{proof}

@@ -1,35 +1,27 @@
-\section{Accuracy of the finite position calculation}\label{app:coupling}
+\section{Why the enclosing intervals become narrow}\label{app:coupling}
 
-We prove Theorem~\ref{thm:local}. The proof follows how a difference
-between two assignments can affect a queried coordinate after several
-sweeps. Bounded degree limits the number of possible dependencies, and
-bounded directed path length makes most sweeps reduce the difference.
-
-\subsection{Comparing the full and local computations}
-Start $X$ uniformly on $K$ and $Y$ at the effective lower endpoints of
-the retained graph. Update the full graph in topological order, and use
-the restriction of that order for $Y$. Share the digit at each retained
-vertex. Digits are independent of the initial assignment and of each other,
-both between vertices and between sweeps, and are uniform in
-$\{0,\ldots,S-1\}$. The full assignment $X$ remains uniform
-on $K$. Every digit assignment for $Y$ has probability $1/N$, so its final
-queried values have exactly the empirical distribution of the computed list.
+The enclosure part of Theorem~\ref{thm:local} was proved in
+Section~\ref{sec:oracle}. Here we bound the fraction of digit sequences
+that leave a wide interval at a queried coordinate. We compare the lower
+and upper calculations with each other. Their initial widths are at
+most one, and their boundary values stay fixed.
+For the analysis, choose each interior digit independently and uniformly;
+each enumerated sequence then has probability $1/N$.
 
 \subsection{The decrease after one sweep}
-Write $\Delta_z=|X_z-Y_z|$. Superscripts old and new refer to the start
-of a sweep and the value after a coordinate's update. If all neighbors
-of $z$ are retained, the shared digit $j_z$ gives
+Write $\Delta_z=B_z-A_z$. Superscripts old and new refer to the start
+of a sweep and the value after a coordinate's update. For an interior
+vertex $z$, the shared digit $j_z$ gives
 \begin{equation}\label{eq:local-coupling}
 \Delta_z^{\rm new}\le
 \frac1S\Delta_z^{\rm old}
 +\frac{S-1-j_z}{S}\max_{u\to z}\Delta_u^{\rm new}
 +\frac{j_z}{S}\max_{z\to u}\Delta_u^{\rm old},
 \end{equation}
-with an empty maximum equal to zero. The fixed endpoints agree in the
-two computations because they were copied from the full graph.
+with an empty maximum equal to zero. The effective interval bounds in the two calculations are identical.
 
 Let $B_h(z)$ be the vertices at undirected distance at most $h$ from $z$,
-and suppose they are all retained. Put
+and suppose they are all interior vertices. Put
 $D=\max_{u\in B_h(z)}\Delta_u^{\rm old}$ and
 $a_u=(S-1-j_u)/S$. At $z$, \eqref{eq:local-coupling} gives
 \[
@@ -39,10 +31,10 @@ $a_u=(S-1-j_u)/S$. At $z$, \eqref{eq:local-coupling} gives
 Follow a predecessor attaining the maximum, and continue backwards to a
 source. This path has at most $h$ vertices; all its vertices and their
 successors lie in $B_h(z)$. At the source the predecessor term is zero.
-Substitution along the path bounds the new discrepancy by
+Substitution along the path bounds the new width by
 $\bigl(1-\prod_u a_u\bigr)D$.
 
-Write $\Delta_z(s)$ for the discrepancy after $s$ sweeps.
+Write $\Delta_z(s)$ for the width after $s$ sweeps.
 Call the pair $(z,s)$ \emph{bad} if, during sweep $s$, the digit at $z$
 or any vertex preceding $z$ on a directed path equals $S-1$. Otherwise all factors $a_u$ in the
 preceding expansion are at least $1/S$, and there are at most $h$ of
@@ -69,11 +61,13 @@ $M/S\le1/(16M^2)$.
 
 For even $t$, iterating \eqref{eq:local-one-sweep} traces sequences
 $z_t=z,z_{t-1},\ldots,z_0$ with $z_{s-1}\in B_h(z_s)$. There are at most
-$M^t$ sequences. If $B_{ht}(z)$ is retained, each $B_h(z_s)$ used at
-sweep $s\ge1$ is retained: its vertices are at distance at most
-$(t-s+1)h\le th$ from $z$. Thus the expansion is valid throughout,
-including at the boundary, where only initial discrepancies occur.
-Since those initial discrepancies are at most one,
+$M^t$ sequences. Retain radius $\rho=ht+1$ around the queried set and freeze its outer
+boundary. For a queried $z$, every $B_h(z_s)$ used at sweep $s\ge1$
+lies in the interior: its vertices are at distance at most
+$(t-s+1)h\le th<\rho$ from $z$. Thus every predecessor update used
+in the expansion is performed. The expansion reaches the initial widths
+before it reaches a frozen boundary.
+Since those initial widths are at most one,
 \begin{equation}\label{eq:local-contraction}
 \Delta_z(t)\le
 \max_{z_t=z,\;z_{s-1}\in B_h(z_s)}\prod_{s=1}^t\kappa_{z_s}(s).
@@ -96,18 +90,19 @@ most $\beta$. Hence
 
 \subsection{Explicit accuracy and computation bounds}
 
-To obtain coordinate error at most $\delta$ at all queried coordinates,
-with failure probability at most $\alpha$, choose
+To leave width at most $\delta$ at every queried coordinate, except
+for at most a fraction $\alpha$ of digit sequences, choose
 \begin{equation}\label{eq:local-radius}
 t=2\left(S^h\ceil{\log(1/\delta)}+
                   \ceil{\log(r/\alpha)}\right),\qquad
-\rho=ht.
+\rho=ht+1.
 \end{equation}
 The inequality $(1-v)^{-q}\ge1+qv$ gives
 $\beta^{S^h}\le1/2$. Thus $\beta^{t/2}\le\delta$ and
 $2^{-t}\le\alpha/r$. Equation~\eqref{eq:local-interior-error} and a
-union bound over the at most $r$ queried coordinates prove
-\eqref{eq:finite-position-coupling}.
+union bound over the at most $r$ queried coordinates prove the width
+guarantee of Theorem~\ref{thm:local}. The probability here is exactly
+the fraction of entries in the enumerated list, counted with multiplicity.
 
 Each radius-$\rho$ neighborhood has at most
 $1+d+\cdots+d^\rho\le(d+1)^{\rho+1}$ vertices. We may therefore use
@@ -122,8 +117,9 @@ All these choices are computable from $d,h,r,\delta,\alpha$ alone.
 Suppose the effective endpoints have at most $\Lambda$ fractional binary
 digits. An update takes maxima and minima, forms an integer linear
 combination, and divides by the power of two $S$. It adds at most
-$\log S$ fractional digits. If $b'$ vertices are retained, the precision
-after all $b't$ updates is at most
+$\log S$ fractional digits. If $b'$ interior vertices are updated, each endpoint calculation makes
+$b't$ updates. The two calculations share digits but use their own values,
+so the precision in either is at most
 \begin{equation}\label{eq:digit-precision}
 \Lambda+b't\log S\le\Lambda+\log E.
 \end{equation}

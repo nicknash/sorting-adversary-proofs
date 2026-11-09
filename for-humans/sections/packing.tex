@@ -1,30 +1,10 @@
-\subsection{Why a long path requires deep anchors}\label{sec:path-resolutions}
+\subsection{Distinct children for a path batch}\label{sec:path-resolutions}
 
-A complete path batch moves labels that are already ordered relative to
-each other. They must enter different children, forcing many of their
-anchors to lie deep in the implicit anchor tree.
-
-\begin{lemma}[Sum of anchor depths along a path]\label{lem:path-address}
-The $H$ labels of a selected path in an in-node DAG enter distinct children
-of their parent in the adversary's tree. If their anchors have depths
-$m_1,\ldots,m_H$ in the implicit anchor tree, then
-\begin{equation}\label{eq:path-charge}
-\sum_{i=1}^H m_i\ge H(k-2).
-\end{equation}
-\end{lemma}
-\begin{proof}
+\begin{proof}[Proof of Lemma~\ref{lem:path-address}]
 Every in-node arc on the selected path records an answered comparison.
 The transcript therefore implies an order between every pair of labels on
-the path. Those implications remain true after the in-node arcs are deleted. By
-Lemma~\ref{lem:admission}, two of these labels cannot be admitted to the
-same child of their parent in the adversary's tree. The procedure completes
-all $H=2^k$ refinements in this parent, so its anchors occupy $H$ distinct
-nodes of the implicit anchor tree.
-
-The smallest possible sum of depths uses the $2^k-1$ nodes at depths
-$0,\ldots,k-1$ and one node at depth $k$. Its value is
-\[
-\sum_{m=0}^{k-1}m2^m+k=(k-2)2^k+k+2\ge H(k-2).
-\]
-Every other choice of $H$ distinct nodes has at least this sum of depths.
+the path. Those implications remain true after the in-node arcs are deleted.
+By Lemma~\ref{lem:admission}, two of these labels cannot be admitted to the
+same child of their parent. The procedure completes the entire selected
+batch in this parent, so all its destinations are distinct.
 \end{proof}

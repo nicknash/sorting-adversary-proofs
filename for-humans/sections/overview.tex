@@ -192,18 +192,20 @@ disjoint or meet only at an endpoint. Return this answer immediately.
 Lemma~\ref{lem:certainty} proves that these tests detect every comparison
 fixed by the represented orders, including every previously answered pair.
 
-For an undecided comparison, let $p$ be the probability that $A$ precedes
-$B$ when positions at this node are assigned uniformly subject to its
-interval bounds and in-node DAG inequalities. The subroutine \texttt{Estimate}
-returns a deterministic estimate $\widehat p$. Fix a rational error
-tolerance $0<\eta<1/4$.
-Choose $A<B$ if $\widehat p\ge1/2$, and $B<A$ otherwise. For two free
-items, the event being estimated is $X_A<X_B$. For a free item $x$ and an
-anchor $c$, estimate $X_x<c$, taking the complement if the queried order
-is reversed. An answer between two free items adds an arc to the in-node DAG;
+For an undecided comparison, consider the uniform distribution on feasible
+positions at this node. The subroutine
+\texttt{Certify} computes two nonnegative rational numbers $p_{AB},p_{BA}$
+that are lower bounds on the probabilities of $A<B$ and $B<A$.
+For a rational tolerance $0<\eta<1/32$, it guarantees
+$p_{AB}+p_{BA}\ge1-2\eta$. Choose the answer with the larger certified
+fraction, breaking a tie in favor of $A<B$. The chosen answer therefore
+has probability at least $1/2-\eta$.
+For two free items, the events are $X_A<X_B$ and $X_B<X_A$; for a free
+item and an anchor, they compare its coordinate with the fixed anchor.
+An answer between two free items adds an arc to the in-node DAG;
 an answer involving an anchor adds an interval bound.
 
-Before using the estimator, we ensure that every queried free coordinate
+Before calling \texttt{Certify}, we ensure that every queried free coordinate
 has effective width at least $1/R$, where $R\ge1$ is a fixed rational
 threshold. Call such a coordinate \emph{wide}, and a narrower one
 \emph{narrow}. A narrow queried item is moved into a child, and the query
@@ -214,32 +216,26 @@ Section~\ref{sec:overview-refine} gives the operation.
 We also control the in-node DAGs using integers $k,H\ge2$.
 Throughout the interaction, each vertex has at most $k$ neighbors,
 counting both incoming and outgoing arcs, and each directed path has
-fewer than $2H$ vertices. Before estimating an undecided comparison, we first
+fewer than $2H$ vertices. Before certifying an undecided comparison, we first
 remove any path of $H$ vertices by refining its entire list of items.
 If a queried free item has degree $k$, we refine that item too.
-Each of these steps restarts the query. When the estimator is reached,
+Each of these steps restarts the query. When \texttt{Certify} is reached,
 the queried vertices have degree below $k$ and the current node has no
 $H$-vertex path. Adding one arc therefore preserves the bounds needed
 throughout the interaction: degrees rise by at most one, and a new path
 joins two old paths.
 
-The following lemma supplies the accuracy needed by the comparison rule
-and anchor selection. Section~\ref{sec:oracle} gives the estimator and
-proves the lemma.
+The following lemma supplies the guarantee needed by the comparison rule.
+Section~\ref{sec:oracle} implements \texttt{Certify} by counting finite
+calculations in which enclosing intervals establish one of the two answers.
 
-\begin{lemma}[Probability estimation]\label{lem:estimation}
+\begin{lemma}[Certified comparison probabilities]\label{lem:estimation}
 Suppose a node admits a feasible assignment, and its in-node DAG has
 degree at most $k$ and directed paths of at most $2H$ vertices.
-Under the uniform distribution on these assignments,
-\textnormal{\texttt{Estimate}} deterministically computes, with error at most $\eta$:
-\begin{enumerate}[label=(\roman*)]
-\item $\Prb(X_x<c)$, when $x$ is wide and $c$ is dyadic;
-\item $\Prb(X_x<X_y)$, when at least one of $x,y$ is wide.
-\end{enumerate}
-For a wide coordinate $x$, a companion routine \textnormal{\texttt{Marginal}}
-returns a finite list of positions. For every real threshold $c$, the
-fraction of this list below $c$ differs from $\Prb(X_x<c)$ by at most
-$\eta$.
+For a pair with at least one wide coordinate, or a wide coordinate and
+a dyadic threshold, \textnormal{\texttt{Certify}} deterministically returns
+nonnegative rational lower bounds on the probabilities of the two answers.
+Their sum is at least $1-2\eta$.
 \end{lemma}
 
 \begin{algorithm}[H]
@@ -273,8 +269,8 @@ $\eta$.
     \texttt{Refine}(the selected such item)\;
     \textbf{continue}\;
   }
-  $\widehat p\gets$ \texttt{Estimate}$(v,A<B,\eta)$\;
-  $\mathit{answer}\gets A<B$ if $\widehat p\ge1/2$, and $B<A$ otherwise\;
+  $(p_{AB},p_{BA})\gets$ \texttt{Certify}$(v,A,B,\eta)$\;
+  $\mathit{answer}\gets A<B$ if $p_{AB}\ge p_{BA}$, and $B<A$ otherwise\;
   Store $\mathit{answer}$ as an arc in the in-node DAG at $v$ or as an interval bound\;
   \Return $\mathit{answer}$\;
 }
@@ -295,6 +291,24 @@ path's list even if earlier refinements break the path.
 Algorithm~\ref{alg:refine} gives \texttt{Refine}$(x)$, which moves $x$
 from its current node into a child. It computes $x$'s effective interval
 and calls \texttt{ChooseAnchor} to select a position $c$ inside it.
+
+For a narrow coordinate, we choose $c$ in the middle half of its effective
+interval. For a wide coordinate, the following routine supplies an interval
+with substantial probability inside and on both sides.
+
+\begin{lemma}[A central interval]\label{lem:central-interval}
+Under the hypotheses of Lemma~\ref{lem:estimation}, for a wide coordinate
+$x$, \textnormal{\texttt{CentralInterval}} deterministically returns dyadic
+$u<v$ in $(\ell_x,r_x)$ such that
+\[
+\Prb(X_x\le u)\ge\frac14,\qquad
+\Prb(u\le X_x\le v)\ge\frac14,\qquad
+\Prb(X_x\ge v)\ge\frac14.
+\]
+\end{lemma}
+
+Section~\ref{sec:oracle} implements this routine using the same enclosing
+intervals as \texttt{Certify}.
 
 We select anchor positions using a fixed infinite binary tree, the
 \emph{implicit anchor tree}, shown in Figure~\ref{fig:anchor-tree}. The same

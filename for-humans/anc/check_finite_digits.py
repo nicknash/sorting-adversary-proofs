@@ -34,37 +34,6 @@ def bits(x):
     return d.bit_length() - 1
 
 
-def quantile(values, numerator, denominator):
-    target = (sum(values.values()) * numerator + denominator - 1) // denominator
-    total = 0
-    for value, count in sorted(values.items()):
-        total += count
-        if total >= target:
-            return value
-    raise AssertionError('No quantile')
-
-
-def cdf_error(values, truth):
-    total = sum(values.values())
-    seen, error = 0, F(0)
-    for value, count in sorted(values.items()):
-        error = max(error, abs(F(seen, total) - truth(value)),
-                    abs(F(seen + count, total) - truth(value)))
-        seen += count
-    return error
-
-
-def check_quantiles(values, truth, error):
-    total = sum(values.values())
-    quartiles = [quantile(values, p, 4) for p in (1, 3)]
-    for p, q in zip((F(1, 4), F(3, 4)), quartiles):
-        less = F(sum(count for v, count in values.items() if v < q), total)
-        at_most = F(sum(count for v, count in values.items() if v <= q), total)
-        assert less < p <= at_most
-        assert p - error <= truth(q) <= p + error
-    return quartiles
-
-
 def run():
     invariant_checks = 0
     for radix in (2, 4, 8, 16):
@@ -117,28 +86,6 @@ def run():
         assert c == F(1, 2) and depth == 0
         narrow_checks += 1
 
-    # One-coordinate finite computations, repeated with multiplicity to force
-    # empirical ties; conditional invariant and quartile transfer use exact CDFs.
-    wide_checks = 0
-    for ell, upper in ((F(0),F(1)), (F(1,16),F(3,8)), (F(33,64),F(35,64))):
-        states = Counter({ell: 1})
-        for sweep in range(7):
-            next_states = Counter()
-            for z, count in states.items():
-                for digit in range(2):
-                    next_states[update(z, ell, upper, digit, 2)] += count
-            states = next_states
-        values = Counter({v:3*count for v,count in states.items()})
-        truth = lambda x: min(F(1), max(F(0), (x-ell)/(upper-ell)))
-        error = cdf_error(values, truth)
-        assert error == F(1,128) < F(1,32)
-        first, third = check_quantiles(values, truth, error)
-        c, depth, interval = shortest(first, third)
-        assert ell < c < upper
-        assert F(1,2**depth)/(upper-ell) > F(1,16)
-        assert (third-first)/(upper-ell) >= F(1,2)-2*error
-        wide_checks += 1
-
     # All finite computations for a two-item chain. Equal final states are
     # collected with their exact multiplicities, preserving all digit choices.
     states = Counter({(F(0),F(0)):1})
@@ -157,21 +104,13 @@ def run():
                     update_checks += 1
             states=next_states
         assert sum(states.values()) == 2**(2*sweep)
-        errors=[]
-        for vertex in range(2):
-            values=Counter()
-            for state,count in states.items():values[state[vertex]]+=count
-            truth = (lambda x:2*x-x*x) if vertex==0 else (lambda x:x*x)
-            error=cdf_error(values,truth)
-            check_quantiles(values,truth,error)
-            errors.append(str(error))
         chain_reports.append({'sweeps':sweep,'computations':2**(2*sweep),
-                              'distinct_final_states':len(states),'cdf_errors':errors})
+                              'distinct_final_states':len(states)})
     assert any(state[0]==state[1] for state in states)
     return {'status':'passed','scope':__doc__.strip(),
             'continuous_invariance_moment_checks':invariant_checks,
             'shortest_fraction_checks':anchor_checks,'narrow_anchor_checks':narrow_checks,
-            'wide_quartile_anchor_checks':wide_checks,'finite_chain_update_checks':update_checks,
+            'finite_chain_update_checks':update_checks,
             'finite_chain':chain_reports,
             'note':'Small chain parameters are diagnostic examples, not the much larger certified locality parameters.'}
 

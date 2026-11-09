@@ -1,0 +1,186 @@
+{
+  "status": "passed",
+  "scope": "Exact finite diagnostics for local enclosing intervals and their certificates.\n\nThese check small instances with rational arithmetic, including genuinely\ntruncated graphs. Independent polytope-volume enumeration checks the certified\nprobabilities. The small parameters used here do not replace the general\ncontraction proof or its much larger uniform choices.",
+  "independent_volume_identity_checks": 8,
+  "independent_probability_inequalities": 97,
+  "atomic_enclosure_checks": 12288,
+  "moving_full_boundary_runs": 512,
+  "moving_omitted_vertex_runs": 512,
+  "unsafe_unfrozen_boundary_detected": true,
+  "insufficient_sweeps_rejected": true,
+  "repeated_endpoint_central_cases": 2,
+  "comparison_cases": [
+    {
+      "retained": [
+        0,
+        1
+      ],
+      "interior": [
+        0,
+        1
+      ],
+      "outside": [],
+      "digit_sequences": 256,
+      "distinct_entries": 256,
+      "precision_bound": 8,
+      "name": "independent_pair",
+      "true_left": "1/2",
+      "certified_left": "105/256",
+      "certified_right": "105/256",
+      "unresolved": "23/128"
+    },
+    {
+      "retained": [
+        0,
+        1,
+        2
+      ],
+      "interior": [
+        0,
+        1,
+        2
+      ],
+      "outside": [],
+      "digit_sequences": 512,
+      "distinct_entries": 422,
+      "precision_bound": 9,
+      "name": "fork_pair",
+      "true_left": "1/2",
+      "certified_left": "1/8",
+      "certified_right": "1/8",
+      "unresolved": "3/4"
+    },
+    {
+      "retained": [
+        0,
+        1
+      ],
+      "interior": [
+        0,
+        1
+      ],
+      "outside": [],
+      "digit_sequences": 256,
+      "distinct_entries": 256,
+      "precision_bound": 10,
+      "name": "unequal_bounds",
+      "true_left": "7/9",
+      "certified_left": "95/128",
+      "certified_right": "45/256",
+      "unresolved": "21/256"
+    },
+    {
+      "retained": [
+        0,
+        1,
+        3,
+        4
+      ],
+      "interior": [
+        0,
+        4
+      ],
+      "outside": [
+        2
+      ],
+      "digit_sequences": 64,
+      "distinct_entries": 64,
+      "precision_bound": 8,
+      "name": "truncated_height_two",
+      "true_left": "6931/9347",
+      "certified_left": "1/4",
+      "certified_right": "0",
+      "unresolved": "3/4"
+    }
+  ],
+  "central_interval_cases": [
+    {
+      "retained": [
+        0,
+        1
+      ],
+      "interior": [
+        0,
+        1
+      ],
+      "outside": [],
+      "digit_sequences": 65536,
+      "distinct_entries": 14370,
+      "precision_bound": 16,
+      "name": "minimum_of_two",
+      "interval": [
+        "41/256",
+        "29/64"
+      ],
+      "certified_masses": [
+        "2061/8192",
+        "5001/16384",
+        "1029/4096"
+      ],
+      "true_masses": [
+        "19311/65536",
+        "26625/65536",
+        "1225/4096"
+      ],
+      "repeated_endpoints": true
+    },
+    {
+      "retained": [
+        0,
+        1
+      ],
+      "interior": [
+        0,
+        1
+      ],
+      "outside": [],
+      "digit_sequences": 65536,
+      "distinct_entries": 28063,
+      "precision_bound": 16,
+      "name": "maximum_of_two",
+      "interval": [
+        "273/512",
+        "215/256"
+      ],
+      "certified_masses": [
+        "2049/8192",
+        "11001/32768",
+        "2061/8192"
+      ],
+      "true_masses": [
+        "74529/262144",
+        "110371/262144",
+        "19311/65536"
+      ],
+      "repeated_endpoints": true
+    },
+    {
+      "retained": [
+        0
+      ],
+      "interior": [
+        0
+      ],
+      "outside": [],
+      "digit_sequences": 16,
+      "distinct_entries": 16,
+      "precision_bound": 9,
+      "name": "short_interval",
+      "interval": [
+        "27/64",
+        "115/256"
+      ],
+      "certified_masses": [
+        "1/4",
+        "7/16",
+        "5/16"
+      ],
+      "true_masses": [
+        "1/4",
+        "7/16",
+        "5/16"
+      ],
+      "repeated_endpoints": false
+    }
+  ]
+}

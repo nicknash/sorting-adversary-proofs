@@ -1,10 +1,10 @@
-\section{Computing comparison probabilities}\label{sec:oracle}
+\section{Computing comparison certificates}\label{sec:oracle}
 
-We implement \texttt{Estimate} and \texttt{Marginal} by computing a finite
-list of positions for the queried items. The list approximates their
-positions under the uniform distribution on the full feasible region.
-Its construction uses only a bounded neighborhood of the queried items,
-once their effective interval bounds have been computed.
+We implement \texttt{Certify} and \texttt{CentralInterval} by computing
+finite lists of enclosing intervals for the queried positions. Disjoint
+intervals certify a comparison. Counts of intervals lying to the left,
+inside, and to the right of a proposed central interval certify its three
+probability bounds.
 
 \subsection{A coordinate update with finitely many choices}
 
@@ -24,112 +24,118 @@ satisfying the interval bounds and arc inequalities weakly continues to
 do so after an update, including when $L_z=U_z$.
 
 Choosing the digit uniformly preserves the uniform distribution on the
-feasible region. To see this, suppose the assignment is uniform and
-condition on all coordinates other than $z$. Then
-$Y_z$ is uniform on $(L_z,U_z)$. Its normalized position
-$r=(Y_z-L_z)/(U_z-L_z)$ is uniform on $(0,1)$, and
-\eqref{eq:digit-update} sends it to
+feasible region. Start from a uniform feasible assignment and condition
+on all coordinates other than $z$. Then $Y_z$ is uniform
+on $(L_z,U_z)$. Its normalized position
+$r=(Y_z-L_z)/(U_z-L_z)$ is sent to
 \[
 r'=\frac{r+j}{S}.
 \]
 For a fixed digit, this is uniform on the corresponding one of the $S$
-equal subintervals. Choosing the digit uniformly therefore makes $r'$
-uniform on $(0,1)$ again. Each update preserves the uniform distribution
-on the whole feasible region.
+equal subintervals. Averaging over the digits makes $r'$ uniform on
+$(0,1)$ again.
 
-\subsection{A finite list of approximate positions}
+\subsection{Enclosing intervals from two calculations}
 
-Fix a topological order of the full graph $G$. Let $T$ be the set of
-queried coordinates. Retain every vertex within
-undirected distance $\rho$ of $T$, together with every arc between
-retained vertices. Copy their effective endpoints from the full graph.
-These endpoints carry interval restrictions transmitted by paths outside
-the retained neighborhood.
+Fix a topological order of the full graph $G$, and let $T$ be the set of
+queried coordinates. Retain every vertex within undirected distance
+$\rho$ of $T$, together with all arcs between retained vertices. Copy
+their effective endpoints from the full graph. Vertices at distance
+exactly $\rho$ form the boundary; those at smaller distance form the
+interior.
 
-Initialize the retained coordinates at their effective lower endpoints.
-These values satisfy all retained arc inequalities weakly. One pass through
-the retained vertices in the restriction of this order is a \emph{sweep}. Perform $t$
-sweeps, using \eqref{eq:digit-update} at each visit. The algorithm enumerates
-every assignment of digits to these updates. If $b'$ vertices are retained,
-there are
+Run two calculations using the same digits. The lower calculation starts
+at $A_z=\ell_z$, and the upper calculation starts at $B_z=r_z$.
+Keep the boundary values fixed throughout both calculations. A
+\emph{sweep} updates each interior coordinate once, in the restriction of
+the full topological order. All neighbors of an updated vertex are retained.
+
+Enumerate every assignment of digits to $t$ sweeps. If there are $b'$
+interior vertices, this gives
 \begin{equation}\label{eq:digit-count}
 N=S^{b't}
 \end{equation}
-such computations. Algorithm~\ref{alg:finite-digits} records their final
-queried values, including repetitions.
+computations. Each contributes the intervals $[A_x,B_x]$, $x\in T$,
+to the list, including repeated entries.
 
 \begin{algorithm}[H]
-\caption{\texttt{FiniteDigits}: compute the finite list of queried values.}
+\caption{\texttt{Enclose}: compute a finite list of enclosing intervals.}
 \label{alg:finite-digits}
 \DontPrintSemicolon
-\KwIn{The retained in-node DAG, its copied effective bounds, the restricted full-graph topological order, queried coordinates $T$, and integers $S,t$.}
-\KwOut{A list $\mathcal L$ of final values at $T$, one entry per digit assignment.}
+\KwIn{The retained in-node DAG and its effective bounds, its interior vertices, the restricted full topological order, queried coordinates $T$, and integers $S,t$.}
+\KwOut{A list of enclosing intervals $([A_x,B_x])_{x\in T}$, one per digit assignment.}
 $\mathcal L\gets$ the empty list\;
-\ForEach{assignment of digits $j_{z,s}\in\{0,\ldots,S-1\}$ to the $b't$ updates}{
-  $Y_z\gets\ell_z$ for every retained vertex $z$\;
+\ForEach{assignment of digits $j_{z,s}\in\{0,\ldots,S-1\}$ to the $b't$ interior visits}{
+  $A_z\gets\ell_z$ and $B_z\gets r_z$ for every retained vertex $z$\;
   \For{$s=1,\ldots,t$}{
-    \ForEach{retained vertex $z$ in the supplied order}{
-      Compute $L_z,U_z$ from its current neighbors and copied bounds\;
-      $Y_z\gets\bigl(Y_z+(S-1-j_{z,s})L_z+j_{z,s}U_z\bigr)/S$\;
+    \ForEach{interior vertex $z$ in the supplied order}{
+      Apply \eqref{eq:digit-update} to $A_z$, using the current $A$ values and digit $j_{z,s}$\;
+      Apply \eqref{eq:digit-update} to $B_z$, using the current $B$ values and the same digit\;
     }
   }
-  Append $(Y_z)_{z\in T}$ to $\mathcal L$\;
+  Append $([A_x,B_x])_{x\in T}$ to $\mathcal L$\;
 }
 \Return $\mathcal L$\;
 \end{algorithm}
 
-The next theorem shows that one entry chosen uniformly from this list
-closely approximates the queried coordinates of a uniform feasible
-assignment. We state this by a \emph{coupling}: a joint distribution of
-the two assignments with the specified marginal distributions.
+The intervals have an exact probabilistic interpretation. A
+\emph{coupling} is a joint distribution with specified marginal
+distributions; here it joins a uniformly selected list entry to a
+uniform feasible assignment.
 
-\begin{theorem}[Finite approximation of uniform assignments]\label{thm:local}
+\begin{theorem}[Local enclosing intervals]\label{thm:local}
 Let $d,h,r\ge1$ be integers and let $\delta,\alpha\in(0,1)$ be rational.
 There are computable parameters $S,t,\rho$ and a bound $E$, depending
 only on $d,h,r,\delta,\alpha$, with the following property.
 
-Suppose $G$ is a finite DAG with dyadic interval bounds, degree at most $d$, and directed
-paths of at most $h$ vertices, and its feasible region
-$K\subseteq(0,1)^{V(G)}$ has positive volume.
-For any nonempty set $T$ of at most $r$ coordinates,
-Algorithm~\ref{alg:finite-digits} produces a list $\mathcal L$ admitting
-a coupling of $X$ uniform on $K$ and $Y$ uniformly chosen from
-$\mathcal L$ such that
-\begin{equation}\label{eq:finite-position-coupling}
-\Prb\left(\max_{x\in T}|X_x-Y_x|>\delta\right)\le\alpha.
-\end{equation}
-The calculation enumerates at most $E$ digit assignments. If the interval
+Suppose $G$ is a finite DAG with dyadic interval bounds, degree at most
+$d$, directed paths of at most $h$ vertices, and a positive-volume
+feasible region $K\subseteq(0,1)^{V(G)}$. For any nonempty set $T$ of
+at most $r$ coordinates, Algorithm~\ref{alg:finite-digits} returns a list
+satisfying two guarantees:
+\begin{enumerate}
+\item A uniformly selected entry can be coupled with $X$ uniform on $K$
+so that $A_x\le X_x\le B_x$ for every $x\in T$.
+\item At most a fraction $\alpha$ of its entries have
+$\max_{x\in T}(B_x-A_x)>\delta$.
+\end{enumerate}
+The calculation enumerates at most $E$ digit assignments. If the stored
 bounds have at most $\Lambda$ fractional binary digits, every computed
-position has at most $\Lambda+\log E$ fractional digits.
+endpoint has at most $\Lambda+\log E$ fractional digits.
 \end{theorem}
 
-The proof compares the finite calculation with updates of an assignment
-that is already uniform on the full region. Both computations use the
-same digits at retained vertices. Bounded degree limits the number of
-coordinates that can influence an update. Bounded directed path length
-ensures that following dependencies on newly updated predecessors soon
-reaches a source, whose lower endpoint is fixed. This causes discrepancies
-to shrink for most digit choices. After enough sweeps, the queried
-coordinates are close with high probability, even though the two
-computations can differ at the boundary of the retained neighborhood.
-Appendix~\ref{app:coupling} gives the proof and explicit parameter choices.
+The enclosure guarantee holds for every finite number of sweeps and
+every choice of radius $\rho\ge1$. Start a full assignment uniformly on
+$K$ and update the entire graph with independent uniform digits. Share
+its digits with the two endpoint calculations at interior vertices.
+The update is increasing in every coordinate, since maxima, minima, and
+the nonnegative linear combination in \eqref{eq:digit-update} are
+increasing. Thus it preserves the inequalities $A_z\le X_z\le B_z$ at
+an interior update. At a boundary vertex the full position always remains
+between its fixed effective endpoints, even as it changes during the full
+calculation. The full assignment remains uniform, and every interior
+digit sequence has probability $1/N$. This proves the first guarantee.
 
-\subsection{From positions to comparison answers}
+To make most intervals narrow, we use the degree and path-length bounds.
+Following dependencies on newly updated predecessors reaches a source
+within $h$ vertices, where the lower endpoint is fixed. Most digit choices
+therefore reduce the interval widths. Bounded degree limits the number
+of dependencies to consider across successive sweeps.
+Appendix~\ref{app:coupling} proves the width bound and gives explicit
+parameter choices.
 
-To estimate $\Prb(X_x<c)$, use $T=\{x\}$ and count the entries below $c$.
-To estimate $\Prb(X_x<X_y)$, use $T=\{x,y\}$ and count the entries
-satisfying that strict inequality. A pair ordered by a directed path is
-answered exactly before this calculation. The routine \texttt{Marginal}
-returns the single-coordinate list $\mathcal L_x$ itself. Write
-\begin{equation}\label{eq:empirical-cdf}
-\widehat F_x(c)=\frac{\#\{y\in\mathcal L_x:y<c\}}{N},\qquad
-F_x(c)=\Prb(X_x<c).
-\end{equation}
-The right limit $\widehat F_x(c+)$ counts values at most $c$.
+\subsection{Certifying comparison answers}
 
-When coordinate errors are small, a comparison can change only if the true
-positions are close to its threshold. The following consequence of
-Lemma~\ref{lem:fiber} bounds the probability of such a small gap.
+For two queried coordinates, let $p$ be the fraction of entries with
+$B_x<A_y$, and let $q$ be the fraction with $B_y<A_x$.
+The routine \texttt{Certify} returns $(p,q)$. For a threshold comparison,
+use the fixed interval $[c,c]$ for the threshold. A directed path that
+already orders two queried items gives the exact pair $(1,0)$ or $(0,1)$.
+
+Each disjoint pair of intervals certifies the same strict order for the
+enclosed positions. The enclosure guarantee therefore gives exact lower
+bounds on the two true probabilities. We next bound the fraction of
+entries whose intervals overlap, including when they touch at one endpoint.
 
 \begin{corollary}[A bound for small differences]\label{cor:gap}
 Let $X$ be uniform on a positive-volume node region, and suppose $x$ has
@@ -148,44 +154,70 @@ apply the unconditional density bound.
 \end{proof}
 
 \begin{proof}[Proof of Lemma~\ref{lem:estimation}]
-A feasible assignment gives positive volume, since the defining
-inequalities are strict. Computing the effective endpoints preserves
-this region by Lemma~\ref{lem:interior}.
-Apply Theorem~\ref{thm:local} with
+Computing effective endpoints preserves the positive-volume feasible
+region by Lemma~\ref{lem:interior}. Use Theorem~\ref{thm:local} with
 \begin{equation}\label{eq:estimator-coupling-parameters}
 d=k,\qquad h=2H,\qquad r=2,\qquad
 \alpha=\frac\eta2,\qquad
 \delta=\frac{\eta}{8(B+1)R}.
 \end{equation}
-These same parameters serve both single-coordinate and pair queries.
+These same parameters will serve \texttt{CentralInterval} below.
+The two certification conditions are disjoint, so $p,q\ge0$ and
+$p+q\le1$. Enclosure gives
+$p\le\Prb(X_x<X_y)$ and $q\le\Prb(X_y<X_x)$.
 
-For an incomparable pair, choose $x$ with $W_x\ge1/R$.
-Corollary~\ref{cor:gap} gives
+For an incomparable pair, choose a wide coordinate $x$.
+If the computed intervals overlap and both have width at most $\delta$,
+the enclosed positions differ by at most $2\delta$.
+Corollary~\ref{cor:gap} consequently bounds the unresolved fraction by
 \[
-\Prb(|X_x-X_y|\le2\delta)
-\le4(B+1)R\delta=\frac\eta2.
+1-p-q\le\alpha+\Prb(|X_x-X_y|\le2\delta)
+\le\alpha+4(B+1)R\delta=\eta.
 \]
-Whenever both coordinate errors are at most $\delta$ and the true gap
-exceeds $2\delta$, the strict comparisons in $X$ and $Y$ agree.
-The probability of disagreement is therefore at most
-$\alpha+\eta/2=\eta$.
-
-For a threshold $c$, disagreement requires either a coordinate error
-greater than $\delta$ or $|X_x-c|\le\delta$. Its probability is at most
-$\alpha+2(B+1)R\delta=3\eta/4$. The same list works for every real $c$.
-Taking right limits and using the continuity of $F_x$ gives both
-\begin{equation}\label{eq:uniform-cdf-error}
-|\widehat F_x(c)-F_x(c)|\le\eta,\qquad
-|\widehat F_x(c+)-F_x(c)|\le\eta.
+For a threshold $c$, an unresolved interval contains $c$. If its width
+is at most $\delta$, its enclosed position is within $\delta$ of $c$.
+The unresolved fraction is at most
+\begin{equation}\label{eq:threshold-unresolved}
+\alpha+2(B+1)R\delta=\frac{3\eta}{4}.
 \end{equation}
-All calculations enumerate finitely many digit assignments using exact
-dyadic arithmetic, so the routines are deterministic.
+Both bounds imply the claimed $p+q\ge1-2\eta$.
+The counts and their denominators are exact integers, so the routine
+is deterministic.
 \end{proof}
 
-Finite computations can contain equal coordinates. Accordingly, a pair
-estimate counts the strict event $Y_x<Y_y$, and the comparison rule uses
-its complement for the opposite answer. The continuous probabilities of
-the two orders sum to one, so this complement has the same error bound.
+\subsection{Certifying a central interval}
+
+For a wide coordinate $x$, \texttt{CentralInterval} runs
+Algorithm~\ref{alg:finite-digits} with $T=\{x\}$ and the parameters in
+\eqref{eq:estimator-coupling-parameters}. Write its intervals as
+$[A_i,B_i]$, $1\le i\le N$. The chosen $S$ is divisible by four, so
+$N/4$ is an integer. Sort the upper endpoints and take their $N/4$-th
+value as $u$. Sort the lower endpoints and take their $3N/4$-th value as
+$v$. Finally, count the intervals wholly contained in $[u,v]$.
+The following proof shows that at least $N/4$ intervals pass this test;
+the routine returns $[u,v]$ with these finite certificates.
+
+\begin{proof}[Proof of Lemma~\ref{lem:central-interval}]
+At least $N/4$ intervals end at or below $u$, and at least $N/4$ begin
+at or above $v$. Enclosure certifies the required left and right masses.
+It remains to bound the number of intervals contained in $[u,v]$.
+
+By \eqref{eq:threshold-unresolved}, at most a fraction
+$\tau=3\eta/4$ of the intervals contain any fixed real number.
+This bound applies in particular to $u$ and $v$.
+An interval extending below $u$ either ends strictly below $u$ or
+contains $u$. By the rank defining $u$, fewer than $N/4$ intervals end
+strictly below it. Thus at most $(1/4+\tau)N$ intervals extend below $u$.
+Similarly, at most $N/4$ intervals begin strictly above $v$, so at most
+$(1/4+\tau)N$ extend above $v$.
+
+It follows that at least $(1/2-2\tau)N\ge N/4$ intervals lie wholly
+inside $[u,v]$, since $\eta<1/32$. Enclosure gives mass at least $1/4$
+inside this interval. The true distribution is continuous and supported
+on $(\ell_x,r_x)$. The three positive masses therefore imply
+$\ell_x<u<v<r_x$. The endpoints are dyadic, and sorting and counting
+finite lists are deterministic.
+\end{proof}
 
 The next section chooses the parameters as a function of $n$ and bounds
 the work in every comparison call.

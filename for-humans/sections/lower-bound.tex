@@ -20,13 +20,13 @@ For this section, fix a power of two $k\ge64$.
 Section~\ref{sec:runtime} chooses $k$ as a function of $n$ so that it grows
 without bound while the adversary's running time remains polynomial.
 
-The proof uses a random experiment that chooses a node and a position
-for each item. At termination, all assignments admitted by the state have
-the same relative order, so their probability is at most $1/n!$. We bound
-this probability from below using the feasible volumes within nodes and
-the probabilities of the child choices made during refinement. Relating
-those child choices to the volume gained during refinement will leave
-only a small additional loss per comparison.
+We will bound the number of total orders represented by any state.
+The bound combines the freedom within nodes with weights assigned to
+child choices. A single inequality relating refinement cost to volume
+change will then explain how each of the three refinement rules preserves
+enough orders. The main proof gives the denominator
+$1+O(\log k/k)$; Appendix~\ref{app:constants} verifies the explicit
+coefficient in \eqref{eq:exact-bound}.
 
 \subsection{Volume changes}\label{sec:guarantees}
 
@@ -45,11 +45,11 @@ region has dimension $n$. A node with no free items contributes volume
 one. Initially $Z=1$; whenever every node has positive volume,
 $0<Z\le1$.
 
-Choose the estimation error to be
+Choose the certificate tolerance to be
 \begin{equation}\label{eq:estimation-error}
 \eta=\frac1{100k}.
 \end{equation}
-By Lemma~\ref{lem:estimation}, each estimated answer retains at least
+By Lemma~\ref{lem:estimation}, each chosen answer retains at least
 $1/2-\eta$ of its node's volume. Its decrease in $\log Z$ is therefore
 at most
 \begin{equation}\label{eq:comparison-loss}
@@ -68,7 +68,7 @@ for the resulting change in $\log Z$. We call $g$ the refinement's
 \emph{volume gain}; it can be negative.
 
 The algorithm must preserve positive node volumes and the bounds needed
-by the estimator. It must also return answers consistent with the earlier
+by the probability routines. It must also return answers consistent with the earlier
 comparisons. The following proposition gives these guarantees.
 
 \begin{proposition}[Consistency and termination]\label{prop:legality}
@@ -81,155 +81,182 @@ of fewer than $2H$ vertices throughout the interaction.
 
 Section~\ref{sec:repairs} proves Proposition~\ref{prop:legality}.
 
-\subsection{The cost of choosing a child}\label{sec:movement-volume}\label{sec:accounting}
+\subsection{Counting the orders represented by a state}\label{sec:movement-volume}\label{sec:accounting}
 
 The product $Z$ measures freedom within individual nodes. For example,
 two items stored alone in separate children can each retain the full
 interval $(0,1)$, giving $Z=1$, even though the child anchors fix their order.
-To account for the order determined by the tree, we use a random experiment
-on a fixed state.
+To account for this restriction, assign a positive weight $w(c)$ to each
+child at anchor $c$, with the weights at each parent summing to at most
+$1/2$.
 
-Start at the root of the adversary's tree. At a visited node, stop with
-probability $1/2$. Otherwise, choose an anchor by a walk in the implicit
-anchor tree: at each node of that tree, select its position with probability
-$1/k$; otherwise, move to the left or right child with equal probability.
-If the selected anchor has an existing child in the adversary's tree,
-continue the experiment in that child. Otherwise, stop at the current
-node. Whenever the experiment stops in the adversary's tree, choose a
-uniform coordinate in $(0,1)$ there.
+For each item, multiply the child weights along the path from the root
+to its storage node. Let $Q$ be the product of these quantities over all
+items. An item stored at the root contributes one. Thus each edge weight
+appears once for every item in its subtree.
 
-The walk selecting an anchor terminates almost surely. A particular
-anchor at depth $m$ requires $m$ specified left or right choices, so an
-existing child at that anchor is entered with probability
-\begin{equation}\label{eq:child-weight}
-w(m)=\frac1{2k}\left(\frac{1-1/k}{2}\right)^m
-     =\frac{2^{-\gamma m}}{2k},
-\qquad \gamma=1-\log(1-1/k).
-\end{equation}
-The probability of stopping at each visited node of the adversary's tree
-is at least $1/2$. Since the state has a finite tree, the experiment
-produces a node and a coordinate almost surely.
-
-Sample one such position independently for each of the $n$ labels.
-The tree orders these positions by the same rule as in
-Section~\ref{sec:overview}: compare a coordinate with the child anchors,
-and order positions inside one child recursively. Ties have probability
-zero, and all labels use the same distribution. Permuting the labels
-therefore shows that each relative order has probability $1/n!$.
-
-For the counting argument, measure a child choice by its contribution to
-the negative logarithm of the probability:
-\begin{equation}\label{eq:child-cost}
-\ell(m)=-\log w(m)=\gamma m+\log k+1.
-\end{equation}
-The next lemma expresses the final restriction to one order in terms of
-these costs.
-
-\begin{lemma}[Bound at termination]\label{lem:packing}
-Suppose the transcript determines a unique total order. If $m_r$ is the
-anchor depth used by refinement $r$, then
-\begin{equation}\label{eq:terminal}
-\log(n!)\le n-\log Z+\sum_r\ell(m_r).
+\begin{lemma}[Number of represented orders]\label{lem:packing}
+If the state represents $N_{\rm ord}$ total orders, then
+\begin{equation}\label{eq:remaining-orders}
+N_{\rm ord}\ge n!\,2^{-n}ZQ.
 \end{equation}
 \end{lemma}
 \begin{proof}
-Consider the event that every label stops at the node where its record is
-stored, and that the sampled coordinates satisfy all the in-node
-constraints. Conditional on the chosen stopping nodes, the coordinates
-are independent and uniform, so the probability of satisfying the
-constraints is $Z$.
+On the fixed state tree, start at the root and enter each existing child
+$c$ with probability $w(c)$. With the remaining probability, stop and
+choose a uniform coordinate in $(0,1)$ at the current node. The stopping
+probability is at least $1/2$, and the finite tree ensures termination.
 
-The stopping probabilities contribute at least $2^{-n}$. Since records
-only move downward, their required paths, counted separately for each
-label, contain exactly the edge traversals made by refinements. The child
-choices therefore contribute $\prod_r w(m_r)$. The event has probability
-at least
-\[
-Z\,2^{-n}\prod_r w(m_r)=Z\,2^{-n-\sum_r\ell(m_r)}.
-\]
-By Proposition~\ref{prop:legality}, the event produces an order consistent
-with the transcript. The unique such order has probability $1/n!$ in the
-random experiment. Comparing these probabilities and taking logarithms
-proves \eqref{eq:terminal}.
+Draw one such position independently for every label. The state tree
+orders these positions by comparing free coordinates and child anchors,
+then ordering positions within a child recursively. Ties have probability
+zero. All labels have the same distribution, so each of the $n!$ relative
+orders has probability $1/n!$.
+
+Consider the event that every label stops at its actual storage node
+and the coordinates satisfy all in-node constraints. The required paths
+have probability $Q$, and stopping at their endpoints contributes at least
+$2^{-n}$. Conditional on these choices, the coordinates are independent
+and uniform, so the probability of satisfying the constraints is $Z$.
+Every order produced by this event is represented by the state. Its
+probability is therefore at most $N_{\rm ord}/n!$, proving the lemma.
 \end{proof}
 
-\subsection{The guarantees needed from refinement}\label{sec:refinement-cost}
+Define the cost of choosing a child by
+\begin{equation}\label{eq:child-cost}
+\ell(c)=-\log w(c).
+\end{equation}
+Records only move downward. Their current paths therefore contain
+exactly the edge traversals made during refinement, counted once for
+each moved item. Consequently
+\begin{equation}\label{eq:total-child-cost}
+-\log Q=\sum_{\text{refinements }r}\ell(c_r).
+\end{equation}
+\subsection{One bound for the cost of refinement}\label{sec:refinement-cost}
 
-We now compare each child-choice cost with the corresponding volume gain.
-The required bounds distinguish the three reasons for moving an item in
-Algorithm~\ref{alg:compare}. Choose the path threshold
+We now choose the child weights so that their costs can be compared
+with the volume changes caused by refinement. For an anchor $c$ at depth
+$m$ in the implicit anchor tree, set
+\begin{equation}\label{eq:child-weight}
+w(c)=\frac1{2k}\left(\frac{1-1/k}{2}\right)^m.
+\end{equation}
+There are $2^m$ anchors at depth $m$, so their total weight is
+\[
+\sum_c w(c)=\frac1{2k}\sum_{m\ge0}(1-1/k)^m=\frac12.
+\]
+In particular, the existing children at any node satisfy the weight
+condition of Lemma~\ref{lem:packing}. The cost is
+\begin{equation}\label{eq:anchor-cost}
+\ell(c)=\gamma m+\log k+1,
+\qquad \gamma=1-\log(1-1/k).
+\end{equation}
+
+The anchor routine will provide the following guarantee. It says that
+choosing a child costs approximately the volume gained by fixing the
+parent coordinate, with an additive term of order $\log k$.
+
+\begin{lemma}[Cost and volume change of a refinement]\label{lem:refinement-cost}
+There are coefficients $a=1+O(1/k)$ and $b=O(\log k)$, with
+$a\ge1$ and $1\le b<k+1$, such that every refinement satisfies
+\begin{equation}\label{eq:affine-cost}
+g\ge-4,\qquad \ell(c)\le ag+b.
+\end{equation}
+If the refined coordinate is narrow, its gain also satisfies $g>k$.
+\end{lemma}
+
+Section~\ref{sec:refinement-guarantee} proves the lemma;
+Appendix~\ref{app:constants} gives explicit choices of $a$ and $b$.
+The additive term can be absorbed when a refinement has a large gain,
+or when a batch has a large total child cost. The path rule supplies
+the latter. Choose
 \begin{equation}\label{eq:path-threshold}
 H=2^k.
 \end{equation}
-Outside a path batch, the algorithm refines a queried item because its
-vertex has degree $k$ or its coordinate is narrow. When both hold, count
-it as a degree refinement. Set
-\begin{equation}\label{eq:charge-coefficient}
-\lambda=1+\frac{\log k+10}{k}.
-\end{equation}
-The following lemma controls the cost of each kind of refinement using
-its volume gain. Degree refinements receive an additional allowance.
 
-\begin{lemma}[Cost of refinement]\label{lem:refinement-cost}
-A degree refinement with anchor depth $m$ and volume gain $g$ satisfies
-\[
-\ell(m)\le\lambda g+\log k+6.
-\]
-A narrow refinement satisfies $\ell(m)\le\lambda g$.
-For a complete path batch with depths $m_i$ and gains $g_i$,
-\[
-\sum_{i=1}^H\ell(m_i)\le\lambda\sum_{i=1}^H g_i.
-\]
+\begin{lemma}[Distinct children for a path]\label{lem:path-address}
+The labels of a complete path batch enter distinct children of their
+parent in the adversary's tree.
 \end{lemma}
 
-Section~\ref{sec:refinement-guarantee} proves this lemma. Narrow refinements
-supply a large individual gain, and complete path batches supply a large
-average gain. These gains cover their child-choice costs. Degree
-refinements may need the extra allowance, which we charge to earlier
-comparisons in the proof below.
+Section~\ref{sec:path-resolutions} proves this property using the order
+already determined along the selected path.
 
 \subsection{The comparison bound}\label{sec:comparison-cost}
 
-\begin{proof}[Proof of Theorem~\ref{thm:fixed-stage}]
+\begin{proof}[Comparison bound from the refinement guarantee]
 Proposition~\ref{prop:legality} gives consistency and termination of every
 call. The procedures and their tie rules are deterministic.
-Suppose the sorter finishes after $q$ comparisons, and write $j=\log k$.
-Correctness requires its terminating transcript to determine a unique
-total order, so Lemma~\ref{lem:packing} applies.
+We first explain how each refinement rule accounts for the additive term
+in \eqref{eq:affine-cost}.
 
-There are at most $q/k$ degree refinements: each deletes $k$ in-node arcs,
-each comparison inserts at most one arc, and an inserted arc can be deleted
-only once. Apply Lemma~\ref{lem:refinement-cost} to these refinements, the
-remaining individual refinements, and the complete path batches. This gives
-\begin{equation}\label{eq:refinement-total}
-\sum_r\ell(m_r)\le\lambda\sum_r g_r+\frac{j+6}{k}\,q.
+\emph{Narrow coordinates.}
+Since $g>k$, a narrow refinement satisfies
+\[
+\ell(c)\le ag+b\le(a+b/k)g.
+\]
+
+\emph{Complete path batches.}
+Write $L=\sum_i\ell(c_i)$ and $G=\sum_i g_i$ for a batch of $H$ moves.
+Its children are distinct by Lemma~\ref{lem:path-address}. Their weights
+sum to at most $1/2$, so the arithmetic--geometric mean inequality gives
+\[
+\prod_{i=1}^H w(c_i)\le\left(\frac1{2H}\right)^H,
+\qquad L\ge H\log(2H)=H(k+1).
+\]
+Summing \eqref{eq:affine-cost} and substituting $H\le L/(k+1)$ gives
+\[
+L\le aG+bH\le aG+\frac{b}{k+1}L.
+\]
+Thus $L\le\lambda G$, where
+\begin{equation}\label{eq:charge-coefficient}
+\lambda=\frac{a}{1-b/(k+1)}=1+O(\log k/k).
 \end{equation}
+The assumptions $a,b\ge1$ give
+\[
+\lambda-a=\frac{ab}{k+1-b}\ge\frac bk,
+\]
+so the same factor $\lambda$ also covers narrow refinements.
+
+\emph{Degree refinements.}
+Outside a path batch, count a refinement as a degree refinement whenever
+its vertex has degree $k$, including when its coordinate is also narrow.
+The bound $g\ge-4$ gives
+\begin{equation}\label{eq:degree-allowance}
+\ell(c)\le\lambda g+\sigma,
+\qquad \sigma=b+4(\lambda-a)=O(\log k).
+\end{equation}
+After $q$ comparisons, there have been at most $q/k$ degree refinements:
+each deletes $k$ in-node arcs, each comparison inserts at most one arc,
+and an inserted arc can be deleted only once. Hence the total refinement
+cost satisfies
+\begin{equation}\label{eq:refinement-total}
+\sum_r\ell(c_r)\le\lambda\sum_r g_r+\frac\sigma k\,q.
+\end{equation}
+
 Each comparison decreases $\log Z$ by at most $a_\eta$, while a refinement
 changes it by $g_r$. Since initially $Z=1$,
 \[
 \sum_r g_r\le\log Z+a_\eta q.
 \]
-Substitute this into \eqref{eq:refinement-total} and then into the terminal
-bound \eqref{eq:terminal}:
+Combining this with the remaining-order bound \eqref{eq:remaining-orders}
+and \eqref{eq:total-child-cost} gives
 \begin{equation}\label{eq:comparison-total}
-\log(n!)\le n+(\lambda-1)\log Z
-              +\left(\lambda a_\eta+\frac{j+6}{k}\right)q.
+\log N_{\rm ord}\ge\log(n!)-n+(1-\lambda)\log Z
+                 -\left(\lambda a_\eta+\frac\sigma k\right)q.
 \end{equation}
-The term $(\lambda-1)\log Z$ is nonpositive. Moreover,
-\begin{align}
-\lambda a_\eta+\frac{j+6}{k}
-&\le1+\frac{2j+33/2}{k}+\frac{j+10}{2k^2}\nonumber\\
-&\le1+\frac{2j+17}{k},\label{eq:comparison-charge}
-\end{align}
-where the last inequality uses $j+10\le k$.
-Finally,
+Here $(1-\lambda)\log Z\ge0$, and
 \[
-\log(n!)\ge\int_1^n\log x\,dx
-=n\log n-\frac{n}{\ln2}+\frac1{\ln2}.
+\lambda a_\eta+\frac\sigma k=1+O(\log k/k).
 \]
-Combining this estimate with \eqref{eq:comparison-total},
-\eqref{eq:comparison-charge}, and $1+1/\ln2<3$ proves
-\eqref{eq:exact-bound}.
+Thus many orders remain until nearly $\log(n!)$ comparisons have been
+made. At termination $N_{\rm ord}=1$, giving
+\[
+q\ge\frac{\log(n!)-n}{1+O(\log k/k)}.
+\]
+Appendix~\ref{app:constants} verifies that the explicit choices of $a,b$
+give $\lambda a_\eta+\sigma/k\le1+(2\log k+17)/k$.
+Together with $\log(n!)-n\ge n\log n-3n$, this proves
+Theorem~\ref{thm:fixed-stage}.
 \end{proof}
 
 The next section proves the refinement and consistency guarantees used above.

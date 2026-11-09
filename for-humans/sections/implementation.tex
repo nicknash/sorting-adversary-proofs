@@ -29,10 +29,9 @@ that tree has at most $P+1$ nodes. The $n$ item records are distributed
 among these nodes, and each in-node DAG has degree at most $k$.
 The algorithm stores this tree, its records, and its in-node DAGs.
 
-We store an anchor by its path in the implicit anchor tree. A path of
-length $m$ gives its interval and position by $m$ halvings of $[0,1]$;
-the position has $m+1$ fractional binary digits. Anchor comparisons use
-these exact numerical positions.
+We store an anchor as an exact dyadic fraction. An anchor of depth $m$
+has $m+1$ fractional binary digits. Comparisons between anchors use
+these exact values.
 
 For a wide item, Lemma~\ref{lem:median-search} bounds its anchor precision
 by a function of $k$ alone. We may use
@@ -52,7 +51,7 @@ no digits. After $P$ refinements,
 \subsection{An explicit budget for the finite calculations}\label{sec:parameter-selection}
 
 Use the parameter choices in \eqref{eq:estimator-coupling-parameters}
-for the finite approximation theorem. Write $S_k$ for its number of digit choices, $t_k$ for
+for the local enclosure theorem. Write $S_k$ for its number of digit choices, $t_k$ for
 the number of sweeps, and $b_k$ for the bound on retained vertices in
 \eqref{eq:local-size}. The number of digit sequences in any one calculation
 is at most
@@ -78,24 +77,27 @@ some finite time $T(k)$. Once $n\ge\max\{T(k),E_k\}$, that tuple is
 available and meets the budget. Hence the chosen $k(n)$ tends to infinity.
 
 The budget controls both the number and the size of the computations.
-There are at most $n$ digit sequences per estimate or marginal calculation.
-Each sequence has at most $b_k t_k\le\log n$ updates, and these updates
-add at most $b_k t_k\log S_k=\log E_k\le\log n$ fractional bits.
-Tallies have at most $\log n+1$ bits. A marginal calculation stores at
-most $n$ final values; sorting this list gives the two quartiles.
+There are at most $n$ digit sequences per certificate calculation.
+Each sequence uses two endpoint calculations, each with at most
+$b_k t_k\le\log n$ updates. Each calculation adds at most
+$b_k t_k\log S_k=\log E_k\le\log n$ fractional bits.
+The frozen boundary requires no updates. Tallies have at most
+$\log n+1$ bits. A central-interval calculation stores at most $n$
+intervals, sorts their endpoints, and checks the three certificate counts.
 
 The constants in \eqref{eq:local-radius} also give
 $K_0(k)\le\log E_k$: here $M=B$, and the chosen number of sweeps exceeds
 $\ceil{\log(8(B+1)R/\eta)}$, which is larger than $K_0(k)$.
 Thus \eqref{eq:refinement-runtime} and \eqref{eq:precision} give
 $\Lambda=O(n^3)$. Every update uses exact arithmetic on polynomially many
-bits. The shortest-fraction walk takes at most the bit length of an
-available candidate: the midpoint in the narrow case, or either empirical
-quartile in the wide case. Its comparisons therefore also have polynomial
-bit cost.
+bits. The shortest-fraction search examines at most the fractional bit length
+of an available candidate: the midpoint in the narrow case, or an endpoint
+of the certified central interval in the wide case. Its integer arithmetic
+therefore also has polynomial bit cost.
 
 A comparison call makes at most $n$ refinements, each requiring at most
-one marginal calculation, followed by at most one probability estimate.
+one central-interval calculation, followed by at most one call to
+\texttt{Certify}.
 Routing queries, computing effective endpoints, and testing reachability
 use polynomial time in the stored state. Directed-path lengths are
 computed in reverse topological order; if $H>n$, no path can require

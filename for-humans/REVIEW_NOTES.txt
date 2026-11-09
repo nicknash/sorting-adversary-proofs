@@ -778,3 +778,80 @@ All 20 archive members match saved sources. The title, abstract,
 disclosure, Sections 2 and 3, and existing figures are unchanged; Section 1
 changes only the technical roadmap. The current revision has not replaced
 the Hexagon deposit.
+
+
+Certified enclosing intervals and remaining-order counts -- 9 November 2026
+-----------------------------------------------------------------------
+Source: the latest completed assistant message in Simplify Paper Arguments,
+turn 8917a1be-2535-455c-b6a2-4a85f6f52e6b,
+message 99bdab8a-1ad5-5497-bf15-7b7dddad0698. Retrieved through the connected
+chat reader. The proposal addresses revision df52b7e7f34cbac5389a266ef1c5033fff7c9cf4.
+The linked eleven-page PDF and source archive were not downloaded. The
+arguments were developed in the existing manuscript and independently
+reviewed. The accepted implicit-anchor-tree explanation and figures are
+retained; the probabilistic anchor-selection walk is removed from counting.
+
+The algorithm now runs each finite digit sequence on lower and upper
+endpoint configurations. It freezes the outer ring of the retained
+neighborhood and updates interior vertices in the restriction of the full
+DAG's topological order. Monotonicity encloses a full feasible assignment
+exactly, including when its boundary and omitted coordinates move. Uniform
+initialization and invariant updates give the exact probabilistic meaning.
+The contraction argument now bounds endpoint widths. Radius ht+1 keeps all
+updates needed by that argument inside the frozen shell. The enumeration
+budget is recomputed with this radius; two tracks share each digit sequence
+and retain the same per-track precision bound.
+
+Certify returns the two fractions of entries with disjoint intervals.
+They are exact lower bounds on answer probabilities; unresolved entries
+have total fraction at most 2 eta (the proof actually gives eta for a pair).
+CentralInterval uses the first quartile of upper endpoints and the third
+quartile of lower endpoints, and counts intervals wholly inside. The three
+certified masses are at least one quarter. The proof handles repeated
+endpoints directly and derives strict interiority of the returned interval.
+The approximate-CDF interface and empirical-quantile transfer disappear.
+
+The wide-anchor proof now combines these masses with the central-density
+bound and the shortest-anchor interval containment. The density bound has
+a short direct log-concavity proof by integrating
+f(s)f(t) <= f(c)f(s+t-c) for s<=c<=t. This removes the inverse-CDF profile,
+limiting chords, and Bobkov citation. Prekopa's marginal theorem remains.
+Narrow anchors and their one-bit precision increase are unchanged.
+
+The remaining-order lemma states N_ord >= n! 2^-n ZQ for every state.
+Weights are defined directly and sum to one half. AM-GM gives average cost
+at least log(2H) for a complete path batch, replacing the anchor-depth sum.
+One affine guarantee ell<=a g+b, together with g>=-4 and narrow gain g>k,
+explains all three triggers. The main comparison proof uses asymptotic
+coefficients. Appendix C verifies the exact +17 with
+ a=1+5/(2(k-1)), b=4a+log2(k)+1,
+ lambda=a/(1-b/(k+1)), sigma=b+4(lambda-a).
+A coarser slope from the preceding revision would not preserve its old
+intermediate lambda under AM-GM at k64; the sharper coefficient above does.
+The final k64 comparison slack is exactly 293/868352, and the appendix
+proves the inequality for every power of two k>=64.
+
+Independent reviews checked the enclosure and contraction proofs, frozen
+boundaries, full-graph order, digit multiplicities, exact probability
+bounds, central ranks and ties, conditional density, all signed-gain
+inequalities, remaining-order counting, and the uniform bit budget.
+All current checks pass: 5,869 exact accounting diagnostics; 97 probability
+inequalities against independent small polytope volumes; eight identities
+checking that volume enumerator; and 12,288 enclosure checks after atomic
+full-graph updates. The tests include genuine truncation, 512 runs with
+moving boundary and omitted vertices, repeated endpoints, central
+certificates for nonuniform marginals, and negative controls for unfrozen
+boundaries and insufficient sweeps. The existing invariant-moment,
+shortest-anchor, narrow-precision, finite-chain, certainty, and section
+checks also pass. Obsolete approximate-CDF diagnostics were removed from
+the current digit-update checker. These are finite diagnostics; the
+manuscript supplies the general proofs. The related earlier Lean
+formalization is unchanged.
+
+Both the repository and desktop editor compilers pass with no final
+warnings or unresolved references. The PDF remains 31 pages. The affected
+main-text and appendix pages were visually reviewed. All 23 members of
+the prepared source archive match the saved files. The title, abstract,
+disclosure, related work, and existing figures are unchanged. Sections 1
+and 3 change only for the new interfaces and roadmap. This revision has
+not replaced the Hexagon deposit.
