@@ -87,6 +87,18 @@ failure probability $O(\log n/n^3)$, even for adaptive queries. These
 accuracy requirements preserve polynomial time. Every run remains legal,
 including when an estimate fails, because only feasible answers are offered.
 
+\paragraph{Deterministic adversaries from graph entropy.}
+Kahn and Kim~\cite{kahn-kim} already give a deterministic polynomial-time
+adversary for sorting with partial information. Starting from any given
+partial order $P$, it answers comparisons online and forces
+$\Omega(\log e(P))$ comparisons. Their method uses graph entropy and
+convex optimization via the ellipsoid method. For ordinary sorting, the
+initial partial order has no relations, so $e(P)=n!$ and their guarantee
+is $\Omega(n\log n)$. Thus deterministic polynomial-time adversaries are
+available even for arbitrary initial partial information. The remaining
+question for ordinary sorting is whether such an adversary can force
+$(1-o(1))n\log n$ comparisons.
+
 The issue is therefore \emph{derandomization}: obtain the optimal
 asymptotic comparison bound with a single deterministic response rule whose
 work per comparison is polynomial in $n$. Kaplan, Zamir, and

@@ -4,11 +4,11 @@
   "argument": "unit-interval adversary with a single repair potential",
   "source_pdf_sha256": "3f83f2dc85d014f502c559961e5f49f4cf923bf3b8708a57c4941b8438bbdc41",
   "source_zip_sha256": "d66ddee35fef71a974c96fda7aa2c9e1701a7b3d6134c20199ddd8f635a92ddc",
-  "local_pdf_sha256": "ff8e9b76496da1d871c0b3c526e0280edcb5bb90526b6618a458b1e7a8c5d1d5",
-  "prepared_zip_sha256": "0e50f42d551e1c1249e49f49826c4edb60efe4d8075911bf331b63ffc10de381",
+  "local_pdf_sha256": "94a94f70ab732ed4f6dfb47b067ee4a5365766de2e6d0644400758e34f47da2f",
+  "prepared_zip_sha256": "63640b7b6da116f352eb0fab2ba72015669b21aaf014d3a4a93a3a6d1cd18cc7",
   "previous_hexagon_submission": "hexagon:2611.00196",
   "previous_submission_metadata": "submission.json",
   "formalization": "Related earlier integer-colour construction; this continuous presentation is not formally verified.",
-  "exposition": "Explains the derandomization problem, randomized baselines, and the KZZ open question; introduces the tree and stored comparisons before their use, with worked examples and expanded proofs",
+  "exposition": "Explains derandomization at the optimal asymptotic bound, randomized baselines, Kahn-Kim graph-entropy adversaries, and the KZZ open question; introduces the tree and stored comparisons before their use, with worked examples and expanded proofs",
   "pages": 31
 }
