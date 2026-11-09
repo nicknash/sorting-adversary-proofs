@@ -1,14 +1,14 @@
 {
-  "date": "2026-11-08",
+  "date": "2026-11-09",
   "status": "not_submitted",
   "argument": "unit-interval adversary with a single repair potential",
   "source_pdf_sha256": "3f83f2dc85d014f502c559961e5f49f4cf923bf3b8708a57c4941b8438bbdc41",
   "source_zip_sha256": "d66ddee35fef71a974c96fda7aa2c9e1701a7b3d6134c20199ddd8f635a92ddc",
-  "local_pdf_sha256": "9cad2ecf77253f3ba76c4429637315eb176f419e7c68f26dba71702d6950fbc9",
-  "prepared_zip_sha256": "90fc9ab4ea50b787284582b2c716edac3419eadce917034801cadbe89df174d1",
+  "local_pdf_sha256": "ff8e9b76496da1d871c0b3c526e0280edcb5bb90526b6618a458b1e7a8c5d1d5",
+  "prepared_zip_sha256": "0e50f42d551e1c1249e49f49826c4edb60efe4d8075911bf331b63ffc10de381",
   "previous_hexagon_submission": "hexagon:2611.00196",
   "previous_submission_metadata": "submission.json",
   "formalization": "Related earlier integer-colour construction; this continuous presentation is not formally verified.",
-  "exposition": "Motivated construction, worked examples, derived potential, and expanded geometric and locality proofs",
-  "pages": 29
+  "exposition": "Explains the derandomization problem, randomized baselines, and the KZZ open question; introduces the tree and stored comparisons before their use, with worked examples and expanded proofs",
+  "pages": 31
 }

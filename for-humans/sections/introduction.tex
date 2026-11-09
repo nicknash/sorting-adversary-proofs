@@ -1,26 +1,98 @@
 \section{Introduction}\label{sec:classical}
 
-A sorting adversary answers comparisons while keeping the final order
-undetermined for as long as possible. The ideal rule is simple. Among the
-$n!$ orders of the labels, keep those consistent with the answers so far.
-Each new comparison divides them into two classes; retain a larger class.
-After $q$ comparisons at least $n!/2^q$ orders remain, so a correct sorter
-cannot finish before $q\ge\log_2(n!)$.
+We consider comparison sorting of $n$ distinct labelled keys. A sorter
+chooses each pair using the answers to its earlier comparisons and must be
+correct for every strict total order on the labels. A sorting adversary
+supplies those answers as the comparisons arrive. It is \emph{legal} if
+every finite sequence of its answers is consistent with at least one total
+order. The adversary knows $n$ and sees the comparisons, but need not inspect
+the sorter that generates them. Throughout, $\log$ denotes $\log_2$, and
+$\ln$ the natural logarithm; we assume $n\ge2$.
 
-The difficulty is to carry out this rule efficiently. An order consistent
-with the known comparisons is called a \emph{linear extension} of their
-partial order. Counting these extensions exactly is a
-$\#\mathrm P$-complete problem~\cite{brightwell}. We seek an efficient
-adversary that retains the ideal rule's leading constant without performing
-this global count.
+The classical sorting lower bound guarantees the existence of a hard input
+for every correct sorter. Here the problem is to produce hard answers by
+one \emph{deterministic, polynomial-time} procedure. The polynomial bound
+applies to the adversary's computation; the comparison lower bound applies
+to the sorter. Without the time restriction, a deterministic optimal
+adversary is immediate. With randomness, polynomial-time adversaries achieve
+the optimal asymptotic bound in expectation and with high probability.
 
-We consider $n$ distinct labelled keys. A sorting algorithm chooses each pair using the answers to its earlier
-comparisons, and must be correct for every strict total order on the labels.
-An adversary is \emph{legal} if every finite sequence of its answers is
-consistent with at least one such order. It sees the requested comparisons,
-but need not know the sorting algorithm that generates them.
-Throughout the paper, $\log$ denotes $\log_2$, and $\ln$ the natural
-logarithm. The cases $n\le1$ are immediate; we assume $n\ge2$.
+\paragraph{Without the time restriction.}
+Keep all total orders consistent with the answers so far. Each comparison
+partitions them into two classes; answer so as to retain a larger class.
+After $q$ comparisons, at least $n!/2^q$ orders remain, forcing
+$q\ge\log(n!)$. This rule is deterministic, but enumerating its classes
+may require factorial work. A consistent total order is a \emph{linear
+extension} of the partial order given by the answered comparisons; counting
+these extensions exactly is $\#\mathrm P$-complete~\cite{brightwell}.
+
+\paragraph{With randomness.}
+An efficient adversary can simply choose a uniformly random permutation
+of the labels, keep it hidden, and answer from the ranks in that permutation.
+For every fixed correct sorter, the usual comparison-tree argument gives
+an expected cost of at least $\log(n!)$. It also gives a high-probability
+bound. At most $2^q$ permutations can terminate at leaves of depth at most
+an integer $q$, so the comparison count $C$ satisfies
+\[
+\Prb(C\le q)\le\frac{2^q}{n!}.
+\]
+Thus $C\ge\log(n!)-O(\log n)$ with probability $1-o(1)$.
+Generating an exactly uniform permutation takes expected polynomial bit
+time; subsequent answers require only rank lookups. A fixed polynomial
+time bound is obtained by using an almost uniform permutation, with a
+vanishing additional failure probability. These guarantees also hold for
+an always-correct randomized sorter whose random bits are independent of the adversary's:
+condition on the sorter's random choices and apply the same argument.
+
+Fixing one permutation in advance does not give a deterministic adversary
+with the required universal guarantee. For any prescribed permutation,
+a correct sorter can first check its $n-1$ consecutive pairs, finish if all
+checks agree, and otherwise use a general sorting algorithm. That
+permutation then costs only $n-1$ comparisons. The deterministic adversary
+must choose its answers in response to the questions it receives.
+
+\paragraph{Randomized approximation of the larger-class rule.}
+Randomization also makes it possible to approximate the global counts
+used by the deterministic rule above. Given the current partial order $P$,
+assign each label a real coordinate in $(0,1)$ and form the region
+\[
+K(P)=\{X\in(0,1)^n:X_i<X_j\text{ whenever }i<_Pj\}.
+\]
+Each allowed total order occupies volume $1/n!$ in the unit cube. Hence
+$\vol(K(P))=e(P)/n!$, where $e(P)$ is the number of linear extensions of
+$P$~\cite{stanley}. The two possible answers to a comparison cut this
+region into two parts, and their volumes are proportional to their counts
+of allowed orders.
+
+Dyer, Frieze, and Kannan~\cite{dfk} give a randomized polynomial-time
+algorithm for relative volume approximation and explicitly note its
+application to linear extensions. To use it here, first check whether the
+queried relation is already forced by $P$. If so, return it directly.
+Otherwise both directions are feasible and give positive-volume regions.
+Estimate their volumes and choose the larger estimate. When both estimates
+have relative error at most $\varepsilon$, the chosen part retains at least
+$(1-\varepsilon)/2$ of the current volume. The counting argument then forces
+\[
+q\ge\frac{\log(n!)}{1-\log(1-\varepsilon)}
+=(1-O(\varepsilon))\log(n!)
+\]
+comparisons. Taking $\varepsilon=1/\ceil{\log(n+1)}$ gives $n\log n-O(n)$.
+
+For a high-probability guarantee, allow
+$Q=2n\ceil{\log(n+1)}$ queries before fixing a consistent order.
+Amplify each volume estimate to failure probability at most $n^{-4}$.
+Each call uses fresh randomness, so this bound holds conditional on the
+preceding history. A union bound over at most $2Q$ estimates gives total
+failure probability $O(\log n/n^3)$, even for adaptive queries. These
+accuracy requirements preserve polynomial time. Every run remains legal,
+including when an estimate fails, because only feasible answers are offered.
+
+The issue is therefore \emph{derandomization}: obtain the optimal
+asymptotic comparison bound with a single deterministic response rule whose
+work per comparison is polynomial in $n$. Kaplan, Zamir, and
+Zwick~\cite[Section~7]{kzz-min} explicitly ask for an adversary forcing
+$(1-o(1))n\log n$ comparisons in their SODA~2015 paper. Our main theorem
+answers this question.
 
 \begin{theorem}\label{thm:main}
 There is a deterministic legal adversary, initialized using only $n$, that
@@ -29,13 +101,17 @@ forces every correct comparison sorter to make
 \[
 (1-o(1))n\log n
 \]
-comparisons. The term $o(1)$ tends to zero as $n\to\infty$.
+comparisons.
 \end{theorem}
 
-Merge sort uses at most $n\ceil{\log n}$ comparisons, so the leading
-coefficient is optimal. Our construction is asymptotic: its parameter
-choice establishes a uniform polynomial bound, but is not intended for
-practical running times.
+Merge sort uses at most $n\ceil{\log n}$ comparisons, so this bound is
+asymptotically optimal. The theorem derandomizes the adversary problem;
+it does not give a deterministic polynomial-time algorithm for approximating
+arbitrary convex volumes or counting arbitrary linear extensions.
+Instead, the adversary maintains a restricted recursive representation of
+the remaining orders, on which the necessary calculations are deterministic.
+Its running-time guarantee is asymptotic, with very large parameter
+thresholds; it is not intended as a practical implementation.
 
 \subsection{From binary trees to retained comparisons}
 
@@ -62,7 +138,8 @@ left-to-right order, without moving either item.
 Each comparison increases the sum of item depths by at most two.
 At completion, occupied nodes must be distinct and unrelated by ancestry:
 otherwise two represented items can occur in either relative order, leaving
-an unresolved comparison. Each left or right step selects the corresponding half of an interval.
+an unresolved comparison. Associate the root with $(0,1)$, and associate
+each child with the corresponding half of its parent's interval.
 A node of depth $d_i$ therefore represents an interval of length $2^{-d_i}$.
 At completion these intervals are disjoint, giving
 \[
@@ -77,8 +154,10 @@ necessary~\cite[Section~4.1]{brodal}.
 The tree makes the state easy to maintain, but commits to some relations
 that have never been queried. After answers $A<B$ and $C<D$ at the same
 node, for example, it may place $A,C$ in the left child and $B,D$ in the
-right. This also fixes $A<D$ and $C<B$. Figure~\ref{fig:retained}
-contrasts this separation with retaining just the two inequalities.
+right. This also fixes $A<D$ and $C<B$. An alternative is to leave all
+four items together and record just the two answers as directed arrows
+$A\to B$ and $C\to D$, each arrow standing for its answered comparison.
+Figure~\ref{fig:retained} shows these two ways of storing the same answers.
 
 \begin{figure}[htbp]
 \centering
@@ -114,54 +193,77 @@ arrow shows how a subsequent answer $A<C$ can be stored in the same group.}
 \label{fig:retained}
 \end{figure}
 
-Kaplan, Zamir, and Zwick~\cite{kzz} improved the leading coefficient to
-$37/64$. Our construction retains the ordered-tree representation and lets
-each node store a directed graph of comparisons. An item moves to a child
-only when that graph must be simplified or its coordinate must be prepared
-for a query.
+Kaplan, Zamir, and Zwick~\cite{kzz} subsequently gave an efficient
+deterministic adversary that forces every correct comparison sorter to make
+at least $\frac{37}{64}n\log n$ comparisons. Their SODA~2019 result improves
+on the earlier $\frac12 n\log n$ bound, but leaves a gap to the
+$(1-o(1))n\log n$ bound asked for in their earlier paper.
 
 \subsection{How the new adversary postpones separation}
 
-The purpose of keeping a graph within a node is to answer a comparison
-without immediately separating its endpoints into different subtrees.
-Associate each item in a group with a variable position in $(0,1)$.
-A stored arrow $x\to y$ requires $X_x<X_y$. The assignments satisfying all
-these requirements form a region whose volume measures the choices still
-available in that group. The answer $x<y$ keeps one part of this region;
-the opposite answer keeps the other.
+Our adversary uses an ordered tree. At each node it stores a group of items
+and a directed graph whose vertices are those items. An arrow $x\to y$
+records an answered comparison $x<y$. Storing this arrow leaves both items
+in the same group, so the answer need not immediately place them in different
+subtrees. This is the alternative illustrated in Figure~\ref{fig:retained}.
+Initially all $n$ items are in the root group, with no arrows.
 
-If all items stayed in one group with unit intervals, its volume would be
-$e(P)/n!$, where $e(P)$ counts the orders allowed by the stored comparisons.
-Indeed, each of the $n!$ coordinate orders has volume $1/n!$ in the unit
-cube~\cite{stanley}. Choosing a larger-volume answer would then be exactly
-the ideal rule. The graph, however, could become too complicated to use.
+Each group has its own copy of $(0,1)$. An item $x$ stored at the node has
+a variable position $X_x$ in an interval $(a_x,b_x)\subseteq(0,1)$; initially
+all intervals are $(0,1)$. The arrow $x\to y$ imposes $X_x<X_y$.
+The intervals and arrows define the group's region of allowed assignments.
+As in $K(P)$ above, an answer retains the part of that region satisfying
+its inequality. The coordinates describe possible orders, not numerical
+values of the unknown keys.
 
-We control its complexity by limiting how many arrows meet an item and how
-many items occur on a directed path. Under these restrictions, the
-probability of a comparison can be estimated by keeping only nearby items,
-provided at least one queried coordinate has an interval of adequate width.
-If all queried coordinates have narrower intervals, the adversary first moves
-one into a child, where it receives a fresh unit interval. The estimate is obtained by exact calculation in that smaller region.
-An error of at most $\eta$ means that the chosen answer still keeps at least
-$1/2-\eta$ of the full group's volume.
+A child subtree represents a consecutive block of items in the final
+order. We place that block at a fixed parent position $c$, called its
+\emph{anchor}. Within the child, its items again have positions in $(0,1)$,
+which determine their order inside the block. Items still stored in the
+parent are called \emph{free} there: their positions remain variable,
+subject to the parent's intervals and arrows. Their order relative to the
+child is determined by comparing those positions with $c$.
 
-When the graph needs simplifying, the adversary fixes an item's position
-at a point $c$. Its comparisons with the other items become bounds saying
-which side of $c$ they occupy. The item then moves to a child at $c$, where
-it receives a fresh variable position. The fixed position locates the whole child block among the parent's other
-anchors. Comparing the block with a free parent item may still require a
-threshold comparison. The fresh child position leaves the moved item's
-order within the child unresolved. Several items may enter the same
-child, so refinement need not determine their mutual order.
+The operation that moves an item down the tree is called a
+\emph{refinement}. Choose a position $c$ strictly inside the range still
+possible for a free item $x$ and fix $X_x=c$. Replace each incident arrow by the resulting bound
+on its other endpoint: $y\to x$ becomes $X_y<c$, and $x\to z$ becomes
+$X_z>c$. Retain the parent's other bounds, remove $x$ and its incident
+arrows, and move $x$ into the child anchored at $c$. There it receives a
+fresh position in $(0,1)$, with no incident arrows. If that child already
+exists, $x$ joins its group; otherwise a new child is created. The legality
+proof shows that such an interior choice leaves $x$ unrelated, in the
+public comparison history, to every item already in that child. Thus several
+items can enter the same child without settling their order within it.
+The new bounds on the items left behind explain how intervals narrower
+than $(0,1)$ arise.
 
-There are two things to prove. First, the local calculations must be both
-accurate and efficient. Second, the extra choices discarded by refinement
-must not allow a sorter to finish too early. For the second part we place
-the recursive state in one common coordinate system and measure its volume.
-The resulting bound leads to a measure that starts at $n!$ and is at most
-$2^n$ when sorting finishes. We adjust that measure so that a complete repair never decreases it, while an answer
-reduces its logarithm by at most $1+o(1)$. The gap between the initial and
-final values then forces $n\log n-o(n\log n)$ comparisons.
+These moves keep the volume calculations tractable. We restrict the number
+of arrows incident to an item and the number of items on a directed path.
+When a comparison violates one of these bounds, prescribed refinements
+remove enough items and arrows to restore it.
+
+The probability calculation also requires at least one queried free
+coordinate to have an interval of width above a prescribed threshold.
+If the comparison involves free coordinates and none has sufficient width,
+the adversary first refines one of those items. Its fresh unit interval in
+the child supplies a wide coordinate, should the comparison need to be
+answered there. Section~\ref{sec:algorithm} gives the exact rules for
+locating the comparison after such a move.
+
+With these graph and width bounds, we can estimate a comparison probability
+by keeping a neighborhood of its queried items and calculating exactly in
+that smaller region. The radius depends on the bounds and required accuracy,
+independently of the group's total size. The calculation approximates the
+fraction of the \emph{full} group's volume supporting the answer. Choosing
+the answer with estimated probability at least $1/2$, with error at most
+$\eta$, retains at least $1/2-\eta$ of the full volume.
+
+Two claims require proof. The local calculations must be accurate and
+polynomial-time. Also, fixing positions can discard orders that satisfy
+all public answers, so we must show that these additional restrictions do
+not let the sorter finish too early. The geometric analysis below accounts
+for this loss and proves the stated comparison bound.
 
 Section~\ref{sec:algorithm} gives the state and the mechanical rules, including
 a small example of refinement and child reuse. Section~\ref{sec:legal} proves
