@@ -295,312 +295,213 @@ their minimum.
 
 
 
-\section{Local approximation of comparison probabilities}\label{app:local}
+\section{Accuracy of finite averaging}\label{app:local}
 
-We prove Theorem~\ref{thm:local} by running the same random coordinate
-updates on two feasible assignments: one in the full region and one in
-the retained region. Each assignment remains uniformly distributed in its
-own region. The shared random choices bring their values close together
-far from the retained boundary. We then use the density bound to show
-that close values usually give the same comparison answer.
+We prove Theorem~\ref{thm:local} by comparing the finite calculation with
+coordinate updates on the full feasible region $K$. First we use continuous
+uniform choices to show convergence from the lower endpoints. Then we bound
+the effect of replacing these choices by mesh values and of retaining only
+a neighborhood of the query. Throughout, $d,h,M,C,p,\delta,t,\rho,S$ have
+the meanings given in Section~\ref{sec:oracle}.
 
-The resulting bound establishes the accuracy of the deterministic volume
-calculation in Appendix~\ref{app:table}.
+\subsection{Comparing two sequences of coordinate updates}
 
-\subsection{Coupled coordinate updates}
-
-Choose independently an assignment $X$ uniformly from the full feasible
-region and an assignment $\widehat X$ uniformly from the retained region.
-We shall subsequently update them using shared random numbers. Specifying
-two random objects in a common experiment in this way is called a
-\emph{coupling}.
-
-A \emph{sweep} visits every vertex of the full graph once, in a fixed
-topological order; the retained graph uses the restriction of this order.
-Consider one assignment and condition on all its coordinates other than
-$X_x$. The only constraints still depending on $X_x$ are its interval
-and the inequalities imposed by arcs incident with $x$. Its available
-values form the interval
-$(a,b)$, where
+Start $X$ uniformly distributed on $K$. Conditional on all coordinates
+other than $X_x$, its possible values form the interval
 \[
-a=\max\{\ell_x,\ X_y:y\to x\},\qquad
-b=\min\{r_x,\ X_z:x\to z\}.
+\left(\max\bigl(\{\ell_x\}\cup\{X_u:u\to x\}\bigr),
+      \min\bigl(\{r_x\}\cup\{X_v:x\to v\}\bigr)\right).
 \]
-Because the joint density is constant on the feasible region, the
-conditional distribution of $X_x$ is uniform on this interval. Replace
-it by $(1-U_x)a+U_xb$, where $U_x$ is uniform on $(0,1)$. In the retained
-assignment, use the endpoints computed from $\widehat X$ and its retained
-arcs. Use independent $U_x$ at different vertices and in different
-sweeps, but share the same $U_x$ between the two assignments whenever
-$x$ is retained. Vertices outside the retained graph are updated only
-in the full assignment.
+The conditional density is constant. Replacing $X_x$ by a uniform point
+in this interval therefore preserves the uniform distribution on $K$.
+This holds after every individual update and hence after every sweep.
 
-An update replaces a coordinate by a fresh sample from its conditional
-distribution. For every fixed choice of the other coordinates, this leaves
-that conditional distribution unchanged; averaging over those choices
-therefore leaves the distribution of the entire assignment unchanged.
-Consequently $X$ remains uniform on the full region and $\widehat X$
-remains uniform on the retained region after every update. They need not
-remain independent, and no independence between them will be used.
+Start a second vector $Y$ at the tightened lower endpoints. Run both
+vectors on the full DAG in the same topological order, using the same
+fresh independent uniform number $U_x\in(0,1)$ at each update. This
+joint construction is a coupling of the two sequences. The vector $X$
+remains uniformly distributed on $K$, while $Y$ begins at a specified
+boundary point and approaches it under the shared updates.
 
-For a retained vertex, write $\Delta_x=|X_x-\widehat X_x|$. Within one
-sweep, superscripts ${\rm old}$ and ${\rm new}$ denote values before and
-after that vertex is visited. Every old value is also its value at the start
-of the sweep: updating another vertex does not change it. Thus the whole
-old discrepancy vector is independent of this sweep's fresh variables $U$.
-Whenever every incident arc is retained,
+Write $\Delta_x=|X_x-Y_x|$. Within a sweep, superscripts old and new mean
+the value at its start and after the coordinate's visit. Predecessors
+have already been updated, and successors retain their old values. The
+update rule therefore gives
 \begin{equation}\label{eq:coupling}
 \Delta_x^{\rm new}
-\le(1-U_x)\max_{y\to x}\Delta_y^{\rm new}
-  +U_x\max_{x\to z}\Delta_z^{\rm old}.
+\le(1-U_x)\max_{u\to x}\Delta_u^{\rm new}
+   +U_x\max_{x\to v}\Delta_v^{\rm old},
 \end{equation}
-Here and below an empty maximum is zero. To obtain this inequality,
-compare the two available lower endpoints: both include the same fixed
-bound $\ell_x$, so their difference is at most the largest discrepancy
-at an in-neighbor. The same argument for the upper endpoints uses the
-common bound $r_x$ and the out-neighbors. Multiplying by the shared
-coefficients $1-U_x$ and $U_x$ gives \eqref{eq:coupling}. Topological order explains the
-superscripts: every in-neighbor has already been visited in this sweep,
-whereas no out-neighbor has.
+where an empty maximum is zero. Indeed, the difference between the two
+lower endpoints is bounded by the largest predecessor discrepancy, and
+the difference between their upper endpoints by the largest successor
+discrepancy.
 
-We next expand the dependence on the new in-neighbor values until it
-reaches a fixed interval endpoint. Let $B_h(x)$ denote the vertices at
-undirected distance at most $h$ from $x$, suppose this ball is retained,
-and put
+Let $B_h(x)$ be the vertices within undirected distance $h$ of $x$.
+Starting at $x$, follow a predecessor attaining the maximum new discrepancy
+in \eqref{eq:coupling}, and repeat until reaching a source. This reverse
+path has $r\le h$ vertices. Every old successor value used along it
+belongs to $B_h(x)$. Put
 \[
-D=\max_{y\in B_h(x)}\Delta_y^{\rm old}.
+D=\max_{z\in B_h(x)}\Delta_z^{\rm old}.
 \]
-Starting with $z_0=x$, repeatedly choose an in-neighbor attaining the
-maximum new discrepancy in \eqref{eq:coupling}. Stop at a vertex with
-no in-neighbor. The resulting reverse directed path is
-$z_0,z_1,\ldots,z_{s-1}$, where $s\le h$ because the graph has height
-at most $h$. Write $a_i=1-U_{z_i}$.
+At the source, the shared fixed lower endpoint contributes zero discrepancy.
+Substituting \eqref{eq:coupling} backwards along the chosen path gives
+\[
+\Delta_x^{\rm new}\le
+\left(1-\prod_{i=1}^r(1-U_{z_i})\right)D.
+\]
 
-Every out-neighbor of $z_i$ is at distance at most $i+1\le h$ from $x$,
-so its old discrepancy is at most $D$. All incident arcs used here are
-retained for the same reason. Thus \eqref{eq:coupling} gives
-\[
-\Delta_{z_i}^{\rm new}
-\le a_i\Delta_{z_{i+1}}^{\rm new}+(1-a_i)D
-\quad(0\le i<s-1),
-\qquad
-\Delta_{z_{s-1}}^{\rm new}\le(1-a_{s-1})D.
-\]
-The last inequality has no in-neighbor term: the lower endpoint at that
-vertex is fixed and identical in the two regions. Substituting backwards
-along the path gives
-\[
-\Delta_x^{\rm new}
-\le\left(1-\prod_{i=0}^{s-1}a_i\right)D.
-\]
-Indeed, substituting a bound $(1-P)D$ for the next discrepancy changes
-the coefficient to $a_i(1-P)+(1-a_i)=1-a_iP$.
-
-Let $A_x$ be the minimum of the fresh values $1-U_y$ over $x$ and all
-its ancestors. Every $a_i\ge A_x$, and $s\le h$ with $0\le A_x\le1$,
-so $\prod_i a_i\ge A_x^s\ge A_x^h$. We have proved
+Let $A_x$ be the minimum of the fresh values $1-U_z$ over $x$ and all
+its ancestors. Each factor in this product is at least $A_x$, so
 \begin{equation}\label{eq:one-sweep}
 \Delta_x^{\rm new}\le
-(1-A_x^h)\max_{y\in B_h(x)}\Delta_y^{\rm old}.
+(1-A_x^h)\max_{z\in B_h(x)}\Delta_z^{\rm old}.
 \end{equation}
-The chosen path may depend on the current discrepancies and the fresh
-random numbers. Defining $A_x$ using all ancestors makes
-\eqref{eq:one-sweep} valid regardless of that choice.
+The maximizing path may depend on the fresh choices and discrepancies.
+Taking the minimum over the entire ancestor set makes the bound valid
+for every such path. Moreover, $A_x$ depends only on fresh choices and
+is independent of the discrepancy vector at the start of the sweep.
 
-\subsection{Moment contraction}
+\subsection{A contraction bound independent of graph size}
 
-The right side of \eqref{eq:one-sweep} involves up to a bounded number of
-old discrepancies. We use a sufficiently large power $p$ so that, after
-taking expectations, its random coefficient compensates for the number
-of possible old coordinates. The expectation $\E[\Delta_x^p]$ is called
-the $p$th moment of the discrepancy. Put
+Both the ancestor set and $B_h(x)$ have at most
+$M=(d+1)^{h+1}$ vertices. Set $a_0=1/(4M^2)$. A union bound gives
 \[
-M=(d+1)^{h+1},\qquad
-a=\frac1{4M^2},\qquad
-p=(4M^2)^{h+1}.
+\Prb(A_x<a_0)\le Ma_0=\frac1{4M}.
 \]
-Degree at most $d$ implies that $B_h(x)$ has at most
-$1+d+\cdots+d^h\le(d+1)^{h+1}=M$ vertices. Every ancestor of $x$ lies
-in this ball because any directed path has at most $h-1$ arcs. Thus at
-most $M$ fresh uniform random variables define $A_x$. A union bound gives
+On the complementary event, the choice $p=(4M^2)^{h+1}$ gives
 \[
-\Prb(A_x<a)\le Ma=\frac1{4M}.
-\]
-On the complementary event, Bernoulli's inequality gives
-\[
-(1-A_x^h)^p\le(1-a^h)^p
-\le\frac1{1+pa^h}
+(1-A_x^h)^p\le(1-a_0^h)^p
+\le\frac1{1+pa_0^h}
 =\frac1{1+4M^2}\le\frac1{4M}.
 \]
-Here we used $(1-z)^{-p}\ge1+pz$ for $0\le z<1$. On the exceptional
-event $A_x<a$, the quantity $(1-A_x^h)^p$ is at most one. Splitting the
-expectation over these two events therefore gives
-\[
-\E[(1-A_x^h)^p]
-\le\Prb(A_x<a)+\frac1{4M}\le\frac1{2M}.
-\]
-The fresh random variables defining $A_x$ are independent of all old
-discrepancies. Raising \eqref{eq:one-sweep} to the power $p$ and bounding
-the maximum by a sum therefore yields
+Here $(1-z)^{-p}\ge1+pz$ for $0\le z<1$ supplies the second inequality.
+Combining the two events yields
+$\E[(1-A_x^h)^p]\le1/(2M)$. Independence from the old discrepancies
+and \eqref{eq:one-sweep} now imply
 \begin{align}
 \E[(\Delta_x^{\rm new})^p]
-&\le\frac1{2M}\sum_{y\in B_h(x)}
-                         \E[(\Delta_y^{\rm old})^p]\nonumber\\
-&\le\frac12\max_{y\in B_h(x)}
-                         \E[(\Delta_y^{\rm old})^p].\label{eq:moment}
+&\le\frac1{2M}\sum_{z\in B_h(x)}
+                         \E[(\Delta_z^{\rm old})^p]\nonumber\\
+&\le\frac12\max_{z\in B_h(x)}
+                         \E[(\Delta_z^{\rm old})^p].\label{eq:moment}
 \end{align}
 
-\subsection{The retained radius}
-
-Choose
-\begin{gather*}
-C=M+1,\qquad \delta=\frac{\varepsilon}{16CR},\\
-\lambda=\ceil{\log(1/\delta)},\qquad
-\mu=\ceil{\log(8/\varepsilon)},\\
-t=p\lambda+\mu,\qquad \rho=ht.
-\end{gather*}
-The integers $\lambda,\mu,t,\rho$ are computable by rational arithmetic
-and comparisons with powers of two. The choices ensure
-$2^\lambda\ge1/\delta$ and $2^\mu\ge8/\varepsilon$.
-
-Fix a queried vertex $x_*$. Its radius-$\rho=ht$ ball is retained. One
-application of \eqref{eq:moment} needs information within distance $h$,
-so after each sweep we discard an outer layer of that thickness from
-the set of vertices at which we claim a bound. More precisely, after
-sweep $j$ consider vertices within distance $h(t-j)$ of $x_*$. Their
-$h$-balls lie within distance $h(t-j+1)$, where the preceding sweep's
-bound applies. Initially every discrepancy is at most one, since all
-coordinates lie in $(0,1)$. Applying \eqref{eq:moment} and induction
-on $j$ now gives
-\[
-\max_{x\in B_{h(t-j)}(x_*)}\E[\Delta_x(j)^p]\le2^{-j},
-\qquad 0\le j\le t.
-\]
-In particular, Markov's inequality gives
+Initially each discrepancy is at most one. Induction over sweeps gives
+$\E[\Delta_x(t)^p]\le2^{-t}$ for every vertex. Thus
 \begin{equation}\label{eq:coordinate-error}
-\Prb(\Delta_{x_*}(t)>\delta)
+\Prb(\Delta_x(t)>\delta)
 \le2^{-t}\delta^{-p}
-\le2^{-\mu}\le\varepsilon/8.
+\le2^{-\mu}\le\varepsilon/8,
 \end{equation}
-For two queried vertices, apply this estimate at each one.
+using $t=p\lambda+\mu$, $2^\lambda\ge1/\delta$, and
+$2^\mu\ge8/\varepsilon$. The estimate holds separately at each queried
+vertex, with constants independent of the total number of vertices.
 
-\subsection{Comparison probabilities}
+\subsection{Replacing continuous choices by mesh values}
 
-If the queried labels are comparable, their directed path has at most
-$h-1$ arcs and is retained because $\rho\ge h$. The full and local
-comparison probabilities are then the same, either zero or one.
+Round each uniform choice $U$ to the midpoint of its one of $S$ equal
+subintervals of $(0,1)$. The rounded choices are independent and uniform
+on $\mathcal U_S$, and differ from the original choices by at most
+$1/(2S)$. Run a third vector $\widehat Y$ from the same lower endpoints,
+using these rounded choices on the full graph.
 
-Otherwise the labels are incomparable. Let $x$ be a queried coordinate
-of width at least $1/R$. It has at most $M$ other comparable labels,
-so Corollary~\ref{cor:gap} bounds the probability that $X_x-X_y$ lies in
-any interval of length $L$ by $CRL$. Outside the two exceptional events
-in \eqref{eq:coordinate-error}, both
-$|X_x-\widehat X_x|\le\delta$ and $|X_y-\widehat X_y|\le\delta$.
-Hence the two differences $X_x-X_y$ and $\widehat X_x-\widehat X_y$
-are within $2\delta$ of each other. They can have different signs only if
+For a fixed current interval, changing the choice by at most $1/(2S)$
+changes the updated coordinate by at most $1/(2S)$. Allowing the two
+current intervals to differ as well, let $e_x=|Y_x-\widehat Y_x|$.
+Then
 \[
-|X_x-X_y|\le2\delta.
+e_x^{\rm new}\le
+\max\left\{\max_{u\to x}e_u^{\rm new},
+           \max_{x\to v}e_v^{\rm old}\right\}+\frac1{2S},
 \]
-The probability of this event in the full assignment is at most
-$4CR\delta=\varepsilon/4$. The exceptional events together have
-probability at most $\varepsilon/4$, so the signs disagree with probability
-at most $\varepsilon/2$. For a threshold comparison with a fixed number
-$c$, there is only one exceptional event. Outside it, different answers
-require $|X_x-c|\le\delta$, an interval of length $2\delta$ whose
-probability is at most $2CR\delta=\varepsilon/8$. Including the
-exceptional event gives a disagreement probability at most
-$\varepsilon/4$.
-
-For any two events in one random experiment,
-\[
-|\Prb(E)-\Prb(\widehat E)|
-\le\Prb(E\text{ and not }\widehat E)
-  +\Prb(\widehat E\text{ and not }E).
-\]
-Apply this to the two comparison answers after $t$ sweeps. Since each
-assignment is still uniform on its original region, these are exactly
-the full and retained probabilities in the theorem. The bounds just
-proved are both smaller than the required error $\varepsilon$.
-
-Finally, the retained region has positive volume: the restriction of a full
-strictly feasible assignment has a small feasible neighborhood. The union
-of radius-$\rho$ neighborhoods of two vertices has at most
-$2(d+1)^{\rho+1}$ vertices. This proves the approximation and size claims
-of Theorem~\ref{thm:local}.
-
-\section{Exact local volume}\label{app:table}
-
-Let the retained graph have $b$ coordinates. We compute its volume by
-partitioning its feasible assignments according to the order of the
-coordinates and their interval endpoints.
-
-\subsection{Enumeration of orders}
-
-Sort the distinct interval endpoints as
-\[
-e_1<e_2<\cdots<e_s,\qquad s\le2b.
-\]
-Enumerate the total orders of these endpoints and the $b$ labelled
-coordinates that preserve the endpoint order. Insert the coordinates
-successively into the ordered list. The $j$th insertion has $s+j$
-positions, so the number of orders is at most
-\[
-\prod_{j=1}^b(s+j)\le(3b)^b.
-\]
-Reject an order if it places a coordinate outside its interval or violates
-the inequality imposed by an arc. For an accepted order, let $r_j$ count
-the coordinates between $e_j$ and $e_{j+1}$. Their relative order is fixed. Permuting these
-coordinates partitions their cube into $r_j!$ equal-volume regions,
-apart from equalities of volume zero. The accepted order therefore has
-volume
-\begin{equation}\label{eq:interleaving-volume}
-\prod_{j=1}^{s-1}
-\frac{(e_{j+1}-e_j)^{r_j}}{r_j!}.
+with zero discrepancy at fixed endpoints. Expanding through the newly
+updated predecessors uses at most $h$ vertices. One sweep therefore adds
+at most $h/(2S)$ to the maximum old discrepancy. Since both vectors start
+at the same point, after $t$ sweeps
+\begin{equation}\label{eq:rounding-error}
+|Y_x(t)-\widehat Y_x(t)|\le\frac{ht}{2S}\le\delta
 \end{equation}
-An empty gap contributes one. The interval check excludes coordinates
-outside the extreme endpoints, so $\sum_j r_j=b$.
+for every vertex and every sequence of choices.
 
-Almost every feasible assignment determines exactly one accepted order,
-and every accepted order describes only feasible assignments. Summing
-\eqref{eq:interleaving-volume} thus gives the volume. For $b=0$, the
-volume is one.
+\subsection{Restricting the calculation to the query neighborhood}
 
-\subsection{Integer arithmetic and probability queries}
+Expand one update backwards through the new predecessor values used in
+its sweep. A directed path contains at most $h$ vertices, so this expansion
+uses at most $h-1$ predecessor edges. It may then use one successor edge
+to read a value from the start of the sweep. Consequently, the final value
+at $x$ depends on old values within distance $h$ and fresh choices within
+distance $h-1$.
 
-Let $Q=2^\Lambda$ be a common denominator of the dyadic endpoints, and
-write $d_j=Q(e_{j+1}-e_j)$. Every summand in
-\eqref{eq:interleaving-volume} has denominator $b!Q^b$ and integer
-numerator
-\begin{equation}\label{eq:interleaving-integer}
-\frac{b!}{\prod_j r_j!}\prod_j d_j^{r_j}.
-\end{equation}
-The factorial quotient is an integer because it counts partitions of $b$
-labelled positions into groups of sizes $r_j$. Sum the numerators and
-divide by $b!Q^b$ once at the end.
+After $t$ sweeps, only initial values, endpoints, and choices within distance
+$ht$ can influence $x$. At distance exactly $ht$, only initial values are
+needed. Keeping this neighborhood therefore reproduces the full rounded
+calculation exactly at $x$. For a pair query, keeping the union of both
+neighborhoods reproduces both values. The full graph's tightened endpoints
+are retained throughout, since they are inputs to every update.
 
-All coordinates lie in $(0,1)$, so the total volume is at most one.
-The summands are nonnegative; every partial numerator sum is therefore
-at most $b!Q^b$. The factors used to form one numerator also have products
-at most this bound, since $d_j\le Q$ and $\sum_jr_j=b$. Thus the
-arithmetic uses integers of
+One can use the restriction of a full topological order. Any other
+topological order of the retained graph gives the same result for fixed
+choices assigned to each vertex and sweep: updates of incomparable vertices
+commute, and adjacent exchanges of such vertices connect the topological
+orders. The neighborhood-size bound \eqref{eq:finite-size} follows from
+$1+d+\cdots+d^\rho\le(d+1)^{\rho+1}$.
+
+\subsection{From coordinate error to comparison error}
+
+For an incomparable pair, choose a queried coordinate $x$ with
+$W_x\ge1/R$. There are at most $M$ other vertices comparable with it.
+Corollary~\ref{cor:gap} therefore gives
 \[
-O\bigl(b(\Lambda+\log(b+1))\bigr)
+\Prb(|X_x-X_y|\le4\delta)
+\le8CR\delta=\varepsilon/4.
 \]
-bits. Checking an order and calculating its contribution require a
-polynomial number of arithmetic operations in $b$. The total is
-$(3b)^b\operatorname{poly}(b)$ operations, proving the remaining claim
-of Theorem~\ref{thm:local}.
+Outside the two exceptional events in \eqref{eq:coordinate-error}, each
+continuous coordinate $Y$ is within $\delta$ of its corresponding uniform
+coordinate $X$. Equation~\eqref{eq:rounding-error} adds at most another
+$\delta$. If the comparisons made by $X$ and $\widehat Y$ differ, either
+one of those exceptional events occurs or $|X_x-X_y|\le4\delta$.
+Their total probability is at most
+$2(\varepsilon/8)+\varepsilon/4=\varepsilon/2$.
 
-For a comparison numerator, add its arc and repeat the calculation.
-For a threshold $c\le\ell_x$, the numerator is zero; for $c\ge r_x$,
-it equals the denominator. Otherwise replace the queried coordinate's
-upper endpoint by $c$ and repeat. There are still at most $2b$ endpoints.
-Use a common $Q$ for numerator and denominator; the factors $b!Q^b$
-cancel. Inconsistent constraints yield no accepted order and hence volume
-zero.
+For a threshold query there is one exceptional event. Otherwise,
+different answers require $|X_x-c|\le2\delta$, which has probability
+at most $4CR\delta=\varepsilon/8$. The total disagreement probability
+is at most $\varepsilon/4$. A comparable pair is answered exactly by
+reachability, as specified in the estimator.
 
-If the resulting probability is $N/D$ with nonnegative integers $N,D$
-and $D>0$, the answer test is $2N\ge D$. The midpoint tests use
-$4N<D$ and $4N>3D$. The stage gate~\eqref{eq:stage-gate} bounds the
-number of enumerated orders by $n$, and the preceding bit bound completes
-the arithmetic estimate used in Section~\ref{sec:runtime}.
+The difference between two event probabilities is bounded by the
+probability that their indicators disagree. The vector $X$ remains
+uniform on $K$. Each possible sequence of rounded choices has probability
+$S^{-b't}$ on the retained graph, so its event probability is exactly the
+finite average in Algorithm~\ref{alg:finite-average}. The preceding bounds
+prove Theorem~\ref{thm:local}.
+
+\section{Exact arithmetic for the finite average}\label{app:table}
+
+Let the retained graph have $b'$ vertices, and suppose its dyadic endpoints
+and any query threshold have at most $\Lambda$ fractional binary digits.
+A trajectory consists of $b't$ coordinate updates. Each update takes maxima
+and minima, followed by multiplication by mesh fractions with denominator
+$2S$. Charging a full denominator increase at every update bounds the
+precision of every intermediate coordinate by
+\[
+\Lambda+b't\log(2S).
+\]
+The values stay in $[0,1]$, so their integer numerators have at most one
+additional bit. All comparisons and updates can therefore be carried out
+with exact integer arithmetic.
+
+There are $S^{b't}$ trajectories. Enumerate their mesh choices as tuples
+of $b't$ integers in $\{0,\ldots,S-1\}$. The event tally has at most
+$b't\log S+1$ bits, and its denominator is the power of two $S^{b't}$.
+For a tally $N$ and this denominator $D$, the comparison decision is
+$2N\ge D$. The midpoint search tests $4N<D$ and $4N>3D$.
+These integer tests implement the probability rules exactly.
+
+Section~\ref{sec:runtime} chooses parameters satisfying $S^{bt}\le n$.
+Hence $b't\log S\le\log n$, the enumeration has at most $n$ terms,
+and the extra coordinate precision is at most $2\log n$ bits. These
+bounds, together with the bound on stored endpoint precision, give a
+polynomial bit cost for each estimate.

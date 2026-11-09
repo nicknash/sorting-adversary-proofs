@@ -280,8 +280,9 @@ The local estimator of Section~\ref{sec:oracle} now applies to the positive
 queried region with the strict graph bounds. Its chosen answer retains at
 least $1/2-\eta>0$ of the volume and makes that comparison true in every
 represented order. In particular, a new arc cannot create a directed
-cycle. An answer between anchors was already true in every represented
-order. The selected answer is recorded in the public graph before any
+cycle. An answer determined by anchors, interval bounds, or a directed path
+was already true in every represented order and leaves the state unchanged.
+The selected answer is recorded in the public graph before any
 restoration refinement.
 
 Lemma~\ref{lem:restoration} gives degree at most $k$ and height at most

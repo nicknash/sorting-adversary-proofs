@@ -165,10 +165,12 @@ In Figure~\ref{fig:overview-state}, comparing $p$ with $q$ descends into
 the left child; comparing $p$ with $r$ uses the anchors $1/4$ and $3/4$;
 and comparing $a$ with $p$ compares $X_a$ with $1/4$ at the root.
 
-Two distinct anchors already determine an answer. Otherwise, the allowed
+Two distinct anchors already determine an answer. Interval bounds or a
+directed path in the node's DAG may also determine it. Otherwise, the allowed
 position assignments at this node form a region, cut into two parts by
-the possible answers. The adversary estimates their relative volumes
-and chooses the answer with the larger estimate. This keeps at least
+the possible answers. The adversary estimates the fraction supporting $A<B$
+by $\widehat p$, and uses $1-\widehat p$ for $B<A$. It chooses $A<B$
+if $\widehat p\ge1/2$, and $B<A$ otherwise. This keeps at least
 half the old volume, up to a small error. The estimates are calculated
 deterministically using only a small neighborhood of the queried items
 in the DAG, with interval bounds inherited from the full graph
@@ -206,11 +208,14 @@ any selected path that is too long. All selections use fixed tie-breaking rules.
     \Return $\mathit{answer}$\;
   }
   Propagate interval bounds through the DAG at $v$\;
+  \If{interval bounds or a directed path in the DAG determine the answer}{
+    \Return the determined answer\;
+  }
   \If{at least one queried free interval is wide enough}{\textbf{break}\;}
   \texttt{Refine}(one of the queried free items)\;
 }
-Estimate the volume fraction supporting each answer, using a local DAG\;
-$\mathit{answer}\gets$ the answer with the larger estimate\;
+$\widehat p\gets$ estimate of the fraction supporting $A<B$, using a local DAG\;
+$\mathit{answer}\gets A<B$ if $\widehat p\ge1/2$, and $B<A$ otherwise\;
 Store the arc or interval bound for $\mathit{answer}$ at $v$\;
 Propagate interval bounds through the DAG at $v$\;
 \While{a vertex at $v$ has too many neighbors}{

@@ -1,17 +1,26 @@
 # An Optimal Deterministic Adversary for Sorting
 
-Nicholas Nash · 8 November 2026 · ORCID [0009-0003-0475-7852](https://orcid.org/0009-0003-0475-7852)
+Nicholas Nash · 9 November 2026 · ORCID [0009-0003-0475-7852](https://orcid.org/0009-0003-0475-7852)
 
-The current manuscript presents the unit-interval adversary with a single
-potential for repairs. It introduces the derandomization problem, reviews
+The current manuscript presents the unit-interval adversary using finite
+averaging to estimate comparison probabilities and one coefficient to
+account for refinements. It introduces the derandomization problem, reviews
 the classical binary-tree adversaries and the interval lattice of Kaplan,
 Zamir, and Zwick, then gives an illustrated data-structure overview with high-level query
-pseudocode, followed by the complete mechanical algorithm. The later sections develop legality, local
-probabilities, geometric packing, the comparison bound, and a uniform
-polynomial-time implementation. Worked examples distinguish fixed parent
-positions from fresh child coordinates. TikZ figures illustrate the
-construction, the volume identity, and the geometric proof. The potential
-coefficients are derived from the changes caused by a refinement.
+pseudocode, followed by the complete mechanical algorithm. Section 6 defines
+the finite calculation explicitly: initialize temporary positions at their
+lower endpoints, update them in topological order, and average over every
+sequence of choices from a finite mesh. The proof bounds the error and shows
+why only a neighborhood of the queried items is needed. Subsequent sections
+derive the comparison bound and give a uniform polynomial-time implementation
+with exact dyadic arithmetic. The tree structure, anchor rules, and geometric
+packing argument are retained from the preceding version.
+
+The source for this simplification is the
+[finite-averaging audit](https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af1b5f8-a1d0-83ed-b93d-fe7efd94df67).
+Sections 1 and 2 are unchanged. Section 3 has only the necessary corrections
+to answer selection: directly determined answers and the use of one strict
+event estimate together with its complement.
 
 - [Current paper](output/pdf/paper.pdf)
 - `paper.tex`: title, approved abstract, methodological disclosure, and section inputs
@@ -33,9 +42,12 @@ make submission
 source and ancillary checks. It excludes build intermediates, review notes,
 Lean files, and the precompiled PDF.
 
-The numerical checks cover selected finite volume calculations, anchor rules,
-and potential identities. They are not a verification of all adversary
-trajectories or a formal proof of the locality theorem. The related Lean
+The exact-rational diagnostics cover 1,353 accounting checks, 320 comparisons
+of full and truncated update sequences, and 45,756 update/rounding checks.
+The earlier geometric checks cover 51 volume systems, 393 midpoint searches,
+and 131 narrow-coordinate choices. These are finite diagnostics; the proofs
+of convergence, locality, and the asymptotic bound are in the manuscript.
+The related Lean
 development in this repository concerns the earlier integer-colour
 construction; it does not formally verify this unit-interval proof.
 

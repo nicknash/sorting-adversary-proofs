@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Exact diagnostics for endpoint-interleaving volume and midpoint refinement.
 
-Two independent volume calculations are compared: the new permutation/gap
-enumeration and the previous integer subset-polynomial recurrence.  Midpoint
+Two independent reference volume calculations are compared: permutation/gap
+enumeration and an integer subset-polynomial recurrence. These provide exact
+reference probabilities for checking the geometric anchor rules.  Midpoint
 search is then checked using exact reference CDFs with pointwise perturbations
 of at most 1/32, including alternating signs.  All arithmetic uses integers and
 fractions.Fraction.  This is a small diagnostic, not a proof or a simulation of

@@ -1,9 +1,355 @@
 {
-  "status": "PASS",
-  "exact_parameter_stages": 4081,
-  "exact_transition_identity_checks": 28567,
-  "exact_distinct_address_checks": 241,
-  "synthetic_batch_checks": 35,
-  "first_moment_obstruction_examples": 6,
-  "scope": "Finite exact algebraic diagnostics only; no verification of all trajectories or locality."
+  "purpose": "Finite exact-rational diagnostic, not a proof of the inherited geometry/estimator lemmas",
+  "range": {
+    "first_j": 6,
+    "last_j": 128,
+    "count": 123
+  },
+  "all_checks_passed": true,
+  "checks_per_stage": 11,
+  "total_checks": 1353,
+  "coefficient_table": [
+    {
+      "j": 6,
+      "k": 64,
+      "s": {
+        "exact": "1/4",
+        "decimal": 0.25
+      },
+      "address_coefficient_a": {
+        "exact": "55/256",
+        "decimal": 0.21484375
+      },
+      "constant_C": {
+        "exact": "13",
+        "decimal": 13.0
+      },
+      "degree_margin": {
+        "exact": "3",
+        "decimal": 3.0
+      },
+      "narrow_margin": {
+        "exact": "29/2",
+        "decimal": 14.5
+      },
+      "path_margin_per_vertex": {
+        "exact": "41/128",
+        "decimal": 0.3203125
+      },
+      "rational_comparison_charge": {
+        "exact": "389/256",
+        "decimal": 1.51953125
+      },
+      "displayed_comparison_charge": {
+        "exact": "49/32",
+        "decimal": 1.53125
+      },
+      "coefficient_from_rational_charge": {
+        "exact": "256/389",
+        "decimal": 0.6580976863753213
+      },
+      "coefficient_from_displayed_charge": {
+        "exact": "32/49",
+        "decimal": 0.6530612244897959
+      },
+      "checks": {
+        "coefficient_range": true,
+        "positive_address_coefficient": true,
+        "degree_identity": true,
+        "narrow_identity": true,
+        "path_identity": true,
+        "degree_paid": true,
+        "narrow_paid": true,
+        "complete_path_batch_paid": true,
+        "comparison_charge_upper_bound": true,
+        "logarithm_rational_majorant": true,
+        "minimum_distinct_address_sum": true
+      }
+    },
+    {
+      "j": 8,
+      "k": 256,
+      "s": {
+        "exact": "9/128",
+        "decimal": 0.0703125
+      },
+      "address_coefficient_a": {
+        "exact": "2039/32768",
+        "decimal": 0.062225341796875
+      },
+      "constant_C": {
+        "exact": "457/32",
+        "decimal": 14.28125
+      },
+      "degree_margin": {
+        "exact": "119/32",
+        "decimal": 3.71875
+      },
+      "narrow_margin": {
+        "exact": "1125/64",
+        "decimal": 17.578125
+      },
+      "path_margin_per_vertex": {
+        "exact": "24969/16384",
+        "decimal": 1.52398681640625
+      },
+      "rational_comparison_charge": {
+        "exact": "37513/32768",
+        "decimal": 1.144805908203125
+      },
+      "displayed_comparison_charge": {
+        "exact": "147/128",
+        "decimal": 1.1484375
+      },
+      "coefficient_from_rational_charge": {
+        "exact": "32768/37513",
+        "decimal": 0.8735105163543305
+      },
+      "coefficient_from_displayed_charge": {
+        "exact": "128/147",
+        "decimal": 0.8707482993197279
+      },
+      "checks": {
+        "coefficient_range": true,
+        "positive_address_coefficient": true,
+        "degree_identity": true,
+        "narrow_identity": true,
+        "path_identity": true,
+        "degree_paid": true,
+        "narrow_paid": true,
+        "complete_path_batch_paid": true,
+        "comparison_charge_upper_bound": true,
+        "logarithm_rational_majorant": true,
+        "minimum_distinct_address_sum": true
+      }
+    },
+    {
+      "j": 10,
+      "k": 1024,
+      "s": {
+        "exact": "5/256",
+        "decimal": 0.01953125
+      },
+      "address_coefficient_a": {
+        "exact": "4603/262144",
+        "decimal": 0.017559051513671875
+      },
+      "constant_C": {
+        "exact": "1029/64",
+        "decimal": 16.078125
+      },
+      "degree_margin": {
+        "exact": "251/64",
+        "decimal": 3.921875
+      },
+      "narrow_margin": {
+        "exact": "2545/128",
+        "decimal": 19.8828125
+      },
+      "path_margin_per_vertex": {
+        "exact": "244741/131072",
+        "decimal": 1.8672256469726562
+      },
+      "rational_comparison_charge": {
+        "exact": "272645/262144",
+        "decimal": 1.0400581359863281
+      },
+      "displayed_comparison_charge": {
+        "exact": "533/512",
+        "decimal": 1.041015625
+      },
+      "coefficient_from_rational_charge": {
+        "exact": "262144/272645",
+        "decimal": 0.9614847145555576
+      },
+      "coefficient_from_displayed_charge": {
+        "exact": "512/533",
+        "decimal": 0.9606003752345216
+      },
+      "checks": {
+        "coefficient_range": true,
+        "positive_address_coefficient": true,
+        "degree_identity": true,
+        "narrow_identity": true,
+        "path_identity": true,
+        "degree_paid": true,
+        "narrow_paid": true,
+        "complete_path_batch_paid": true,
+        "comparison_charge_upper_bound": true,
+        "logarithm_rational_majorant": true,
+        "minimum_distinct_address_sum": true
+      }
+    },
+    {
+      "j": 12,
+      "k": 4096,
+      "s": {
+        "exact": "11/2048",
+        "decimal": 0.00537109375
+      },
+      "address_coefficient_a": {
+        "exact": "40949/8388608",
+        "decimal": 0.004881501197814941
+      },
+      "constant_C": {
+        "exact": "9227/512",
+        "decimal": 18.021484375
+      },
+      "degree_margin": {
+        "exact": "2037/512",
+        "decimal": 3.978515625
+      },
+      "narrow_margin": {
+        "exact": "22495/1024",
+        "decimal": 21.9677734375
+      },
+      "path_margin_per_vertex": {
+        "exact": "8235019/4194304",
+        "decimal": 1.9633815288543701
+      },
+      "rational_comparison_charge": {
+        "exact": "8480779/8388608",
+        "decimal": 1.010987639427185
+      },
+      "displayed_comparison_charge": {
+        "exact": "2071/2048",
+        "decimal": 1.01123046875
+      },
+      "coefficient_from_rational_charge": {
+        "exact": "8388608/8480779",
+        "decimal": 0.9891317766917402
+      },
+      "coefficient_from_displayed_charge": {
+        "exact": "2048/2071",
+        "decimal": 0.9888942539835828
+      },
+      "checks": {
+        "coefficient_range": true,
+        "positive_address_coefficient": true,
+        "degree_identity": true,
+        "narrow_identity": true,
+        "path_identity": true,
+        "degree_paid": true,
+        "narrow_paid": true,
+        "complete_path_batch_paid": true,
+        "comparison_charge_upper_bound": true,
+        "logarithm_rational_majorant": true,
+        "minimum_distinct_address_sum": true
+      }
+    },
+    {
+      "j": 16,
+      "k": 65536,
+      "s": {
+        "exact": "13/32768",
+        "decimal": 0.000396728515625
+      },
+      "address_coefficient_a": {
+        "exact": "786419/2147483648",
+        "decimal": 0.000366204883903265
+      },
+      "constant_C": {
+        "exact": "180237/8192",
+        "decimal": 22.0015869140625
+      },
+      "degree_margin": {
+        "exact": "32755/8192",
+        "decimal": 3.9984130859375
+      },
+      "narrow_margin": {
+        "exact": "425945/16384",
+        "decimal": 25.99761962890625
+      },
+      "path_margin_per_vertex": {
+        "exact": "2144567309/1073741824",
+        "decimal": 1.9972839476540685
+      },
+      "rational_comparison_charge": {
+        "exact": "2149220365/2147483648",
+        "decimal": 1.0008087218739092
+      },
+      "displayed_comparison_charge": {
+        "exact": "32795/32768",
+        "decimal": 1.000823974609375
+      },
+      "coefficient_from_rational_charge": {
+        "exact": "2147483648/2149220365",
+        "decimal": 0.9991919316286583
+      },
+      "coefficient_from_displayed_charge": {
+        "exact": "32768/32795",
+        "decimal": 0.9991767037658179
+      },
+      "checks": {
+        "coefficient_range": true,
+        "positive_address_coefficient": true,
+        "degree_identity": true,
+        "narrow_identity": true,
+        "path_identity": true,
+        "degree_paid": true,
+        "narrow_paid": true,
+        "complete_path_batch_paid": true,
+        "comparison_charge_upper_bound": true,
+        "logarithm_rational_majorant": true,
+        "minimum_distinct_address_sum": true
+      }
+    },
+    {
+      "j": 20,
+      "k": 1048576,
+      "s": {
+        "exact": "15/524288",
+        "decimal": 2.86102294921875e-05
+      },
+      "address_coefficient_a": {
+        "exact": "14680049/549755813888",
+        "decimal": 2.6702853574533947e-05
+      },
+      "constant_C": {
+        "exact": "3407887/131072",
+        "decimal": 26.00011444091797
+      },
+      "degree_margin": {
+        "exact": "524273/131072",
+        "decimal": 3.9998855590820312
+      },
+      "narrow_margin": {
+        "exact": "7864275/262144",
+        "decimal": 29.999828338623047
+      },
+      "path_margin_per_vertex": {
+        "exact": "549701812239/274877906944",
+        "decimal": 1.99980354314539
+      },
+      "rational_comparison_charge": {
+        "exact": "549787795471/549755813888",
+        "decimal": 1.0000581741605856
+      },
+      "displayed_comparison_charge": {
+        "exact": "524319/524288",
+        "decimal": 1.0000591278076172
+      },
+      "coefficient_from_rational_charge": {
+        "exact": "549755813888/549787795471",
+        "decimal": 0.9999418292234504
+      },
+      "coefficient_from_displayed_charge": {
+        "exact": "524288/524319",
+        "decimal": 0.9999408756882737
+      },
+      "checks": {
+        "coefficient_range": true,
+        "positive_address_coefficient": true,
+        "degree_identity": true,
+        "narrow_identity": true,
+        "path_identity": true,
+        "degree_paid": true,
+        "narrow_paid": true,
+        "complete_path_batch_paid": true,
+        "comparison_charge_upper_bound": true,
+        "logarithm_rational_majorant": true,
+        "minimum_distinct_address_sum": true
+      }
+    }
+  ]
 }

@@ -1,14 +1,15 @@
 {
   "date": "2026-11-09",
   "status": "not_submitted",
-  "argument": "unit-interval adversary with a single repair potential",
-  "source_pdf_sha256": "3f83f2dc85d014f502c559961e5f49f4cf923bf3b8708a57c4941b8438bbdc41",
-  "source_zip_sha256": "d66ddee35fef71a974c96fda7aa2c9e1701a7b3d6134c20199ddd8f635a92ddc",
-  "local_pdf_sha256": "640469f0563edf742f3b248c6f195ceda8add39a53037d703dee3fd22da47b86",
-  "prepared_zip_sha256": "193e404562da33a5e10406229f2f4de413df2e07fa9be98bedc2ee9a0e57f20f",
+  "argument": "finite averaging over dyadic coordinate updates, with a single coefficient for refinement accounting",
+  "source_pdf_sha256": "577836ef3235bd8c452b8bdf0b5cbf3840c943c1a1837bed8c9f7ce3f41ab907",
+  "source_zip_sha256": "4c4545e4e96e6ad4eb1389e5a1cfc91c6d22b35bf9180a2bedfbfc1885515fc7",
+  "local_pdf_sha256": "4956fe534ea26272f4b099e14bf314592d348fb505221de88fba295607928450",
+  "prepared_zip_sha256": "7334766abd95ffb8b94499c04048c807d43ec69b7ec3b769678099cdbda04819",
   "previous_hexagon_submission": "hexagon:2611.00196",
   "previous_submission_metadata": "submission.json",
   "formalization": "Related earlier integer-colour construction; this continuous presentation is not formally verified.",
-  "exposition": "Related work with binary-tree and KZZ examples; explicit item records and positions defined within a node, illustrated state and refinement, and JGAA-style ruled pseudocode; explanatory contrasts rewritten as direct definitions throughout.",
-  "pages": 35
+  "exposition": "Sections 1 and 2 preserved; Section 3 changes limited to the complement convention and directly determined answers. Later sections introduce the finite update calculation before its proof and derive the comparison bound with one coefficient.",
+  "pages": 35,
+  "source_chat": "https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af1b5f8-a1d0-83ed-b93d-fe7efd94df67"
 }

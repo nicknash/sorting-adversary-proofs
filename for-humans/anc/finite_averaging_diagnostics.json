@@ -1,0 +1,76 @@
+{
+  "scope": "Finite exact diagnostics only; not a simulation of certified huge parameters or a proof of the infinite theorem.",
+  "arithmetic": "Python fractions.Fraction; exact rational arithmetic throughout",
+  "tie_example": {
+    "vertices": 2,
+    "edges": 0,
+    "mesh_size": 4,
+    "sweeps": 1,
+    "trajectories": 16,
+    "strict_less_count": 6,
+    "strict_greater_count": 6,
+    "tie_count": 4,
+    "strict_less_probability": "3/8",
+    "strict_greater_probability": "3/8",
+    "tie_probability": "1/4",
+    "complement_of_strict_less": "5/8",
+    "continuous_target_probability": "1/2",
+    "conclusion": "Use one strict-event estimate and its complement; two strict counts need not sum to one."
+  },
+  "dependency_cones": {
+    "graph": "65-vertex zigzag DAG; even vertices point to adjacent odd vertices",
+    "directed_height_vertices": 2,
+    "maximum_undirected_degree": 2,
+    "global_endpoint_denominator": 128,
+    "quantile_pattern_assignments": 16,
+    "sweeps_tested": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "query_vertices": [
+      10,
+      21,
+      32,
+      43,
+      54
+    ],
+    "radius": "height * sweeps",
+    "all_truncations_proper": true,
+    "retained_sizes": [
+      5,
+      9,
+      13,
+      17
+    ],
+    "exact_agreements": 320
+  },
+  "update_rounding": {
+    "coordinate_grid": [
+      "0",
+      "1/2",
+      "1"
+    ],
+    "mesh_size": 4,
+    "continuous_quantile_cases": 31,
+    "graphs": {
+      "chain": {
+        "weak_states": 10,
+        "checks": 9300
+      },
+      "fork": {
+        "weak_states": 14,
+        "checks": 18228
+      },
+      "inverted_fork": {
+        "weak_states": 14,
+        "checks": 18228
+      }
+    },
+    "exact_checks": 45756,
+    "checks_including_degenerate_interval": 15221,
+    "checked_bound": "one updated-coordinate error <= previous sup error + quantile rounding error"
+  },
+  "status": "passed"
+}

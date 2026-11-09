@@ -145,6 +145,10 @@ $1/2$ with $X_B$; the stored bound already puts $B$ to the right. More
 generally, the order of the child anchors determines every comparison
 between their respective subtrees.
 
+If effective interval bounds or a directed path already determine a query,
+return that answer. The stored state then remains unchanged. Otherwise
+use the following estimate.
+
 For either case involving free coordinates, let
 \begin{equation}\label{eq:node-region}
 K_v=\{X:a_x<X_x<b_x\text{ for all free }x,
@@ -170,19 +174,28 @@ store the chosen upper or lower interval bound. Translate that direction
 back to the queried labels, reversing it if $x$ is the second label.
 
 To obtain an estimate, the algorithm keeps a neighborhood of the queried
-items in the graph and calculates the above ratio exactly in the smaller
-region. The neighborhood consists of all vertices within a prescribed
-distance in the underlying undirected graph, together with all arcs
-between those vertices. Its intervals are the bounds already implied by the full
-graph. Section~\ref{sec:oracle} specifies the radius and the finite volume
-calculation, and proves that the resulting estimate is accurate.
+items in the graph, with the interval bounds already implied by the full
+graph. It initializes temporary numerical positions at their lower bounds,
+then repeatedly updates each position within the interval permitted by its
+neighbors. Each update uses a value from a prescribed finite set. The
+algorithm enumerates every sequence of these choices and returns the
+fraction for which the requested comparison holds.
+Section~\ref{sec:oracle} gives the update rule, the finite sets, and the
+number of repetitions, and proves the accuracy of this average.
+
+The finite calculation may produce equal positions. We estimate the one
+event $A<B$ and use $1-\widehat p$ for $B<A$. The two true probabilities
+sum to one, so both estimates have the same error bound. The test
+$\widehat p\ge1/2$ therefore chooses an answer retaining at least
+$1/2-\eta$ of the feasible volume.
 
 \subsection{The three reasons for refinement}
 
 The estimate just described is available when each vertex has few neighbors,
 every directed path is short, and at least one queried coordinate has an
 interval of adequate width. We arrange these conditions as follows. Fix an
-integer $k\ge16$ and error $\eta=1/(100k)$. Use a path threshold $H$ and a
+integer $j\ge6$, put $k=2^j$, and set the error $\eta=1/(100k)$.
+Use a path threshold $H$ and a
 width threshold $1/R$, with values given below.
 
 First we include every interval bound implied by the arc inequalities. If
@@ -225,7 +238,7 @@ conditions. A path repair consists of the entire selected list. The analysis cha
 Anchors are midpoints obtained by repeatedly halving the unit interval.
 After $m$ halvings the cells have length $2^{-m}$, and their midpoints are
 \begin{equation}\label{eq:dyadic}
-c=(j+\tfrac12)2^{-m},\qquad 0\le j<2^m.
+c=(i+\tfrac12)2^{-m},\qquad 0\le i<2^m.
 \end{equation}
 We call $m$ the anchor's \emph{level}. For example, $1/2$ has level $0$,
 and $1/4,3/4$ have level $1$. There are $2^m$ possible anchors at level $m$.
@@ -253,7 +266,7 @@ volume factor whose logarithm is at least $(1-1/k)m-4$.
 \subsection{The mechanical rules}
 
 Every answer is also recorded in a separate graph on the original labels,
-before restoration or, for an answer between anchors, before returning.
+before any restoration or return.
 This routine update is implicit in the pseudocode. We call the comparison
 history the \emph{transcript} and the graph the \emph{public comparison graph}.
 Its arcs are never counted as part of a node's active graph.
@@ -293,6 +306,9 @@ counts its vertices.
     \Return $\mathit{answer}$\;
   }
   \texttt{Tighten}$(v)$\;
+  \If{interval bounds or a directed path in the DAG determine the answer}{
+    \Return the determined answer\;
+  }
   \If{some queried free coordinate is wide}{\textbf{break}\;}
   \texttt{Refine}(the selected queried free item)\;
 }
@@ -317,14 +333,17 @@ it cannot need preparation again before this answer
 
 For completeness, the parameters used by these rules are
 \begin{equation}\label{eq:parameters}
-\eta=\frac1{100k},\qquad H=2^{2k},\qquad
+\begin{gathered}
+j\ge6,\qquad k=2^j,\qquad \eta=\frac1{100k},\qquad H=2^k,\\
 B=(k+1)^{2H+1},\qquad R=2^{2kB}.
+\end{gathered}
 \end{equation}
 Here $B$ bounds how many other vertices can be joined to one vertex by a
 directed path in either direction during a repair. Section~\ref{sec:legal}
 proves that bound. The value of $H$ makes a long path expensive enough to
 pay for refining all its items. The value of $R$ makes a narrow interval
-small enough to pay for refining its item. These two estimates are proved
-in Sections~\ref{sec:oracle} and~\ref{sec:accounting}.
-Finally, Section~\ref{sec:runtime} chooses $k$ as a slowly growing function
-of $n$ so that the whole algorithm uses polynomial time.
+small enough to pay for refining its item. The bounds needed for these
+claims are proved in Sections~\ref{sec:oracle}--\ref{sec:potential}.
+Finally, Section~\ref{sec:runtime} chooses $j$ from $n$ at initialization
+and keeps it fixed throughout the interaction. Its slow growth makes the
+whole algorithm polynomial in bit complexity.

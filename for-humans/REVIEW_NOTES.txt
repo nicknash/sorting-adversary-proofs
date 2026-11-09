@@ -131,3 +131,53 @@ rules; the public answer recording is now explicit in the complete pseudocode.
 Both compilers pass, with no repository build warnings. Cross-references and
 the source archive were checked. The current PDF has 35 pages. These are prose
 and presentation changes, with no new formal or external proof verification.
+
+
+Finite averaging and one-coefficient analysis -- 9 November 2026
+---------------------------------------------------------------
+Source chat:
+https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af1b5f8-a1d0-83ed-b93d-fe7efd94df67
+The source is the completed finite-averaging audit and its TeX/checking bundle:
+https://chatgpt.com/library?file_id=libfile_fde3_f-ee7d0fc4e44c8191af9554c3386bdb04_742fa1b94fe0819190166d79e79a577c&account_id=personal
+https://chatgpt.com/library?file_id=libfile_fde3_f-af8c48174210819193f30b71cbde0d2b_742fa1b94fe0819190166d79e79a577c&account_id=personal
+Source PDF SHA-256:
+577836ef3235bd8c452b8bdf0b5cbf3840c943c1a1837bed8c9f7ce3f41ab907
+Source ZIP SHA-256:
+4c4545e4e96e6ad4eb1389e5a1cfc91c6d22b35bf9180a2bedfbfc1885515fc7
+
+The estimator now averages over a finite mesh of choices for coordinate
+updates started at the tightened lower endpoints. Section 6 gives its exact
+rules and parameters before the proof. Appendix B proves convergence,
+rounding accuracy, and exact dependence on a bounded neighborhood. Appendix C
+and Section 9 give the dyadic arithmetic and uniform polynomial bit bound.
+One strict comparison probability is estimated; its complement supplies the
+other answer, accounting for possible ties in the finite calculation.
+
+The path threshold is now H = 2^k. Section 8 uses one coefficient,
+s = (j+10)/2^j, for both volume and arc accounting, with the explicit fixed-j
+comparison bound. The rooted tree, refinement, anchor selection, geometric
+lemmas, and packing construction remain as before. The path-level sum is
+proved directly by counting distinct dyadic anchors.
+
+Sections 1 and 2, the abstract, and the methodological disclosure were
+compared byte-for-byte against the preceding commit and are unchanged.
+Section 3 changes are restricted to directly determined answers and the
+complement convention needed by the new estimator. All substantive new
+algorithmic and proof detail follows the overview.
+
+Exact-rational diagnostics were run locally: 1,353 accounting checks over
+j = 6,...,128; 320 comparisons of full and truncated update sequences; and
+45,756 update/rounding checks, including 15,221 with a degenerate interval.
+The independent-interval tie example gives 3/8 for each strict direction
+and 1/4 for equality. The existing geometric checks also pass: 51 volume
+systems, 393 midpoint searches, and 131 narrow-coordinate choices.
+These finite checks supplement the written arguments. The Lean formalization
+still concerns the earlier integer-colour construction; no formal verification
+of this revised adversary is claimed. The earlier Hexagon deposit is unchanged.
+
+Both the repository compiler and the editor's built-in compiler succeed.
+The repository build has no warnings or unresolved references. All 35 pages
+were rendered and reviewed, with the new algorithm, parameter displays, and
+proof pages inspected individually. The rebuilt source archive contains 18
+files, each checked byte-for-byte against the saved source. Current artifact
+hashes are recorded in revision.json.

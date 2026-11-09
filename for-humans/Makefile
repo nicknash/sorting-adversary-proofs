@@ -9,6 +9,7 @@ output/pdf/paper.pdf: paper.tex $(wildcard sections/*.tex)
 
 checks:
 	python3 anc/check_simplification.py
+	python3 anc/check_finite_averaging.py
 	python3 anc/check_packing_primitives.py --output anc/check_packing_primitives.json
 
 submission: output/pdf/paper.pdf

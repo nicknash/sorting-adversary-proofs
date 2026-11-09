@@ -1,106 +1,148 @@
 \section{Local probabilities and the choice of an anchor}\label{sec:oracle}
 
-The adversary needs to perform two calculations. To answer a comparison,
-it estimates the fraction of the current region that supports each answer.
-To move an item into a child, it finds a position where fixing that item
-retains enough volume. We describe the calculations first, then state the
-bounds that justify them.
+To answer a comparison, the adversary estimates the fraction of feasible
+assignments supporting one answer. To refine an item, it chooses a parent
+position at which fixing that item retains enough volume. Both calculations
+use the same deterministic probability estimate, which we describe first.
 
-\subsection{Calculating a local probability}
+\subsection{Estimating a probability by a finite average}
 
-Let $K$ be the feasible region of the group handling the query. Its graph
-may be large. The estimator replaces it temporarily by a small graph around
-the queried coordinates and calculates the desired probability exactly in
-that smaller region. For a radius $\rho$, it performs these steps.
-\begin{enumerate}
-\item Use the effective intervals obtained by tightening the full group's
-bounds. For a query $X_x<c$, retain the vertices within distance $\rho$
-of $x$ in the underlying undirected graph; for $X_x<X_y$, retain the
-union of these neighborhoods of $x$ and $y$.
-\item Keep every arc whose endpoints are both retained, and keep each
-retained coordinate's effective interval from the full group. Call the
-resulting region $K_{\rm loc}$. This retains interval bounds implied
-by distant vertices.
-\item Calculate the volume $V_{\rm loc}$ of this region. Calculate a
-second volume $N_{\rm loc}$ after adding the proposed comparison arc
-or threshold bound to a temporary copy of the local region.
-\item Return $\widehat p=N_{\rm loc}/V_{\rm loc}$.
-\end{enumerate}
-The denominator is positive because the restriction of a full feasible
-assignment is feasible locally. These steps leave the group's stored
-constraints unchanged.
+Fix the node handling the calculation, and let $K$ be its region of feasible
+positions. The requested event is either $X_x<c$ for a dyadic threshold $c$,
+or $X_x<X_y$. All interval bounds have been tightened using the full DAG.
+The calculation uses a temporary vector $Y$ of dyadic numbers, initialized
+at the effective lower endpoints. It visits the vertices in a
+fixed topological order, updating one number at a time. We call one such
+pass a \emph{sweep}.
 
-Both volumes are finite exact calculations. List the interval endpoints
-and enumerate the possible orders of those endpoints and the retained
-coordinates. Discard an order that violates an interval bound or an
-inequality imposed by an arc.
-For each remaining order, the coordinates in a gap between consecutive
-endpoints occur in a prescribed order. If the gap has length $a$ and
-contains $r$ coordinates, that part has volume $a^r/r!$. Multiply over
-the gaps and sum over the accepted orders. Appendix~\ref{app:table}
-gives the integer implementation and its cost.
+At the visit to $x$, compute the interval permitted by its current
+neighbors:
+\begin{equation}\label{eq:finite-update}
+L_x=\max\bigl(\{\ell_x\}\cup\{Y_z:z\to x\}\bigr),\qquad
+U_x=\min\bigl(\{r_x\}\cup\{Y_z:x\to z\}\bigr).
+\end{equation}
+Choose a number $u$ from the finite set
+\begin{equation}\label{eq:finite-mesh}
+\mathcal U_S=\left\{\frac{1}{2S},\frac{3}{2S},\ldots,
+                         \frac{2S-1}{2S}\right\},
+\end{equation}
+and replace $Y_x$ by $(1-u)L_x+uU_x$. Here $S$ is a power of two.
+The same update can be applied repeatedly, because the tightened lower
+endpoints satisfy all arc inequalities weakly, and every update preserves
+these weak inequalities. The interval $[L_x,U_x]$ can have length zero;
+the update then leaves $Y_x$ at its sole permitted value.
 
-Thus the only approximation is the removal of distant constraints. The
-following theorem bounds its effect and specifies a sufficient radius.
-The \emph{degree} of the graph is its maximum number of neighbors, ignoring
-directions; its \emph{height} is the maximum number of vertices on a directed
-path. Two vertices are \emph{comparable} if a directed path joins them in
-either direction.
+The adversary enumerates every assignment of mesh values to a prescribed
+number of updates. Its estimate is the fraction of these computations
+whose final vector satisfies the requested event. This definition gives a
+deterministic calculation using maxima, minima, and dyadic arithmetic.
 
-\begin{theorem}[Local interval probabilities]\label{thm:local}
-Fix integers $d,h\ge1$, rational $R\ge1$, and rational
-$0<\varepsilon<1/4$. There is a computable integer
-$\rho=\rho(d,h,R,\varepsilon)$ with the following property.
-Consider a positive-volume region in the unit cube defined by interval
-bounds and the inequalities of a DAG. Suppose the DAG has degree at most
-$d$ and height at most $h$.
-\begin{enumerate}
-\item If $W_x\ge1/R$, the estimator above for $\Prb(X_x<c)$ has additive
-error at most $\varepsilon$.
-\item If at least one of $W_x,W_y$ is at least $1/R$, the estimator above
-for $\Prb(X_x<X_y)$ has additive error at most $\varepsilon$.
-\end{enumerate}
-All other effective widths may be arbitrarily small and positive.
-The retained region has at most
-\[
+\subsection{How much of the graph to retain}
+
+Suppose the full DAG has maximum degree at most $d$ and every directed
+path has at most $h$ vertices. Degree counts neighbors without regard to
+arc direction. Fix the required error $\varepsilon$ and the width bound
+$1/R$. The following choices specify all sizes in the finite calculation:
+\begin{align}
+M&=(d+1)^{h+1}, & C&=M+1, & p&=(4M^2)^{h+1},\label{eq:finite-moment}\\
+\delta&=\frac{\varepsilon}{32CR}, &
+\lambda&=\ceil{\log(1/\delta)}, &
+\mu&=\ceil{\log(8/\varepsilon)},\label{eq:finite-accuracy}\\
+t&=p\lambda+\mu, & \rho&=ht.\label{eq:finite-radius}
+\end{align}
+Take $S$ to be the least power of two at least
+$\max\{2,ht/(2\delta)\}$. These integers can be computed using rational
+arithmetic and comparisons with powers of two. The proof in
+Appendix~\ref{app:local} explains their roles: $t$ controls the number of
+sweeps, $S$ controls the rounding error, and $\rho$ includes every vertex
+that can influence a queried coordinate during those sweeps.
+
+Retain all vertices within undirected distance $\rho$ of a queried
+coordinate, together with all arcs between them. For a pair query, take
+the union of the two neighborhoods. Copy their effective endpoints from
+the full graph. These endpoints retain the interval restrictions implied
+by vertices outside the neighborhood. The retained graph has at most
+\begin{equation}\label{eq:finite-size}
 b=2(d+1)^{\rho+1}
-\]
-coordinates. With dyadic input bounds, its probabilities can be computed
-exactly in $(3b)^b\operatorname{poly}(b)$ arithmetic operations.
-For a fixed queried coordinate, the same retained region gives the stated
-accuracy for every threshold $c$.
+\end{equation}
+vertices. Write $b'$ for its actual number of vertices. Fix a topological
+order of this graph, choosing by item label whenever several vertices
+are eligible.
+
+If a directed path already decides a pair query, its probability is zero
+or one. For a threshold outside the queried effective interval, the
+probability is likewise known. In the remaining cases use the following
+finite calculation. It leaves the adversary's stored state unchanged.
+
+\begin{algorithm}[H]
+\caption{\texttt{Average}: estimate one comparison probability.}
+\label{alg:finite-average}
+\DontPrintSemicolon
+\KwIn{The retained DAG and its effective intervals, the integers $t,S$, and the requested event $E$.}
+\KwOut{A rational estimate of the probability of $E$.}
+$N_E\gets0$\;
+\ForEach{assignment of mesh values to the $b't$ updates}{
+  $Y_x\gets\ell_x$ for every retained vertex $x$\;
+  \For{$i=1,\ldots,t$}{
+    \ForEach{vertex $x$ in the fixed topological order}{
+      Compute $L_x,U_x$ from \eqref{eq:finite-update}\;
+      $u\gets$ the mesh value assigned to this update\;
+      $Y_x\gets(1-u)L_x+uU_x$\;
+    }
+  }
+  \If{$E$ holds for the final vector $Y$}{$N_E\gets N_E+1$\;}
+}
+\Return $N_E/S^{b't}$\;
+\end{algorithm}
+
+\begin{theorem}[Finite averaging]\label{thm:local}
+Let $K$ have positive volume and be defined by dyadic interval bounds and
+the arc inequalities of a DAG with degree at most $d\ge1$ and directed
+paths of at most $h\ge1$ vertices. Let $R\ge1$ and
+$0<\varepsilon<1/4$ be rational. Use the globally tightened endpoints
+and the parameters above. Under the uniform distribution on $K$:
+\begin{enumerate}
+\item If $W_x\ge1/R$, the estimate of $\Prb(X_x<c)$ has error at most
+$\varepsilon$ for every dyadic threshold $c$.
+\item If at least one of $W_x,W_y$ is at least $1/R$, the estimate of
+$\Prb(X_x<X_y)$ has error at most $\varepsilon$.
+\end{enumerate}
+The calculation enumerates $S^{b't}\le S^{bt}$ sequences of updates,
+each with $b't$ coordinate updates. Apart from finding the neighborhood
+and handling the input endpoints, its cost depends only on
+$d,h,R,\varepsilon$.
 \end{theorem}
 
-The width assumption controls comparisons that are almost tied. The proof
-shows that the queried positions in the full and retained regions can be made
-close. A comparison can change only when those positions are close to a
-tie. More precisely, if $x$ has at most $B$ other comparable labels and
-$y$ is incomparable with $x$, then
+The proof compares the finite calculation with an assignment uniformly
+distributed on the full region. Updating a coordinate by a uniform point
+in its currently permitted interval preserves that distribution. When
+both this assignment and a vector started at the lower endpoints use the
+same update choices, their queried coordinates approach one another.
+Rounding the choices to the finite mesh adds a controlled error. After
+$t$ sweeps the queried values depend only on vertices within distance
+$ht$, which justifies restricting the calculation to the retained graph.
+
+The width assumption controls the probability of an almost tied
+comparison. If $x$ has at most $M$ other comparable vertices, and $y$ is
+incomparable with it, Corollary~\ref{cor:gap} gives
 \[
-\Prb(|X_x-X_y|\le a)\le\frac{2(B+1)a}{W_x}.
+\Prb(|X_x-X_y|\le a)\le\frac{2(M+1)a}{W_x}.
 \]
-The same bound holds with a fixed threshold in place of $X_y$.
-It follows from a bound on the density of $x$ that remains valid after
-fixing $X_y$; no independence of the queried positions is required
-(Corollary~\ref{cor:gap}). A wide $x$ therefore makes the near-tie event
-small, regardless of the width of $y$. If the labels are comparable,
-their directed path is retained and fixes the answer exactly.
-This is the reason for preparing a query whose free coordinates are all
-narrow: moving one of them into a fresh unit interval supplies the needed
-wide coordinate.
+The corresponding bound also holds for a fixed threshold. Thus a wide
+queried coordinate converts a bound on coordinate error into a bound on
+comparison error. Appendix~\ref{app:local} proves the theorem, and
+Appendix~\ref{app:table} bounds the exact arithmetic.
 
-Appendix~\ref{app:local} proves closeness by comparing a uniform assignment
-from each region. It repeatedly replaces coordinates by uniform choices
-from their currently permitted intervals, using the same random numbers
-in both assignments. Each assignment keeps its original uniform
-distribution, while the discrepancies at vertices far from the removed
-constraints decrease. Bounded degree and height give a sufficient number
-of updates and hence a sufficient radius for the deterministic volume
-calculation described above.
+Finite computations can end with equal coordinates. For instance, one
+sweep on two independent unit intervals with $S=4$ gives frequencies
+$3/8$ for each strict order and $1/4$ for equality. Accordingly, the
+comparison rule uses the estimate $\widehat p$ for one strict event and
+$1-\widehat p$ for the opposite answer. Since the continuous probabilities
+sum to one, this preserves the accuracy guarantee for both answers.
 
-For the adversary, take $d=k$, $h=2H$, and $\varepsilon=\eta$.
-Lemmas~\ref{lem:restoration} and~\ref{lem:preparation} establish the graph
-and width bounds at every estimator call.
+For the adversary, use $d=k$, $h=2H$, and $\varepsilon=\eta$.
+Lemmas~\ref{lem:restoration} and~\ref{lem:preparation} supply the graph and
+width bounds whenever the estimator is called.
 
 \subsection{Density and the choice of a position}\label{sec:median-search}
 
@@ -151,8 +193,9 @@ midpoint $c$. It keeps the right half if the reported cumulative
 probability is below $1/4$, keeps the left half if it is above $3/4$,
 and otherwise accepts $c$. This cell records where to test next.
 Every test uses the same feasible region $K$ and distribution $F_x$.
-The temporary threshold bound supplies the numerator for that test;
-all tests use the same $K_{\rm loc}$ and denominator.
+Each test applies the finite estimator to the event $X_x<c$, using the
+same tightened endpoints and the same retained neighborhood. Only the
+threshold in the final event test changes.
 
 \begin{lemma}[Midpoint search]\label{lem:median-search}
 The midpoint search for a wide item terminates at an interior anchor $c$.

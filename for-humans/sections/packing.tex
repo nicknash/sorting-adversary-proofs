@@ -154,25 +154,21 @@ It will pay for refining an entire path in the next section.
 The $H$ labels of a selected directed path enter distinct children of their
 parent. If their levels are $m_1,\ldots,m_H$, then
 \begin{equation}\label{eq:path-charge}
-\sum_{i=1}^H m_i\ge kH.
+\sum_{i=1}^H m_i\ge H(k-2).
 \end{equation}
 \end{lemma}
 \begin{proof}
 Every arc on the selected path records an answered comparison. The path's
 labels are therefore pairwise comparable in the public transcript, and
 remain so after arcs are deleted. By Lemma~\ref{lem:admission}, two of these labels cannot
-be admitted to the same child. The procedure completes all $H$ refinements
-in this parent, so their distinct child widths have sum at most $1/2$.
-The arithmetic--geometric mean inequality gives
+be admitted to the same child. The procedure completes all $H=2^k$
+refinements in this parent, so it uses $H$ distinct anchors.
+
+There are exactly $2^m$ possible anchors of level $m$. The smallest
+possible total level therefore uses all anchors of levels $0,\ldots,k-1$
+and one anchor of level $k$. Its value is
 \[
-\prod_{i=1}^H w(m_i)\le(1/(2H))^H.
+\sum_{m=0}^{k-1}m2^m+k=(k-2)2^k+k+2\ge H(k-2).
 \]
-Substitute \eqref{eq:child-weight} and take logarithms:
-\[
-(1+1/k)\sum_i m_i\ge H\bigl(\log H-\log(2k)\bigr).
-\]
-Since $H=2^{2k}$ and $\log(2k)\le k-1$ for integers $k\ge4$, the
-right-hand side is at least $(k+1)H$. Division by $1+1/k$ proves the claim.
-The auxiliary inequality follows from $2k\le2^{k-1}$, true at $k=4$ and
-preserved when $k$ increases by one.
+Every other choice of $H$ distinct anchors has at least this total level.
 \end{proof}
