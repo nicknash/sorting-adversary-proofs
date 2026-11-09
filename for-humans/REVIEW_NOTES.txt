@@ -115,3 +115,19 @@ The pseudocode was checked against the saved mechanical rules. Both compilers
 pass, cross-references resolve, and the affected pages and figures were rendered
 and checked. The current PDF has 34 pages; the source archive was rebuilt and
 compared with the saved files. No proof or formalization changes were made.
+
+
+Direct definitions and pseudocode style -- 9 November 2026
+--------------------------------------------------------
+Audited the manuscript's explanatory contrasts and rewrote them as direct
+definitions and positive descriptions. Item records now explicitly distinguish
+the key label x and the auxiliary position variable X_x at first use. Positions
+are explained through the ordering within a node and the role of child anchors.
+The overview and complete procedures now use algorithm2e with ruled captions,
+input/output lines, and vertical block guides, matching the author's JGAA source.
+The algorithms retain the same query preparation, answer selection, and repair
+rules; the public answer recording is now explicit in the complete pseudocode.
+
+Both compilers pass, with no repository build warnings. Cross-references and
+the source archive were checked. The current PDF has 35 pages. These are prose
+and presentation changes, with no new formal or external proof verification.

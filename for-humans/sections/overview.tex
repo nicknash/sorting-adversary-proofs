@@ -8,25 +8,27 @@ Section~\ref{sec:algorithm} gives the complete rules and their parameters.
 
 \subsection{The data structure}
 
-Each item is stored at exactly one node of a rooted tree. Within each node,
-the items form a directed acyclic graph (DAG): an arc $x\to y$ records a
-comparison answered $x<y$. We store the answered comparisons, without
-adding their transitive consequences as further arcs. Initially all items
-are at the root and there are no arcs.
+An item is represented by a record $(x,X_x)$, where the label $x$ identifies
+the key being sorted and $X_x$ is an auxiliary position variable. Each
+record is stored at exactly one node of a rooted tree. Positions range
+between $0$ and $1$ and describe the relative order of the items stored
+at that node. For each $X_x$, we store an open interval of allowed values.
+We call an item \emph{free} at its node while its position remains variable.
 
-Each node also has its own copy of the unit interval. An item $x$ at that
-node has a variable position $X_x$ and an open interval of allowed values.
-The positions must lie in their intervals and satisfy $X_x<X_y$ for each
-arc $x\to y$. We call these items \emph{free}, because their positions
-have not been fixed. Initially every allowed interval is $(0,1)$.
-The positions describe possible orders of the items; they are not numerical
-values of the keys being sorted.
+The items at a node are also the vertices of a directed acyclic graph
+(DAG). An arc $x\to y$ records a comparison answered $x<y$, imposing
+$X_x<X_y$ on their positions. Thus a feasible assignment of positions
+satisfies both the interval bounds and the arc inequalities. Each answered
+comparison between free items contributes at most one arc. Initially all
+records are at the root, every allowed interval is $(0,1)$, and the DAG
+has no arcs.
 
 Each child is attached to a fixed position in its parent's unit interval,
 called its \emph{anchor}. The anchor represents the whole child subtree
-as one consecutive block. The child has its own DAG and interval bounds
-for ordering items within that block. Positions in different nodes belong
-to different copies of $(0,1)$ and cannot be compared directly.
+as one consecutive block. Within the child, positions range from $0$ to $1$ again and order its
+contents inside that block. The child's DAG and interval bounds constrain
+these positions. The parent anchor determines the block's place among the
+parent's items and other children.
 Figure~\ref{fig:overview-state} shows these parts of the data structure.
 
 \begin{center}
@@ -85,7 +87,7 @@ Figure~\ref{fig:overview-state} shows these parts of the data structure.
   \draw[accent,fill=white] (\lo,\y) circle (1.7pt);
   \draw[accent,fill=white] (\hi,\y) circle (1.7pt);
 }
-\node[font=\footnotesize] at (0,-2.7) {Its own copy of $(0,1)$};
+\node[font=\footnotesize] at (0,-2.7) {Positions within this child};
 \end{scope}
 \begin{scope}[shift={(3.55,-.9)}]
 \draw[group] (-3.25,-3) rectangle (3.25,0);
@@ -104,15 +106,15 @@ Figure~\ref{fig:overview-state} shows these parts of the data structure.
   \draw[accent,fill=white] (.4,\y) circle (1.7pt);
   \draw[accent,fill=white] (2.8,\y) circle (1.7pt);
 }
-\node[font=\footnotesize] at (0,-2.7) {Its own copy of $(0,1)$};
+\node[font=\footnotesize] at (0,-2.7) {Positions within this child};
 \end{scope}
 \end{tikzpicture}
 \captionof{figure}{A state of the adversary. Each large box is a tree node,
 containing a DAG and one open interval for each of its items. Blue segments
 show the interval bounds; blue arcs impose additional inequalities between
 positions. Solid dots are fixed child anchors, and gray lines connect them
-to their children. The locations of vertices in the DAG drawings do not
-assign values to their coordinates.}
+to their children. Vertices are arranged to display the DAG's arcs;
+the horizontal bars specify their allowed positions.}
 \label{fig:overview-state}
 \end{minipage}
 \end{center}
@@ -135,7 +137,7 @@ kept in a separate graph on the original item labels.
 \subsection{Moving an item into a child}
 
 The operation that moves an item $x$ into a child is called a
-\emph{refinement}, denoted \textsc{Refine}$(x)$. First propagate all interval
+\emph{refinement}, denoted \texttt{Refine}$(x)$. First propagate all interval
 bounds implied by the DAG.
 This gives each item's \emph{effective interval}, its full range of
 feasible positions. Choose a point $c$ inside $x$'s effective interval
@@ -186,8 +188,9 @@ Figure~\ref{fig:overview-refine} illustrates reuse of an existing child.
 \end{tikzpicture}
 \captionof{figure}{The two arc inequalities become bounds on the remaining parent
 coordinates. The new coordinate of $x$ orders it within the child, where
-both $x<z$ and $z<x$ remain possible. The anchor $c$ fixes the child's
-location, not the order of its contents.}
+both $x<z$ and $z<x$ remain possible. The anchor $c$ locates the child
+block among the parent items; the child's constraints determine the orders
+within that block.}
 \label{fig:overview-refine}
 \end{minipage}
 \end{center}
@@ -226,33 +229,38 @@ an effective interval of sufficient width. If all queried free intervals
 are too narrow, refine one of those items before answering. After
 answering, we restore the graph bounds by
 refining vertices with too many neighbors, then refining every vertex of
-any selected path that is too long. The following pseudocode summarizes
+any selected path that is too long. Algorithm~\ref{alg:overview-compare} summarizes
 the procedure; all selections use fixed tie-breaking rules.
 
-\begin{quote}
-\begin{minipage}{\linewidth}
-\textbf{Compare$(A,B)$}\par\smallskip
-\begin{tabbing}
-\hspace{1.1em}\=\hspace{1.1em}\=\hspace{1.1em}\=\kill
-\textbf{loop}\\
-\> $v\gets$ first node where $A,B$ are not in the same child subtree\\
-\> \textbf{if} both are represented by child anchors \textbf{then}\\
-\>\> record and \textbf{return} their left-to-right order\\
-\> propagate interval bounds through the DAG at $v$\\
-\> \textbf{if} at least one queried free interval is wide enough \textbf{then break}\\
-\> \textsc{Refine}(one of the queried free items)\\
-\textbf{end loop}\\[3pt]
-Estimate the volume fraction supporting each answer, using a local DAG.\\
-Choose the answer with the larger estimate and record it publicly.\\
-Store the answer at $v$ as an arc or an interval bound; propagate bounds.\\
-\textbf{while} some vertex at $v$ has too many neighbors \textbf{do}\\
-\> \textsc{Refine}(such a vertex)\\
-\textbf{while} the DAG at $v$ has a directed path that is too long \textbf{do}\\
-\> select such a path and \textsc{Refine} all its vertices\\
-\textbf{return} the chosen answer
-\end{tabbing}
-\end{minipage}
-\end{quote}
+\begin{algorithm}[H]
+\caption{\texttt{Compare}$(A,B)$: overview of a comparison query.}
+\label{alg:overview-compare}
+\DontPrintSemicolon
+\KwIn{Distinct item labels $A,B$ and the current adversary state.}
+\KwOut{An answer $A<B$ or $B<A$, with the state updated.}
+\While{true}{
+  $v\gets$ first node, starting from the root, where the labels' representations differ\;
+  \If{both labels are represented by child anchors}{
+    $\mathit{answer}\gets$ their left-to-right order\;
+    Record $\mathit{answer}$ publicly\;
+    \Return $\mathit{answer}$\;
+  }
+  Propagate interval bounds through the DAG at $v$\;
+  \If{at least one queried free interval is wide enough}{\textbf{break}\;}
+  \texttt{Refine}(one of the queried free items)\;
+}
+Estimate the volume fraction supporting each answer, using a local DAG\;
+$\mathit{answer}\gets$ the answer with the larger estimate\;
+Record $\mathit{answer}$ publicly and store its arc or interval bound at $v$\;
+Propagate interval bounds through the DAG at $v$\;
+\While{a vertex at $v$ has too many neighbors}{
+  \texttt{Refine}(such a vertex)\;
+}
+\While{the DAG at $v$ has a directed path that is too long}{
+  Select such a path and \texttt{Refine} all its vertices\;
+}
+\Return $\mathit{answer}$\;
+\end{algorithm}
 
 Refining a queried item restarts the search from the root because the node
 that handles the query may change. In the last loop, the whole selected

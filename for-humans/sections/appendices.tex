@@ -8,15 +8,15 @@ For a coordinate $x$ and a real number $t$, write
 K_x(t)=\{(z_i)_{i\ne x}:z\in K,\ z_x=t\},
 \qquad S_x(t)=\vol_{N-1}K_x(t).
 \]
-Here $K_x(t)$ is a region in the coordinates other than $x$; its volume
-does not include the fixed coordinate. The uniform distribution on $K$
+Here $K_x(t)$ is the $(N-1)$-dimensional section obtained by fixing
+coordinate $x$ at $t$. The uniform distribution on $K$
 therefore gives $x$ the density
 \[
 f_x(t)=\frac{S_x(t)}{\vol_N K},\qquad
 F_x(t)=\int_{-\infty}^t f_x(s)\,ds.
 \]
-These formulas specify the density at every point, not just almost
-everywhere. If some coordinates have already been fixed, we use the same
+These formulas define $f_x$ pointwise, and we use this definition throughout.
+If some coordinates have already been fixed, we use the same
 definitions in the remaining free coordinates. In dimension zero, the
 volume of the singleton consisting of the empty assignment is one.
 
@@ -98,9 +98,8 @@ Neither construction moves a coordinate incomparable with $x$, so both
 remain valid after the conditioning at the start of the proof. A region
 of positive volume has some section of positive volume. The two maps
 carry that section to every $t\in(\ell,r)$ with a positive volume factor.
-Consequently fixing incomparable coordinates leaves the entire effective
-interval available to $x$; it does not shorten the interval over which
-we normalize its density.
+Consequently, after fixing incomparable coordinates, we normalize the
+density of $x$ over the same effective interval $(\ell,r)$ of width $W$.
 
 Normalize $S$ to obtain $f_x$. Integrating the two inequalities on their
 respective sides of $t$ gives
@@ -305,9 +304,8 @@ own region. The shared random choices bring their values close together
 far from the retained boundary. We then use the density bound to show
 that close values usually give the same comparison answer.
 
-This random experiment is only a proof device. The adversary evaluates
-the local probabilities by the deterministic volume calculation in
-Appendix~\ref{app:table}.
+The resulting bound establishes the accuracy of the deterministic volume
+calculation in Appendix~\ref{app:table}.
 
 \subsection{Coupled coordinate updates}
 

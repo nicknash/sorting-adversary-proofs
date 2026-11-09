@@ -228,8 +228,8 @@ pair~\cite[Table~11]{kzz}.
 \captionof{figure}{A comparison between pairs at different nodes in the
 adversary of Kaplan, Zamir, and Zwick~\cite[Table~11]{kzz}. Shaded items
 are queried. Blue arcs are retained comparisons; gray lines are lattice
-edges. The new answer $A<C$ is represented by placement in disjoint child
-ranges, so it does not become an arc joining the two pairs.}
+edges. The new answer $A<C$ is enforced by the disjoint child ranges assigned
+to $A$ and $C$.}
 \label{fig:kzz-pairs}
 \end{minipage}
 \end{center}
@@ -237,10 +237,9 @@ ranges, so it does not become an arc joining the two pairs.}
 A retained pair also restricts its members' possible destinations: they
 cannot enter the same child of the underlying four-child tree. For
 example, if $A<B$ is stored at $[0,2]$, then $A$ can enter only child $0$
-or $1$, and $B$ can enter only child $1$ or $2$. These restrictions are
-used when choosing subsequent comparison answers. They distinguish the
-pair state from simply recording one inequality between otherwise
-unrestricted items~\cite[Section~5]{kzz}.
+or $1$, and $B$ can enter only child $1$ or $2$. The pair's order thus narrows each member's possible destinations,
+and the adversary uses these restrictions when choosing subsequent
+comparison answers~\cite[Section~5]{kzz}.
 
 Their analysis measures progress using item depths, intermediate
 placements, and retained pairs. The comparison rules bound the increase

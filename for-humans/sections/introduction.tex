@@ -57,9 +57,8 @@ vanishing additional failure probability. These guarantees also hold for
 an always-correct randomized sorter whose random bits are independent of the adversary's:
 condition on the sorter's random choices and apply the same argument.
 
-Fixing one permutation in advance does not give a deterministic adversary
-with the required universal guarantee. For any prescribed permutation,
-a correct sorter can first check its $n-1$ consecutive pairs, finish if all
+For any prescribed permutation, a correct sorter can first check its
+$n-1$ consecutive pairs, finish if all
 checks agree, and otherwise use a general sorting algorithm. That
 permutation then costs only $n-1$ comparisons. The deterministic adversary
 must choose its answers in response to the questions it receives.
@@ -116,13 +115,11 @@ comparisons.
 \end{theorem}
 
 Merge sort uses at most $n\ceil{\log n}$ comparisons, so this bound is
-asymptotically optimal. The theorem derandomizes the adversary problem;
-it does not give a deterministic polynomial-time algorithm for approximating
-arbitrary convex volumes or counting arbitrary linear extensions.
-Instead, the adversary maintains a restricted recursive representation of
-the remaining orders, on which the necessary calculations are deterministic.
-Its running-time guarantee is asymptotic, with very large parameter
-thresholds; it is not intended as a practical implementation.
+asymptotically optimal. The derandomization uses a restricted recursive
+representation of the remaining orders. The structure of these regions
+allows the adversary to calculate the required volume estimates
+deterministically in polynomial time. Its running-time guarantee is
+asymptotic and involves very large parameter thresholds.
 
 Section~\ref{sec:related} reviews the classical tree adversaries and the
 construction of Kaplan, Zamir, and Zwick. Section~\ref{sec:overview} gives

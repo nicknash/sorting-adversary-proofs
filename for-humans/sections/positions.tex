@@ -19,8 +19,8 @@ of $x$ in the underlying undirected graph; for $X_x<X_y$, retain the
 union of these neighborhoods of $x$ and $y$.
 \item Keep every arc whose endpoints are both retained, and keep each
 retained coordinate's effective interval from the full group. Call the
-resulting region $K_{\rm loc}$. In particular, deleting a distant vertex
-does not undo any interval bound it had already implied.
+resulting region $K_{\rm loc}$. This retains interval bounds implied
+by distant vertices.
 \item Calculate the volume $V_{\rm loc}$ of this region. Calculate a
 second volume $N_{\rm loc}$ after adding the proposed comparison arc
 or threshold bound to a temporary copy of the local region.
@@ -95,8 +95,7 @@ from their currently permitted intervals, using the same random numbers
 in both assignments. Each assignment keeps its original uniform
 distribution, while the discrepancies at vertices far from the removed
 constraints decrease. Bounded degree and height give a sufficient number
-of updates and hence a sufficient radius. These random assignments and
-updates occur only in the proof; the estimator executes the finite volume
+of updates and hence a sufficient radius for the deterministic volume
 calculation described above.
 
 For the adversary, take $d=k$, $h=2H$, and $\varepsilon=\eta$.
@@ -151,10 +150,9 @@ Recall that the wide-item search starts with $[a,b]=[0,1]$ and tests its
 midpoint $c$. It keeps the right half if the reported cumulative
 probability is below $1/4$, keeps the left half if it is above $3/4$,
 and otherwise accepts $c$. This cell records where to test next.
-Rejecting a midpoint changes neither the feasible region $K$ nor its
-distribution $F_x$: the temporary threshold bound is used only to
-calculate the numerator of that test. All tests can use the same
-$K_{\rm loc}$ and denominator.
+Every test uses the same feasible region $K$ and distribution $F_x$.
+The temporary threshold bound supplies the numerator for that test;
+all tests use the same $K_{\rm loc}$ and denominator.
 
 \begin{lemma}[Midpoint search]\label{lem:median-search}
 The midpoint search for a wide item terminates at an interior anchor $c$.
