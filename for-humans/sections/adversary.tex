@@ -8,7 +8,7 @@ section, after their roles have been explained.
 \subsection{A tree of groups, each with its own coordinates}
 
 Each item has a record $(x,X_x,a_x,b_x)$ stored at exactly one node of a
-rooted tree. The label $x$ identifies its key, and the auxiliary variable
+rooted tree. The label $x$ identifies its key, and the symbolic variable
 $X_x$ describes its position among the items at that node. The record's
 bounds impose $a_x<X_x<b_x$, with $(a_x,b_x)\subseteq(0,1)$. We call the
 item \emph{free} while its position remains variable. The free items at a node
@@ -33,8 +33,10 @@ but a set of volume zero. Every item appears exactly once in the resulting
 list. The collection of feasible assignments therefore specifies the
 family of total orders represented by the state.
 
-Initially the tree has only a root. All $n$ items are free there, their
-intervals are $(0,1)$, and there are no arcs. Every order is represented.
+Initially the tree has only a root. All $n$ items are free there, with
+records $(x,X_x,0,1)$ and unassigned position variables $X_x$. There are
+no arcs, so the feasible assignments form $(0,1)^n$. Assignments with
+distinct positions represent all $n!$ total orders.
 The algorithm will ensure that every order it represents is consistent
 with all the comparisons it has answered. It may discard additional orders
 when it changes the representation; the lower-bound proof will account for

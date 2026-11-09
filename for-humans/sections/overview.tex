@@ -9,10 +9,10 @@ algorithm.
 Figure~\ref{fig:overview-state} shows the data structure used by the
 comparison procedure in Algorithm~\ref{alg:overview-compare}.
 
-An item is represented by a record $(x,X_x,a_x,b_x)$, containing its label
-$x$, its auxiliary position variable $X_x$, and the bounds $a_x,b_x$ that
-restrict $X_x$ to the open interval $(a_x,b_x)\subseteq(0,1)$. The label
-identifies the key being sorted. Each record is stored at exactly one node
+An item is represented by a record $(x,X_x,a_x,b_x)$, where $x$ is the label
+identifying its key and $X_x$ is a symbolic variable for its position.
+The fields $a_x,b_x$ restrict this variable to the open interval
+$(a_x,b_x)\subseteq(0,1)$. Each record is stored at exactly one node
 of a rooted tree, where the positions describe the relative order of its
 items. We call an item \emph{free} at its node while its position remains
 variable.
@@ -21,9 +21,12 @@ The items at a node are also the vertices of a directed acyclic graph
 (DAG). An arc $x\to y$ records a comparison answered $x<y$, imposing
 $X_x<X_y$ on their positions. Thus a feasible assignment of positions
 satisfies both the interval bounds and the arc inequalities. Each answered
-comparison between free items contributes at most one arc. Initially all
-records are at the root, every allowed interval is $(0,1)$, and the DAG
-has no arcs.
+comparison between free items contributes at most one arc.
+
+Initially all records are at the root, with bounds $a_x=0$ and $b_x=1$.
+The position variables $X_x$ are unassigned, and the DAG has no arcs.
+Thus every assignment in $(0,1)^n$ is feasible, and every total order
+can be obtained by assigning distinct positions.
 
 Each child is attached to a fixed position in its parent's unit interval,
 called its \emph{anchor}. The anchor represents the whole child subtree
