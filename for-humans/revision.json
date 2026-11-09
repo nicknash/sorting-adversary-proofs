@@ -4,12 +4,12 @@
   "argument": "finite averaging over dyadic coordinate updates, with a single coefficient for refinement accounting",
   "source_pdf_sha256": "577836ef3235bd8c452b8bdf0b5cbf3840c943c1a1837bed8c9f7ce3f41ab907",
   "source_zip_sha256": "4c4545e4e96e6ad4eb1389e5a1cfc91c6d22b35bf9180a2bedfbfc1885515fc7",
-  "local_pdf_sha256": "4956fe534ea26272f4b099e14bf314592d348fb505221de88fba295607928450",
-  "prepared_zip_sha256": "7334766abd95ffb8b94499c04048c807d43ec69b7ec3b769678099cdbda04819",
+  "local_pdf_sha256": "2a6546bcf3be55faf2ed2f99af5587036f6eb47a94bdeab537c4a6e359521f43",
+  "prepared_zip_sha256": "2c787dfe1ecb0ede844ccdee55522dc1f15e69a8819bdbe6a9ad0178f168903d",
   "previous_hexagon_submission": "hexagon:2611.00196",
   "previous_submission_metadata": "submission.json",
   "formalization": "Related earlier integer-colour construction; this continuous presentation is not formally verified.",
-  "exposition": "Sections 1 and 2 preserved; Section 3 changes limited to the complement convention and directly determined answers. Later sections introduce the finite update calculation before its proof and derive the comparison bound with one coefficient.",
+  "exposition": "Sections 1 and 2 preserved. Section 3 retains the illustrated overview, with explicit tree descent, directly determined answers, and the complement convention. Later sections introduce the finite update calculation before its proof and derive the comparison bound with one coefficient.",
   "pages": 35,
   "source_chat": "https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af1b5f8-a1d0-83ed-b93d-fe7efd94df67"
 }

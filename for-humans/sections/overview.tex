@@ -157,10 +157,11 @@ kept in a separate graph on the original item labels.
 Algorithm~\ref{alg:overview-compare} shows the algorithm the adversary uses
 to answer a comparison by the sorter.
 
-A query on labels $A,B$ is handled at the first node where they are
-represented differently. Starting at the root, descend while both labels
-belong to the same child subtree. At the stopping node, each is either a
-free item or the anchor of a child containing it.
+To compare $A$ and $B$, start at the root and descend into a child whenever
+its subtree contains both items. Stop when at least one item is stored at
+the current node, or when the items lie in different child subtrees.
+At this node, use an item's free coordinate if it is stored here, and the
+corresponding child anchor otherwise.
 In Figure~\ref{fig:overview-state}, comparing $p$ with $q$ descends into
 the left child; comparing $p$ with $r$ uses the anchors $1/4$ and $3/4$;
 and comparing $a$ with $p$ compares $X_a$ with $1/4$ at the root.
@@ -202,9 +203,12 @@ any selected path that is too long. All selections use fixed tie-breaking rules.
 \KwIn{Distinct item labels $A,B$ and the current adversary state.}
 \KwOut{An answer $A<B$ or $B<A$, with the state updated.}
 \While{true}{
-  $v\gets$ first node, starting from the root, where the labels' representations differ\;
-  \If{both labels are represented by child anchors}{
-    $\mathit{answer}\gets$ their left-to-right order\;
+  $v\gets$ the root\;
+  \While{$A$ and $B$ lie in the same child subtree of $v$}{
+    $v\gets$ that child\;
+  }
+  \If{$A$ and $B$ lie in different child subtrees of $v$}{
+    $\mathit{answer}\gets$ the left-to-right order of their child anchors\;
     \Return $\mathit{answer}$\;
   }
   Propagate interval bounds through the DAG at $v$\;

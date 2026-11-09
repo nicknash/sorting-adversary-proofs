@@ -18,7 +18,8 @@ packing argument are retained from the preceding version.
 
 The source for this simplification is the
 [finite-averaging audit](https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af1b5f8-a1d0-83ed-b93d-fe7efd94df67).
-Sections 1 and 2 are unchanged. Section 3 has only the necessary corrections
+Sections 1 and 2 are unchanged. Section 3 retains the illustrated overview,
+with an explicit rule for descending through the tree and the corrections
 to answer selection: directly determined answers and the use of one strict
 event estimate together with its complement.
 

@@ -127,10 +127,11 @@ mutual order unresolved in a shared child. Their new positions each range over $
 
 \subsection{Where a comparison is answered}
 
-To compare distinct original labels $A$ and $B$, start at the root. If they belong
-to the same child subtree, descend into that child. Repeat until their
-representations differ. At this node, each label is represented either by
-its own free coordinate or by the anchor of the child containing it.
+To compare distinct original labels $A$ and $B$, start at the root and
+descend into a child whenever its subtree contains both items. Stop when
+at least one item is stored at the current node, or when the items lie in
+different child subtrees. At this node, use an item's free coordinate if
+it is stored here, and the corresponding child anchor otherwise.
 There are three cases.
 \begin{enumerate}
 \item Two different anchors determine the answer from their left-to-right
@@ -300,9 +301,12 @@ counts its vertices.
 \KwIn{Distinct item labels $A,B$ and the current adversary state.}
 \KwOut{An answer $A<B$ or $B<A$, with the state updated.}
 \While{true}{
-  Descend from the root through common children to the first node $v$ where the representations differ\;
-  \If{both labels are represented by child anchors}{
-    $\mathit{answer}\gets$ their left-to-right order\;
+  $v\gets$ the root\;
+  \While{$A$ and $B$ lie in the same child subtree of $v$}{
+    $v\gets$ that child\;
+  }
+  \If{$A$ and $B$ lie in different child subtrees of $v$}{
+    $\mathit{answer}\gets$ the left-to-right order of their child anchors\;
     \Return $\mathit{answer}$\;
   }
   \texttt{Tighten}$(v)$\;
