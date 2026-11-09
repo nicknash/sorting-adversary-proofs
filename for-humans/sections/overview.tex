@@ -211,8 +211,9 @@ vertex to fewer than $k$ neighbors, counting both incoming and outgoing
 arcs, and each directed path to fewer than $H$ vertices. After answering,
 refine vertices with at least $k$ neighbors until none remain. Then select
 a path of $H$ vertices and refine all of them, repeating until no such
-path remains. We call these operations \emph{repairs}. A path repair includes
-the entire selected list, even if earlier moves break the path.
+path remains. The procedure \texttt{Repair}$(v)$ performs these
+\emph{repairs} at node $v$; see Algorithm~\ref{alg:repair}. A path repair
+includes the entire selected list, even if earlier moves break the path.
 
 \Needspace{11\baselineskip}
 The following lemma supplies the accuracy needed by the comparison rule
@@ -265,6 +266,23 @@ Append $\mathit{answer}$ to the global transcript\;
 Insert its arc into the global comparison DAG\;
 Store $\mathit{answer}$ as an arc in the in-node DAG at $v$ or as an interval bound\;
 \texttt{Tighten}$(v)$\;
+\texttt{Repair}$(v)$\;
+\Return $\mathit{answer}$\;
+\end{algorithm}
+
+Refining a queried item restarts the search from the root because the node
+that handles the query may change. Both \texttt{Compare} and \texttt{Repair}
+choose the smallest label among eligible items. \texttt{Repair} selects
+the lexicographically first eligible path and processes its items in label
+order. These rules make every selection deterministic.
+
+\begin{algorithm}[H]
+\caption{\texttt{Repair}$(v)$: restore the degree and path-length bounds.}
+\label{alg:repair}
+\DontPrintSemicolon
+\KwIn{A tree node $v$ and the current adversary state.}
+\KwOut{The updated state, with degree below $k$ and paths of fewer than
+$H$ vertices in the in-node DAG at $v$.}
 \While{the in-node DAG at $v$ has a vertex of degree at least $k$}{
   \texttt{Refine}(such a vertex)\;
 }
@@ -272,14 +290,7 @@ Store $\mathit{answer}$ as an arc in the in-node DAG at $v$ or as an interval bo
   $P\gets$ the selected path\;
   \ForEach{$x\in P$ in label order}{\texttt{Refine}$(x)$\;}
 }
-\Return $\mathit{answer}$\;
 \end{algorithm}
-
-Refining a queried item restarts the search from the root because the node
-that handles the query may change. Among eligible items choose the smallest
-label. Select a path by the lexicographically first eligible label sequence,
-and process its items in label order. These rules make every selection
-deterministic.
 
 \subsection{Moving an item into a child}\label{sec:overview-refine}
 

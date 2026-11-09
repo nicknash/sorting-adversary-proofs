@@ -323,3 +323,20 @@ and related work are unchanged. Both compilers succeed; final repository
 diagnostics have no warnings or unresolved references. Revised lemma, theorem,
 proof, algorithm, and table pages were visually checked. The document has
 34 pages, and all 18 source-archive members match the saved files.
+
+
+Separate Repair procedure -- 9 November 2026
+------------------------------------------
+Extracted the degree and path loops verbatim from Compare into Repair(v),
+now Algorithm 2. Compare calls Repair after recording the answer, storing
+its in-node constraint, and tightening the affected node. Inlining the
+new call reproduces the previous Compare listing exactly. Refine and the
+anchor-selection rules are unchanged. Tie rules explicitly apply to both
+Compare and Repair, and each selected path batch is still completed.
+
+Section 4 now recalls Algorithm 2 when explaining the degree threshold k.
+The repair-monotonicity proof and graph-bounds/legality proof refer to the
+extracted procedure. Both compilers pass without final repository warnings;
+references resolve, and the comparison/repair listings and affected proof
+pages were visually checked. The PDF has 34 pages and the 18 source-archive
+members match the saved files.

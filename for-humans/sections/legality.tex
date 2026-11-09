@@ -359,8 +359,9 @@ preserve the degree and path-length bounds.
 Suppose every in-node DAG has degree less than $k$ and directed paths
 of fewer than $H$ vertices at the start of a call. If its selected answer leaves positive volume,
 then every in-node DAG has degree at most $k$ and directed paths of at most
-$2H$ vertices throughout the call. At its end, every in-node DAG again satisfies the strict bounds. Restoration
-performs at most $n$ refinements, all at the node changed by the answer.
+$2H$ vertices throughout the call. At its end, every in-node DAG again satisfies the strict bounds.
+\textnormal{\texttt{Repair}} performs at most $n$ refinements, all at the
+node changed by the answer.
 \end{lemma}
 \begin{proof}
 Preparation preserves the strict bounds by Lemma~\ref{lem:preparation}.
@@ -372,7 +373,7 @@ directed cycle. An interval change adds no in-node arcs.
 
 Every refinement removes a vertex and its incident arcs from the parent.
 Thus degrees and path lengths cannot increase during restoration. The first
-pass removes every degree violation. The second pass removes every path
+loop of Algorithm~\ref{alg:repair} removes every degree violation. The second loop removes every path
 violation without increasing degrees. All selected path vertices are
 processed, even if earlier refinements have broken the original path.
 Each refinement removes a different free item from this node, so there
@@ -409,8 +410,8 @@ least $1/2-\eta>0$ of the volume and makes that comparison true in every
 represented order. In particular, a new arc cannot create a directed
 cycle. An answer determined by anchors, interval bounds, or a directed path
 was already true in every represented order and leaves the state unchanged.
-The selected answer is recorded in the global comparison DAG before any
-restoration refinement.
+The selected answer is recorded in the global comparison DAG before
+calling \texttt{Repair}.
 
 Lemma~\ref{lem:restoration} gives degree at most $k$ and directed paths
 of at most $2H$ vertices during restoration. At each refinement these bounds and positivity

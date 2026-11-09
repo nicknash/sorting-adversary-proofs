@@ -1,7 +1,8 @@
 \section{Why the adversary forces many comparisons}\label{sec:potential}
 
-A larger degree threshold $k$ lets the adversary retain more comparisons
-involving each item before moving it into a child. Increasing $k$ lets
+Recall from Algorithm~\ref{alg:repair} that a larger degree threshold $k$
+lets the adversary retain more comparisons involving each item before
+moving it into a child. Increasing $k$ lets
 the adversary force a comparison count closer to $n\log n$. The following
 bound quantifies this dependence.
 
@@ -236,8 +237,8 @@ where the last inequality uses $s\le1/4$.
 
 An individual refinement within a path batch may decrease the potential.
 The proposition applies to the completed batch, which is why the final
-loop of Algorithm~\ref{alg:compare} finishes its selected list before
-selecting another path or returning an answer.
+loop of Algorithm~\ref{alg:repair} finishes its selected list before
+selecting another path or returning to \texttt{Compare}.
 
 \subsection{The decrease caused by a comparison}\label{sec:comparison-cost}
 
