@@ -658,3 +658,63 @@ pass, with no final warnings or unresolved references. The affected
 algorithm, proof, appendix, and parameter-table pages were visually
 checked. The draft remains 30 pages. All 16 archive members match saved
 sources. This revision has not replaced the Hexagon deposit.
+
+
+Finite digit updates, shortest anchors, and direct charges -- 9 November 2026
+--------------------------------------------------------------------------
+Source: the latest complete assistant message in Simplify Paper Arguments,
+turn 5dc43df7-3eb9-4512-a915-fd8b127fd7dc, retrieved through the connected
+chat reader. It proposes a further simplification against revision 1fd2aeb.
+The linked ten-page PDF and ZIP were not downloaded. The construction and
+proofs were developed from the message within the existing exposition,
+then independently checked. No text was copied from the replacement PDF.
+
+The estimator now enumerates finite digit updates
+z' = (z + (S-1-j)L + jU)/S, with S a power of two. Prepending a uniform
+base-S digit to the normalized coordinate preserves the continuous
+uniform distribution exactly. The local computation starts at effective
+lower endpoints and may have ties. A coupling with the full stationary
+process, including the old-coordinate self term, gives the route-counting
+bound. Effective bounds are copied from the full graph before truncation.
+The same finite marginal list approximates every threshold, including
+both one-sided values at its atoms. Exact local volume integration is
+removed from the algorithm and its implementation proof.
+
+ChooseAnchor selects the shortest binary fraction in a central interval:
+empirical first-to-third quartiles for a wide coordinate, the middle half
+of the effective interval for a narrow coordinate. The existing implicit
+anchor tree and its diagram describe this common walk. Tied quantiles are
+handled explicitly. Narrow refinements may use depth-zero anchors; their
+logarithmic volume gain exceeds k, and each adds at most one stored bit.
+
+Section 4 charges the child-choice cost directly against the logarithmic
+volume gain. Whole path batches and narrow moves pay their own costs;
+degree moves receive an allowance charged to deleted comparison arcs.
+Negative gains are included. The terminal experiment and telescoping
+preserve the explicit denominator 1+(2 log2(k)+17)/k. Section 7 uses
+E_k=S_k^(b_k t_k)<=n as its explicit budget, yielding at most log2(n)
+updates and added fractional bits per computation. Timed stage generation
+establishes uniform initialization and k(n) tending to infinity.
+
+Independent reviews checked the finite invariant distribution, local
+initialization, self-term contraction, boundary and adaptive-route handling,
+empirical ties and quartile transfer, shortest-anchor uniqueness and
+containment, narrow depth-zero cases, all three charge inequalities,
+negative gains, traversal multiplicities, telescoping, and uniform bit cost.
+The exact diagnostics pass 5,624 accounting checks; 72 conditional moment
+identities; 2,016 shortest-fraction cases; 2,206 narrow-anchor cases; three
+wide empirical-quartile cases with ties; and 43,706 finite-chain updates.
+The existing independent reference volumes, certainty tests, and raw-bound
+section checks still pass. Those volume calculations are diagnostic
+references, not the current adversary algorithm. Superseded midpoint-search
+checks were removed from the current test target. All diagnostics are
+finite; they do not prove general locality or all adversary trajectories.
+The related earlier Lean formalization is unchanged.
+
+The abstract, disclosure, related work, density appendix and existing
+figures are unchanged. Section 1 changes only the necessary technical
+roadmap, and Section 3 only the marginal interface and anchor-rule wording.
+The draft has 31 pages. The saved source compiles with both the repository
+and editor compilers, with no final warnings or unresolved references.
+Affected pages were visually reviewed. All 18 archive members match saved
+sources. This revision has not replaced the Hexagon deposit.

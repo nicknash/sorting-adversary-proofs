@@ -8,6 +8,7 @@ output/pdf/paper.pdf: paper.tex $(wildcard sections/*.tex)
 	cp build/paper.pdf $@
 
 checks:
+	python3 anc/check_finite_digits.py
 	python3 anc/check_simplification.py
 	python3 anc/check_packing_primitives.py --output anc/check_packing_primitives.json
 

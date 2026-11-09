@@ -1,14 +1,25 @@
 {
-  "purpose": "Finite exact-rational diagnostic of the two accounting inequalities and the +17 comparison coefficient; not a proof of the structural, geometric, or locality hypotheses or of the adversary.",
+  "purpose": "Finite exact-rational diagnostics of direct volume-gain charges and the +17 comparison coefficient; not a proof of the structural or geometric hypotheses, of all parameter values, or of the adversary.",
   "range": {
     "first_j": 6,
     "last_j": 128,
     "count": 123
   },
   "all_checks_passed": true,
-  "checks_per_stage": 14,
-  "stage_checks": 1722,
-  "residue_identity_grid": {
+  "checks_per_stage": 16,
+  "stage_checks": 1968,
+  "refinement_examples": {
+    "counts": {
+      "degree": 615,
+      "narrow": 615,
+      "path_batch": 369
+    },
+    "total": 1599,
+    "negative_degree_gains": 246,
+    "narrow_anchor_depth_zero_or_one": 246,
+    "scope": "Synthetic gains satisfying the anchor inequalities; not full adversary trajectories or claims of geometric realizability."
+  },
+  "slack_identity_grid": {
     "first_j": 0,
     "last_j": 16,
     "first_k": 8,
@@ -16,38 +27,46 @@
     "count": 2057,
     "scope": "Identity only; this grid does not assert the comparison inequality when k is unrelated to 2**j."
   },
-  "total_checks": 3779,
+  "total_checks": 5624,
   "coefficient_table": [
     {
       "j": 6,
       "k": 64,
+      "volume_gain_coefficient": {
+        "exact": "5/4",
+        "decimal": 1.25
+      },
       "anchor_depth_cost_majorant": {
         "exact": "131/128",
         "decimal": 1.0234375
       },
-      "total_depth_per_comparison_bound": {
-        "exact": "2139/1825",
-        "decimal": 1.172054794520548
+      "degree_allowance_margin": {
+        "exact": "0",
+        "decimal": 0.0
       },
-      "refinements_per_comparison_bound": {
-        "exact": "4033/116800",
-        "decimal": 0.034529109589041096
+      "narrow_refinement_margin": {
+        "exact": "145/64",
+        "decimal": 2.265625
+      },
+      "path_batch_margin_per_refinement": {
+        "exact": "107/128",
+        "decimal": 0.8359375
       },
       "rational_comparison_charge": {
-        "exact": "336671/233600",
-        "decimal": 1.441228595890411
+        "exact": "741/512",
+        "decimal": 1.447265625
       },
       "displayed_comparison_charge": {
         "exact": "93/64",
         "decimal": 1.453125
       },
       "comparison_charge_slack": {
-        "exact": "2779/233600",
-        "decimal": 0.01189640410958904
+        "exact": "3/512",
+        "decimal": 0.005859375
       },
       "coefficient_from_rational_charge": {
-        "exact": "233600/336671",
-        "decimal": 0.6938524553644358
+        "exact": "512/741",
+        "decimal": 0.6909581646423751
       },
       "coefficient_from_displayed_charge": {
         "exact": "64/93",
@@ -55,51 +74,84 @@
       },
       "checks": {
         "estimation_error_range": true,
-        "elimination_coefficient_identity": true,
-        "elimination_coefficient_positive": true,
-        "depth_bound_from_elimination": true,
-        "depth_excess_identity": true,
-        "refinement_bound_identity": true,
-        "refinement_excess_identity": true,
-        "extremal_volume_balance": true,
-        "comparison_residue_identity": true,
+        "gain_coefficient_range": true,
+        "depth_difference_identity": true,
+        "depth_difference_positive": true,
+        "degree_allowance_margin_identity": true,
+        "degree_allowance_margin_nonnegative": true,
+        "narrow_margin_identity": true,
+        "narrow_margin_positive": true,
+        "path_margin_identity": true,
+        "path_margin_positive": true,
+        "path_margin_sufficient_inequality": true,
+        "comparison_slack_identity": true,
         "comparison_charge_upper_bound": true,
-        "residue_positive_majorant": true,
         "anchor_walk_probability_mass": true,
         "anchor_depth_logarithm_majorant": true,
         "comparison_loss_rational_majorant": true
+      },
+      "refinement_examples": {
+        "counts": {
+          "degree": 5,
+          "narrow": 5,
+          "path_batch": 3
+        },
+        "negative_degree_gains": 2,
+        "narrow_anchor_depth_zero_or_one": 2,
+        "minimum_rational_slack": {
+          "degree": {
+            "exact": "0",
+            "decimal": 0.0
+          },
+          "narrow": {
+            "exact": "1925/256",
+            "decimal": 7.51953125
+          },
+          "path_batch": {
+            "exact": "107/128",
+            "decimal": 0.8359375
+          }
+        }
       }
     },
     {
       "j": 8,
       "k": 256,
+      "volume_gain_coefficient": {
+        "exact": "137/128",
+        "decimal": 1.0703125
+      },
       "anchor_depth_cost_majorant": {
         "exact": "515/512",
         "decimal": 1.005859375
       },
-      "total_depth_per_comparison_bound": {
-        "exact": "33147/31873",
-        "decimal": 1.0399711354437926
+      "degree_allowance_margin": {
+        "exact": "23/32",
+        "decimal": 0.71875
       },
-      "refinements_per_comparison_bound": {
-        "exact": "65281/8159488",
-        "decimal": 0.008000624548991309
+      "narrow_refinement_margin": {
+        "exact": "625/256",
+        "decimal": 2.44140625
+      },
+      "path_batch_margin_per_refinement": {
+        "exact": "33225/16384",
+        "decimal": 2.02789306640625
       },
       "rational_comparison_charge": {
-        "exact": "18245763/16318976",
-        "decimal": 1.1180703372564553
+        "exact": "73865/65536",
+        "decimal": 1.1270904541015625
       },
       "displayed_comparison_charge": {
         "exact": "289/256",
         "decimal": 1.12890625
       },
       "comparison_charge_slack": {
-        "exact": "176831/16318976",
-        "decimal": 0.010835912743544692
+        "exact": "119/65536",
+        "decimal": 0.0018157958984375
       },
       "coefficient_from_rational_charge": {
-        "exact": "16318976/18245763",
-        "decimal": 0.8943981131400205
+        "exact": "65536/73865",
+        "decimal": 0.8872402355648819
       },
       "coefficient_from_displayed_charge": {
         "exact": "256/289",
@@ -107,51 +159,84 @@
       },
       "checks": {
         "estimation_error_range": true,
-        "elimination_coefficient_identity": true,
-        "elimination_coefficient_positive": true,
-        "depth_bound_from_elimination": true,
-        "depth_excess_identity": true,
-        "refinement_bound_identity": true,
-        "refinement_excess_identity": true,
-        "extremal_volume_balance": true,
-        "comparison_residue_identity": true,
+        "gain_coefficient_range": true,
+        "depth_difference_identity": true,
+        "depth_difference_positive": true,
+        "degree_allowance_margin_identity": true,
+        "degree_allowance_margin_nonnegative": true,
+        "narrow_margin_identity": true,
+        "narrow_margin_positive": true,
+        "path_margin_identity": true,
+        "path_margin_positive": true,
+        "path_margin_sufficient_inequality": true,
+        "comparison_slack_identity": true,
         "comparison_charge_upper_bound": true,
-        "residue_positive_majorant": true,
         "anchor_walk_probability_mass": true,
         "anchor_depth_logarithm_majorant": true,
         "comparison_loss_rational_majorant": true
+      },
+      "refinement_examples": {
+        "counts": {
+          "degree": 5,
+          "narrow": 5,
+          "path_batch": 3
+        },
+        "negative_degree_gains": 2,
+        "narrow_anchor_depth_zero_or_one": 2,
+        "minimum_rational_slack": {
+          "degree": {
+            "exact": "23/32",
+            "decimal": 0.71875
+          },
+          "narrow": {
+            "exact": "245897/32768",
+            "decimal": 7.504180908203125
+          },
+          "path_batch": {
+            "exact": "33225/16384",
+            "decimal": 2.02789306640625
+          }
+        }
       }
     },
     {
       "j": 10,
       "k": 1024,
+      "volume_gain_coefficient": {
+        "exact": "261/256",
+        "decimal": 1.01953125
+      },
       "anchor_depth_cost_majorant": {
         "exact": "2051/2048",
         "decimal": 1.00146484375
       },
-      "total_depth_per_comparison_bound": {
-        "exact": "525819/520705",
-        "decimal": 1.0098212999683123
+      "degree_allowance_margin": {
+        "exact": "59/64",
+        "decimal": 0.921875
       },
-      "refinements_per_comparison_bound": {
-        "exact": "1047553/533201920",
-        "decimal": 0.0019646459637654716
+      "narrow_refinement_margin": {
+        "exact": "2545/1024",
+        "decimal": 2.4853515625
+      },
+      "path_batch_margin_per_refinement": {
+        "exact": "310405/131072",
+        "decimal": 2.3682022094726562
       },
       "rational_comparison_charge": {
-        "exact": "220300187/213280768",
-        "decimal": 1.0329116359896078
+        "exact": "542981/524288",
+        "decimal": 1.035654067993164
       },
       "displayed_comparison_charge": {
         "exact": "1061/1024",
         "decimal": 1.0361328125
       },
       "comparison_charge_slack": {
-        "exact": "687015/213280768",
-        "decimal": 0.0032211765103921605
+        "exact": "251/524288",
+        "decimal": 0.0004787445068359375
       },
       "coefficient_from_rational_charge": {
-        "exact": "213280768/220300187",
-        "decimal": 0.9681370265927192
+        "exact": "524288/542981",
+        "decimal": 0.9655733810206987
       },
       "coefficient_from_displayed_charge": {
         "exact": "1024/1061",
@@ -159,51 +244,84 @@
       },
       "checks": {
         "estimation_error_range": true,
-        "elimination_coefficient_identity": true,
-        "elimination_coefficient_positive": true,
-        "depth_bound_from_elimination": true,
-        "depth_excess_identity": true,
-        "refinement_bound_identity": true,
-        "refinement_excess_identity": true,
-        "extremal_volume_balance": true,
-        "comparison_residue_identity": true,
+        "gain_coefficient_range": true,
+        "depth_difference_identity": true,
+        "depth_difference_positive": true,
+        "degree_allowance_margin_identity": true,
+        "degree_allowance_margin_nonnegative": true,
+        "narrow_margin_identity": true,
+        "narrow_margin_positive": true,
+        "path_margin_identity": true,
+        "path_margin_positive": true,
+        "path_margin_sufficient_inequality": true,
+        "comparison_slack_identity": true,
         "comparison_charge_upper_bound": true,
-        "residue_positive_majorant": true,
         "anchor_walk_probability_mass": true,
         "anchor_depth_logarithm_majorant": true,
         "comparison_loss_rational_majorant": true
+      },
+      "refinement_examples": {
+        "counts": {
+          "degree": 5,
+          "narrow": 5,
+          "path_batch": 3
+        },
+        "negative_degree_gains": 2,
+        "narrow_anchor_depth_zero_or_one": 2,
+        "minimum_rational_slack": {
+          "degree": {
+            "exact": "59/64",
+            "decimal": 0.921875
+          },
+          "narrow": {
+            "exact": "1966341/262144",
+            "decimal": 7.500995635986328
+          },
+          "path_batch": {
+            "exact": "310405/131072",
+            "decimal": 2.3682022094726562
+          }
+        }
       }
     },
     {
       "j": 12,
       "k": 4096,
+      "volume_gain_coefficient": {
+        "exact": "2059/2048",
+        "decimal": 1.00537109375
+      },
       "anchor_depth_cost_majorant": {
         "exact": "8195/8192",
         "decimal": 1.0003662109375
       },
-      "total_depth_per_comparison_bound": {
-        "exact": "8394747/8374273",
-        "decimal": 1.0024448689456387
+      "degree_allowance_margin": {
+        "exact": "501/512",
+        "decimal": 0.978515625
       },
-      "refinements_per_comparison_bound": {
-        "exact": "16773121/34301022208",
-        "decimal": 0.0004889977009515482
+      "narrow_refinement_margin": {
+        "exact": "10225/4096",
+        "decimal": 2.496337890625
+      },
+      "path_batch_margin_per_refinement": {
+        "exact": "10333195/4194304",
+        "decimal": 2.46362566947937
       },
       "rational_comparison_charge": {
-        "exact": "69231052811/68602044416",
-        "decimal": 1.0091689453332573
+        "exact": "16943115/16777216",
+        "decimal": 1.0098883509635925
       },
       "displayed_comparison_charge": {
         "exact": "4137/4096",
         "decimal": 1.010009765625
       },
       "comparison_charge_slack": {
-        "exact": "57681991/68602044416",
-        "decimal": 0.0008408202917426011
+        "exact": "2037/16777216",
+        "decimal": 0.0001214146614074707
       },
       "coefficient_from_rational_charge": {
-        "exact": "68602044416/69231052811",
-        "decimal": 0.9909143603995567
+        "exact": "16777216/16943115",
+        "decimal": 0.9902084711105367
       },
       "coefficient_from_displayed_charge": {
         "exact": "4096/4137",
@@ -211,51 +329,84 @@
       },
       "checks": {
         "estimation_error_range": true,
-        "elimination_coefficient_identity": true,
-        "elimination_coefficient_positive": true,
-        "depth_bound_from_elimination": true,
-        "depth_excess_identity": true,
-        "refinement_bound_identity": true,
-        "refinement_excess_identity": true,
-        "extremal_volume_balance": true,
-        "comparison_residue_identity": true,
+        "gain_coefficient_range": true,
+        "depth_difference_identity": true,
+        "depth_difference_positive": true,
+        "degree_allowance_margin_identity": true,
+        "degree_allowance_margin_nonnegative": true,
+        "narrow_margin_identity": true,
+        "narrow_margin_positive": true,
+        "path_margin_identity": true,
+        "path_margin_positive": true,
+        "path_margin_sufficient_inequality": true,
+        "comparison_slack_identity": true,
         "comparison_charge_upper_bound": true,
-        "residue_positive_majorant": true,
         "anchor_walk_probability_mass": true,
         "anchor_depth_logarithm_majorant": true,
         "comparison_loss_rational_majorant": true
+      },
+      "refinement_examples": {
+        "counts": {
+          "degree": 5,
+          "narrow": 5,
+          "path_batch": 3
+        },
+        "negative_degree_gains": 2,
+        "narrow_anchor_depth_zero_or_one": 2,
+        "minimum_rational_slack": {
+          "degree": {
+            "exact": "501/512",
+            "decimal": 0.978515625
+          },
+          "narrow": {
+            "exact": "62916619/8388608",
+            "decimal": 7.500245451927185
+          },
+          "path_batch": {
+            "exact": "10333195/4194304",
+            "decimal": 2.46362566947937
+          }
+        }
       }
     },
     {
       "j": 16,
       "k": 65536,
+      "volume_gain_coefficient": {
+        "exact": "32781/32768",
+        "decimal": 1.000396728515625
+      },
       "anchor_depth_cost_majorant": {
         "exact": "131075/131072",
         "decimal": 1.0000228881835938
       },
-      "total_depth_per_comparison_bound": {
-        "exact": "2147581947/2147254273",
-        "decimal": 1.000152601396174
+      "degree_allowance_margin": {
+        "exact": "8179/8192",
+        "decimal": 0.9984130859375
       },
-      "refinements_per_comparison_bound": {
-        "exact": "4294901761/140722456035328",
-        "decimal": 3.0520372384076184e-05
+      "narrow_refinement_margin": {
+        "exact": "163825/65536",
+        "decimal": 2.4997711181640625
+      },
+      "path_batch_margin_per_refinement": {
+        "exact": "2681454605/1073741824",
+        "decimal": 2.497299206443131
       },
       "rational_comparison_charge": {
-        "exact": "281640330362899/281444912070656",
-        "decimal": 1.0006943394030656
+        "exact": "4298145805/4294967296",
+        "decimal": 1.0007400542963296
       },
       "displayed_comparison_charge": {
         "exact": "65585/65536",
         "decimal": 1.0007476806640625
       },
       "comparison_charge_slack": {
-        "exact": "15012626511/281444912070656",
-        "decimal": 5.334126099686293e-05
+        "exact": "32755/4294967296",
+        "decimal": 7.6263677328825e-06
       },
       "coefficient_from_rational_charge": {
-        "exact": "281444912070656/281640330362899",
-        "decimal": 0.9993061423696272
+        "exact": "4294967296/4298145805",
+        "decimal": 0.9992604929790184
       },
       "coefficient_from_displayed_charge": {
         "exact": "65536/65585",
@@ -263,51 +414,84 @@
       },
       "checks": {
         "estimation_error_range": true,
-        "elimination_coefficient_identity": true,
-        "elimination_coefficient_positive": true,
-        "depth_bound_from_elimination": true,
-        "depth_excess_identity": true,
-        "refinement_bound_identity": true,
-        "refinement_excess_identity": true,
-        "extremal_volume_balance": true,
-        "comparison_residue_identity": true,
+        "gain_coefficient_range": true,
+        "depth_difference_identity": true,
+        "depth_difference_positive": true,
+        "degree_allowance_margin_identity": true,
+        "degree_allowance_margin_nonnegative": true,
+        "narrow_margin_identity": true,
+        "narrow_margin_positive": true,
+        "path_margin_identity": true,
+        "path_margin_positive": true,
+        "path_margin_sufficient_inequality": true,
+        "comparison_slack_identity": true,
         "comparison_charge_upper_bound": true,
-        "residue_positive_majorant": true,
         "anchor_walk_probability_mass": true,
         "anchor_depth_logarithm_majorant": true,
         "comparison_loss_rational_majorant": true
+      },
+      "refinement_examples": {
+        "counts": {
+          "degree": 5,
+          "narrow": 5,
+          "path_batch": 3
+        },
+        "negative_degree_gains": 2,
+        "narrow_anchor_depth_zero_or_one": 2,
+        "minimum_rational_slack": {
+          "degree": {
+            "exact": "8179/8192",
+            "decimal": 0.9984130859375
+          },
+          "narrow": {
+            "exact": "16106160141/2147483648",
+            "decimal": 7.500015264842659
+          },
+          "path_batch": {
+            "exact": "2681454605/1073741824",
+            "decimal": 2.497299206443131
+          }
+        }
       }
     },
     {
       "j": 20,
       "k": 1048576,
+      "volume_gain_coefficient": {
+        "exact": "524303/524288",
+        "decimal": 1.0000286102294922
+      },
       "anchor_depth_cost_majorant": {
         "exact": "2097155/2097152",
         "decimal": 1.0000014305114746
       },
-      "total_depth_per_comparison_bound": {
-        "exact": "549757386747/549752143873",
-        "decimal": 1.0000095367959152
+      "degree_allowance_margin": {
+        "exact": "131057/131072",
+        "decimal": 0.9998855590820312
       },
-      "refinements_per_comparison_bound": {
-        "exact": "1099510579201/576456904013774848",
-        "decimal": 1.9073595468200454e-06
+      "narrow_refinement_margin": {
+        "exact": "2621425/1048576",
+        "decimal": 2.499985694885254
+      },
+      "path_batch_margin_per_refinement": {
+        "exact": "687141027855/274877906944",
+        "decimal": 2.4998044968197064
       },
       "rational_comparison_charge": {
-        "exact": "1152972631847731227/1152913808027549696",
-        "decimal": 1.0000510218715155
+        "exact": "1099570872335/1099511627776",
+        "decimal": 1.0000538826125194
       },
       "displayed_comparison_charge": {
         "exact": "1048633/1048576",
         "decimal": 1.0000543594360352
       },
       "comparison_charge_slack": {
-        "exact": "3847924219991/1152913808027549696",
-        "decimal": 3.3375645197399275e-06
+        "exact": "524273/1099511627776",
+        "decimal": 4.768235157825984e-07
       },
       "coefficient_from_rational_charge": {
-        "exact": "1152913808027549696/1152972631847731227",
-        "decimal": 0.9999489807315831
+        "exact": "1099511627776/1099570872335",
+        "decimal": 0.9999461202906601
       },
       "coefficient_from_displayed_charge": {
         "exact": "1048576/1048633",
@@ -315,19 +499,44 @@
       },
       "checks": {
         "estimation_error_range": true,
-        "elimination_coefficient_identity": true,
-        "elimination_coefficient_positive": true,
-        "depth_bound_from_elimination": true,
-        "depth_excess_identity": true,
-        "refinement_bound_identity": true,
-        "refinement_excess_identity": true,
-        "extremal_volume_balance": true,
-        "comparison_residue_identity": true,
+        "gain_coefficient_range": true,
+        "depth_difference_identity": true,
+        "depth_difference_positive": true,
+        "degree_allowance_margin_identity": true,
+        "degree_allowance_margin_nonnegative": true,
+        "narrow_margin_identity": true,
+        "narrow_margin_positive": true,
+        "path_margin_identity": true,
+        "path_margin_positive": true,
+        "path_margin_sufficient_inequality": true,
+        "comparison_slack_identity": true,
         "comparison_charge_upper_bound": true,
-        "residue_positive_majorant": true,
         "anchor_walk_probability_mass": true,
         "anchor_depth_logarithm_majorant": true,
         "comparison_loss_rational_majorant": true
+      },
+      "refinement_examples": {
+        "counts": {
+          "degree": 5,
+          "narrow": 5,
+          "path_batch": 3
+        },
+        "negative_degree_gains": 2,
+        "narrow_anchor_depth_zero_or_one": 2,
+        "minimum_rational_slack": {
+          "degree": {
+            "exact": "131057/131072",
+            "decimal": 0.9998855590820312
+          },
+          "narrow": {
+            "exact": "4123169128463/549755813888",
+            "decimal": 7.500000953701601
+          },
+          "path_batch": {
+            "exact": "687141027855/274877906944",
+            "decimal": 2.4998044968197064
+          }
+        }
       }
     }
   ]

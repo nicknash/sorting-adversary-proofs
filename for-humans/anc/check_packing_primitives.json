@@ -1,6 +1,6 @@
 {
   "status": "passed",
-  "scope": "Small exact diagnostics of endpoint-interleaving volume, complete local certainty, raw-bound refinement sections and their effective endpoints, midpoint search with pointwise CDF error, and narrow-position rounding. Not a proof of these properties for all states, a formal verification of locality or the asymptotic adversary, or a simulation of all adversary trajectories.",
+  "scope": "Small exact diagnostics of endpoint-interleaving volume, complete local certainty, raw-bound refinement sections and their effective endpoints. Not a proof of these properties for all states, a formal verification of locality or the asymptotic adversary, or a simulation of all adversary trajectories.",
   "arithmetic": "Python integers and fractions.Fraction only",
   "seed": 1108,
   "volume_systems": 54,
@@ -23,17 +23,6 @@
     "4": 2,
     "5": 1
   },
-  "midpoint_searches": 423,
-  "midpoint_noise_patterns": [
-    "exact",
-    "+1/32,-1/32 alternating",
-    "-1/32,+1/32 alternating"
-  ],
-  "midpoint_noise_note": "Perturbed reports are clipped to [0,1]; each has error <=1/32. No monotonicity or shared-distribution property is assumed.",
-  "empty_address_acceptances": 165,
-  "maximum_midpoint_tests": 21,
-  "minimum_observed_16_times_cell_width_times_density": "8",
-  "narrow_position_checks": 141,
   "local_certainty_and_sections": {
     "directed_path_orientation_checks": 160,
     "effective_region_volume_checks": 48,

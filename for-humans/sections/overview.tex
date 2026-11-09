@@ -224,7 +224,7 @@ throughout the interaction: degrees rise by at most one, and a new path
 joins two old paths.
 
 The following lemma supplies the accuracy needed by the comparison rule
-and the anchor search. Section~\ref{sec:oracle} gives the estimator and
+and anchor selection. Section~\ref{sec:oracle} gives the estimator and
 proves the lemma.
 
 \begin{lemma}[Probability estimation]\label{lem:estimation}
@@ -236,6 +236,10 @@ Under the uniform distribution on these assignments,
 \item $\Prb(X_x<c)$, when $x$ is wide and $c$ is dyadic;
 \item $\Prb(X_x<X_y)$, when at least one of $x,y$ is wide.
 \end{enumerate}
+For a wide coordinate $x$, a companion routine \textnormal{\texttt{Marginal}}
+returns a finite list of positions. For every real threshold $c$, the
+fraction of this list below $c$ differs from $\Prb(X_x<c)$ by at most
+$\eta$.
 \end{lemma}
 
 \begin{algorithm}[H]
@@ -309,7 +313,9 @@ These positions are dyadic rationals, so refinement keeps the interval
 endpoints $a_x,b_x$ dyadic. A finite path from the anchor tree's root
 specifies an anchor.
 Algorithm~\ref{alg:choose-anchor} in Section~\ref{sec:median-search} gives
-the walks that select an anchor inside the effective interval.
+the rule for choosing a central interval and selecting its shallowest
+anchor. Equivalently, this is the binary fraction in that interval with
+the fewest fractional digits.
 
 \begin{figure}[htbp]
 \centering

@@ -20,10 +20,13 @@ For this section, fix a power of two $k\ge64$.
 Section~\ref{sec:runtime} chooses $k$ as a function of $n$ so that it grows
 without bound while the adversary's running time remains polynomial.
 
-To measure the cost of refinement, we count how often it occurs and sum
-the chosen anchor depths over the whole interaction. We will bound both
-totals in terms of the number of comparisons. A final probability argument
-connects these bounds to the $n!$ possible orders of the items.
+The proof uses a random experiment that chooses a node and a position
+for each item. At termination, all assignments admitted by the state have
+the same relative order, so their probability is at most $1/n!$. We bound
+this probability from below using the feasible volumes within nodes and
+the probabilities of the child choices made during refinement. Relating
+those child choices to the volume gained during refinement will leave
+only a small additional loss per comparison.
 
 \subsection{Volume changes and anchor selection}\label{sec:guarantees}
 
@@ -64,10 +67,10 @@ By Lemma~\ref{lem:estimation}, each estimated answer retains at least
 $1/2-\eta$ of its node's volume. Its decrease in $\log Z$ is therefore
 at most
 \begin{equation}\label{eq:comparison-loss}
-a_\eta=-\log(1/2-\eta)\le1+\frac1k.
+a_\eta=-\log(1/2-\eta)\le1+\frac1{2k}.
 \end{equation}
 For the inequality, use
-$2^{-1/k}\le1-1/(2k)\le1-1/(50k)=1-2\eta$.
+$2^{-1/(2k)}\le1-1/(4k)\le1-1/(50k)=1-2\eta$.
 An answer already determined by the stored constraints leaves $Z$ unchanged.
 
 For refinement we need a lower bound on $f_x(c)$ in terms of the anchor's
@@ -90,8 +93,8 @@ $c\in(\ell_x,r_x)$ at depth $m$ in the implicit anchor tree satisfying
 \log f_x(c)\ge(1-1/k)m-4.
 \end{equation}
 If $x$ is narrow, then
-\begin{equation}\label{eq:narrow-address}
-m>2kB+2.
+\begin{equation}\label{eq:narrow-gain}
+\log f_x(c)>k.
 \end{equation}
 \end{lemma}
 
@@ -110,7 +113,12 @@ anchor $c$ satisfies
 \end{lemma}
 
 Section~\ref{sec:refinement-volume} proves this identity, including when
-the child already contains items.
+the child already contains items. Thus the change in $\log Z$ caused by
+this refinement is
+\begin{equation}\label{eq:refinement-gain}
+g=\log f_x(c).
+\end{equation}
+We call $g$ the refinement's \emph{volume gain}; it can be negative.
 
 To apply the probability and anchor estimates throughout a call, we need
 positive node volumes and bounds on the in-node DAGs. We also need each
@@ -128,91 +136,7 @@ Section~\ref{sec:repairs} proves Proposition~\ref{prop:legality} from
 the comparison and refinement rules, using
 Lemmas~\ref{lem:estimation} and~\ref{lem:anchor-density}.
 
-\subsection{Counting refinements}\label{sec:refinement-count}
-
-After $q$ completed comparison calls, let $P$ be the number of refinements
-and $D$ the sum of their anchor depths. We first bound $P$ using the arcs
-removed by degree refinements and the depths used by the other refinements.
-
-Outside a path batch, the algorithm refines a queried item because its
-vertex has degree $k$ or its coordinate is narrow. When both hold, count
-it as a degree refinement.
-Each degree refinement removes at least $k$ in-node arcs. At most one such
-arc is inserted per comparison, and each inserted arc is removed at most
-once. Thus there are at most $q/k$ degree refinements.
-Every other individual refinement uses a narrow coordinate, so its anchor depth
-exceeds $2k$ by Lemma~\ref{lem:anchor-density}.
-
-For path batches, choose
-\begin{equation}\label{eq:path-threshold}
-H=2^k.
-\end{equation}
-The items on a selected path must enter distinct children. Their anchors
-therefore occupy distinct nodes of the implicit anchor tree. Since there
-are few nodes at small depths, a batch of $H$ such refinements has large
-total anchor depth.
-
-\begin{lemma}[Sum of anchor depths along a path]\label{lem:path-address}
-The $H$ labels of a selected path in an in-node DAG enter distinct children
-of their parent in the adversary's tree. If their anchors have depths
-$m_1,\ldots,m_H$ in the implicit anchor tree, then
-\begin{equation}\label{eq:path-charge}
-\sum_{i=1}^H m_i\ge H(k-2).
-\end{equation}
-\end{lemma}
-
-Section~\ref{sec:path-resolutions} proves the distinct-child claim and
-counts the available anchors. This is why Algorithm~\ref{alg:compare}
-finishes the whole selected path even when earlier refinements have broken it.
-
-\begin{lemma}[Refinement count]\label{lem:refinement-count}
-After $q$ completed calls,
-\begin{equation}\label{eq:refinement-count}
-P\le\frac qk+\frac{D}{k-2}.
-\end{equation}
-\end{lemma}
-\begin{proof}
-There are at most $q/k$ degree refinements. Every other individual refinement
-has depth greater than $k-2$, and every complete path batch has average
-depth at least $k-2$. The number of these remaining refinements is therefore
-at most $D/(k-2)$.
-\end{proof}
-
-\subsection{Bounding the total anchor depth}\label{sec:depth-total}
-
-Refinement increases $\log Z$ by at least $(1-1/k)m-4$ when its anchor
-has depth $m$, by Lemmas~\ref{lem:anchor-density} and~\ref{lem:section-volume}.
-Starting from $Z=1$ and adding the changes over $q$ completed calls gives
-\begin{equation}\label{eq:volume-total}
-\log Z\ge-a_\eta q+(1-1/k)D-4P.
-\end{equation}
-But $Z\le1$. Hence the volume gained by deep refinements is limited by the
-volume removed by comparisons:
-\begin{equation}\label{eq:depth-volume}
-(1-1/k)D\le a_\eta q+4P.
-\end{equation}
-Together with the refinement count, this bounds $D$ in terms of $q$.
-
-\begin{lemma}[Total anchor depth]\label{lem:depth-total}
-After $q$ completed calls,
-\begin{equation}\label{eq:depth-bound}
-D\le\frac{(k+5)(k-2)}{k^2-7k+2}\,q.
-\end{equation}
-Consequently $D\le(1+O(1/k))q$ and $P=O(q/k)$.
-\end{lemma}
-\begin{proof}
-Substitute \eqref{eq:refinement-count} into \eqref{eq:depth-volume} and use
-$a_\eta\le1+1/k$:
-\[
-\left(1-\frac1k-\frac4{k-2}\right)D
-\le\left(1+\frac5k\right)q.
-\]
-The coefficient on the left is positive for $k\ge64$. Rearranging gives
-\eqref{eq:depth-bound}; substituting it back into
-\eqref{eq:refinement-count} gives the bound on $P$.
-\end{proof}
-
-\subsection{The state at termination}\label{sec:movement-volume}\label{sec:accounting}
+\subsection{The cost of choosing a child}\label{sec:movement-volume}\label{sec:accounting}
 
 The product $Z$ measures freedom within individual nodes. For example,
 two items stored alone in separate children can each retain the full
@@ -238,14 +162,8 @@ w(m)=\frac1{2k}\left(\frac{1-1/k}{2}\right)^m
 \qquad \gamma=1-\log(1-1/k).
 \end{equation}
 The probability of stopping at each visited node of the adversary's tree
-is at least $1/2$.
-Since the state has a finite tree, the experiment produces a node and a
-coordinate almost surely. We will use the bound
-\begin{equation}\label{eq:anchor-depth-cost}
-\gamma-1=-\log(1-1/k)
-\le\frac1{(k-1)\ln2}\le\frac3{2k}
-\qquad(k\ge64).
-\end{equation}
+is at least $1/2$. Since the state has a finite tree, the experiment
+produces a node and a coordinate almost surely.
 
 Sample one such position independently for each of the $n$ labels.
 The tree orders these positions by the same rule as in
@@ -254,11 +172,19 @@ and order positions inside one child recursively. Ties have probability
 zero, and all labels use the same distribution. Permuting the labels
 therefore shows that each relative order has probability $1/n!$.
 
+For the counting argument, measure a child choice by its contribution to
+the negative logarithm of the probability:
+\begin{equation}\label{eq:child-cost}
+\ell(m)=-\log w(m)=\gamma m+\log k+1.
+\end{equation}
+The next lemma expresses the final restriction to one order in terms of
+these costs.
+
 \begin{lemma}[Bound at termination]\label{lem:packing}
-If the transcript determines a unique total order after $q$ completed
-calls, then
+Suppose the transcript determines a unique total order. If $m_r$ is the
+anchor depth used by refinement $r$, then
 \begin{equation}\label{eq:terminal}
-\log(n!)\le n-\log Z+\gamma D+(\log k+1)P.
+\log(n!)\le n-\log Z+\sum_r\ell(m_r).
 \end{equation}
 \end{lemma}
 \begin{proof}
@@ -269,13 +195,12 @@ are independent and uniform, so the probability of satisfying the
 constraints is $Z$.
 
 The stopping probabilities contribute at least $2^{-n}$. Since records
-only move downward, their required paths, counted separately for each label,
-contain exactly the $P$ edge
-traversals made by refinements, with total anchor depth $D$. The child
-choices therefore contribute
-$2^{-\gamma D-(\log k+1)P}$. Thus the event has probability at least
+only move downward, their required paths, counted separately for each
+label, contain exactly the edge traversals made by refinements. The child
+choices therefore contribute $\prod_r w(m_r)$. The event has probability
+at least
 \[
-Z\,2^{-n-\gamma D-(\log k+1)P}.
+Z\,2^{-n}\prod_r w(m_r)=Z\,2^{-n-\sum_r\ell(m_r)}.
 \]
 By Proposition~\ref{prop:legality}, the event produces an order consistent
 with the transcript. The unique such order has probability $1/n!$ in the
@@ -283,40 +208,131 @@ random experiment. Comparing these probabilities and taking logarithms
 proves \eqref{eq:terminal}.
 \end{proof}
 
+\subsection{Comparing refinement costs and volume gains}\label{sec:refinement-cost}
+
+We now bound each cost $\ell(m)$ using the volume gain $g$ of the same
+refinement. For a narrow coordinate, Lemma~\ref{lem:anchor-density} gives
+$g>k$, even when the chosen anchor has small depth. Path batches obtain
+a large total gain because their anchors must occupy distinct nodes of
+the implicit anchor tree.
+
+Choose the path threshold
+\begin{equation}\label{eq:path-threshold}
+H=2^k.
+\end{equation}
+The following bound supplies the depth sum needed for a complete batch.
+
+\begin{lemma}[Sum of anchor depths along a path]\label{lem:path-address}
+The $H$ labels of a selected path in an in-node DAG enter distinct children
+of their parent in the adversary's tree. If their anchors have depths
+$m_1,\ldots,m_H$ in the implicit anchor tree, then
+\begin{equation}\label{eq:path-charge}
+\sum_{i=1}^H m_i\ge H(k-2).
+\end{equation}
+\end{lemma}
+
+Section~\ref{sec:path-resolutions} proves the distinct-child claim and
+counts the available anchors. This is why Algorithm~\ref{alg:compare}
+finishes the whole selected path even when earlier refinements have broken it.
+
+Outside a path batch, the algorithm refines a queried item because its
+vertex has degree $k$ or its coordinate is narrow. When both hold, count
+it as a degree refinement. To compare costs with gains, set
+\begin{equation}\label{eq:charge-coefficient}
+\lambda=1+\frac{\log k+10}{k}.
+\end{equation}
+The factor $\lambda$ approaches one as $k$ increases.
+
+\begin{lemma}[Cost of refinement]\label{lem:refinement-cost}
+A degree refinement with anchor depth $m$ and volume gain $g$ satisfies
+\[
+\ell(m)\le\lambda g+\log k+6.
+\]
+A narrow refinement satisfies $\ell(m)\le\lambda g$.
+For a complete path batch with depths $m_i$ and gains $g_i$,
+\[
+\sum_{i=1}^H\ell(m_i)\le\lambda\sum_{i=1}^H g_i.
+\]
+\end{lemma}
+\begin{proof}
+Write $j=\log k$. We use
+\begin{equation}\label{eq:anchor-depth-cost}
+\gamma-1=-\log(1-1/k)
+\le\frac1{(k-1)\ln2}\le\frac3{2k}
+\qquad(k\ge64).
+\end{equation}
+The choice of $\lambda$ gives $\lambda\le5/4$ and
+\[
+\delta:=\lambda(1-1/k)-\gamma
+\ge\frac{j+15/2}{k}-\frac{j+10}{k^2}>0.
+\]
+By the anchor guarantee \eqref{eq:tariff}, every refinement satisfies
+\begin{equation}\label{eq:charge-difference}
+\lambda g-\ell(m)\ge\delta m-4\lambda-j-1.
+\end{equation}
+Since $m\ge0$ and $4\lambda\le5$, this proves the degree-refinement bound.
+
+For a narrow refinement, use $g>k$ and
+$m\le(g+4)/(1-1/k)$ to obtain
+\begin{align*}
+(1-1/k)\bigl(\lambda g-\ell(m)\bigr)
+&\ge\delta g-4\gamma-(1-1/k)(j+1)\\
+&>\delta k-4\gamma-(1-1/k)(j+1)\\
+&\ge\frac52-\frac{15}{k}>0.
+\end{align*}
+Thus its volume gain covers the whole child cost.
+
+For a path batch, sum \eqref{eq:charge-difference} and use
+Lemma~\ref{lem:path-address}:
+\begin{align*}
+\sum_{i=1}^H\bigl(\lambda g_i-\ell(m_i)\bigr)
+&\ge H\bigl(\delta(k-2)-4\lambda-j-1\bigr)\\
+&\ge H\left(\frac52-\frac{7j+65}{k}
+                    +\frac{2(j+10)}{k^2}\right)>0.
+\end{align*}
+The last inequality follows from $7j+65\le2k$ for $j\ge6$.
+\end{proof}
+
 \subsection{The comparison bound}\label{sec:comparison-cost}
 
 \begin{proof}[Proof of Theorem~\ref{thm:fixed-stage}]
 Proposition~\ref{prop:legality} gives consistency and termination of every
 call. The procedures and their tie rules are deterministic.
-Suppose the sorter finishes after $q$ comparisons. Substitute the volume
-bound \eqref{eq:volume-total} into \eqref{eq:terminal} and use
-\eqref{eq:anchor-depth-cost}:
-\begin{equation}\label{eq:comparison-total}
-\log(n!)\le n+a_\eta q+\frac{5D}{2k}+(\log k+5)P.
-\end{equation}
-The two depth terms have nearly cancelled. Lemmas~\ref{lem:refinement-count}
-and~\ref{lem:depth-total} now give the desired coefficient.
+Suppose the sorter finishes after $q$ comparisons, and write $j=\log k$.
 
-For the explicit bound, write $j=\log k$. Using $a_\eta\le1+1/k$ and
-substituting \eqref{eq:refinement-count} and \eqref{eq:depth-bound} into
-\eqref{eq:comparison-total} gives
-\begin{equation}\label{eq:comparison-charge}
-\log(n!)\le n+\left(1+\frac{2j+17}{k}\right)q.
+There are at most $q/k$ degree refinements: each deletes $k$ in-node arcs,
+each comparison inserts at most one arc, and an inserted arc can be deleted
+only once. Apply Lemma~\ref{lem:refinement-cost} to these refinements, the
+remaining individual refinements, and the complete path batches. This gives
+\begin{equation}\label{eq:refinement-total}
+\sum_r\ell(m_r)\le\lambda\sum_r g_r+\frac{j+6}{k}\,q.
 \end{equation}
-The coefficient inequality reduces, after multiplying by
-$2k(k^2-7k+2)$, to
+Each comparison decreases $\log Z$ by at most $a_\eta$, while a refinement
+changes it by $g_r$. Since initially $Z=1$,
 \[
-7k^2-(24j+219)k+4j+94\ge0.
+\sum_r g_r\le\log Z+a_\eta q.
 \]
-Indeed, $7\cdot2^j\ge24j+219$ for $j\ge6$: the difference is positive at
-$j=6$ and increases thereafter.
+Substitute this into \eqref{eq:refinement-total} and then into the terminal
+bound \eqref{eq:terminal}:
+\begin{equation}\label{eq:comparison-total}
+\log(n!)\le n+(\lambda-1)\log Z
+              +\left(\lambda a_\eta+\frac{j+6}{k}\right)q.
+\end{equation}
+The term $(\lambda-1)\log Z$ is nonpositive. Moreover,
+\begin{align}
+\lambda a_\eta+\frac{j+6}{k}
+&\le1+\frac{2j+33/2}{k}+\frac{j+10}{2k^2}\nonumber\\
+&\le1+\frac{2j+17}{k},\label{eq:comparison-charge}
+\end{align}
+where the last inequality uses $j+10\le k$.
 Finally,
 \[
 \log(n!)\ge\int_1^n\log x\,dx
 =n\log n-\frac{n}{\ln2}+\frac1{\ln2}.
 \]
-Combining this estimate with \eqref{eq:comparison-charge} and
-$1+1/\ln2<3$ proves \eqref{eq:exact-bound}.
+Combining this estimate with \eqref{eq:comparison-total},
+\eqref{eq:comparison-charge}, and $1+1/\ln2<3$ proves
+\eqref{eq:exact-bound}.
 \end{proof}
 
 The next section proves the refinement and consistency guarantees used above.

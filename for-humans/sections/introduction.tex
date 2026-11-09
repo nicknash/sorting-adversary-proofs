@@ -127,27 +127,30 @@ orders there. The adversary estimates the fraction of this region's volume
 retained by each answer. Three technical ingredients make this possible.
 
 \emph{Deterministic estimates from bounded neighborhoods.}
-After propagating interval bounds through the full graph, we compute the
-required probability exactly in a bounded neighborhood. To prove accuracy,
-we compare uniform assignments to the full region and to this smaller
-region. Updating corresponding positions with the same random choices
-makes the queried coordinates approach one another; the degree and
-path-length bounds control how far these updates can transmit a difference
+After propagating interval bounds through the full graph, we average
+finite computations on a bounded neighborhood. Each step changes one
+position using a choice from a fixed finite set. Randomizing these choices
+would preserve the continuous uniform distribution exactly. Comparing this
+process with a computation started from the effective lower endpoints
+shows that the finite average estimates the desired probability. The degree
+and path-length bounds control how far differences can propagate
 (Section~\ref{sec:oracle}).
 
 \emph{Choosing positions with large remaining volume.}
-Moving an item into a child fixes its position in the parent.
-A geometric inequality turns estimates of the probability on either
-side of a position into a lower bound on the volume left after fixing it.
-This supplies the guarantee needed by the position search
-(Section~\ref{sec:median-search}).
+Moving an item into a child fixes its position in the parent. We choose
+a binary fraction with the fewest digits in a suitable interval, obtained
+from approximate quartiles or from the item's interval bounds. Geometric
+inequalities show that this choice leaves enough volume for the other
+items (Section~\ref{sec:median-search}).
 
 \emph{Bounding the cost of graph simplification.}
-Section~\ref{sec:potential} bounds the number of refinements and the sum
-of their anchor depths over the whole run. Counting removed arcs and
-tracking changes in volume give two inequalities controlling these totals.
-A probability argument then relates the final state to the single total
-order determined by the sorter.
+Section~\ref{sec:potential} compares the volume gained by moving items with
+the probability of choosing their children in a counting experiment.
+Items confined to very short intervals and groups of items from long
+directed paths supply enough gain to pay for these choices. Moves triggered by
+high degree are charged to the comparisons whose arcs they remove.
+The experiment then relates the final state to the single total order
+determined by the sorter.
 
 Finally, Section~\ref{sec:runtime} lets the degree and
 path-length bounds grow slowly with $n$, keeping the computation polynomial

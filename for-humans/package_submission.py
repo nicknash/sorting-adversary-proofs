@@ -10,6 +10,7 @@ def main():
     files = [root / "paper.tex", *sorted((root / "sections").glob("*.tex"))]
     files += [root / "anc" / name for name in (
         "check_simplification.py", "check_results.json",
+        "check_finite_digits.py", "check_finite_digits.json",
         "check_packing_primitives.py", "check_packing_primitives.json",
     )]
     destination = root / "output" / "submission" / "hexagon-source.zip"

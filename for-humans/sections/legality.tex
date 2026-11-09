@@ -218,16 +218,14 @@ original area.}
 
 Consider a positive-volume node whose in-node DAG has degree at most $k$
 and directed paths of at most $2H$ vertices. Algorithm~\ref{alg:choose-anchor}
-gives \texttt{ChooseAnchor}. Lemma~\ref{lem:anchor-density} requires a
-lower bound on the density at the chosen position.
-\texttt{ChooseAnchor} starts at the root of the anchor tree. For a wide coordinate,
-we decide which child to visit by estimating the cumulative probability
-\[
-F_x(t)=\Prb(X_x<t)
-\]
-at the current anchor. For a narrow coordinate, we walk toward the centre
-of its effective interval until the anchor-tree interval is sufficiently
-short. Each probability estimate uses Lemma~\ref{lem:estimation}.
+gives \texttt{ChooseAnchor}. It first chooses a closed interval of central
+positions for $x$, then selects the shallowest anchor in that interval.
+For a narrow coordinate, we use the central half of its effective
+interval. For a wide coordinate, \texttt{Marginal} from
+Lemma~\ref{lem:estimation} supplies a finite list of positions approximating
+the distribution of $X_x$; we use the interval between the list's first
+and third quartiles. We will show that either choice gives the density
+bound required by Lemma~\ref{lem:anchor-density}.
 
 \begin{algorithm}[H]
 \caption{\texttt{ChooseAnchor}$(x)$: choose a position for refinement.}
@@ -237,28 +235,41 @@ short. Each probability estimate uses Lemma~\ref{lem:estimation}.
 and the fixed parameters $R,\eta$.}
 \KwOut{A dyadic anchor $c\in(\ell_x,r_x)$.}
 $W_x\gets r_x-\ell_x$\;
-$u\gets$ the root of the anchor tree\;
-\If{$W_x<1/R$}{
-  $t\gets(\ell_x+r_x)/2$\;
-  \While{$|I(u)|>W_x/4$}{
-    \uIf{$t\le c(u)$}{$u\gets$ the left child of $u$\;}
-    \Else{$u\gets$ the right child of $u$\;}
-  }
-  \Return $c(u)$\;
+\uIf{$W_x<1/R$}{
+  $a\gets\ell_x+W_x/4$; $b\gets r_x-W_x/4$\;
 }
+\Else{
+  $(z_1,\ldots,z_N)\gets$ \texttt{Marginal}$(v,x,\eta)$, sorted increasingly\;
+  $a\gets z_{\ceil{N/4}}$; $b\gets z_{\ceil{3N/4}}$\;
+}
+$u\gets$ the root of the implicit anchor tree\;
 \While{true}{
-  $\widehat p\gets$ \texttt{Estimate}$(v,X_x<c(u),\eta)$\;
-  \uIf{$\widehat p<1/4$}{$u\gets$ the right child of $u$\;}
-  \uElseIf{$\widehat p>3/4$}{$u\gets$ the left child of $u$\;}
+  \uIf{$c(u)<a$}{$u\gets$ the right child of $u$\;}
+  \uElseIf{$c(u)>b$}{$u\gets$ the left child of $u$\;}
   \Else{\Return $c(u)$\;}
 }
 \end{algorithm}
 
-Each step increases the anchor depth by one and halves $|I(u)|$. The
-narrow branch follows the child interval containing $t$, taking the left
-child when $t=c(u)$. This fixes its tie rule.
+An anchor at depth $m$ has $m+1$ fractional binary digits in reduced
+form. Thus the walk finds the shortest binary fraction in $[a,b]$.
 
-\subsubsection{Density estimates used by the two rules}
+\begin{lemma}[Shortest anchor in an interval]\label{lem:shortest-anchor}
+For a nondegenerate closed interval $[a,b]\subset(0,1)$, the walk in
+Algorithm~\ref{alg:choose-anchor} returns its unique minimum-depth anchor.
+If its node is $u$ and its depth is $m$, then
+$[a,b]\subseteq I(u)$ and $|I(u)|=2^{-m}$.
+\end{lemma}
+\begin{proof}
+Initially $[a,b]\subseteq I(u)=[0,1]$. Whenever $c(u)<a$, the whole
+interval lies in the right child's interval; whenever $c(u)>b$, it lies
+in the left child's interval. The rejected anchor and the other subtree
+contain no candidate in $[a,b]$. The first accepted anchor therefore has
+minimum depth, and every other anchor of that depth lies outside $I(u)$.
+The intervals halve at every step and continue to contain $[a,b]$, so
+the walk must accept before their length becomes smaller than $b-a$.
+\end{proof}
+
+\subsubsection{Density bounds for central intervals}
 
 Suppose $x$ has effective interval $(\ell,r)$ of width $W$ and at most
 $B$ other comparable labels. Then
@@ -267,13 +278,12 @@ f_x(t)\le\frac{B+1}{W},\qquad
 f_x(t)\ge\frac{4^{-B}}{W}\quad
 \left(\ell+\frac W4\le t\le r-\frac W4\right).
 \end{equation}
-The lower bound gives an endpoint-only choice: every point in the central
-half has this much density. The upper bound limits the probability in a
-short interval; it will bound how far the wide-item search descends in
-the anchor tree.
+The lower bound applies to every point of the central half. The upper
+bound limits the probability in a short interval; it will bound the depth
+of the anchor chosen for a wide item.
 
-For the search we also need a density bound that improves as its search interval
-shrinks. For any $a\le c\le b$,
+Write $F_x(t)=\Prb(X_x<t)$. We also need a density bound that uses the
+probability contained in an interval: for any $a\le c\le b$,
 \begin{equation}\label{eq:mass-summary}
 (b-a)f_x(c)\ge
 \min\{F_x(c),1-F_x(c)\}\bigl(F_x(b)-F_x(a)\bigr).
@@ -283,93 +293,97 @@ forces the density at $c$ to be a constant times $1/(b-a)$.
 Appendix~\ref{app:geometry} proves \eqref{eq:density-summary} by contracting convex
 sections, and derives \eqref{eq:mass-summary} from log-concavity.
 
-\subsubsection{The search for a wide item}
+\subsubsection{Choosing an anchor between approximate quartiles}
 
-Every test uses the same feasible region $K$ and distribution $F_x$.
-Each test calls \texttt{Estimate} for $X_x<c$ with the same effective
-endpoints. Only the queried threshold changes.
-
-\begin{lemma}[Wide-item search]\label{lem:median-search}
-The anchor-tree search for a wide item terminates at an interior anchor $c$.
-If the selected node has depth $m$, then
+The list returned by \texttt{Marginal} may contain repeated values. Write
+$\widehat F_x(t)$ for the fraction strictly below $t$, and
+$\widehat F_x(t+)$ for the fraction at most $t$. The guarantee of
+Lemma~\ref{lem:estimation} gives
 \[
-f_x(c)\ge2^{m-4}.
+|\widehat F_x(t)-F_x(t)|\le\eta,
+\qquad
+|\widehat F_x(t+)-F_x(t)|\le\eta.
 \]
-The search makes at most
-$\ceil{\log(4(B+1)/W_x)}+1$ tests.
+The second inequality follows from the first by taking a right limit,
+since $F_x$ is continuous. Both hold at every real $t$ for this one list.
+
+\begin{lemma}[Wide anchors]\label{lem:median-search}
+For a wide item, Algorithm~\ref{alg:choose-anchor} returns an interior
+anchor $c$ of depth $m$ satisfying
+\[
+f_x(c)\ge2^{m-4},\qquad
+m<\log\frac{4(B+1)}{W_x}.
+\]
 \end{lemma}
 \begin{proof}
-At the current node $u$ of depth $m$, write $I(u)=[a,b]$ and $c=c(u)$.
-Every estimate has error at most $\eta<1/32$. A test reported below
-$1/4$ has true value below $9/32$; the walk moves right, making $c$ the
-new left endpoint. A test reported above $3/4$ has true value above $23/32$;
-the walk moves left, making $c$ the new right endpoint. Since the initial
-endpoint values are $F_x(0)=0$ and $F_x(1)=1$, the search maintains
+For $p\in\{1/4,3/4\}$, let $Q_p=z_{\ceil{pN}}$. Its rank gives
 \[
-F_x(a)<9/32,\qquad F_x(b)>23/32.
+\widehat F_x(Q_p)\le p\le\widehat F_x(Q_p+),
 \]
-At acceptance, the report lies in $[1/4,3/4]$, so
+including when values are repeated. Consequently
 \[
-\frac7{32}\le F_x(c)\le\frac{25}{32},\qquad
-F_x(b)-F_x(a)\ge\frac7{16}.
+p-\eta\le F_x(Q_p)\le p+\eta.
 \]
-The first bounds put $c$ strictly inside its support. The node's interval
-has length $2^{-m}$, so \eqref{eq:mass-summary} gives
+Since $\eta<1/32$, the quartiles are distinct and lie strictly inside
+$(\ell_x,r_x)$. Lemma~\ref{lem:shortest-anchor} supplies an anchor
+$c\in[Q_{1/4},Q_{3/4}]$ whose node interval $I(u)=[a,b]$ contains both
+quartiles. Thus
+\[
+\min\{F_x(c),1-F_x(c)\}\ge\frac14-\eta>\frac7{32},\qquad
+F_x(b)-F_x(a)\ge\frac12-2\eta>\frac7{16}.
+\]
+As $|I(u)|=2^{-m}$, \eqref{eq:mass-summary} gives
 \[
 2^{-m}f_x(c)\ge\frac7{32}\frac7{16}
 =\frac{49}{512}>\frac1{16},
 \]
 which proves the density guarantee.
 
-For termination, the upper density bound in \eqref{eq:density-summary}
-gives, at every anchor-tree node reached,
+The upper density bound in \eqref{eq:density-summary} also gives
 \[
-\frac7{16}\le F_x(b)-F_x(a)
+\frac14<F_x(b)-F_x(a)
 \le\frac{B+1}{W_x}\,2^{-m}.
 \]
-At $m\ge\ceil{\log(4(B+1)/W_x)}$, the upper bound would be at most
-$1/4<7/16$. Starting at the root and descending one edge at each rejection
-therefore permits at most the stated number of tests.
+Rearranging proves the depth bound.
 \end{proof}
 
 \subsubsection{The anchor guarantee}\label{sec:anchor-guarantee}
 
-For an anchor at depth $m$, the wide-item search gives $\log f_x(c)\ge m-4$.
-For a narrow item,
-the central density estimate gives the weaker bound $m-3-2B$. To absorb
-this extra loss into the allowance $m/k$, choose
+For a wide item, the preceding lemma gives $\log f_x(c)\ge m-4$.
+For a narrow item, the central density bound loses $2B$ in its logarithm.
+We choose
 \begin{equation}\label{eq:width-threshold}
 R=2^{2kB}.
 \end{equation}
-The narrow walk stops when its node's interval first has length at most
-$W_x/4$. Thus $2^{-m}\le W_x/4<1/(4R)$, forcing $m>2kB+2$.
-In particular $2B<m/k$, so both anchor rules satisfy the required density
-bound.
+Then $W_x<1/R$ makes $\log(1/W_x)$ large enough to absorb this loss.
 
 \begin{proof}[Proof of Lemma~\ref{lem:anchor-density}]
-The in-node DAG bounds imply that $x$ has at most $B$ other comparable coordinates, by
-\eqref{eq:comparable-bound}. For a wide item, Lemma~\ref{lem:median-search} gives the stronger lower
-bound $m-4$. For a narrow item, let $b=2^{-m}$ be the length of the
-selected node's interval. The stopping rule gives $W_x/8<b\le W_x/4$.
-That interval contains $t=(\ell_x+r_x)/2$, so its midpoint $c$ is at distance
-at most $b/2\le W_x/8$ from $t$. It belongs to the central
-half and is therefore interior. By \eqref{eq:density-summary} and
-$W_x<8b$,
+The in-node DAG bounds imply that $x$ has at most $B$ other comparable
+coordinates, by \eqref{eq:comparable-bound}. For a wide item,
+Lemma~\ref{lem:median-search} gives the stronger lower bound $m-4$.
+For a narrow item, write $L=\log(1/W_x)$. The selected anchor is in the
+central half of its effective interval, so \eqref{eq:density-summary}
+gives
 \[
-f_x(c)\ge\frac{4^{-B}}{W_x}>2^{m-3-2B}.
+\log f_x(c)\ge L-2B.
 \]
-Moreover, $b\le W_x/4<1/(4R)$, so
-$m>\log R+2=2kB+2$. In particular $2B<m/k$, and hence
-$m-3-2B>(1-1/k)m-4$, proving \eqref{eq:tariff}. The wide-item search
-terminates by Lemma~\ref{lem:median-search}. The narrow walk terminates
-because $W_x>0$ and each step halves the interval length. Both walks are
-deterministic.
+By Lemma~\ref{lem:shortest-anchor}, its node interval contains that central
+half. Hence $W_x/2\le2^{-m}$ and $m\le L+1$. Since $L>2kB$,
+\[
+\log f_x(c)\ge L-2B>(1-1/k)L
+\ge(1-1/k)(m-1)>(1-1/k)m-4.
+\]
+This proves \eqref{eq:tariff}. The same density bound also gives
+$\log f_x(c)>2B(k-1)>k$, proving \eqref{eq:narrow-gain}.
+Both cases use a finite deterministic calculation to obtain the central
+interval, followed by the finite walk of Lemma~\ref{lem:shortest-anchor}.
 \end{proof}
 
-The narrow walk continues to its prescribed depth even when an earlier
-anchor lies inside the effective interval. The resulting lower bound on $m$ allows
-the weaker central density estimate to satisfy the same bound as the
-wide-item search.
+The rule also controls the number of bits in a narrow anchor. If the
+effective endpoints have at most $\Lambda$ fractional binary digits,
+their midpoint has at most $\Lambda+1$ and lies in the central half.
+The chosen anchor has the fewest digits in that interval, so it uses at
+most $\Lambda+1$ as well.
 
 \subsection{Bounds during a comparison call}\label{sec:repairs}
 

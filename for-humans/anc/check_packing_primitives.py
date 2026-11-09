@@ -1,16 +1,11 @@
 #!/usr/bin/env python3
-"""Exact diagnostics for local certainty, sections, volumes, and anchor rules.
+"""Exact diagnostics for local certainty, refinement sections, and volumes.
 
-Two independent reference volume calculations are compared: permutation/gap
-enumeration and an integer subset-polynomial recurrence. These provide exact
-reference probabilities for checking the geometric anchor rules. Exact
-volumes after adding a comparison check the local-certainty criterion.
-Sections formed from raw and effective bounds check refinement without
-persistent tightening, including the remaining effective endpoints. Midpoint
-search is then checked using exact reference CDFs with pointwise perturbations
-of at most 1/32, including alternating signs.  All arithmetic uses integers and
-fractions.Fraction.  This is a small diagnostic, not a proof or a simulation of
-all sorting-adversary trajectories.  No nonstandard dependency is required.
+Permutation/gap enumeration and an independent integer subset-polynomial
+recurrence supply exact reference volumes. These diagnose local certainty and
+refinement without persistent tightening on small systems. They are reference
+calculations, not the current adversary's finite digit estimator. These finite
+checks do not prove the general statements or simulate all trajectories.
 """
 
 from __future__ import annotations
@@ -27,7 +22,6 @@ import random
 
 SEED = 1108
 CASES_PER_SIZE = 8
-ERROR = Fraction(1, 32)
 
 
 def interval_fractions(intervals):
@@ -236,91 +230,6 @@ def check_local_certainty_and_sections(name, intervals, edges, full_volume):
     return counts
 
 
-def exact_cdf(intervals, edges, x, threshold, full_volume):
-    a, b = intervals[x]
-    if threshold <= a:
-        return Fraction(0)
-    if threshold >= b:
-        return Fraction(1)
-    truncated = list(intervals)
-    truncated[x] = (a, threshold)
-    return subset_volume(truncated, edges) / full_volume
-
-
-def ceil_log2_positive(value):
-    value = Fraction(value)
-    assert value >= 1
-    exponent = max(0, value.numerator.bit_length() - value.denominator.bit_length())
-    while Fraction(1 << exponent) < value:
-        exponent += 1
-    while exponent > 0 and Fraction(1 << (exponent - 1)) >= value:
-        exponent -= 1
-    return exponent
-
-
-def check_midpoint_search(intervals, edges, x, full_volume, support, comparable, noise_pattern):
-    left, right = Fraction(0), Fraction(1)
-    left_cdf, right_cdf = Fraction(0), Fraction(1)
-    ell, upper = support
-    width = upper - ell
-    cap = ceil_log2_positive(Fraction(4 * (comparable + 1)) / width) + 1
-    accepted = None
-    for m in range(cap):
-        assert right - left == Fraction(1, 2**m)
-        assert left_cdf < Fraction(9, 32)
-        assert right_cdf > Fraction(23, 32)
-        assert right_cdf - left_cdf >= Fraction(7, 16)
-        midpoint = (left + right) / 2
-        value = exact_cdf(intervals, edges, x, midpoint, full_volume)
-        if noise_pattern == "exact":
-            perturbation = Fraction(0)
-        else:
-            first_sign = 1 if noise_pattern == "alternating_plus" else -1
-            perturbation = first_sign * (1 if m % 2 == 0 else -1) * ERROR
-        reported = min(Fraction(1), max(Fraction(0), value + perturbation))
-        assert abs(reported - value) <= ERROR
-        if reported < Fraction(1, 4):
-            left, left_cdf = midpoint, value
-        elif reported > Fraction(3, 4):
-            right, right_cdf = midpoint, value
-        else:
-            density = section_volume(intervals, edges, x, midpoint) / full_volume
-            cell_width = right - left
-            certificate = min(value, 1 - value) * (right_cdf - left_cdf)
-            assert cell_width * density >= certificate
-            assert 16 * cell_width * density >= 1
-            assert ell < midpoint < upper
-            assert Fraction(7, 32) <= value <= Fraction(25, 32)
-            assert midpoint.denominator == 2 ** (m + 1)
-            accepted = {
-                "tests": m + 1,
-                "address_length": m,
-                "density_tariff_ratio": 16 * cell_width * density,
-            }
-            break
-    if accepted is None:
-        raise AssertionError(f"Midpoint search failed to terminate within {cap} tests")
-    return accepted
-
-
-def check_narrow_selection(intervals, edges, x, full_volume, support, comparable):
-    ell, upper = support
-    width = upper - ell
-    m, cell_width = 0, Fraction(1)
-    while cell_width > width / 4:
-        m += 1
-        cell_width /= 2
-    assert width / 8 < cell_width <= width / 4
-    center = (ell + upper) / 2
-    cell_index = center // cell_width
-    position = (Fraction(cell_index) + Fraction(1, 2)) * cell_width
-    assert abs(position - center) <= cell_width / 2
-    assert ell + width / 4 <= position <= upper - width / 4
-    density = section_volume(intervals, edges, x, position) / full_volume
-    assert 16 * cell_width * 2 ** (2 * comparable) * density >= 1
-    assert position.denominator == 2 ** (m + 1)
-
-
 def run_checks():
     explicit = [
         ("empty_region_coordinates", [], [], Fraction(1)),
@@ -367,9 +276,6 @@ def run_checks():
             systems.append((f"seeded_n{n}_case{case}", intervals, edges, None, "seeded"))
 
     reports = []
-    search_count = zero_address_count = narrow_count = 0
-    max_tests = 0
-    min_tariff_ratio = None
     positive_by_size = Counter()
     zero_by_size = Counter()
     certainty_and_section_counts = Counter()
@@ -387,24 +293,12 @@ def run_checks():
             certainty_and_section_counts.update(
                 check_local_certainty_and_sections(name, intervals, edges, reference)
             )
-            supports, comparables = effective_data(intervals, edges)
-            for x in range(n):
-                for pattern in ["exact", "alternating_plus", "alternating_minus"]:
-                    result = check_midpoint_search(intervals, edges, x, reference,
-                                                   supports[x], comparables[x], pattern)
-                    search_count += 1
-                    zero_address_count += result["address_length"] == 0
-                    max_tests = max(max_tests, result["tests"])
-                    ratio = result["density_tariff_ratio"]
-                    min_tariff_ratio = ratio if min_tariff_ratio is None else min(min_tariff_ratio, ratio)
-                check_narrow_selection(intervals, edges, x, reference, supports[x], comparables[x])
-                narrow_count += 1
         reports.append({"name": name, "kind": kind, "vertices": n, "edges": len(edges),
                         "volume": str(calculated), "passed": True})
 
     return {
         "status": "passed",
-        "scope": "Small exact diagnostics of endpoint-interleaving volume, complete local certainty, raw-bound refinement sections and their effective endpoints, midpoint search with pointwise CDF error, and narrow-position rounding. Not a proof of these properties for all states, a formal verification of locality or the asymptotic adversary, or a simulation of all adversary trajectories.",
+        "scope": "Small exact diagnostics of endpoint-interleaving volume, complete local certainty, raw-bound refinement sections and their effective endpoints. Not a proof of these properties for all states, a formal verification of locality or the asymptotic adversary, or a simulation of all adversary trajectories.",
         "arithmetic": "Python integers and fractions.Fraction only",
         "seed": SEED,
         "volume_systems": len(systems),
@@ -414,13 +308,6 @@ def run_checks():
                            "independent previous integer subset-polynomial recurrence"],
         "positive_systems_by_size": dict(sorted(positive_by_size.items())),
         "zero_volume_systems_by_size": dict(sorted(zero_by_size.items())),
-        "midpoint_searches": search_count,
-        "midpoint_noise_patterns": ["exact", "+1/32,-1/32 alternating", "-1/32,+1/32 alternating"],
-        "midpoint_noise_note": "Perturbed reports are clipped to [0,1]; each has error <=1/32. No monotonicity or shared-distribution property is assumed.",
-        "empty_address_acceptances": zero_address_count,
-        "maximum_midpoint_tests": max_tests,
-        "minimum_observed_16_times_cell_width_times_density": str(min_tariff_ratio),
-        "narrow_position_checks": narrow_count,
         "local_certainty_and_sections": dict(sorted(certainty_and_section_counts.items())),
         "section_anchor_fractions_of_effective_width": ["1/4", "1/2", "3/4"],
         "additional_explicit_cases": ["touching_incomparable_intervals", "remote_lower_endpoint", "remote_upper_endpoint"],
@@ -436,8 +323,6 @@ def main():
     report = run_checks()
     args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({"status": report["status"], "volume_systems": report["volume_systems"],
-                      "midpoint_searches": report["midpoint_searches"],
-                      "narrow_position_checks": report["narrow_position_checks"],
                       "local_certainty_and_sections": report["local_certainty_and_sections"],
                       "report": str(args.output.resolve())}))
 

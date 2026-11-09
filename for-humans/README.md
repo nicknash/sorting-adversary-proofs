@@ -2,31 +2,30 @@
 
 Nicholas Nash · 9 November 2026 · ORCID [0009-0003-0475-7852](https://orcid.org/0009-0003-0475-7852)
 
-The current manuscript presents the unit-interval adversary with exact
-probability calculations on bounded neighborhoods. Section 1 introduces the
+The current manuscript presents the unit-interval adversary with finite
+coordinate updates on bounded neighborhoods. Section 1 introduces the
 derandomization problem, and Section 2 reviews the earlier adversaries.
-Section 3 gives the data structure and comparison procedure, including the
-implicit binary anchor tree and a single preparation loop. Local anchor,
-interval, and directed-path tests recognize every determined answer.
+Section 3 gives the recursive data structure and comparison procedure.
 
-Section 4 proves the comparison bound by counting refinements and summing
-their anchor depths. A probability argument relates the final state to the
-unique order determined by the sorter. Section 5 proves the refinement and
-anchor guarantees. Section 6 establishes the accuracy of the neighborhood
-calculation and explains its exact evaluation. Section 7 chooses parameters
-to obtain one uniform polynomial-time adversary. Appendix A gives the density
-bounds, using Prékopa's theorem for log-concavity; Appendix B collects the
-parameters.
+Section 4 proves the comparison bound by charging each child choice against
+the volume gained during refinement. Section 5 proves legality and the
+unified anchor rule: choose the shortest binary fraction in a central
+interval, obtained from empirical quartiles or effective interval bounds.
+Section 6 gives the finite digit update, its exact preservation of the
+continuous uniform distribution, and the locality argument justifying the
+finite calculation. Section 7 obtains uniform polynomial time from the
+explicit enumeration budget `E_k = S_k^(b_k t_k) <= n`.
+Appendix A supplies the density bounds and the use of Prékopa's theorem;
+Appendix B collects the parameters.
 
-This revision follows the mathematical simplifications in
+This revision follows the latest mathematical simplifications in
 [Simplify Paper Arguments](https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af20322-5238-83eb-8c1a-60fbea8e1d71).
-This iteration removes the global comparison DAG, the separate repair
-procedure, and persistent propagation of bounds. The abstract, disclosure,
-and Sections 1–2 are unchanged; Section 3 receives the necessary changes
-to the comparison and refinement rules. The density proof uses contractions
-of convex sections, and the locality proof counts contracting steps along
-possible sequences of updates.
-The exact comparison bound is now
+It removes exact local volume integration, repeated probability queries
+for anchor selection, forced deep anchors for narrow coordinates, and
+global refinement/depth totals from the comparison proof. The abstract,
+disclosure, related work, and existing figures are unchanged. Sections 1
+and 3 receive only necessary roadmap and interface changes.
+The explicit comparison bound remains
 `(n log₂ n − 3n) / (1 + (2 log₂ k + 17)/k)` for powers of two `k ≥ 64`.
 
 - [Current paper](output/pdf/paper.pdf)
@@ -49,15 +48,14 @@ make submission
 source and ancillary checks. It excludes build intermediates, review notes,
 Lean files, and the precompiled PDF.
 
-The current exact-rational diagnostics check the two accounting inequalities
-and their comparison coefficient, and compare two independent volume
-calculations on 54 systems. The geometric checks also cover 423 anchor
-searches and 141 narrow-coordinate choices. New exact checks cover 370
-ordered-pair certainty tests, 423 section calculations with raw and effective
-bounds, and 1,110 effective intervals after coordinate removal. These are
-finite diagnostics;
-the general density, locality, and comparison arguments are proved in the
-manuscript. The earlier finite-averaging script and its recorded results
+The exact-rational diagnostics check the direct charging inequalities,
+continuous moments of the finite digit update, shortest anchors, narrow
+anchor precision, and empirical quartiles with ties. Small chain examples
+retain every digit sequence with its multiplicity. Independent volume
+calculations remain as references for the local certainty and refinement
+section checks; volume integration is no longer part of the adversary.
+These are finite diagnostics. The general density, locality, and comparison
+arguments are proved in the manuscript. Earlier finite-mesh diagnostics
 remain in `anc/` as historical material, outside the current check target
 and submission archive.
 The related Lean

@@ -34,63 +34,75 @@ length $m$ gives its interval and position by $m$ halvings of $[0,1]$;
 the position has $m+1$ fractional binary digits. Anchor comparisons use
 these exact numerical positions.
 
-For a wide item, Lemma~\ref{lem:median-search} bounds both the number of
-search tests and the anchor precision by
+For a wide item, Lemma~\ref{lem:median-search} bounds its anchor precision
+by a function of $k$ alone. We may use
 \[
-K_0(k)=\ceil{\log(4(B+1)R)}+2.
+K_0(k)=\ceil{\log(16(B+1)R)}+2.
 \]
-For a narrow item, suppose the current endpoints have at most $\Lambda$
-fractional digits. Its positive effective width is at least $2^{-\Lambda}$.
-The selected anchor-tree interval has length $2^{-m}>W_x/8$, so
-$m<\Lambda+3$. The new anchor therefore has at most $\Lambda+3$ fractional
-digits. Effective endpoints are maxima and minima of stored bounds, so computing
-them adds no digits.
-After $P$ refinements,
+For a narrow item, suppose the stored endpoints have at most $\Lambda$
+fractional digits. The midpoint of its effective interval has at most
+$\Lambda+1$ digits and lies in the central half. The chosen fraction has
+the fewest digits there, so it uses at most $\Lambda+1$ digits as well.
+Effective endpoints are maxima and minima of stored bounds, which add
+no digits. After $P$ refinements,
 \begin{equation}\label{eq:precision}
-\Lambda\le K_0(k)+3P.
+\Lambda\le K_0(k)+P.
 \end{equation}
-The narrow walk makes at most $\Lambda+2$ steps, using integers with
-$O(\Lambda)$ bits at each step.
 
-\subsection{Choosing the degree threshold}\label{sec:parameter-selection}
+\subsection{An explicit budget for the finite calculations}\label{sec:parameter-selection}
 
-Lemma~\ref{lem:exact-local-volume} bounds a local volume calculation by
-$C_0(b)(\Lambda+1)^2$ bit operations, where the number $b$ of retained
-coordinates depends only on $k$. The function $C_0$ is computable from
-the finite enumeration in its proof. Finding the neighborhood and its
-effective endpoints uses graph operations on at most $n$ vertices, with
-a fixed polynomial cost in $n$ and $\Lambda$.
+Apply the construction in Section~\ref{sec:oracle} with $d=k$, $h=2H$,
+and error $\eta$. Write $S_k$ for its number of digit choices, $t_k$ for
+the number of sweeps, and $b_k$ for the bound on retained vertices in
+\eqref{eq:local-size}. The number of digit sequences in any one calculation
+is at most
+\begin{equation}\label{eq:enumeration-budget}
+E_k=S_k^{b_k t_k}.
+\end{equation}
+This explicit integer will determine which parameters we can afford.
 
-Choose a computable integer $C(k)$ that bounds $K_0(k)$ and all
-parameter-dependent factors in one local calculation, including
-$C_0(b)$. For powers of two $k=64,128,\ldots$, a fixed program writes the
-complete parameter tuple and $C(k)$ in binary. On input size $n$, simulate
-this program for $n$ steps. Among the tuples it has completed, choose the
+For powers of two $k=64,128,\ldots$, a fixed program writes the complete
+parameter tuple and $E_k$ in binary. On input size $n$, simulate this
+program for $n$ steps. Among the tuples it has completed, choose the
 largest $k$ satisfying
 \begin{equation}\label{eq:stage-gate}
-C(k)\le n.
+E_k\le n.
 \end{equation}
 Use these parameters for the entire interaction. If no tuple qualifies,
 answer all comparisons according to the fixed label order.
 
-The initialization is polynomial: the simulation writes at most $n$
-bits, and its completed tuples can be parsed and compared within a
-polynomial bound. For every fixed $k$, the tuple is written in some finite
-time $T(k)$. Once $n\ge\max\{T(k),C(k)\}$, it is available and affordable.
-Hence the chosen $k(n)$ tends to infinity.
+The initialization takes polynomial time: the simulation writes at most
+$n$ bits, and its completed tuples can be parsed and compared within a
+polynomial bound. For every fixed $k$, the program finishes its tuple in
+some finite time $T(k)$. Once $n\ge\max\{T(k),E_k\}$, that tuple is
+available and meets the budget. Hence the chosen $k(n)$ tends to infinity.
 
-For a selected tuple, \eqref{eq:refinement-runtime}--\eqref{eq:stage-gate}
-give $\Lambda=O(n^3)$ and a polynomial number of stored nodes. Every local
-volume calculation has a fixed polynomial bit cost. A comparison call
-makes at most $n$ refinements, and each wide refinement uses at most
-$K_0(k)\le n$ estimates. Narrow refinements use the bounded walks described
-above. Routing queries, propagating bounds, and testing reachability take
-polynomial time in the stored state. Directed-path lengths are computed
-in reverse topological order; if $H>n$, no path can require refinement.
-All tie rules can be implemented by scanning labels in order. Thus each
-comparison is answered within one fixed polynomial number of bit
-operations, independent of the chosen parameter and of the length of
-the preceding interaction.
+The budget controls both the number and the size of the computations.
+There are at most $n$ digit sequences per estimate or marginal calculation.
+Each sequence has at most $b_k t_k\le\log n$ updates, and these updates
+add at most $b_k t_k\log S_k=\log E_k\le\log n$ fractional bits.
+Tallies have at most $\log n+1$ bits. A marginal calculation stores at
+most $n$ final values; sorting this list gives the two quartiles.
+
+The constants in \eqref{eq:local-radius} also give
+$K_0(k)\le\log E_k$: here $M=B$, and the chosen number of sweeps exceeds
+$\ceil{\log(8(B+1)R/\eta)}$, which is larger than $K_0(k)$.
+Thus \eqref{eq:refinement-runtime} and \eqref{eq:precision} give
+$\Lambda=O(n^3)$. Every update uses exact arithmetic on polynomially many
+bits. The shortest-fraction walk takes at most the bit length of an
+available candidate: the midpoint in the narrow case, or either empirical
+quartile in the wide case. Its comparisons therefore also have polynomial
+bit cost.
+
+A comparison call makes at most $n$ refinements, each requiring at most
+one marginal calculation, followed by at most one probability estimate.
+Routing queries, computing effective endpoints, and testing reachability
+use polynomial time in the stored state. Directed-path lengths are
+computed in reverse topological order; if $H>n$, no path can require
+refinement. All tie rules can be implemented by scanning labels in order.
+Thus each comparison is answered within one fixed polynomial number of
+bit operations, independent of the chosen parameters and of the length
+of the preceding interaction.
 
 \begin{proof}[Proof of Theorem~\ref{thm:main}]
 Initialization and every comparison call are deterministic and take
