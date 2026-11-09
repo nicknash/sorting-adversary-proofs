@@ -7,11 +7,11 @@ section, after their roles have been explained.
 
 \subsection{A tree of groups, each with its own coordinates}
 
-Each item has a record $(x,X_x)$ stored at exactly one node of a rooted
-tree. The label $x$ identifies its key, and the auxiliary variable $X_x$
-describes its position among the items at that node. We store bounds
-$a_x<X_x<b_x$, with $(a_x,b_x)\subseteq(0,1)$, and call the item
-\emph{free} while its position remains variable. The free items at a node
+Each item has a record $(x,X_x,a_x,b_x)$ stored at exactly one node of a
+rooted tree. The label $x$ identifies its key, and the auxiliary variable
+$X_x$ describes its position among the items at that node. The record's
+bounds impose $a_x<X_x<b_x$, with $(a_x,b_x)\subseteq(0,1)$. We call the
+item \emph{free} while its position remains variable. The free items at a node
 are the vertices of a directed acyclic graph (DAG).
 We call this the node's \emph{active graph}. An
 arc $x\to y$ records the requirement $X_x<X_y$.

@@ -9,12 +9,13 @@ algorithm.
 Figure~\ref{fig:overview-state} shows the data structure used by the
 comparison procedure in Algorithm~\ref{alg:overview-compare}.
 
-An item is represented by a record $(x,X_x)$, where the label $x$ identifies
-the key being sorted and $X_x$ is an auxiliary position variable. Each
-record is stored at exactly one node of a rooted tree. Positions range
-between $0$ and $1$ and describe the relative order of the items stored
-at that node. For each $X_x$, we store an open interval of allowed values.
-We call an item \emph{free} at its node while its position remains variable.
+An item is represented by a record $(x,X_x,a_x,b_x)$, containing its label
+$x$, its auxiliary position variable $X_x$, and the bounds $a_x,b_x$ that
+restrict $X_x$ to the open interval $(a_x,b_x)\subseteq(0,1)$. The label
+identifies the key being sorted. Each record is stored at exactly one node
+of a rooted tree, where the positions describe the relative order of its
+items. We call an item \emph{free} at its node while its position remains
+variable.
 
 The items at a node are also the vertices of a directed acyclic graph
 (DAG). An arc $x\to y$ records a comparison answered $x<y$, imposing
