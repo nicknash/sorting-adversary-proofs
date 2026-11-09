@@ -327,8 +327,8 @@ midpoints of the $2^m$ equal subintervals of $[0,1]$:
 \begin{equation}\label{eq:dyadic}
 c=(i+\tfrac12)2^{-m},\qquad i=0,\ldots,2^m-1.
 \end{equation}
-These positions are dyadic rationals,
-so using them as interval endpoints preserves the form of the stored bounds.
+These positions are dyadic rationals, so the interval endpoints $a_x,b_x$
+remain dyadic when refinement updates them.
 Algorithm~\ref{alg:choose-anchor} in Section~\ref{sec:median-search} gives
 the rule for selecting an anchor inside the effective interval.
 

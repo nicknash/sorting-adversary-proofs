@@ -468,3 +468,11 @@ assurance from the anchor-selection lemma. Retained the substantive
 claim that tightening preserves the feasible region. Operational details
 remain with the algorithms and proofs. Both compilers pass without final
 repository warnings; source archive members match the saved files.
+
+
+Naming the interval endpoints -- 9 November 2026
+-----------------------------------------------
+Replaced the vague claim that dyadic anchors preserve the form of stored
+bounds with the explicit statement that the interval endpoints a_x,b_x
+remain dyadic when refinement updates them. Both compilers pass without
+final repository warnings; source archive members match the saved files.
