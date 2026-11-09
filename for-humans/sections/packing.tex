@@ -1,4 +1,4 @@
-\section{A geometric bound at termination}\label{sec:accounting}
+\subsection{The geometric bound at termination}\label{sec:accounting}
 
 A correct sorter can finish only when the public answers determine a single
 order. We want to turn that fact into an upper bound on the volume of the
@@ -17,20 +17,9 @@ order. Each item now has a coordinate in the same $(0,1)$, so at termination
 all resulting assignments lie in one of the $n!$ equal-volume order regions.
 The only remaining question is how much this placement shrinks volume.
 
-\subsection{An interval for each child}
+\subsubsection{Placing the children on a common line}
 
-Every group may eventually use anchors at arbitrarily fine dyadic levels.
-At level $m$ there are $2^m$ possible anchors. Giving each one width
-proportional to $2^{-m}$ would use the same total width at every level and
-would not fit in a bounded interval. We make the widths decrease a little
-faster, by an extra factor $2^{-m/k}$. This makes their total finite while
-adding only $m/k$ to the logarithmic cost of a child placement.
-
-Specifically, reserve for each anchor at level $m$ an interval of width
-\begin{equation}\label{eq:child-weight}
-w(m)=\frac{2^{-(1+1/k)m}}{4k}.
-\end{equation}
-Only children currently present receive intervals. The sum over all
+Use the widths $w(m)$ defined in \eqref{eq:child-weight}. Only children currently present receive intervals. The sum over all
 possible anchors below is a bound on every such finite set.
 The factor $4k$ leaves at least half the line for free positions. Indeed,
 at every node
@@ -96,17 +85,9 @@ and $G_v$ is the map in the group where the item is free. Its scale factor
 is $w_1w_2/2$. The factor $1/2$ occurs once, at its free coordinate; the
 ancestor groups contribute only their child widths.
 
-To multiply these scale factors over all items, let $s_c$ be the number of
-original labels in the subtree below a parent--child edge $c$. The width
-$w_c$ scales exactly these $s_c$ items, so its contribution is $w_c^{s_c}$.
-The product of all child-width contributions is
-\begin{equation}\label{eq:W}
-\mathcal W=\prod_{\text{parent--child edges }c}w_c^{s_c}.
-\end{equation}
-A comparison does not change $\mathcal W$. A refinement into a child of
-width $w$ multiplies it by $w$: the refined label crosses that edge, while
-its membership in every other subtree remains unchanged. This holds for
-both a new child and an existing child.
+An edge width $w_c$ scales the $s_c$ labels in its subtree. Multiplying
+these factors over all items gives exactly $\mathcal W$ from
+\eqref{eq:W}, together with one factor $1/2$ for each free coordinate.
 
 \Needspace{12\baselineskip}
 \begin{lemma}[Packing volume]\label{lem:packing}
@@ -148,7 +129,7 @@ The items on a directed path have already been compared, directly or
 through intermediate items. Two of them therefore cannot enter the same
 child. A long path needs many distinct anchors, but there are few anchors
 at low levels. The following estimate makes this observation quantitative.
-It will pay for refining an entire path in the next section.
+This is the path-level bound used in Proposition~\ref{prop:repairs}.
 
 \begin{lemma}[Total level of a path batch]\label{lem:path-address}
 The $H$ labels of a selected directed path enter distinct children of their

@@ -4,12 +4,12 @@
   "argument": "finite averaging over dyadic coordinate updates, with a single coefficient for refinement accounting",
   "source_pdf_sha256": "577836ef3235bd8c452b8bdf0b5cbf3840c943c1a1837bed8c9f7ce3f41ab907",
   "source_zip_sha256": "4c4545e4e96e6ad4eb1389e5a1cfc91c6d22b35bf9180a2bedfbfc1885515fc7",
-  "local_pdf_sha256": "3f0d45049b01a30d1307e59ba53b8f5aa55819700b1a7de0a240674f37615d1d",
-  "prepared_zip_sha256": "55e9d9e0cabce51faf53786988b4061883f8e87be0a30c1174cae45044b73bf9",
+  "local_pdf_sha256": "6c6d38df7b1fe302b132cef7578395891474e8c9b7b1b78a9f8901f26cfcb487",
+  "prepared_zip_sha256": "0c5df1cd8606e5fb4ad83d181868a884d4b1b492e669aaa77a93341c574b90ae",
   "previous_hexagon_submission": "hexagon:2611.00196",
   "previous_submission_metadata": "submission.json",
   "formalization": "Related earlier integer-colour construction; this continuous presentation is not formally verified.",
-  "exposition": "Sections 1 and 2 preserved. Section 3 defines the comparison probability before using it, states the tree descent explicitly, and leaves volume analysis to later sections. The detailed algorithm introduces the finite update calculation before its proof and derives the comparison bound with one coefficient.",
-  "pages": 35,
+  "exposition": "Top-down presentation: one state and comparison procedure in Section 3; conditional comparison theorem under two subroutine guarantees in Section 4; refinement and structural proofs in Section 5; finite estimator in Section 6; uniform running time in Section 7. Parameters are introduced when needed. The introduction changes only in its roadmap; the abstract, disclosure, and related work are preserved.",
+  "pages": 32,
   "source_chat": "https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af1b5f8-a1d0-83ed-b93d-fe7efd94df67"
 }

@@ -181,3 +181,42 @@ were rendered and reviewed, with the new algorithm, parameter displays, and
 proof pages inspected individually. The rebuilt source archive contains 18
 files, each checked byte-for-byte against the saved source. Current artifact
 hashes are recorded in revision.json.
+
+
+Top-down exposition -- 9 November 2026
+------------------------------------
+Consolidated the former overview and complete-algorithm sections into one
+description of the state, comparison procedure, and refinement operation.
+There is one Compare listing. Estimate and ChooseAnchor are specified by
+their roles in Section 3 and by two precise numerical guarantees in Section 4.
+The parameters are introduced with the operations that require them; the
+numerical choices follow their explanations.
+
+Section 4 states the conditional comparison theorem immediately after the
+two guarantees, then defines the movement weights and potential and proves
+the bound. Its assumptions are explicitly in force throughout that section.
+The monotonicity argument applies to a completed path repair, and permits
+individual refinements within that batch to decrease the potential.
+
+Section 5 proves the structural refinement facts, gives the anchor rules and
+their guarantees conditional on accurate estimation, and establishes the
+graph, legality, packing, and path-level results. The legality argument uses
+the two subroutine guarantees directly. Section 6 implements the estimator
+for arbitrary positive-volume DAG regions; this completes the assumptions
+of the early comparison theorem without relying on the adversary's legality.
+Section 7 proves the uniform polynomial running-time bound.
+
+The abstract, disclosure, related-work section, appendices, runtime proof,
+and bibliography are unchanged. Only the introduction's roadmap changed.
+The algorithm, parameter values, numerical inequalities, and comparison
+bound are preserved. The ancillary diagnostics are unchanged except for a
+section-number correction in a docstring; their previously recorded results
+remain applicable. The source bundle omits the deleted duplicate algorithm
+file.
+
+Both the repository compiler and the editor's built-in compiler succeed.
+The final repository log has no warnings or unresolved references. Labels
+were checked for uniqueness and completeness, and the rendered 32-page
+document was reviewed, including individual checks of the revised comparison
+explanation, conditional theorem, and path-batch proof. No new formal proof
+verification or Hexagon submission was performed.

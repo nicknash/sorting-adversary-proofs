@@ -1,20 +1,17 @@
-\section{Consistency of the answers and graph bounds}\label{sec:legal}
+\section{Refinement and its guarantees}\label{sec:legal}
 
-The state describes a family of total orders. We must show that this family
-never becomes empty and that every order in it respects the answers already
-given. We must also show that the operations keep the graphs within the
-bounds required by the probability calculations.
+We now justify the refinement claims used in Section~\ref{sec:potential}.
+First, any interior anchor preserves consistency with previous answers.
+Next we give \texttt{ChooseAnchor} and prove its density and level bounds,
+assuming the estimation guarantee. We then establish the graph bounds,
+legality of the full procedure, and the geometric bound at termination.
 
 \subsection{Preserving the represented orders}
 
-Recall how a state represents an order. Choose feasible coordinates in each
-node, order its free items and child anchors from left to right, and replace
-each anchor by the order represented inside that child. Each child subtree
-therefore forms a consecutive block. We exclude equalities between free
-coordinates, or between a free coordinate and an anchor; these occur on a
-finite union of sets of volume zero.
-
-We maintain the following invariant:
+We use the interpretation of the state given in Section~\ref{sec:overview}.
+Assignments with equal free coordinates, or with a free coordinate equal
+to an anchor, lie on a finite union of sets of volume zero and are excluded
+when reading an order. We maintain the following invariant:
 \begin{quote}
 Every represented total order respects every comparison already answered.
 \end{quote}
@@ -22,12 +19,8 @@ The state may discard some orders that still respect the answers. Legality
 requires only that at least one remains. Positive volume in every node
 will ensure this.
 
-There are two graphs to keep distinct. The public comparison graph has the
-original labels as vertices and records every answer. A directed path in it
-is an order relation implied by the transcript. An active graph belongs to
-one node and contains only its stored comparisons between currently free
-items. After an active arc is removed, the recursive state continues
-to enforce its corresponding public answer.
+The public comparison graph records every answered relation. The invariant
+must continue to hold when refinement removes an arc from an active graph.
 
 \begin{lemma}[Effective intervals and sections]\label{lem:interior}
 For an active DAG, tightening leaves the feasible region unchanged.
@@ -118,27 +111,10 @@ remain positive.
 
 \subsection{The volume gained by refinement}
 
-Let $V_v=\vol(K_v)$ be the volume of node $v$'s feasible region, as in the
-comparison rule. Define
-\begin{equation}\label{eq:Z}
-Z=\prod_v V_v.
-\end{equation}
-Coordinates in different nodes are separate variables. Their feasible
-regions form a Cartesian product, so $Z$ is its volume. There is exactly
-one free coordinate per original item, giving total dimension $n$.
-A node with no free coordinates contributes the zero-dimensional volume
-one. Initially $Z=1$; whenever all node regions are positive, $0<Z\le1$
-because each is contained in its unit cube.
-
-Suppose $x$ is free at a node $v$ with $d$ free coordinates. Write $S_x(c)$
-for the $(d-1)$-dimensional volume of the section obtained by fixing
-$X_x=c$. Slicing $K_v$ along the $x$ coordinate gives
-$V_v=\int S_x(t)\,dt$. Thus the density of $X_x$ under the uniform
-volume measure is
-\[
-f_x(c)=\frac{S_x(c)}{V_v}.
-\]
-This density is exactly the factor by which refinement changes $Z$.
+Recall that $Z=\prod_v V_v$ and that $f_x(c)=S_x(c)/V_v$ is the
+density of $X_x$ under the uniform distribution on its node's feasible
+region. Fixing $X_x=c$ removes one coordinate from the parent; placing
+$x$ in a child adds an independent unit coordinate there.
 
 \begin{lemma}[Refinement identity]\label{lem:section-volume}
 Refining $x$ at an interior anchor $c$ satisfies
@@ -206,13 +182,153 @@ original area.}
 \label{fig:section-volume}
 \end{figure}
 
+\subsection{Choosing an anchor}\label{sec:median-search}
+
+Consider a positive-volume node with degree at most $k$ and directed paths
+of at most $2H$ vertices. The anchor guarantee asks for a high enough
+density at the chosen position.
+For a wide coordinate we find one by estimating its cumulative probability
+\[
+F_x(t)=\Prb(X_x<t).
+\]
+For a narrow coordinate the effective endpoints alone suffice. Throughout
+this subsection we assume the estimation guarantee from
+Section~\ref{sec:guarantees}.
+
+For a wide item, start with the search cell $[a,b]=[0,1]$ and test its
+midpoint $c$. Use \texttt{Estimate} to approximate $F_x(c)$ within $\eta$.
+If the report is below $1/4$, retain the right half of the cell; if it is
+above $3/4$, retain the left half. Otherwise accept $c$. Repeat after
+any rejection. The accepted cell's length is $2^{-m}$, where $m$ is the
+anchor's level.
+
+For a narrow item, choose the unique dyadic cell length $b=2^{-m}$ with
+$W_x/8<b\le W_x/4$. Among the grid's midpoints, choose the one nearest
+to $(\ell_x+r_x)/2$, taking the smaller one on a tie. This defines
+\texttt{ChooseAnchor} in both cases.
+
+\subsubsection{Density estimates used by the two rules}
+
+Suppose $x$ has effective interval $(\ell,r)$ of width $W$ and at most
+$B$ other comparable labels. Then
+\begin{equation}\label{eq:density-summary}
+f_x(t)\le\frac{B+1}{W},\qquad
+f_x(t)\ge\frac{4^{-B}}{W}\quad
+\left(\ell+\frac W4\le t\le r-\frac W4\right).
+\end{equation}
+The lower bound gives an endpoint-only choice: every point in the central
+half has this much density. The upper bound limits the probability in a
+short interval; it will ensure that the midpoint search cannot continue
+halving its search interval indefinitely.
+
+For the search we also need a density bound that improves as its cell
+shrinks. For any $a\le c\le b$,
+\begin{equation}\label{eq:mass-summary}
+(b-a)f_x(c)\ge
+\min\{F_x(c),1-F_x(c)\}\bigl(F_x(b)-F_x(a)\bigr).
+\end{equation}
+If both tails at $c$ and the mass of $[a,b]$ are bounded below, this
+forces the density at $c$ to be a constant times $1/(b-a)$.
+Appendix~\ref{app:geometry} proves \eqref{eq:density-summary} and
+\eqref{eq:mass-summary} by explicit maps between sections.
+
+\subsubsection{The midpoint search}
+
+Every test uses the same feasible region $K$ and distribution $F_x$.
+Each test calls \texttt{Estimate} for $X_x<c$ with the same tightened
+endpoints. Only the queried threshold changes.
+
+\begin{lemma}[Midpoint search]\label{lem:median-search}
+The midpoint search for a wide item terminates at an interior anchor $c$.
+If its accepted cell has length $2^{-m}$, then
+\[
+f_x(c)\ge2^{m-4}.
+\]
+The search makes at most
+$\ceil{\log(4(B+1)/W_x)}+1$ tests.
+\end{lemma}
+\begin{proof}
+Every estimate has error at most $\eta<1/32$. A test reported below
+$1/4$ has true value below $9/32$, and its midpoint becomes the new
+left endpoint. A test reported above $3/4$ has true value above $23/32$,
+and its midpoint becomes the new right endpoint. Since the initial
+endpoint values are $F_x(0)=0$ and $F_x(1)=1$, the search maintains
+\[
+F_x(a)<9/32,\qquad F_x(b)>23/32.
+\]
+At acceptance, the report lies in $[1/4,3/4]$, so
+\[
+\frac7{32}\le F_x(c)\le\frac{25}{32},\qquad
+F_x(b)-F_x(a)\ge\frac7{16}.
+\]
+The first bounds put $c$ strictly inside its support. Applying
+\eqref{eq:mass-summary} to the accepted cell gives
+\[
+2^{-m}f_x(c)\ge\frac7{32}\frac7{16}
+=\frac{49}{512}>\frac1{16},
+\]
+which proves the density guarantee.
+
+For termination, the upper density bound in \eqref{eq:density-summary}
+gives, at every cell reached,
+\[
+\frac7{16}\le F_x(b)-F_x(a)
+\le\frac{B+1}{W_x}\,2^{-m}.
+\]
+At $m\ge\ceil{\log(4(B+1)/W_x)}$, the upper bound would be at most
+$1/4<7/16$. Starting at $m=0$ and increasing it by one at each rejection
+therefore permits at most the stated number of tests.
+\end{proof}
+
+\subsubsection{The anchor guarantee}
+
+The lower-bound proof compares the logarithmic volume gain from
+refinement with the anchor's level $m$. The wide-item search gives
+$\log f_x(c)\ge m-4$. The narrow-item rule gives the weaker bound
+$m-3-2B$, but the choice $R=2^{2kB}$ forces $m>2kB$ whenever that rule
+is used. Thus its additional loss $2B$ is less than the fraction $m/k$
+of the level. Both choices satisfy the following bound.
+
+\begin{lemma}[Refinement density]\label{lem:anchor-density}
+Assume the estimation guarantee from Section~\ref{sec:guarantees}, and
+suppose the positive-volume node has degree at most $k$ and paths of at
+most $2H$ vertices. Then \textnormal{\texttt{ChooseAnchor}} terminates at an interior
+anchor $c$ of level $m$, leaves the stored state unchanged, and satisfies
+\begin{equation}\label{eq:tariff}
+\log f_x(c)\ge(1-1/k)m-4.
+\end{equation}
+For a narrow item its level also satisfies
+\begin{equation}\label{eq:narrow-address}
+m>2kB+2.
+\end{equation}
+\end{lemma}
+\begin{proof}
+The graph bounds imply that $x$ has at most $B=(k+1)^{2H+1}$ other
+comparable coordinates. For a wide item, Lemma~\ref{lem:median-search} gives the stronger lower
+bound $m-4$. For a narrow item, write $b=2^{-m}$ for the selected cell
+length, so $W_x/8<b\le W_x/4$. The chosen midpoint is at distance at
+most $b/2\le W_x/8$ from the interval center. It belongs to the central
+half and is therefore interior. By \eqref{eq:density-summary} and
+$W_x<8b$,
+\[
+f_x(c)\ge\frac{4^{-B}}{W_x}>2^{m-3-2B}.
+\]
+Moreover, $b\le W_x/4<1/(4R)$, so
+$m>\log R+2=2kB+2$. In particular $2B<m/k$, and hence
+$m-3-2B>(1-1/k)m-4$, proving \eqref{eq:tariff}.
+\end{proof}
+
+The narrow rule must use its prescribed fine grid even if a coarser
+dyadic midpoint lies inside the interval. Its high level is what allows
+the weaker central density estimate to satisfy the same bound as the
+wide-item search.
+
 \subsection{Bounds during a comparison call}\label{sec:repairs}
 
-We next check how the graph conditions evolve. The numerical lemmas of
-Section~\ref{sec:oracle} will guarantee interior refinement positions and
-positive-volume answers whenever the current region is positive and has
-the stated graph bounds. We first give the corresponding bounds on graph
-changes, and then combine the facts in an induction.
+We next check how the graph conditions evolve, assuming the two guarantees
+from Section~\ref{sec:guarantees}. The preceding anchor rule satisfies the
+second guarantee whenever the first holds. We first bound the changes to
+the graphs, then combine these facts in an induction over calls.
 
 \begin{lemma}[Query preparation]\label{lem:preparation}
 Before selecting its answer, \textnormal{\textsc{Compare}} performs at most
@@ -227,13 +343,14 @@ isolated coordinate in a child. It cannot restrict this fresh coordinate.
 If the query descends into that child, the prepared item is therefore still
 wide. Each queried item can require preparation at most once. The selection
 test ensures narrowness. Deleting vertices and admitting isolated vertices
-preserve the degree and height bounds.
+preserve the degree and path-length bounds.
 \end{proof}
 
 \begin{lemma}[Graph bounds and termination]\label{lem:restoration}
-Suppose a call starts with degree less than $k$ and height less than $H$,
-and its selected answer leaves positive volume. Then degree is at most $k$ and height at most $2H$ throughout the
-call. At its end, every graph again satisfies the strict bounds. Restoration
+Suppose a call starts with degree less than $k$ and every directed path
+has fewer than $H$ vertices. If its selected answer leaves positive volume,
+then degree is at most $k$ and every directed path has at most $2H$ vertices
+throughout the call. At its end, every graph again satisfies the strict bounds. Restoration
 performs at most $n$ refinements, all at the node changed by the answer.
 \end{lemma}
 \begin{proof}
@@ -244,13 +361,13 @@ it has fewer than $2H$ vertices. A positive-volume answer cannot create a
 directed cycle. An interval change adds no arcs.
 
 Every refinement removes a vertex and its incident arcs from the parent.
-Thus degrees and heights cannot increase during restoration. The first
+Thus degrees and path lengths cannot increase during restoration. The first
 pass removes every degree violation. The second pass removes every path
 violation without increasing degrees. All selected path vertices are
 processed, even if earlier refinements have broken the original path.
 Each refinement removes a different free item from this node, so there
 are at most $n$. A child receives an isolated coordinate and keeps all
-its old arcs. Its degree and height bounds are preserved as well, so no
+its old arcs. Its degree and path-length bounds are preserved as well, so no
 child requires restoration.
 \end{proof}
 
@@ -261,23 +378,24 @@ in a graph of degree at most $k$. These are the bounds used by the local
 estimator and the anchor rules.
 
 \begin{proposition}[Legality]\label{prop:legality}
+Assume the two guarantees from Section~\ref{sec:guarantees}.
 Every reached state has positive volume and represents only orders
 consistent with the public transcript. After every complete call, all
-nodes satisfy the strict degree and height bounds.
+nodes satisfy the strict degree and path-length bounds.
 \end{proposition}
 \begin{proof}
 We induct on comparison calls and, within a call, on refinements. Initially
 the root region is the unit cube, every order is represented, and the graph
 is empty. Suppose the claims hold at the start of a call.
 
-Preparation refines only narrow coordinates. Its central dyadic rule
-chooses an interior position, so Lemma~\ref{lem:admission} preserves
+Preparation refines only narrow coordinates. The anchor guarantee
+supplies an interior position, so Lemma~\ref{lem:admission} preserves
 positivity and the order invariant. Lemma~\ref{lem:preparation} shows that
 preparation terminates with the width needed for a probability query,
-unless the query has already been decided by two anchors.
+unless anchors, interval bounds, or a directed path already decide it.
 
-The local estimator of Section~\ref{sec:oracle} now applies to the positive
-queried region with the strict graph bounds. Its chosen answer retains at
+The estimation guarantee now applies to the positive queried region
+with the strict graph bounds. Its chosen answer retains at
 least $1/2-\eta>0$ of the volume and makes that comparison true in every
 represented order. In particular, a new arc cannot create a directed
 cycle. An answer determined by anchors, interval bounds, or a directed path
@@ -285,13 +403,13 @@ was already true in every represented order and leaves the state unchanged.
 The selected answer is recorded in the public graph before any
 restoration refinement.
 
-Lemma~\ref{lem:restoration} gives degree at most $k$ and height at most
-$2H$ during restoration. At each refinement these bounds and positivity
-allow the position guarantees of Section~\ref{sec:oracle} to be used.
+Lemma~\ref{lem:restoration} gives degree at most $k$ and directed paths
+of at most $2H$ vertices during restoration. At each refinement these bounds and positivity
+allow the anchor guarantee to be used.
 The chosen anchor is interior, and Lemma~\ref{lem:admission} preserves the
 invariant and positivity for the next step. Restoration terminates with
-the strict bounds. This completes the induction. The numerical results
-used here concern arbitrary positive-volume regions defined by interval
-bounds and the inequalities of a DAG, subject to their stated hypotheses;
-their proofs do not assume legality of this adversary.
+the strict bounds. This completes the induction. The anchor estimates used at each step
+apply to arbitrary positive-volume node regions with the stated graph
+bounds. Section~\ref{sec:oracle} proves the estimation guarantee for such
+regions independently of the adversary's history.
 \end{proof}

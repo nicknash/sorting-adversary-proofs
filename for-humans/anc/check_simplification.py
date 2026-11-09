@@ -2,7 +2,7 @@
 """Exact rational checks of the all-stage one-coefficient accounting.
 
 This diagnostic verifies the algebraic inequalities on finitely many stages.
-Section 8 of the accompanying paper proves them for every j >= 6.
+Section 4 of the accompanying paper proves them for every j >= 6.
 It does not verify the geometric or probability-estimator hypotheses.
 """
 

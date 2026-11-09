@@ -1,9 +1,11 @@
-\section{Local probabilities and the choice of an anchor}\label{sec:oracle}
+\section{Computing comparison probabilities}\label{sec:oracle}
 
-To answer a comparison, the adversary estimates the fraction of feasible
-assignments supporting one answer. To refine an item, it chooses a parent
-position at which fixing that item retains enough volume. Both calculations
-use the same deterministic probability estimate, which we describe first.
+We now implement \texttt{Estimate} and prove the first guarantee in
+Section~\ref{sec:guarantees}. The same subroutine chooses comparison answers
+and guides the wide-item anchor search. It averages the outcomes of a
+finite collection of coordinate updates, using exact dyadic arithmetic.
+The proof applies to any positive-volume region of the stated form,
+independently of how the adversary reached it.
 
 \subsection{Estimating a probability by a finite average}
 
@@ -141,139 +143,8 @@ $1-\widehat p$ for the opposite answer. Since the continuous probabilities
 sum to one, this preserves the accuracy guarantee for both answers.
 
 For the adversary, use $d=k$, $h=2H$, and $\varepsilon=\eta$.
-Lemmas~\ref{lem:restoration} and~\ref{lem:preparation} supply the graph and
-width bounds whenever the estimator is called.
-
-\subsection{Density and the choice of a position}\label{sec:median-search}
-
-Fix a free coordinate $x$ in a group of volume $V$. If $S_x(t)$ is the
-volume of the section obtained by setting $X_x=t$, its density is
-\[
-f_x(t)=\frac{S_x(t)}{V}.
-\]
-It measures volume per unit coordinate length: the fraction of assignments
-with $a<X_x<b$ is $\int_a^b f_x(t)\,dt$. By
-Lemma~\ref{lem:section-volume}, fixing $x$ at $c$ and giving it a fresh unit
-coordinate in a child multiplies $Z$ by $f_x(c)$. We therefore want a
-large density at the chosen anchor.
-
-The two anchor rules obtain this in different ways. For a wide item we
-can estimate its cumulative distribution $F_x$ and search for a position
-with substantial mass on either side. For a narrow item we use its interval
-endpoints alone. The following density estimates justify both
-rules.
-
-Suppose $x$ has effective interval $(\ell,r)$ of width $W$ and at most
-$B$ other comparable labels. Then
-\begin{equation}\label{eq:density-summary}
-f_x(t)\le\frac{B+1}{W},\qquad
-f_x(t)\ge\frac{4^{-B}}{W}\quad
-\left(\ell+\frac W4\le t\le r-\frac W4\right).
-\end{equation}
-The lower bound gives an endpoint-only choice: every point in the central
-half has this much density. The upper bound limits the probability in a
-short interval; it will ensure that the midpoint search cannot continue
-halving its search interval indefinitely.
-
-For the search we also need a density bound that improves as its cell
-shrinks. For any $a\le c\le b$,
-\begin{equation}\label{eq:mass-summary}
-(b-a)f_x(c)\ge
-\min\{F_x(c),1-F_x(c)\}\bigl(F_x(b)-F_x(a)\bigr).
-\end{equation}
-If both tails at $c$ and the mass of $[a,b]$ are bounded below, this
-forces the density at $c$ to be a constant times $1/(b-a)$.
-Appendix~\ref{app:geometry} proves \eqref{eq:density-summary} and
-\eqref{eq:mass-summary} by explicit maps between sections.
-
-\subsection{The midpoint search}
-
-Recall that the wide-item search starts with $[a,b]=[0,1]$ and tests its
-midpoint $c$. It keeps the right half if the reported cumulative
-probability is below $1/4$, keeps the left half if it is above $3/4$,
-and otherwise accepts $c$. This cell records where to test next.
-Every test uses the same feasible region $K$ and distribution $F_x$.
-Each test applies the finite estimator to the event $X_x<c$, using the
-same tightened endpoints and the same retained neighborhood. Only the
-threshold in the final event test changes.
-
-\begin{lemma}[Midpoint search]\label{lem:median-search}
-The midpoint search for a wide item terminates at an interior anchor $c$.
-If its accepted cell has length $2^{-m}$, then
-\[
-f_x(c)\ge2^{m-4}.
-\]
-The search makes at most
-$\ceil{\log(4(B+1)/W_x)}+1$ tests.
-\end{lemma}
-\begin{proof}
-Every estimate has error at most $\eta<1/32$. A test reported below
-$1/4$ has true value below $9/32$, and its midpoint becomes the new
-left endpoint. A test reported above $3/4$ has true value above $23/32$,
-and its midpoint becomes the new right endpoint. Since the initial
-endpoint values are $F_x(0)=0$ and $F_x(1)=1$, the search maintains
-\[
-F_x(a)<9/32,\qquad F_x(b)>23/32.
-\]
-At acceptance, the report lies in $[1/4,3/4]$, so
-\[
-\frac7{32}\le F_x(c)\le\frac{25}{32},\qquad
-F_x(b)-F_x(a)\ge\frac7{16}.
-\]
-The first bounds put $c$ strictly inside its support. Applying
-\eqref{eq:mass-summary} to the accepted cell gives
-\[
-2^{-m}f_x(c)\ge\frac7{32}\frac7{16}
-=\frac{49}{512}>\frac1{16},
-\]
-which proves the density guarantee.
-
-For termination, the upper density bound in \eqref{eq:density-summary}
-gives, at every cell reached,
-\[
-\frac7{16}\le F_x(b)-F_x(a)
-\le\frac{B+1}{W_x}\,2^{-m}.
-\]
-At $m\ge\ceil{\log(4(B+1)/W_x)}$, the upper bound would be at most
-$1/4<7/16$. Starting at $m=0$ and increasing it by one at each rejection
-therefore permits at most the stated number of tests.
-\end{proof}
-
-\subsection{A common bound for both anchor rules}
-
-The lower-bound proof will compare the logarithmic volume gain from
-refinement with the anchor's level $m$. The wide-item search gives
-$\log f_x(c)\ge m-4$. The narrow-item rule gives the weaker bound
-$m-3-2B$, but the choice $R=2^{2kB}$ forces $m>2kB$ whenever that rule
-is used. Thus its additional loss $2B$ is less than the fraction $m/k$
-of the level. Both choices satisfy the following bound.
-
-\begin{lemma}[Refinement density]\label{lem:anchor-density}
-Every anchor chosen by the adversary is interior and satisfies
-\begin{equation}\label{eq:tariff}
-\log f_x(c)\ge(1-1/k)m-4.
-\end{equation}
-For a narrow item its level also satisfies
-\begin{equation}\label{eq:narrow-address}
-m>2kB+2.
-\end{equation}
-\end{lemma}
-\begin{proof}
-For a wide item, Lemma~\ref{lem:median-search} gives the stronger lower
-bound $m-4$. For a narrow item, write $b=2^{-m}$ for the selected cell
-length, so $W_x/8<b\le W_x/4$. The chosen midpoint is at distance at
-most $b/2\le W_x/8$ from the interval center. It belongs to the central
-half and is therefore interior. By \eqref{eq:density-summary} and
-$W_x<8b$,
-\[
-f_x(c)\ge\frac{4^{-B}}{W_x}>2^{m-3-2B}.
-\]
-Moreover, $b\le W_x/4<1/(4R)$, so
-$m>\log R+2=2kB+2$. In particular $2B<m/k$, and hence
-$m-3-2B>(1-1/k)m-4$, proving \eqref{eq:tariff}.
-\end{proof}
-
-The narrow rule must use its prescribed fine grid even if a coarser
-dyadic midpoint lies inside the interval. Its high level is what allows
-the weaker central density estimate to satisfy the same bound as the
-wide-item search.
+Theorem~\ref{thm:local} then gives the estimation guarantee of
+Section~\ref{sec:guarantees}. Lemma~\ref{lem:anchor-density} gives the anchor
+guarantee, and Theorem~\ref{thm:fixed-stage} therefore applies to the specified
+adversary for every fixed $j\ge6$. The next section chooses $j$ as a
+function of $n$ and bounds the running time uniformly.

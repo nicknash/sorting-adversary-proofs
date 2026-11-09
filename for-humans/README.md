@@ -6,22 +6,19 @@ The current manuscript presents the unit-interval adversary using finite
 averaging to estimate comparison probabilities and one coefficient to
 account for refinements. It introduces the derandomization problem, reviews
 the classical binary-tree adversaries and the interval lattice of Kaplan,
-Zamir, and Zwick, then gives an illustrated data-structure overview with high-level query
-pseudocode, followed by the complete mechanical algorithm. Section 6 defines
-the finite calculation explicitly: initialize temporary positions at their
-lower endpoints, update them in topological order, and average over every
-sequence of choices from a finite mesh. The proof bounds the error and shows
-why only a neighborhood of the queried items is needed. Subsequent sections
-derive the comparison bound and give a uniform polynomial-time implementation
-with exact dyadic arithmetic. The tree structure, anchor rules, and geometric
-packing argument are retained from the preceding version.
+Zamir, and Zwick. Section 3 describes the state and algorithm once, with
+diagrams and one comparison procedure. It introduces the parameters alongside
+the operations that need them. Section 4 states two subroutine guarantees
+and proves the comparison bound subject to them. Section 5 gives the anchor
+rules and proves the refinement, consistency, graph, and geometric bounds.
+Section 6 supplies the finite probability estimator, and Section 7 proves
+uniform polynomial running time with exact dyadic arithmetic.
 
 The source for this simplification is the
 [finite-averaging audit](https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af1b5f8-a1d0-83ed-b93d-fe7efd94df67).
-Sections 1 and 2 are unchanged. Section 3 retains the illustrated overview,
-with an explicit rule for descending through the tree and the corrections
-to answer selection: directly determined answers and the use of one strict
-event estimate together with its complement.
+The abstract, disclosure, and related work are unchanged; the introduction's
+roadmap reflects the new order. The top-down presentation preserves the
+adversary, parameter values, numerical guarantees, and comparison bound.
 
 - [Current paper](output/pdf/paper.pdf)
 - `paper.tex`: title, approved abstract, methodological disclosure, and section inputs

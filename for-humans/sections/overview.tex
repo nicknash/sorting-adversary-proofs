@@ -1,8 +1,7 @@
-\section{Overview of our adversary}\label{sec:overview}
+\section{The adversary}\label{sec:overview}\label{sec:algorithm}
 
-We now give an overview of the data structure maintained by our adversary
-and how it is updated in response to comparison queries from the sorting
-algorithm.
+We describe the data structure maintained by our adversary and how it is
+updated in response to comparison queries from the sorting algorithm.
 
 Kaplan, Zamir, and Zwick~\cite{kzz} retain disjoint ordered pairs within a
 node. Our adversary maintains a rooted tree with a DAG at each node, so
@@ -25,7 +24,7 @@ of possible orders is small enough to retain the optimal comparison bound.
 
 Our data structure is a rooted tree. Each node stores item records and
 a single directed acyclic graph (DAG), whose vertices are the items
-recorded at that node. Figure~\ref{fig:overview-state} shows an example.
+recorded at that node. We call it the node's \emph{active graph}. Figure~\ref{fig:overview-state} shows an example.
 
 Each item has a record $(x,X_x,a_x,b_x)$ stored at exactly one node.
 The label $x$ identifies its key, and $X_x$ is a symbolic variable for
@@ -46,7 +45,8 @@ Thus every assignment in $(0,1)^n$ is feasible, and every total order
 can be obtained by assigning distinct positions.
 
 Each child is attached to a fixed position $c\in(0,1)$ in its parent,
-called its \emph{anchor}. For any feasible assignment at the parent, an
+called its \emph{anchor}. A node has at most one child at each anchor.
+For any feasible assignment at the parent, an
 item with position below $c$ precedes every item in that child's subtree;
 an item with position above $c$ follows every item in it. Subtrees of
 different children are ordered by their anchors. All items of each child
@@ -150,12 +150,16 @@ p<q<a<b<r<s<c.
 \]
 Other feasible choices give other orders. Every order represented this way
 must respect all previous answers to the sorter. Those answers are also
-kept in a separate graph on the original item labels.
+kept in a separate graph on the original item labels. We call this graph the
+\emph{public comparison graph}, and the answer history the \emph{transcript}.
+Every answer is added to this graph before any subsequent refinement or
+return; this routine update is implicit in the pseudocode. A node's active
+arcs record only comparisons between items currently stored there.
 
 \subsection{Answering a comparison}
 
-Algorithm~\ref{alg:overview-compare} shows the algorithm the adversary uses
-to answer a comparison by the sorter.
+Algorithm~\ref{alg:compare} shows the algorithm the adversary uses to answer
+a comparison by the sorter.
 
 To compare $A$ and $B$, start at the root and descend into a child whenever
 its subtree contains both items. Stop when at least one item is stored at
@@ -166,38 +170,52 @@ In Figure~\ref{fig:overview-state}, comparing $p$ with $q$ descends into
 the left child; comparing $p$ with $r$ uses the anchors $1/4$ and $3/4$;
 and comparing $a$ with $p$ compares $X_a$ with $1/4$ at the root.
 
-Two distinct anchors already determine an answer. Interval bounds or a
-directed path in the node's DAG may also determine it. Otherwise, let $p$
-be the probability that $A$ precedes $B$ when positions at this node are
-assigned uniformly subject to its interval bounds and DAG inequalities.
-The adversary computes a deterministic estimate $\widehat p$ of this
-probability. It answers $A<B$ if $\widehat p\ge1/2$, and $B<A$ otherwise.
-The calculation uses only a small neighborhood of the queried items in
-the DAG, together with interval bounds implied by the full graph.
-Section~\ref{sec:oracle} gives the calculation and proves its accuracy.
+Two distinct anchors determine the answer immediately. In the other cases,
+first propagate the interval bounds through the DAG. If $y\to x$, every
+lower bound on $X_y$ is also a lower bound on $X_x$; upper bounds propagate
+in the reverse direction. Write $y\preceq x$ when $y=x$ or a directed path
+leads from $y$ to $x$. The resulting \emph{effective interval} is
+\begin{equation}\label{eq:effective}
+\ell_x=\max_{y\preceq x}a_y,\qquad
+r_x=\min_{y\succeq x}b_y,\qquad W_x=r_x-\ell_x.
+\end{equation}
+The operation \texttt{Tighten} stores these bounds as $a_x,b_x$. It is
+performed after every change to a node's arcs or intervals. Bounds remain
+stored even if the arcs that implied them are later removed.
+An interval bound or a directed path may already decide the comparison;
+in that case return the determined answer.
 
-An answer between two free items adds an arc to their DAG; an answer
-between a free item and an anchor tightens the item's interval.
+For an undecided comparison, let $p$ be the probability that $A$ precedes
+$B$ when positions at this node are assigned uniformly subject to its
+interval bounds and DAG inequalities. The subroutine \texttt{Estimate}
+returns a deterministic estimate $\widehat p$. We require its error to be
+at most a parameter $\eta$.
+Choose $A<B$ if $\widehat p\ge1/2$, and $B<A$ otherwise. For two free
+items, the event being estimated is $X_A<X_B$. For a free item $x$ and an
+anchor $c$, estimate $X_x<c$, taking the complement if the queried order
+is reversed. An answer between two free items adds an arc to the DAG;
+an answer involving an anchor adds an interval bound. Repeated comparisons
+never add duplicate arcs.
 
-Before calculating $\widehat p$, we propagate all interval bounds implied
-by the DAG. This gives each item's
-\emph{effective interval}, its full range of feasible positions.
-For the probability estimate to be accurate, degrees and directed paths must
-stay below prescribed limits, and at least one queried free item must have
-an effective interval of sufficient width.
+The estimator also requires a lower bound on the width of at least one
+queried free coordinate. Write this threshold as $1/R$. Call a coordinate
+\emph{wide} when $W_x\ge1/R$, and \emph{narrow}
+otherwise. If all queried free coordinates are narrow, move one of their
+items into a child before trying the query again. Such a move is called a
+\emph{refinement}, denoted \texttt{Refine}$(x)$; Section~\ref{sec:overview-refine}
+describes the operation.
 
-We maintain these conditions by moving items into children. Such a move
-is called a \emph{refinement}, denoted \texttt{Refine}$(x)$ for item $x$.
-Section~\ref{sec:overview-refine} describes how it preserves earlier answers.
-If all queried free intervals
-are too narrow, refine one of those items before answering. After
-answering, we restore the graph bounds by
-refining vertices with too many neighbors, then refining every vertex of
-any selected path that is too long. All selections use fixed tie-breaking rules.
+The calculation also needs bounds on the node's DAG. We limit each
+vertex to fewer than $k$ neighbors, counting both incoming and outgoing
+arcs, and each directed path to fewer than $H$ vertices. After answering,
+refine vertices with at least $k$ neighbors until none remain. Then select
+a path of $H$ vertices and refine all of them, repeating until no such
+path remains. We call these operations \emph{repairs}. A path repair includes
+the entire selected list, even if earlier moves break the path.
 
 \begin{algorithm}[H]
-\caption{\texttt{Compare}$(A,B)$: overview of a comparison query.}
-\label{alg:overview-compare}
+\caption{\texttt{Compare}$(A,B)$: answer a comparison query.}
+\label{alg:overview-compare}\label{alg:compare}
 \DontPrintSemicolon
 \KwIn{Distinct item labels $A,B$ and the current adversary state.}
 \KwOut{An answer $A<B$ or $B<A$, with the state updated.}
@@ -210,41 +228,44 @@ any selected path that is too long. All selections use fixed tie-breaking rules.
     $\mathit{answer}\gets$ the left-to-right order of their child anchors\;
     \Return $\mathit{answer}$\;
   }
-  Propagate interval bounds through the DAG at $v$\;
+  \texttt{Tighten}$(v)$\;
   \If{interval bounds or a directed path in the DAG determine the answer}{
     \Return the determined answer\;
   }
-  \If{at least one queried free interval is wide enough}{\textbf{break}\;}
-  \texttt{Refine}(one of the queried free items)\;
+  \If{at least one queried free coordinate is wide}{\textbf{break}\;}
+  \texttt{Refine}(the selected queried free item)\;
 }
-$\widehat p\gets$ deterministic estimate of $\Prb(A<B)$ at $v$\;
+$\widehat p\gets$ \texttt{Estimate}$(v,A<B,\eta)$\;
 $\mathit{answer}\gets A<B$ if $\widehat p\ge1/2$, and $B<A$ otherwise\;
 Store the arc or interval bound for $\mathit{answer}$ at $v$\;
-Propagate interval bounds through the DAG at $v$\;
-\While{a vertex at $v$ has too many neighbors}{
+\texttt{Tighten}$(v)$\;
+\While{a vertex at $v$ has degree at least $k$}{
   \texttt{Refine}(such a vertex)\;
 }
-\While{the DAG at $v$ has a directed path that is too long}{
-  Select such a path and \texttt{Refine} all its vertices\;
+\While{the DAG at $v$ has a directed path on $H$ vertices}{
+  $P\gets$ the selected path\;
+  \ForEach{$x\in P$ in label order}{\texttt{Refine}$(x)$\;}
 }
 \Return $\mathit{answer}$\;
 \end{algorithm}
 
 Refining a queried item restarts the search from the root because the node
-that handles the query may change. In the last loop, the whole selected
-path is refined before another is selected.
+that handles the query may change. Among eligible items choose the smallest
+label. Select a path by the lexicographically first eligible label sequence,
+and process its items in label order. These rules make every selection
+deterministic.
 
 \subsection{Moving an item into a child}\label{sec:overview-refine}
 
 To carry out \texttt{Refine}$(x)$, first propagate all interval bounds
-implied by the DAG. Choose a point $c$ inside $x$'s effective interval
-and fix its parent position at $X_x=c$.
+implied by the DAG. The subroutine \texttt{ChooseAnchor} selects a dyadic
+point $c$ inside $x$'s effective interval. Fix its parent position at $X_x=c$.
 
 The incident arcs then become interval bounds: $y\to x$ gives $X_y<c$,
 and $x\to z$ gives $X_z>c$. Remove $x$ and these arcs from the parent,
 retain the bounds, and propagate them through the remaining DAG.
 Insert $x$ into the child anchored at $c$, creating it if needed. In that
-child, $x$ receives a fresh interval $(0,1)$ and no incident arcs; the
+child, $x$ receives a fresh position variable with interval $(0,1)$ and no incident arcs; the
 child's existing constraints remain unchanged.
 Figure~\ref{fig:overview-refine} illustrates reuse of an existing child.
 
@@ -295,12 +316,40 @@ within that block.}
 Thus the parent fixes where the child block occurs, while the order of
 $x$ within that block stays open. Lemma~\ref{lem:admission} proves that
 this operation preserves all answered comparisons.
-The deterministic rule for choosing $c$ is given in
-Section~\ref{sec:median-search}; its role is to control how many possible
-orders refinement discards.
 
-The proofs must account for the orders discarded by refinements as well
-as by comparison answers. Section~\ref{sec:legal} establishes legality;
-Sections~\ref{sec:accounting} and~\ref{sec:potential} bound the total loss
-and prove the comparison lower bound. Section~\ref{sec:runtime} shows
-that the local calculations and all updates take polynomial time.
+Refinement can impose additional order relations. For example, suppose
+the root contains $A,B,C$ with only $A<B$ recorded. Refining $A$ at $1/2$
+restricts $B$ to $(1/2,1)$. Refining $C$ into the same child then leaves
+both $A<C<B$ and $C<A<B$ possible, while fixing the additional relation
+$C<B$. The comparison-bound proof accounts for these restrictions.
+
+Section~\ref{sec:median-search} gives \texttt{ChooseAnchor}: it uses
+probability estimates for a wide item and interval endpoints for a narrow
+one.
+
+\subsection{Anchors and parameters}
+
+The permitted anchors are midpoints of dyadic cells. A cell obtained after
+$m$ halvings of $[0,1]$ has length $2^{-m}$ and midpoint
+\begin{equation}\label{eq:dyadic}
+c=(i+\tfrac12)2^{-m},\qquad 0\le i<2^m.
+\end{equation}
+We call $m$ the anchor's \emph{level}. Thus $1/2$ has level $0$, and
+$1/4,3/4$ have level $1$. There are $2^m$ anchors at level $m$, and every
+anchor has a unique level. The level measures resolution within the
+parent's unit interval. Every refinement moves an item down one tree edge.
+
+Fix an integer $j\ge6$ for the entire interaction, and set
+\begin{equation}\label{eq:parameters}
+\begin{gathered}
+k=2^j,\qquad \eta=\frac1{100k},\qquad H=2^k,\\
+B=(k+1)^{2H+1},\qquad R=2^{2kB}.
+\end{gathered}
+\end{equation}
+The constant $B$ bounds how many other vertices can be comparable with one
+vertex in its active graph during a repair.
+Section~\ref{sec:potential} proves the comparison bound using explicit
+guarantees for \texttt{Estimate} and \texttt{ChooseAnchor}.
+Sections~\ref{sec:legal} and~\ref{sec:oracle} then establish those guarantees.
+Section~\ref{sec:runtime} chooses $j$ from $n$ and proves polynomial running
+time for the resulting single adversary.

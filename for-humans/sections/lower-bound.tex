@@ -1,10 +1,125 @@
-\section{The comparison lower bound}\label{sec:potential}
+\section{Why the adversary forces many comparisons}\label{sec:potential}
 
-The quantity $n!Z\mathcal W$ starts at $n!$ and is at most $2^n$ when
-sorting finishes. Each comparison retains at least $1/2-\eta$ of the
-volume, but refinements can also reduce this quantity. We adjust it so that every
-complete repair preserves or increases it. Comparisons must then account
-for the required overall decrease.
+We prove the comparison bound using two guarantees: one controls the
+accuracy of \texttt{Estimate}, and the other controls the position returned
+by \texttt{ChooseAnchor}. We state both guarantees precisely below.
+The refinement proofs in Section~\ref{sec:legal}
+assume the estimation guarantee and establish the anchor guarantee.
+Section~\ref{sec:oracle} supplies the estimator independently.
+
+The proof uses a potential that starts at $n!$ and is at most $2^n$ when
+sorting finishes. Each comparison decreases its logarithm by at most
+$1+O(j/2^j)$, and completed repairs increase it. Thus comparisons must account
+for a total decrease of nearly $\log(n!)$. We first define the quantities
+in this potential and the two guarantees needed to prove these claims.
+
+\subsection{Feasible regions and the subroutine guarantees}\label{sec:guarantees}
+
+At a node $v$, the stored coordinates range over
+\begin{equation}\label{eq:node-region}
+K_v=\{X:a_x<X_x<b_x\text{ for every free }x,
+       \quad X_x<X_y\text{ for every active arc }x\to y\}.
+\end{equation}
+Write $V_v=\vol(K_v)$. Under the uniform distribution on $K_v$, the
+probability of an event is the volume of the assignments satisfying it,
+divided by $V_v$. For example,
+\[
+\Prb(X_x<X_y)=\frac{\vol(K_v\cap\{X_x<X_y\})}{V_v}.
+\]
+The coordinates stored at different nodes are separate variables. Their
+feasible regions form a Cartesian product of total dimension $n$, with volume
+\begin{equation}\label{eq:Z}
+Z=\prod_v V_v.
+\end{equation}
+A node with no free items contributes volume one. Initially $Z=1$;
+whenever every node has positive volume, $0<Z\le1$.
+
+Fixing one coordinate $X_x=c$ leaves a section of $K_v$. Let $S_x(c)$
+be its volume in the remaining coordinates. The density of $X_x$ is
+\[
+f_x(c)=\frac{S_x(c)}{V_v},
+\qquad
+\Prb(a<X_x<b)=\int_a^b f_x(t)\,dt.
+\]
+Refinement replaces $X_x$ by a fresh unit coordinate in a child, so the
+volume change is $Z_{\rm after}/Z_{\rm before}=f_x(c)$
+(Lemma~\ref{lem:section-volume}). This is why the choice of anchor matters.
+
+Here are the required guarantees, with the parameters from
+\eqref{eq:parameters}. They concern any positive-volume region defined by
+dyadic intervals and a DAG of degree at most $k$, with directed paths of
+at most $2H$ vertices. All effective endpoints are computed using that DAG.
+\begin{enumerate}[label=(\roman*)]
+\item\label{req:estimate}\textbf{Probability estimation.}
+For a threshold event $X_x<c$ with $W_x\ge1/R$, or a pair event
+$X_x<X_y$ with at least one of $W_x,W_y$ at least $1/R$,
+\texttt{Estimate} deterministically terminates and returns a value within
+$\eta$ of its probability. Thresholds $c$ are dyadic. The calculation
+leaves the stored state unchanged.
+\item\label{req:anchor}\textbf{Anchor selection.}
+For any free item $x$, \texttt{ChooseAnchor} deterministically terminates
+with a dyadic anchor $c\in(\ell_x,r_x)$ of level $m$ satisfying
+\begin{equation}\label{eq:required-density}
+\log f_x(c)\ge(1-1/k)m-4.
+\end{equation}
+If $x$ is narrow, its level also satisfies $m>2kB+2$. The calculation
+leaves the stored state unchanged.
+\end{enumerate}
+The first guarantee makes the selected answer retain at least
+$1/2-\eta$ of the node's volume: a report at least $1/2$ implies
+$p\ge1/2-\eta$, and a smaller report implies $1-p>1/2-\eta$.
+The second guarantee bounds the volume gained by every refinement in
+terms of its anchor's level.
+
+\begin{theorem}[Conditional comparison bound]\label{thm:fixed-stage}
+Suppose \textnormal{\texttt{Estimate}} and \textnormal{\texttt{ChooseAnchor}} satisfy the guarantees
+in Section~\ref{sec:guarantees}. For every integer $j\ge6$, the adversary
+of Algorithm~\ref{alg:compare}, with parameters \eqref{eq:parameters}, is
+deterministic and legal, and every call terminates. If a correct sorter
+terminates after $q$ calls, then
+\begin{equation}\label{eq:exact-bound}
+n\log n\le\left(1+\frac{2j+22}{2^j}\right)q+3n.
+\end{equation}
+\end{theorem}
+
+For the rest of this section, assume both subroutine guarantees. We use
+the structural lemmas proved in Section~\ref{sec:legal} to derive the
+bound, including the consistency of all answers and the fact that
+comparable items cannot enter the same child.
+
+\subsection{Accounting for movement down the tree}
+
+An item's coordinate orders it within its own node. To relate $Z$ to the
+number of remaining total orders, we must also account for the anchors
+above that node. Section~\ref{sec:accounting} places every item on one
+common line, reserving a small interval for each child subtree. For an
+anchor of level $m$, the reserved width is
+\begin{equation}\label{eq:child-weight}
+w(m)=\frac{2^{-(1+1/k)m}}{4k}.
+\end{equation}
+There are $2^m$ possible anchors at level $m$. The extra factor
+$2^{-m/k}$ makes the sum of the widths finite over all levels; the factor
+$4k$ leaves space for items stored in the parent.
+
+Let $s_c$ be the number of original labels in the subtree below a
+parent--child edge $c$, and let $w_c$ be its reserved width. Define
+\begin{equation}\label{eq:W}
+\mathcal W=\prod_{\text{parent--child edges }c} w_c^{s_c}.
+\end{equation}
+Each item contributes the product of the widths on its path from the root.
+A comparison leaves $\mathcal W$ unchanged. Refinement at level $m$
+multiplies it by $w(m)$: one item crosses that parent--child edge, and its
+membership in every other subtree stays unchanged. Initially $\mathcal W=1$.
+
+The placement on a common line has volume $2^{-n}Z\mathcal W$
+(Lemma~\ref{lem:packing}). At termination, all its assignments must give
+the same total order and hence lie in one of the $n!$ equal-volume order
+regions of $(0,1)^n$. Consequently,
+\[
+n!Z\mathcal W\le2^n.
+\]
+Refinements can decrease $Z\mathcal W$. We now modify it so that every
+completed repair increases the resulting potential.
 
 \subsection{A potential with one coefficient}
 
@@ -30,7 +145,7 @@ For $j\ge6$, the coefficient satisfies $0<s\le1/4$: its value at $j=6$
 is $1/4$, and increasing $j$ decreases it.
 
 Consider a refinement at level $m$ that deletes $r$ incident arcs.
-The volume identity, the density bound, and the child width give
+Lemma~\ref{lem:section-volume}, the anchor guarantee, and the child width give
 \begin{center}
 \begin{tabular}{ll}
 \toprule
@@ -78,8 +193,7 @@ A degree refinement deletes at least $k$ arcs. Since $m\ge0$ and $a>0$,
 \[
 \Delta\log\Psi\ge sk-C_j=4(1-s)>0.
 \]
-A preparation refines a narrow item. Equation~\eqref{eq:narrow-address}
-gives $m>2kB+2>2k$, and hence
+A preparation refines a narrow item. The anchor guarantee gives $m>2kB+2>2k$, and hence
 \[
 \Delta\log\Psi>2ka-C_j=j+10-6s>0.
 \]
@@ -97,9 +211,9 @@ where the last inequality uses $s\le1/4$.
 \end{proof}
 
 An individual refinement within a path batch may decrease the potential.
-The proposition applies to the completed batch, which is why
-\texttt{Restore} finishes its selected list before selecting another path
-or returning an answer.
+The proposition applies to the completed batch, which is why the final
+loop of Algorithm~\ref{alg:compare} finishes its selected list before
+selecting another path or returning an answer.
 
 \subsection{The decrease caused by a comparison}
 
@@ -107,17 +221,13 @@ The endpoint bounds require a net decrease of at least $\log(n!)-n$ in
 $\log\Psi$. Complete repairs increase this quantity. We now bound the
 amount by which a single comparison can decrease it.
 
-\begin{theorem}[Fixed-parameter comparison bound]\label{thm:fixed-stage}
-For every integer $j\ge6$, the adversary with $k=2^j$ is deterministic
-and legal. If a correct sorter terminates after $q$ calls, then
-\begin{equation}\label{eq:exact-bound}
-n\log n\le\left(1+\frac{2j+22}{2^j}\right)q+3n.
-\end{equation}
-\end{theorem}
-\begin{proof}
-The procedures and tie rules are deterministic. Legality is
-Proposition~\ref{prop:legality}, and each call terminates by
-Lemmas~\ref{lem:restoration} and~\ref{lem:preparation}.
+
+\begin{proof}[Proof of Theorem~\ref{thm:fixed-stage}]
+The procedures and tie rules are deterministic. The structural proofs
+in Section~\ref{sec:legal} establish legality
+(Proposition~\ref{prop:legality}) and termination of every call
+(Lemmas~\ref{lem:restoration} and~\ref{lem:preparation}) under the two
+stated guarantees.
 
 Put $a_\eta=-\log(1/2-\eta)$. An estimated answer retains at least
 $1/2-\eta$ of its node volume, leaves $\mathcal W$ unchanged, and adds
@@ -151,3 +261,9 @@ Finally,
 Combining this estimate with \eqref{eq:comparison-total},
 \eqref{eq:comparison-charge}, and $1+1/\ln2<3$ proves the theorem.
 \end{proof}
+
+It remains to justify the guarantees used above. Section~\ref{sec:legal}
+gives the anchor-selection procedure and proves the structural lemmas
+used in the argument. Section~\ref{sec:oracle} implements the probability
+estimate. Section~\ref{sec:runtime} then allows $j$ to grow with $n$ while
+keeping the running time polynomial.
