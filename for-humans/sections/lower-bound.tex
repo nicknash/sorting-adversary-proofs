@@ -1,20 +1,39 @@
 \section{Why the adversary forces many comparisons}\label{sec:potential}
 
-We prove the comparison bound using two guarantees: one controls the
-accuracy of \texttt{Estimate}, and the other controls the position returned
-by \texttt{ChooseAnchor}. We state both guarantees precisely below.
-The refinement proofs in Section~\ref{sec:legal}
-assume the estimation guarantee and establish the anchor guarantee.
-Section~\ref{sec:oracle} supplies the estimator independently.
+A larger degree threshold $k$ lets the adversary retain more comparisons
+involving each item before moving it into a child. Increasing $k$ lets
+the adversary force a comparison count closer to $n\log n$. The following
+bound quantifies this dependence.
+
+\begin{theorem}[Comparison bound]\label{thm:fixed-stage}
+For every power of two $k\ge64$, the adversary of
+Algorithm~\ref{alg:compare}, with the remaining parameter choices in
+Table~\ref{tab:parameters}, is deterministic and legal, and every call
+terminates. Every correct sorter makes at least
+\begin{equation}\label{eq:exact-bound}
+\frac{n\log n-3n}{1+(2\log k+22)/k}
+\end{equation}
+comparisons.
+\end{theorem}
+
+The coefficient of $n\log n$ tends to one as $k$ increases.
+Section~\ref{sec:runtime} chooses $k$ as a function of $n$ so that it grows
+without bound while the adversary's running time remains polynomial.
+For this section, fix a power of two $k\ge64$.
+
+The proof rests on two essential guarantees. Lemma~\ref{lem:estimation}
+controls the error when choosing a comparison answer. The anchor-selection
+lemma below controls the restrictions imposed when moving an item into a
+child. We state it after defining the feasible regions and the density
+that measures the effect of such a move.
 
 The proof uses a potential that starts at $n!$ and is at most $2^n$ when
 sorting finishes. The parameter choices make the maximum decrease in its
 logarithm per comparison arbitrarily close to one. Completed repairs
-increase it, so comparisons must account
-for a total decrease of nearly $\log(n!)$. We first define the quantities
-in this potential and the two guarantees needed to prove these claims.
+increase it, so comparisons must account for a total decrease of nearly
+$\log(n!)$.
 
-\subsection{Feasible regions and the subroutine guarantees}\label{sec:guarantees}
+\subsection{Feasible regions and anchor selection}\label{sec:guarantees}
 
 At a node $v$, the stored coordinates range over
 \begin{equation}\label{eq:node-region}
@@ -46,61 +65,42 @@ Refinement replaces $X_x$ by a fresh unit coordinate in a child, so the
 volume change is $Z_{\rm after}/Z_{\rm before}=f_x(c)$
 (Lemma~\ref{lem:section-volume}). This is why the choice of anchor matters.
 
-The guarantees below concern any positive-volume region defined by dyadic
-intervals and an in-node DAG of degree at most $k$, with directed paths of at most
-$2H$ vertices. All effective endpoints are computed using that in-node DAG.
-To bound the number of other coordinates comparable with a given one, set
+The estimation lemma makes each selected answer retain at least
+$1/2-\eta$ of its node's volume: a report at least $1/2$ implies
+$p\ge1/2-\eta$, and a smaller report implies $1-p>1/2-\eta$.
+For refinement we need a lower bound on $f_x(c)$ in terms of the anchor's
+level. The next lemma provides this second guarantee.
+
+Set
 \begin{equation}\label{eq:comparable-bound}
 B=(k+1)^{2H+1}.
 \end{equation}
-Every comparable coordinate lies within undirected distance $2H$ in an
-in-node DAG of degree at most $k$, so this value bounds their number. The anchor
-guarantee uses $B$ to require a sufficiently fine position for a narrow item.
-\begin{enumerate}[label=(\roman*)]
-\item\label{req:estimate}\textbf{Probability estimation.}
-For a threshold event $X_x<c$ with $W_x\ge1/R$, or a pair event
-$X_x<X_y$ with at least one of $W_x,W_y$ at least $1/R$,
-\texttt{Estimate} deterministically terminates and returns a value within
-$\eta$ of its probability. Thresholds $c$ are dyadic. The calculation
-leaves the stored state unchanged.
-\item\label{req:anchor}\textbf{Anchor selection.}
-For any free item $x$, \texttt{ChooseAnchor} deterministically terminates
-with a dyadic anchor $c\in(\ell_x,r_x)$ of level $m$ satisfying
-\begin{equation}\label{eq:required-density}
+In an in-node DAG of degree at most $k$ and directed paths of at most
+$2H$ vertices, every coordinate comparable with $x$ lies within undirected
+distance $2H$ of $x$. Thus $B$ bounds the number of other coordinates
+comparable with $x$.
+
+\begin{lemma}[Anchor selection]\label{lem:anchor-density}
+Suppose a node's feasible region has positive volume, its interval
+endpoints are dyadic, and its in-node DAG has degree at most $k$ and
+directed paths of at most $2H$ vertices. For $R=2^{2kB}$ and rational
+$0<\eta<1/32$, \textnormal{\texttt{ChooseAnchor}} deterministically
+terminates for every free item $x$ and returns a dyadic anchor
+$c\in(\ell_x,r_x)$ of level $m$ satisfying
+\begin{equation}\label{eq:tariff}
 \log f_x(c)\ge(1-1/k)m-4.
 \end{equation}
-If $x$ is narrow, its level also satisfies $m>2kB+2$. The calculation
-leaves the stored state unchanged.
-\end{enumerate}
-The first guarantee makes the selected answer retain at least
-$1/2-\eta$ of the node's volume: a report at least $1/2$ implies
-$p\ge1/2-\eta$, and a smaller report implies $1-p>1/2-\eta$.
-The second guarantee bounds the volume gained by every refinement in
-terms of its anchor's level.
-
-To state the comparison bound, index the degree threshold by an integer
-$j\ge6$, writing
-\begin{equation}\label{eq:degree-parameter}
-k=2^j.
+If $x$ is narrow, its level also satisfies
+\begin{equation}\label{eq:narrow-address}
+m>2kB+2.
 \end{equation}
-Section~\ref{sec:parameter-selection} will choose $j$ from the input size $n$.
-For now it is fixed for the entire interaction.
+The calculation leaves the stored state unchanged.
+\end{lemma}
 
-\begin{theorem}[Conditional comparison bound]\label{thm:fixed-stage}
-Suppose \textnormal{\texttt{Estimate}} and \textnormal{\texttt{ChooseAnchor}} satisfy the guarantees
-in Section~\ref{sec:guarantees}. For every integer $j\ge6$, the adversary
-of Algorithm~\ref{alg:compare}, with the parameter choices in Table~\ref{tab:parameters}, is
-deterministic and legal, and every call terminates. If a correct sorter
-terminates after $q$ calls, then
-\begin{equation}\label{eq:exact-bound}
-n\log n\le\left(1+\frac{2j+22}{2^j}\right)q+3n.
-\end{equation}
-\end{theorem}
-
-For the rest of this section, assume both subroutine guarantees. We use
-the structural lemmas proved in Section~\ref{sec:legal} to derive the
-bound, including the consistency of all answers and the fact that
-comparable items cannot enter the same child.
+Section~\ref{sec:anchor-guarantee} proves this lemma and explains the choice
+of $R$. We will also use the structural lemmas in Section~\ref{sec:legal},
+which show that all answers remain consistent and that comparable items
+cannot enter the same child.
 
 \subsection{Accounting for movement down the tree}
 
@@ -138,7 +138,7 @@ completed repair increases the resulting potential.
 
 \subsection{A potential with one coefficient}\label{sec:potential-coefficient}
 
-Keep the chosen parameter $j\ge6$ fixed, and recall that $k=2^j$.
+For the calculations, write $j=\log k$, so $j\ge6$ and $k=2^j$.
 Let $e$ count the arcs in all in-node DAGs, and put
 \begin{equation}\label{eq:potential}
 s=\frac{j+10}{k},\qquad
@@ -160,7 +160,7 @@ For $j\ge6$, the coefficient satisfies $0<s\le1/4$: its value at $j=6$
 is $1/4$, and increasing $j$ decreases it.
 
 Consider a refinement at level $m$ that deletes $r$ incident in-node arcs.
-Lemma~\ref{lem:section-volume}, the anchor guarantee, and the child width give
+Lemmas~\ref{lem:section-volume} and~\ref{lem:anchor-density}, together with the child width, give
 \begin{center}
 \begin{tabular}{ll}
 \toprule
@@ -217,7 +217,7 @@ A degree refinement deletes at least $k$ in-node arcs. Since $m\ge0$ and $a>0$,
 \[
 \Delta\log\Psi\ge sk-C_j=4(1-s)>0.
 \]
-A preparation refines a narrow item. The anchor guarantee gives $m>2kB+2>2k$, and hence
+A preparation refines a narrow item. Lemma~\ref{lem:anchor-density} gives $m>2kB+2>2k$, and hence
 \[
 \Delta\log\Psi>2ka-C_j=j+10-6s>0.
 \]
@@ -253,13 +253,14 @@ This makes the volume loss per answer at most $1+1/k$ bits, as shown below.
 
 
 \begin{proof}[Proof of Theorem~\ref{thm:fixed-stage}]
-The procedures and tie rules are deterministic. The structural proofs
-in Section~\ref{sec:legal} establish legality
-(Proposition~\ref{prop:legality}) and termination of every call
-(Lemmas~\ref{lem:restoration} and~\ref{lem:preparation}) under the two
-stated guarantees.
+Lemmas~\ref{lem:estimation} and~\ref{lem:anchor-density} give deterministic
+termination and the required accuracy and anchor bounds. With these lemmas,
+Proposition~\ref{prop:legality} establishes legality, and
+Lemmas~\ref{lem:restoration} and~\ref{lem:preparation} establish termination
+of every comparison call. All procedures and tie rules are deterministic.
 
-Put $a_\eta=-\log(1/2-\eta)$. An estimated answer retains at least
+Suppose the sorter terminates after $q$ calls. Put
+$a_\eta=-\log(1/2-\eta)$. By Lemma~\ref{lem:estimation}, an estimated answer retains at least
 $1/2-\eta$ of its node volume, leaves $\mathcal W$ unchanged, and adds
 at most one arc to the affected in-node DAG. Its decrease in $\log\Psi$ is therefore at most
 \[
@@ -289,11 +290,14 @@ Finally,
 =n\log n-\frac{n}{\ln2}+\frac1{\ln2}.
 \]
 Combining this estimate with \eqref{eq:comparison-total},
-\eqref{eq:comparison-charge}, and $1+1/\ln2<3$ proves the theorem.
+\eqref{eq:comparison-charge}, and $1+1/\ln2<3$ gives
+$n\log n\le[1+(2j+22)/2^j]q+3n$. Substitute $j=\log k$ and rearrange
+to obtain \eqref{eq:exact-bound}.
 \end{proof}
 
-It remains to justify the guarantees used above. Section~\ref{sec:legal}
-gives the anchor-selection procedure and proves the structural lemmas
-used in the argument. Section~\ref{sec:oracle} implements the probability
-estimate. Section~\ref{sec:runtime} then allows $j$ to grow with $n$ while
-keeping the running time polynomial.
+The following sections supply the deferred proofs.
+Section~\ref{sec:legal} proves Lemma~\ref{lem:anchor-density} and the
+structural lemmas used above. Section~\ref{sec:oracle} proves
+Lemma~\ref{lem:estimation} by implementing the probability estimate.
+Section~\ref{sec:runtime} then lets $k$ grow with $n$ while keeping the
+running time polynomial.

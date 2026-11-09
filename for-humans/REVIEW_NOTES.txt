@@ -294,3 +294,32 @@ the existing ChooseAnchor listing in Section 5.3. Refine is Algorithm 2;
 ChooseAnchor is now Algorithm 3. Both compilers pass, cross-references
 resolve, and the two listings and refinement diagram were visually checked.
 The PDF has 34 pages; all 18 source-archive members match saved files.
+
+
+Named lemmas and the comparison theorem -- 9 November 2026
+---------------------------------------------------------
+Replaced the two enumerated subroutine guarantees with Lemma 3.1 on
+deterministic probability estimation and Lemma 4.2 on anchor selection.
+The estimation lemma follows the width and graph conditions in Section 3.2;
+the anchor lemma follows the density definition in Section 4.1. Both have
+explicit pointers to their proofs. The anchor proof remains in Section
+5.3.3, and Section 6 now ends with the specialization proving Lemma 3.1.
+Estimate computes effective endpoints in temporary storage; Lemma 5.1
+justifies that this preserves the feasible region.
+
+Theorem 4.1 now leads Section 4 and states the lower bound directly as
+(n log n - 3n)/(1 + (2 log k + 22)/k), for powers of two k >= 64. Its
+statement has no assumptions about unproved subroutine guarantees; its
+proof invokes the named lemmas. The text explains what increasing the
+degree threshold k buys. The index j = log k first appears in Section 4.3
+for the potential calculation. The parameter table, implementation's
+parameter enumeration, and roadmaps were adjusted accordingly.
+
+The proof dependencies were reviewed: density facts for arbitrary regions
+support estimation, then anchor selection and legality, then the comparison
+bound. The algorithm listings are byte-for-byte unchanged. No numerical
+parameter or lower-bound strength changed. The abstract, disclosure, author,
+and related work are unchanged. Both compilers succeed; final repository
+diagnostics have no warnings or unresolved references. Revised lemma, theorem,
+proof, algorithm, and table pages were visually checked. The document has
+34 pages, and all 18 source-archive members match the saved files.

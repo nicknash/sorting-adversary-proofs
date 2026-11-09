@@ -214,6 +214,24 @@ a path of $H$ vertices and refine all of them, repeating until no such
 path remains. We call these operations \emph{repairs}. A path repair includes
 the entire selected list, even if earlier moves break the path.
 
+\Needspace{11\baselineskip}
+The following lemma supplies the accuracy needed by the comparison rule
+and the anchor search. Its degree and path bounds also cover intermediate
+states during a repair. Section~\ref{sec:oracle} gives the estimator and
+proves the lemma.
+
+\begin{lemma}[Deterministic probability estimation]\label{lem:estimation}
+Let $k,H\ge1$ be integers, and let $R\ge1$ and $0<\eta<1/4$ be rational.
+Suppose a node's dyadic interval bounds and in-node DAG admit a feasible
+assignment, and the in-node DAG has degree at most $k$ and directed paths
+of at most $2H$ vertices. For a threshold event $X_x<c$ with dyadic $c$
+and $W_x\ge1/R$, or a pair event $X_x<X_y$ with at least one of
+$W_x,W_y$ at least $1/R$, \textnormal{\texttt{Estimate}} deterministically
+terminates and returns a value within $\eta$ of the event's probability
+under the uniform distribution on feasible assignments. The calculation
+leaves the stored state unchanged.
+\end{lemma}
+
 \begin{algorithm}[H]
 \caption{\texttt{Compare}$(A,B)$: answer a comparison query.}
 \label{alg:overview-compare}\label{alg:compare}
@@ -375,6 +393,6 @@ parent's unit interval. Every refinement moves an item down one tree edge.
 All thresholds are fixed before the first query. We choose their values
 where the proof needs them; Table~\ref{tab:parameters} collects the values,
 their roles, and the sections introducing them. Section~\ref{sec:potential}
-proves the comparison bound using guarantees for \texttt{Estimate} and
-\texttt{ChooseAnchor}. Sections~\ref{sec:legal} and~\ref{sec:oracle} establish
-those guarantees, and Section~\ref{sec:runtime} proves polynomial running time.
+proves the comparison bound using Lemma~\ref{lem:estimation} and the
+anchor-selection lemma stated there. Sections~\ref{sec:legal} and~\ref{sec:oracle}
+prove these lemmas, and Section~\ref{sec:runtime} proves polynomial running time.

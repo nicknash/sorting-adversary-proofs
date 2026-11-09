@@ -2,8 +2,8 @@
 
 We now justify the refinement claims used in Section~\ref{sec:potential}.
 First, any interior anchor preserves consistency with previous answers.
-Next we give \texttt{ChooseAnchor} and prove its density and level bounds,
-assuming the estimation guarantee. We then establish the in-node DAG bounds,
+Next we give \texttt{ChooseAnchor} and prove Lemma~\ref{lem:anchor-density}
+using the probability estimates from Lemma~\ref{lem:estimation}. We then establish the in-node DAG bounds,
 legality of the full procedure, and the geometric bound at termination.
 
 \subsection{Preserving the represented orders}
@@ -186,15 +186,14 @@ original area.}
 
 Consider a positive-volume node whose in-node DAG has degree at most $k$
 and directed paths of at most $2H$ vertices. Algorithm~\ref{alg:choose-anchor}
-gives \texttt{ChooseAnchor}. The anchor guarantee asks for a high enough
-density at the chosen position.
+gives \texttt{ChooseAnchor}. Lemma~\ref{lem:anchor-density} requires a
+lower bound on the density at the chosen position.
 For a wide coordinate we find one by estimating its cumulative probability
 \[
 F_x(t)=\Prb(X_x<t).
 \]
-For a narrow coordinate the effective endpoints alone suffice. Throughout
-this subsection we assume the estimation guarantee from
-Section~\ref{sec:guarantees}.
+For a narrow coordinate the effective endpoints alone suffice. Each
+probability estimate uses Lemma~\ref{lem:estimation}.
 
 \begin{algorithm}[H]
 \caption{\texttt{ChooseAnchor}$(x)$: choose a position for refinement.}
@@ -308,20 +307,7 @@ The rule $2^{-m}\le W_x/4<1/(4R)$ then forces $m>2kB+2$.
 In particular $2B<m/k$, so both anchor rules satisfy the required density
 bound.
 
-\begin{lemma}[Refinement density]\label{lem:anchor-density}
-Assume the estimation guarantee from Section~\ref{sec:guarantees}, and
-suppose the positive-volume node has degree at most $k$ and paths of at
-most $2H$ vertices. Then \textnormal{\texttt{ChooseAnchor}} terminates at an interior
-anchor $c$ of level $m$, leaves the stored state unchanged, and satisfies
-\begin{equation}\label{eq:tariff}
-\log f_x(c)\ge(1-1/k)m-4.
-\end{equation}
-For a narrow item its level also satisfies
-\begin{equation}\label{eq:narrow-address}
-m>2kB+2.
-\end{equation}
-\end{lemma}
-\begin{proof}
+\begin{proof}[Proof of Lemma~\ref{lem:anchor-density}]
 The in-node DAG bounds imply that $x$ has at most $B$ other comparable coordinates, by
 \eqref{eq:comparable-bound}. For a wide item, Lemma~\ref{lem:median-search} gives the stronger lower
 bound $m-4$. For a narrow item, write $b=2^{-m}$ for the selected cell
@@ -334,7 +320,10 @@ f_x(c)\ge\frac{4^{-B}}{W_x}>2^{m-3-2B}.
 \]
 Moreover, $b\le W_x/4<1/(4R)$, so
 $m>\log R+2=2kB+2$. In particular $2B<m/k$, and hence
-$m-3-2B>(1-1/k)m-4$, proving \eqref{eq:tariff}.
+$m-3-2B>(1-1/k)m-4$, proving \eqref{eq:tariff}. The midpoint search
+terminates by Lemma~\ref{lem:median-search}; the narrow rule makes a finite
+dyadic calculation. Both use deterministic tie rules and leave the stored
+state unchanged.
 \end{proof}
 
 The narrow rule must use its prescribed fine grid even if a coarser
@@ -344,10 +333,11 @@ wide-item search.
 
 \subsection{Bounds during a comparison call}\label{sec:repairs}
 
-We next check how the in-node DAGs evolve, assuming the two guarantees
-from Section~\ref{sec:guarantees}. The preceding anchor rule satisfies the
-second guarantee whenever the first holds. We first bound the changes to
-the in-node DAGs, then combine these facts in an induction over calls.
+We next check how the in-node DAGs evolve. The first two lemmas bound
+the changes during a call. We then combine them with
+Lemmas~\ref{lem:estimation} and~\ref{lem:anchor-density} to prove that
+every call preserves feasibility and consistency with the answered
+comparisons.
 
 \begin{lemma}[Query preparation]\label{lem:preparation}
 Before selecting its answer, \textnormal{\textsc{Compare}} performs at most
@@ -398,7 +388,6 @@ in an in-node DAG of degree at most $k$. These are the bounds used by the local
 estimator and the anchor rules.
 
 \begin{proposition}[Legality]\label{prop:legality}
-Assume the two guarantees from Section~\ref{sec:guarantees}.
 Every reached state has positive volume and represents only orders
 consistent with the global transcript. After every complete call, all
 nodes satisfy the strict degree and path-length bounds.
@@ -408,13 +397,13 @@ We induct on comparison calls and, within a call, on refinements. Initially
 the root region is the unit cube, every order is represented, and its
 in-node DAG has no arcs. Suppose the claims hold at the start of a call.
 
-Preparation refines only narrow coordinates. The anchor guarantee
+Preparation refines only narrow coordinates. Lemma~\ref{lem:anchor-density}
 supplies an interior position, so Lemma~\ref{lem:admission} preserves
 positivity and the order invariant. Lemma~\ref{lem:preparation} shows that
 preparation terminates with the width needed for a probability query,
 unless anchors, interval bounds, or a directed path already decide it.
 
-The estimation guarantee now applies to the positive queried region
+Lemma~\ref{lem:estimation} now applies to the positive queried region
 with the strict in-node DAG bounds. Its chosen answer retains at
 least $1/2-\eta>0$ of the volume and makes that comparison true in every
 represented order. In particular, a new arc cannot create a directed
@@ -425,11 +414,11 @@ restoration refinement.
 
 Lemma~\ref{lem:restoration} gives degree at most $k$ and directed paths
 of at most $2H$ vertices during restoration. At each refinement these bounds and positivity
-allow the anchor guarantee to be used.
+allow Lemma~\ref{lem:anchor-density} to be used.
 The chosen anchor is interior, and Lemma~\ref{lem:admission} preserves the
 invariant and positivity for the next step. Restoration terminates with
 the strict bounds. This completes the induction. The anchor estimates used at each step
 apply to arbitrary positive-volume node regions with the stated in-node DAG
-bounds. Section~\ref{sec:oracle} proves the estimation guarantee for such
-regions independently of the adversary's history.
+bounds. The proof of Lemma~\ref{lem:estimation} in Section~\ref{sec:oracle}
+applies to all such regions independently of the adversary's history.
 \end{proof}

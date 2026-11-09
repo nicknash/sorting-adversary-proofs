@@ -21,8 +21,8 @@ the explanations in the main text.}
 Symbol & Value & Role & Introduced & Choice\\
 \midrule
 \multicolumn{5}{@{}l}{\textbf{Adversary parameters}}\\
-$j$ & Integer $j\ge6$ & Indexes the degree thresholds; selected from the input size $n$. & \S\ref{sec:guarantees} & \S\ref{sec:parameter-selection}\\
-$k$ & $2^j$ & Refine a vertex when it has at least this many neighbors. & \S\ref{sec:comparison} & \S\ref{sec:guarantees}\\
+$j$ & $\log k$ & Indexes the degree thresholds; selected from the input size $n$. & \S\ref{sec:potential-coefficient} & \S\ref{sec:parameter-selection}\\
+$k$ & Power of two, $k\ge64$ & Refine a vertex when it has at least this many neighbors. & \S\ref{sec:comparison} & \S\ref{sec:potential}\\
 $H$ & $2^k$ & Number of vertices refined in a selected directed path. & \S\ref{sec:comparison} & \S\ref{sec:repair-monotonicity}\\
 $B$ & $(k+1)^{2H+1}$ & Bounds the number of other vertices comparable with one vertex in its in-node DAG during a repair. & \S\ref{sec:guarantees} & \S\ref{sec:guarantees}\\
 $R$ & $2^{2kB}$ & Sets the width threshold: a coordinate is wide when $W_x\ge1/R$. & \S\ref{sec:comparison} & \S\ref{sec:anchor-guarantee}\\

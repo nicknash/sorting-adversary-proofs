@@ -8,8 +8,10 @@ account for refinements. It introduces the derandomization problem, reviews
 the classical binary-tree adversaries and the interval lattice of Kaplan,
 Zamir, and Zwick. Section 3 describes the state and algorithm once, with
 diagrams and one comparison procedure. It introduces the parameters alongside
-the operations that need them. Section 4 states two subroutine guarantees
-and proves the comparison bound subject to them. Section 5 gives the anchor
+the operations that need them and states a probability-estimation lemma.
+Section 4 states the comparison bound in terms of the degree threshold k,
+introduces an anchor-selection lemma, and proves the bound using these two
+lemmas. Their proofs are deferred to Sections 5 and 6. Section 5 gives the anchor
 rules and proves the refinement, consistency, graph, and geometric bounds.
 Section 6 supplies the finite probability estimator, and Section 7 proves
 uniform polynomial running time with exact dyadic arithmetic.

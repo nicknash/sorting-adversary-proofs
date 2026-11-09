@@ -1,7 +1,7 @@
 \section{Computing comparison probabilities}\label{sec:oracle}
 
-We now implement \texttt{Estimate} and prove the first guarantee in
-Section~\ref{sec:guarantees}. The same subroutine chooses comparison answers
+We now implement \texttt{Estimate} and prove Lemma~\ref{lem:estimation}.
+The same subroutine chooses comparison answers
 and guides the wide-item anchor search. It averages the outcomes of a
 finite collection of coordinate updates, using exact dyadic arithmetic.
 The proof applies to any positive-volume region of the stated form,
@@ -11,7 +11,8 @@ independently of how the adversary reached it.
 
 Fix the node handling the calculation, and let $K$ be its region of feasible
 positions. The requested event is either $X_x<c$ for a dyadic threshold $c$,
-or $X_x<X_y$. All interval bounds have been tightened using the full in-node DAG.
+or $X_x<X_y$. First compute the effective endpoints using the full in-node
+DAG, keeping these bounds in temporary storage.
 The calculation uses a temporary vector $Y$ of dyadic numbers, initialized
 at the effective lower endpoints. It visits the vertices in a
 fixed topological order, updating one number at a time. We call one such
@@ -142,9 +143,17 @@ comparison rule uses the estimate $\widehat p$ for one strict event and
 $1-\widehat p$ for the opposite answer. Since the continuous probabilities
 sum to one, this preserves the accuracy guarantee for both answers.
 
-For the adversary, use $d=k$, $h=2H$, and $\varepsilon=\eta$.
-Theorem~\ref{thm:local} then gives the estimation guarantee of
-Section~\ref{sec:guarantees}. Lemma~\ref{lem:anchor-density} gives the anchor
-guarantee, and Theorem~\ref{thm:fixed-stage} therefore applies to the specified
-adversary for every fixed $j\ge6$. The next section chooses $j$ as a
-function of $n$ and bounds the running time uniformly.
+\begin{proof}[Proof of Lemma~\ref{lem:estimation}]
+The interval and arc inequalities are strict, so a feasible assignment has
+an open neighborhood of feasible assignments. The region therefore has
+positive volume. Computing the effective endpoints in temporary storage
+preserves this region by Lemma~\ref{lem:interior}.
+Apply Theorem~\ref{thm:local} with $d=k$, $h=2H$, and
+$\varepsilon=\eta$ to obtain the stated accuracy for both kinds of event.
+The calculation enumerates finitely many choices in a fixed order and
+uses exact arithmetic, so it terminates deterministically. It uses copies
+of the stored constraints and leaves the adversary's state unchanged.
+\end{proof}
+
+The next section chooses $k$ as a function of $n$ and bounds the running
+time uniformly.
