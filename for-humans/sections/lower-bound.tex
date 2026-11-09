@@ -38,32 +38,32 @@ $\log(n!)$.
 We next introduce the definitions required to state
 Lemma~\ref{lem:anchor-density} and prove Theorem~\ref{thm:fixed-stage}.
 
-At a node $v$, the stored coordinates range over
+To assess an anchor choice $c$ for $x$, we compare the volume left for the
+other items after fixing $X_x=c$ with the node's original feasible volume.
+Their ratio is the density $f_x(c)$. Let $v$ be the node containing $x$;
+its feasible assignments form the region
 \begin{equation}\label{eq:node-region}
 K_v=\{X:a_x<X_x<b_x\text{ for every free }x,
        \quad X_x<X_y\text{ for every in-node arc }x\to y\}.
 \end{equation}
-Write $V_v=\vol(K_v)$. Under the uniform distribution on $K_v$, the
-probability of an event is the volume of the assignments satisfying it,
-divided by $V_v$. For example,
+Write $V_v=\vol(K_v)$, and let $S_x(c)$ be the volume of the section
+obtained by fixing $X_x=c$, measured in the remaining coordinates.
+Under the uniform distribution on $K_v$, the density of $X_x$ is
 \[
-\Prb(X_x<X_y)=\frac{\vol(K_v\cap\{X_x<X_y\})}{V_v}.
+f_x(c)=\frac{S_x(c)}{V_v},
+\qquad
+\Prb(a<X_x<b)=\int_a^b f_x(t)\,dt.
 \]
-The coordinates stored at different nodes are separate variables. Their
-feasible regions form a Cartesian product of total dimension $n$, with volume
+
+To track volume across the whole tree, we take the product of the node
+regions. Each item has a position variable at exactly one node, so this
+product has dimension $n$ and volume
 \begin{equation}\label{eq:Z}
 Z=\prod_v V_v.
 \end{equation}
 A node with no free items contributes volume one. Initially $Z=1$;
 whenever every node has positive volume, $0<Z\le1$.
 
-Fixing one coordinate $X_x=c$ leaves a section of $K_v$. Let $S_x(c)$
-be its volume in the remaining coordinates. The density of $X_x$ is
-\[
-f_x(c)=\frac{S_x(c)}{V_v},
-\qquad
-\Prb(a<X_x<b)=\int_a^b f_x(t)\,dt.
-\]
 Refinement replaces $X_x$ by a fresh unit coordinate in a child, so the
 volume change is $Z_{\rm after}/Z_{\rm before}=f_x(c)$
 (Lemma~\ref{lem:section-volume}). This is why the choice of anchor matters.

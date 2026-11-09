@@ -484,3 +484,14 @@ Reworded the opening of Section 4.1 to explain that the definitions are
 needed both to state the anchor-selection lemma and to prove the comparison
 bound theorem. Both compilers pass without final repository warnings;
 source archive members match the saved files.
+
+
+Motivating the coordinate density -- 9 November 2026
+---------------------------------------------------
+Section 4.1 now introduces the purpose of f_x before defining the node
+region: it compares the section volume remaining after fixing an anchor
+with the original node volume. Defined K_v, V_v, S_x and f_x together, then
+introduced the whole-tree product Z. Removed the intervening general
+comparison-probability example so the density definition is uninterrupted.
+Both compilers pass without final repository warnings. The affected pages
+were visually checked, and source archive members match the saved files.
