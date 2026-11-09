@@ -167,23 +167,22 @@ the left child; comparing $p$ with $r$ uses the anchors $1/4$ and $3/4$;
 and comparing $a$ with $p$ compares $X_a$ with $1/4$ at the root.
 
 Two distinct anchors already determine an answer. Interval bounds or a
-directed path in the node's DAG may also determine it. Otherwise, the allowed
-position assignments at this node form a region, cut into two parts by
-the possible answers. The adversary estimates the fraction supporting $A<B$
-by $\widehat p$, and uses $1-\widehat p$ for $B<A$. It chooses $A<B$
-if $\widehat p\ge1/2$, and $B<A$ otherwise. This keeps at least
-half the old volume, up to a small error. The estimates are calculated
-deterministically using only a small neighborhood of the queried items
-in the DAG, with interval bounds inherited from the full graph
-(Theorem~\ref{thm:local}).
+directed path in the node's DAG may also determine it. Otherwise, let $p$
+be the probability that $A$ precedes $B$ when positions at this node are
+assigned uniformly subject to its interval bounds and DAG inequalities.
+The adversary computes a deterministic estimate $\widehat p$ of this
+probability. It answers $A<B$ if $\widehat p\ge1/2$, and $B<A$ otherwise.
+The calculation uses only a small neighborhood of the queried items in
+the DAG, together with interval bounds implied by the full graph.
+Section~\ref{sec:oracle} gives the calculation and proves its accuracy.
 
 An answer between two free items adds an arc to their DAG; an answer
 between a free item and an anchor tightens the item's interval.
 
-Before estimating volumes, we propagate all interval bounds implied by
-the DAG. This gives each item's
+Before calculating $\widehat p$, we propagate all interval bounds implied
+by the DAG. This gives each item's
 \emph{effective interval}, its full range of feasible positions.
-For the volume estimates to be accurate, degrees and directed paths must
+For the probability estimate to be accurate, degrees and directed paths must
 stay below prescribed limits, and at least one queried free item must have
 an effective interval of sufficient width.
 
@@ -218,7 +217,7 @@ any selected path that is too long. All selections use fixed tie-breaking rules.
   \If{at least one queried free interval is wide enough}{\textbf{break}\;}
   \texttt{Refine}(one of the queried free items)\;
 }
-$\widehat p\gets$ estimate of the fraction supporting $A<B$, using a local DAG\;
+$\widehat p\gets$ deterministic estimate of $\Prb(A<B)$ at $v$\;
 $\mathit{answer}\gets A<B$ if $\widehat p\ge1/2$, and $B<A$ otherwise\;
 Store the arc or interval bound for $\mathit{answer}$ at $v$\;
 Propagate interval bounds through the DAG at $v$\;
