@@ -495,3 +495,19 @@ introduced the whole-tree product Z. Removed the intervening general
 comparison-probability example so the density definition is uninterrupted.
 Both compilers pass without final repository warnings. The affected pages
 were visually checked, and source archive members match the saved files.
+
+
+Stating the comparison proof's dependencies -- 9 November 2026
+-------------------------------------------------------------
+Moved the refinement identity, terminal-volume bound, and path-resolution
+bound into Section 4 before their first use. Added a concise consistency
+and termination proposition there, supported by the existing preparation,
+repair, and induction arguments in Section 5. Deferred proofs now refer
+back to the early statements without repeating them. Theorem 4.1 remains
+unconditional, and the anchor-selection lemma retains number 4.2.
+Audited all theorem, lemma, proposition, and equation references in
+Section 4's proofs: each now refers to a previously stated result or
+equation. Independent mathematical and editorial reviews found no new
+circularity or missing assumption. Both compilers pass without final
+repository warnings; the affected statements and proof pages were
+visually checked. All source archive members match the saved files.

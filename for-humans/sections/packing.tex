@@ -81,19 +81,7 @@ An edge width $w_c$ scales the $s_c$ labels in its subtree. Multiplying
 these factors over all items gives exactly $\mathcal W$ from
 \eqref{eq:W}, together with one factor $1/2$ for each free coordinate.
 
-\Needspace{12\baselineskip}
-\begin{lemma}[Packing volume]\label{lem:packing}
-The recursive map is injective and preserves the represented order. Its
-image $\mathcal I\subseteq(0,1)^n$ has volume
-\begin{equation}\label{eq:packed-volume}
-\vol(\mathcal I)=2^{-n}Z\mathcal W.
-\end{equation}
-Consequently, if the transcript determines a unique total order, then
-\begin{equation}\label{eq:terminal}
-n!Z\mathcal W\le2^n.
-\end{equation}
-\end{lemma}
-\begin{proof}
+\begin{proof}[Proof of Lemma~\ref{lem:packing}]
 The map $G$ puts each free position on the correct side of every child
 interval. Recursion therefore preserves the order of the original labels.
 Anchors and widths are fixed within the state. The image coordinate of a
@@ -106,31 +94,21 @@ multiplied by the widths of the child intervals containing that label along
 the path to the root. There are exactly $n$ factors of $1/2$, one per free
 coordinate. An edge width $w_c$ occurs $s_c$ times. Multiplying these coordinate scale factors shows that every
 piece has its volume multiplied by $2^{-n}\mathcal W$. The domain, a product of the node regions,
-has volume $Z$. Injectivity lets us add the image volumes of the pieces,
-proving \eqref{eq:packed-volume}.
+has volume $Z$. Injectivity lets us add the image volumes of the pieces.
+Thus the image $\mathcal I\subseteq(0,1)^n$ has volume
+\begin{equation}\label{eq:packed-volume}
+\vol(\mathcal I)=2^{-n}Z\mathcal W.
+\end{equation}
 
-At completion, legality places the image in the region of the cube realizing
+At completion, consistency with the transcript places the image in the region of the cube realizing
 the unique transcript order. The $n!$ coordinate-order regions have equal
 volume $1/n!$, since coordinate permutations preserve volume and equality
 hyperplanes have volume zero. Hence $2^{-n}Z\mathcal W\le1/n!$.
 \end{proof}
 
-\subsection{Why a long path must use fine anchors}
+\subsection{Why a long path must use fine anchors}\label{sec:path-resolutions}
 
-The items on a directed path in an in-node DAG have already been compared, directly or
-through intermediate items. Two of them therefore cannot enter the same
-child. A long path needs many distinct anchors, but there are few anchors
-at coarse resolutions. The following estimate makes this observation
-quantitative and is used in Proposition~\ref{prop:repairs}.
-
-\begin{lemma}[Sum of anchor resolutions along a path]\label{lem:path-address}
-The $H$ labels of a selected path in an in-node DAG enter distinct children of their
-parent. If the anchors have resolutions $m_1,\ldots,m_H$, then
-\begin{equation}\label{eq:path-charge}
-\sum_{i=1}^H m_i\ge H(k-2).
-\end{equation}
-\end{lemma}
-\begin{proof}
+\begin{proof}[Proof of Lemma~\ref{lem:path-address}]
 Every in-node arc on the selected path records an answered comparison. The path's
 labels are therefore pairwise comparable in the global comparison DAG,
 and remain so after the in-node arcs are deleted. By Lemma~\ref{lem:admission}, two of these labels cannot

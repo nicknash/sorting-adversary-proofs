@@ -109,20 +109,14 @@ the child receives an independent coordinate in $(0,1)$. All node regions
 remain positive.
 \end{proof}
 
-\subsection{The volume gained by refinement}
+\subsection{The volume gained by refinement}\label{sec:refinement-volume}
 
 Recall that $Z=\prod_v V_v$ and that $f_x(c)=S_x(c)/V_v$ is the
 density of $X_x$ under the uniform distribution on its node's feasible
 region. Fixing $X_x=c$ removes one coordinate from the parent; placing
 $x$ in a child adds an independent unit coordinate there.
 
-\begin{lemma}[Refinement identity]\label{lem:section-volume}
-Refining $x$ at an interior anchor $c$ satisfies
-\begin{equation}\label{eq:refine}
-\frac{Z_{\rm after}}{Z_{\rm before}}=f_x(c).
-\end{equation}
-\end{lemma}
-\begin{proof}
+\begin{proof}[Proof of Lemma~\ref{lem:section-volume}]
 Let $u$ be the child at $c$, taking $V_u=1$ if it is newly created. The
 parent loses the coordinate $X_x$ and retains precisely the section of
 volume $S_x(c)$. The child gains a new coordinate $U_x\in(0,1)$, with no
@@ -388,12 +382,7 @@ coordinates in its in-node DAG: all lie within undirected distance $2H$
 in an in-node DAG of degree at most $k$. These are the bounds used by the local
 estimator and the anchor rules.
 
-\begin{proposition}[Legality]\label{prop:legality}
-Every reached state has positive volume and represents only orders
-consistent with the global transcript. After every complete call, all
-nodes satisfy the strict degree and path-length bounds.
-\end{proposition}
-\begin{proof}
+\begin{proof}[Proof of Proposition~\ref{prop:legality}]
 We induct on comparison calls and, within a call, on refinements. Initially
 the root region is the unit cube, every order is represented, and its
 in-node DAG has no arcs. Suppose the claims hold at the start of a call.
@@ -409,7 +398,8 @@ with the strict in-node DAG bounds. Its chosen answer retains at
 least $1/2-\eta>0$ of the volume and makes that comparison true in every
 represented order. In particular, a new arc cannot create a directed
 cycle. An answer determined by anchors, interval bounds, or a directed path
-was already true in every represented order and leaves the state unchanged.
+was already true in every represented order and leaves the represented
+orders unchanged.
 The selected answer is recorded in the global comparison DAG before
 calling \texttt{Repair}.
 
@@ -418,7 +408,11 @@ of at most $2H$ vertices during restoration. At each refinement these bounds and
 allow Lemma~\ref{lem:anchor-density} to be used.
 The chosen anchor is interior, and Lemma~\ref{lem:admission} preserves the
 invariant and positivity for the next step. Restoration terminates with
-the strict bounds. This completes the induction. The anchor estimates used at each step
+the strict bounds. This completes the induction.
+Lemmas~\ref{lem:estimation} and~\ref{lem:anchor-density} ensure that every
+probability estimate and anchor selection terminates. The preparation and
+restoration lemmas bound the number of refinements in a call by $n+2$, so
+the call terminates as well. The anchor estimates used at each step
 apply to arbitrary positive-volume node regions with the stated in-node DAG
 bounds. The proof of Lemma~\ref{lem:estimation} in Section~\ref{sec:oracle}
 applies to all such regions independently of the adversary's history.

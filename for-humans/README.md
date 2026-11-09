@@ -9,10 +9,11 @@ the classical binary-tree adversaries and the interval lattice of Kaplan,
 Zamir, and Zwick. Section 3 describes the state and algorithm once, with
 diagrams and one comparison procedure. It introduces the parameters alongside
 the operations that need them and states a probability-estimation lemma.
-Section 4 states the comparison bound in terms of the degree threshold k,
-introduces an anchor-selection lemma, and proves the bound using these two
-lemmas. Their proofs are deferred to Sections 5 and 6. Section 5 gives the anchor
-rules and proves the refinement, consistency, graph, and geometric bounds.
+Section 4 states the comparison bound in terms of the degree threshold k
+and states each refinement, consistency, and geometric guarantee before
+using it in the proof. Section 5 gives the anchor rules and the deferred
+proofs of these guarantees; the preparation and repair bounds support its
+proof of consistency and termination.
 Section 6 supplies the finite probability estimator, and Section 7 proves
 uniform polynomial running time with exact dyadic arithmetic.
 Parameter values are chosen alongside the bounds they ensure; Appendix D

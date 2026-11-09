@@ -4,12 +4,12 @@
   "argument": "finite averaging over dyadic coordinate updates, with a single coefficient for refinement accounting",
   "source_pdf_sha256": "577836ef3235bd8c452b8bdf0b5cbf3840c943c1a1837bed8c9f7ce3f41ab907",
   "source_zip_sha256": "4c4545e4e96e6ad4eb1389e5a1cfc91c6d22b35bf9180a2bedfbfc1885515fc7",
-  "local_pdf_sha256": "f71e64b8f0a085e1a6542e57fb4bd8b14a384de4528609365db12da1a16cb721",
-  "prepared_zip_sha256": "681dc5bbd326bc446ee02c6745962f735258d94fb7e065dd66729d7d7dbc0e69",
+  "local_pdf_sha256": "9ca5134408a0eaa856bdd54b667a9591e842710f439241f5e6cf7ec1bfcd008c",
+  "prepared_zip_sha256": "04e5aac6a4baee1ee9db10fefea7c724d110ed7f95546e8e56c6f62418ecf66e",
   "previous_hexagon_submission": "hexagon:2611.00196",
   "previous_submission_metadata": "submission.json",
   "formalization": "Related earlier integer-colour construction; this continuous presentation is not formally verified.",
-  "exposition": "Top-down presentation with named estimation and anchor-selection lemmas stated before use and proved later. The estimation lemma separates threshold and pair queries; dyadic rationals are defined with the stored endpoints. Anchor positions and resolutions are defined beside Refine as the midpoints of equal subdivisions of the unit interval. Section 4 motivates its definitions, the relation between local volume and the final order, and the potential function. The unconditional comparison theorem uses the degree threshold k; j=log k is introduced for the potential calculation. Tighten, Compare, Repair, and Refine have pseudocode in Section 3, and ChooseAnchor in Section 5.3. Parameter choices are collected in Appendix D. In-node DAGs are distinguished from the global comparison DAG.",
+  "exposition": "Top-down presentation with the estimation, anchor-selection, refinement, consistency, and geometric guarantees stated before use. Section 4 proves the comparison bound from these statements; Sections 5 and 6 supply their deferred proofs. The estimation lemma separates threshold and pair queries; dyadic rationals are defined with the stored endpoints. Anchor positions and resolutions are defined beside Refine as the midpoints of equal subdivisions of the unit interval. Section 4 motivates its definitions, the relation between local volume and the final order, and the potential function. The unconditional comparison theorem uses the degree threshold k; j=log k is introduced for the potential calculation. Tighten, Compare, Repair, and Refine have pseudocode in Section 3, and ChooseAnchor in Section 5.3. Parameter choices are collected in Appendix D. In-node DAGs are distinguished from the global comparison DAG.",
   "pages": 35,
   "source_chat": "https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af1b5f8-a1d0-83ed-b93d-fe7efd94df67"
 }

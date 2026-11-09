@@ -22,7 +22,7 @@ Section~\ref{sec:runtime} chooses $k$ as a function of $n$ so that it grows
 without bound while the adversary's running time remains polynomial.
 For this section, fix a power of two $k\ge64$.
 
-The proof rests on two essential guarantees. Lemma~\ref{lem:estimation}
+Lemma~\ref{lem:estimation}
 controls the error when choosing a comparison answer. Lemma~\ref{lem:anchor-density}
 (Anchor selection) controls the restrictions imposed when moving an item
 into a child.
@@ -64,10 +64,6 @@ Z=\prod_v V_v.
 A node with no free items contributes volume one. Initially $Z=1$;
 whenever every node has positive volume, $0<Z\le1$.
 
-Refinement replaces $X_x$ by a fresh unit coordinate in a child, so the
-volume change is $Z_{\rm after}/Z_{\rm before}=f_x(c)$
-(Lemma~\ref{lem:section-volume}). This is why the choice of anchor matters.
-
 Lemma~\ref{lem:estimation} makes each selected answer retain at least
 $1/2-\eta$ of its node's volume: a report at least $1/2$ implies
 $p\ge1/2-\eta$, and a smaller report implies $1-p>1/2-\eta$.
@@ -101,6 +97,38 @@ m>2kB+2.
 
 Section~\ref{sec:anchor-guarantee} proves Lemma~\ref{lem:anchor-density}
 and explains the choice of $R$.
+
+The density bound controls the change in $Z$ through the following identity.
+Refinement fixes $X_x$ in the parent and gives $x$ a fresh unit coordinate
+in the child.
+
+\begin{lemma}[Refinement identity]\label{lem:section-volume}
+Suppose every node region has positive volume. Refining $x$ at an interior
+anchor $c$ satisfies
+\begin{equation}\label{eq:refine}
+\frac{Z_{\rm after}}{Z_{\rm before}}=f_x(c).
+\end{equation}
+\end{lemma}
+
+Section~\ref{sec:refinement-volume} proves this identity, including when
+the child already contains items.
+
+To apply the probability and anchor estimates throughout a call, we need
+positive node volumes and bounds on the in-node DAGs. We also need each
+call to return an answer consistent with the earlier answers.
+
+\begin{proposition}[Consistency and termination]\label{prop:legality}
+With the parameter choices of Theorem~\ref{thm:fixed-stage}, every reached
+state has positive node volumes and represents only orders consistent with
+the global transcript. Every comparison call terminates. During a call,
+every in-node DAG has degree at most $k$ and directed paths of at most
+$2H$ vertices. At the end of the call, the degrees are below $k$ and the
+directed paths have fewer than $H$ vertices.
+\end{proposition}
+
+Section~\ref{sec:repairs} proves Proposition~\ref{prop:legality} from
+the comparison and refinement rules, using
+Lemmas~\ref{lem:estimation} and~\ref{lem:anchor-density}.
 
 We next relate the node volumes to the single total order determined at
 termination. This requires accounting for the order fixed by the tree.
@@ -138,15 +166,18 @@ A comparison leaves $\mathcal W$ unchanged. Refinement using an anchor of resolu
 multiplies it by $w(m)$: one item crosses that parent--child edge, and its
 membership in every other subtree stays unchanged. Initially $\mathcal W=1$.
 
-The construction also scales each item's own free coordinate by $1/2$
-to make room for child intervals. These $n$ factors, together with the
-scalings recorded in $\mathcal W$, give a region of volume
-$2^{-n}Z\mathcal W$ (Lemma~\ref{lem:packing}). At termination, all its assignments must give
-the same total order and hence lie in one of the $n!$ equal-volume order
-regions of $(0,1)^n$. Consequently,
-\[
+The common-line construction gives the following bound at termination.
+
+\begin{lemma}[Volume at termination]\label{lem:packing}
+Suppose the state represents only total orders consistent with the global
+transcript. If the transcript determines a unique total order, then
+\begin{equation}\label{eq:terminal}
 n!Z\mathcal W\le2^n.
-\]
+\end{equation}
+\end{lemma}
+
+Section~\ref{sec:accounting} proves Lemma~\ref{lem:packing} by constructing
+the common-line placement and calculating its volume.
 Thus $n!Z\mathcal W$ starts at $n!$ and is at most $2^n$ when sorting
 finishes. To use this decrease to count comparisons, we must also account
 for the changes made by refinements.
@@ -224,8 +255,20 @@ to use fine resolutions. We choose the path threshold
 \begin{equation}\label{eq:path-threshold}
 H=2^k.
 \end{equation}
-Lemma~\ref{lem:path-address} shows that their anchor resolutions sum to at least $H(k-2)$,
-which is enough to make the whole batch increase the potential.
+The following bound on the anchor resolutions is enough to make the whole
+batch increase the potential.
+
+\begin{lemma}[Sum of anchor resolutions along a path]\label{lem:path-address}
+The $H$ labels of a selected path in an in-node DAG enter distinct children
+of their parent. If the anchors have resolutions $m_1,\ldots,m_H$, then
+\begin{equation}\label{eq:path-charge}
+\sum_{i=1}^H m_i\ge H(k-2).
+\end{equation}
+\end{lemma}
+
+Section~\ref{sec:path-resolutions} proves Lemma~\ref{lem:path-address} by
+showing that the anchors must be distinct and counting how many are
+available at each resolution.
 
 \begin{proposition}[Repair monotonicity]\label{prop:repairs}
 Each query-preparation refinement, each degree refinement, and each
@@ -274,9 +317,8 @@ This makes the volume loss per answer at most $1+1/k$ bits, as shown below.
 \begin{proof}[Proof of Theorem~\ref{thm:fixed-stage}]
 Lemmas~\ref{lem:estimation} and~\ref{lem:anchor-density} give deterministic
 termination and the required accuracy and anchor bounds. With these lemmas,
-Proposition~\ref{prop:legality} establishes legality, and
-Lemmas~\ref{lem:restoration} and~\ref{lem:preparation} establish termination
-of every comparison call. All procedures and tie rules are deterministic.
+Proposition~\ref{prop:legality} establishes legality and termination of
+every comparison call. All procedures and tie rules are deterministic.
 
 Suppose the sorter terminates after $q$ calls. Put
 $a_\eta=-\log(1/2-\eta)$. By Lemma~\ref{lem:estimation}, an estimated answer retains at least
@@ -314,9 +356,5 @@ $n\log n\le[1+(2j+22)/2^j]q+3n$. Substitute $j=\log k$ and rearrange
 to obtain \eqref{eq:exact-bound}.
 \end{proof}
 
-The following sections supply the deferred proofs.
-Section~\ref{sec:legal} proves Lemma~\ref{lem:anchor-density} and the
-structural lemmas used above. Section~\ref{sec:oracle} proves
-Lemma~\ref{lem:estimation} by implementing the probability estimate.
-Section~\ref{sec:runtime} then lets $k$ grow with $n$ while keeping the
-running time polynomial.
+The next section proves the refinement, consistency, and geometric
+guarantees used above.
