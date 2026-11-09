@@ -411,3 +411,15 @@ total order determined at termination while accounting for order fixed by
 the tree. Removed the repeated motivation from the opening of Section 4.2.
 Both compilers pass without final repository warnings, and source archive
 members match the saved files.
+
+
+Technical components in the roadmap -- 9 November 2026
+----------------------------------------------------
+Reorganized the introductory roadmap around three italic lead-ins naming
+the main technical components: deterministic estimates from bounded
+neighborhoods, choosing positions with large remaining volume, and bounding
+the cost of graph simplification. Each explains the key mechanism and
+points to its proof. The representation is introduced before these
+components; the polynomial implementation remains the closing step. Both
+compilers pass without final repository warnings. The affected pages were
+visually checked, and source archive members match the saved files.

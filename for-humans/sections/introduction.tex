@@ -124,26 +124,33 @@ Items are stored at nodes of a rooted tree, with a directed acyclic graph
 recording comparisons within each node. Interval bounds and the graph's
 inequalities define a region of real positions representing the possible
 orders there. The adversary estimates the fraction of this region's volume
-retained by each answer.
+retained by each answer. Three technical ingredients make this possible.
 
-Section~\ref{sec:potential} proves the comparison bound by accounting for
-both answered comparisons and the restrictions imposed when items move
-into children. Section~\ref{sec:legal} supplies the geometric arguments.
-Probability estimates guide the choice of where to move an item, ensuring
-that fixing its position leaves a sufficiently large region for the
-remaining items. A recursive placement of all items on a common line then
-relates the volumes within nodes to the final total order.
+\emph{Deterministic estimates from bounded neighborhoods.}
+Repeated updates to individual positions approximate the required
+probabilities at a rate independent of the total number of items, for
+fixed degree, path-length and interval-width bounds. Only bounded
+neighborhoods can influence the queried positions during these updates.
+After propagating interval bounds through the full graph, averaging
+finitely many update sequences within these neighborhoods gives a
+deterministic estimate (Section~\ref{sec:oracle} and Appendix~\ref{app:local}).
 
-Section~\ref{sec:oracle} gives the deterministic estimator: it averages
-over finitely many sequences of updates to individual positions. The number
-of passes through the positions needed for a prescribed accuracy depends
-on the degree, path-length and interval-width bounds, independently of the total number of
-items. During these passes, each queried position depends only on a bounded
-graph neighborhood. After propagating interval bounds through the full graph, we can therefore
-perform the averaging within these neighborhoods.
-Appendix~\ref{app:local} proves these accuracy and neighborhood
-bounds; Appendix~\ref{app:geometry} proves the geometric estimates used to
-choose positions. Finally, Section~\ref{sec:runtime} lets the degree and
+\emph{Choosing positions with large remaining volume.}
+Moving an item into a child fixes its position in the parent.
+A geometric inequality turns estimates of the probability on either
+side of a position into a lower bound on the volume left after fixing it.
+This supplies the guarantee needed by the position search
+(Section~\ref{sec:median-search} and Appendix~\ref{app:geometry}).
+
+\emph{Bounding the cost of graph simplification.}
+Section~\ref{sec:potential} combines node volumes, the order fixed by the
+tree, and retained comparisons into a potential function. Completed
+simplifications increase it, while each comparison decreases its logarithm
+by at most $1+o(1)$. A recursive placement of all items on a common line
+relates its final value to the single total order determined at termination
+(Section~\ref{sec:accounting}).
+
+Finally, Section~\ref{sec:runtime} lets the degree and
 path-length bounds grow slowly with $n$, keeping the computation polynomial
 as the comparison coefficient approaches one.
 The manuscript source is available
