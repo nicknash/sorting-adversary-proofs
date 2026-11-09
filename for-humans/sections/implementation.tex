@@ -117,7 +117,7 @@ refinement uses only its endpoints. There are at most $n+2$ refinements
 per call, and at most one additional estimate to choose the answer.
 The remaining tasks are polynomial graph computations: propagating interval
 bounds, finding neighborhoods, and selecting a path. Longest path lengths
-in a directed acyclic graph are found in reverse topological order; these
+in a DAG are found in reverse topological order; these
 lengths let us select the lexicographically first path on $H$ vertices
 greedily, always choosing the first vertex that admits a long enough
 continuation. Thus every comparison, including the call at which an order

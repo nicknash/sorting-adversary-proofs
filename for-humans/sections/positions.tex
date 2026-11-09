@@ -14,15 +14,15 @@ the queried coordinates and calculates the desired probability exactly in
 that smaller region. For a radius $\rho$, it performs these steps.
 \begin{enumerate}
 \item Use the effective intervals obtained by tightening the full group's
-bounds. For a query $X_x<c$, retain the vertices within $\rho$ edges of
-$x$; for $X_x<X_y$, retain the union of the neighborhoods of $x$ and $y$.
-Distances ignore arrow directions.
-\item Keep every arrow whose endpoints are both retained, and keep each
+bounds. For a query $X_x<c$, retain the vertices within distance $\rho$
+of $x$ in the underlying undirected graph; for $X_x<X_y$, retain the
+union of these neighborhoods of $x$ and $y$.
+\item Keep every arc whose endpoints are both retained, and keep each
 retained coordinate's effective interval from the full group. Call the
 resulting region $K_{\rm loc}$. In particular, deleting a distant vertex
 does not undo any interval bound it had already implied.
 \item Calculate the volume $V_{\rm loc}$ of this region. Calculate a
-second volume $N_{\rm loc}$ after adding the proposed comparison arrow
+second volume $N_{\rm loc}$ after adding the proposed comparison arc
 or threshold bound to a temporary copy of the local region.
 \item Return $\widehat p=N_{\rm loc}/V_{\rm loc}$.
 \end{enumerate}
@@ -32,7 +32,8 @@ constraints unchanged.
 
 Both volumes are finite exact calculations. List the interval endpoints
 and enumerate the possible orders of those endpoints and the retained
-coordinates. Discard an order that violates an interval or an arrow.
+coordinates. Discard an order that violates an interval bound or an
+inequality imposed by an arc.
 For each remaining order, the coordinates in a gap between consecutive
 endpoints occur in a prescribed order. If the gap has length $a$ and
 contains $r$ coordinates, that part has volume $a^r/r!$. Multiply over
@@ -50,8 +51,9 @@ either direction.
 Fix integers $d,h\ge1$, rational $R\ge1$, and rational
 $0<\varepsilon<1/4$. There is a computable integer
 $\rho=\rho(d,h,R,\varepsilon)$ with the following property.
-Consider a positive-volume interval-and-arrow region in the unit cube,
-with degree at most $d$ and height at most $h$.
+Consider a positive-volume region in the unit cube defined by interval
+bounds and the inequalities of a DAG. Suppose the DAG has degree at most
+$d$ and height at most $h$.
 \begin{enumerate}
 \item If $W_x\ge1/R$, the estimator above for $\Prb(X_x<c)$ has additive
 error at most $\varepsilon$.

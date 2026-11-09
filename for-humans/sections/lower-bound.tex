@@ -9,9 +9,9 @@ responsible for the required overall decrease.
 
 \subsection{Choosing a quantity that repairs cannot decrease}
 
-Consider a refinement at level $m$ that removes $r$ incident arrows.
+Consider a refinement at level $m$ that removes $r$ incident arcs.
 The volume identity, the anchor-density bound, and the child width give
-three simple changes. Write $e$ for the total number of active arrows,
+three simple changes. Write $e$ for the total number of active arcs,
 and put $L=\log(4k)$.
 \begin{center}
 \begin{tabular}{ll}
@@ -27,7 +27,7 @@ $e$ & exactly $-r$\\
 Adding the first two rows gives only $-2m/k-4-L$ as a lower bound.
 Thus $n!Z\mathcal W$ alone does not give the required guarantee.
 There are two ways to improve it: give more weight to the recovered volume,
-and reward deletion of arrows.
+and reward deletion of arcs.
 
 The repair rules tell us what guarantee to aim for. A narrow-item refinement
 has $m\ge k$; a degree refinement has $r\ge k$; and a path batch has average
@@ -40,8 +40,8 @@ We seek it using
 with $\beta>1$. We call $\Psi$ a \emph{potential}: it is a numerical measure
 of the state used in the proof. The adversary never evaluates it.
 The extra power of $Z$ increases the reward for recovered volume.
-The factor $2^{-\tau e}$ charges a small amount when an arrow is stored,
-then returns that amount when the arrow is removed.
+The factor $2^{-\tau e}$ charges a small amount when an arc is stored,
+then returns that amount when the arc is removed.
 
 The table shows that the change in $\log\Psi$ is at least
 \[
@@ -73,7 +73,7 @@ current degree $r$, then
 \end{lemma}
 \begin{proof}
 The child receives an isolated coordinate, so exactly the $r$ parent
-arrows are deleted. Substituting the three changes in the table into
+arcs are deleted. Substituting the three changes in the table into
 \eqref{eq:potential} gives the lower bound derived above.
 The coefficient identities \eqref{eq:coefficient-identities} reduce it to
 $\tau(m+r-k)$.
@@ -131,7 +131,7 @@ Lemmas~\ref{lem:restoration} and~\ref{lem:preparation}.
 
 An answer between free coordinates or between a free coordinate and an
 anchor retains at least $1/2-\eta$ of its node volume. It leaves
-$\mathcal W$ unchanged and adds at most one active arrow. Its change in
+$\mathcal W$ unchanged and adds at most one active arc. Its change in
 $\log\Psi$ is therefore at least $-\beta a_\eta-\tau$.
 An answer between anchors leaves the potential unchanged. Preparations
 and complete restorations do not decrease it by Proposition~\ref{prop:repairs}.

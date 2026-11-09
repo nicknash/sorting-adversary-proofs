@@ -53,11 +53,12 @@ than $t$. Its effective upper endpoint satisfies $r_y\ge r_x=r$, by the
 definition of effective intervals. A moved coordinate never decreases;
 if it starts below $r$, it stays below $r$, and if it starts at or above
 $r$, it stays fixed. Its lower and upper interval bounds are therefore
-preserved. The function $\phi$ is strictly increasing, so every arrow
-between moved coordinates remains strict. An arrow crossing the boundary
-of this set must enter it: an arrow leaving a descendant would lead to
-another descendant. Its upper endpoint can only increase, so a boundary
-arrow also remains strict.
+preserved. The function $\phi$ is strictly increasing, so it preserves
+the inequalities imposed by arcs between moved coordinates. Every arc
+crossing the boundary of this set must enter it: an arc leaving a
+descendant would lead to another descendant. Only its head coordinate
+can move, and that coordinate never decreases, so its inequality also
+remains strict.
 
 This injective map sends the section at $t$ into the section at $s$.
 To compare volumes, partition the source section according to which moved
@@ -84,9 +85,11 @@ s+\dfrac{s-\ell}{t-\ell}(z-t),&\ell\le z\le t.
 on $x$ and its ancestors. The effective lower endpoint of every ancestor
 is at most $\ell$. No moved coordinate rises, and one that starts at or
 above $\ell$ remains there. Thus all intervals are preserved. The map is
-strictly increasing on the moved set, and every boundary arrow leaves
-that set, so all arrows remain strict as well. Its determinant on each
-piece is at least $((s-\ell)/(t-\ell))^B$. Consequently
+strictly increasing on the moved set, so it preserves the inequalities
+imposed by arcs within that set. Every arc crossing its boundary leaves
+the set. Only its tail coordinate can move, and that coordinate never
+increases, so these inequalities also remain strict. Its determinant on
+each piece is at least $((s-\ell)/(t-\ell))^B$. Consequently
 \begin{equation}\label{eq:push-lower}
 S(s)\ge\left(\frac{s-\ell}{t-\ell}\right)^B S(t)
 \qquad(s<t).
@@ -151,26 +154,26 @@ suppose $u<t<v$, take a pair of feasible assignments $p,q$ with
 $p_x=u$ and $q_x=v$, and put $\delta=t-u$.
 
 We first translate the second assignment by setting $h_i=q_i-\delta$
-for every $i$. Translation preserves all arrows, so both $p$ and $h$
-satisfy them. The intermediate assignment $h$ need not satisfy the
+for every $i$. Translation preserves all arc inequalities, so both $p$
+and $h$ satisfy them. The intermediate assignment $h$ need not satisfy the
 interval bounds. We shall swap selected coordinates of $p$ and $h$,
 then undo the translation on the second assignment.
 
 Which coordinates must be swapped together? For each $i$, the two
-available values are $p_i$ and $h_i$. Join the endpoints of an arrow
+available values are $p_i$ and $h_i$. Join the endpoints of an arc
 $i\to j$ by an undirected edge exactly when
 \[
 \max(p_i,h_i)\ge\min(p_j,h_j).
 \]
 An edge means that choosing the two endpoint values independently could
-violate the arrow. If there is no edge, either value at $i$ is strictly
+violate $X_i<X_j$. If there is no edge, either value at $i$ is strictly
 less than either value at $j$, so every choice is safe.
 Figure~\ref{fig:balance-components} illustrates the two cases.
 
 \Needspace{9\baselineskip}
 Along an edge, $h_i-p_i$ and $h_j-p_j$ have the same strict sign. To see
 this, if $h_i\ge p_i$ and $h_j\le p_j$, then
-$\max(p_i,h_i)=h_i<h_j=\min(p_j,h_j)$, because $h$ satisfies the arrow.
+$\max(p_i,h_i)=h_i<h_j=\min(p_j,h_j)$, because $h$ satisfies the inequality for the arc $i\to j$.
 If $h_i\le p_i$ and $h_j\ge p_j$, the same contradiction follows from
 $p_i<p_j$. These two cases also exclude a zero difference at either
 endpoint. Let $C$ be the connected component containing $x$. Since
@@ -191,13 +194,15 @@ We check feasibility in two steps. First, on $C$ we have
 $p_i<q_i-\delta<q_i$ and $p_i<p_i+\delta<q_i$. Thus both new values lie
 between the original feasible values $p_i$ and $q_i$, and so remain in
 the interval for coordinate $i$. Outside $C$ there is no change.
-Second, consider the arrows before adding $\delta$ back. An arrow with
-both endpoints in $C$ has had its two assignments exchanged, so it
-remains strict in each. An arrow with neither endpoint in $C$ is
-unchanged. A boundary arrow is not an edge of the auxiliary graph,
-because $C$ is a component; any choice of its endpoint values is therefore
-safe. Finally, adding the same $\delta$ to every coordinate of the second
-assignment preserves its arrows. Both output assignments are feasible.
+Second, consider the arc inequalities before adding $\delta$ back. For
+an arc with both endpoints in $C$, the two assignments have exchanged
+values at both endpoints, so its inequality remains strict in each.
+If neither endpoint is in $C$, their values are unchanged. An arc
+crossing the boundary of $C$ has no corresponding edge in the auxiliary
+graph, because $C$ is a component; any choice of its endpoint values is
+therefore safe. Finally, adding the same $\delta$ to every coordinate of
+the second assignment preserves all arc inequalities. Both output
+assignments are feasible.
 
 To recover the input, subtract $\delta$ from $q'$ and observe that for
 every coordinate
@@ -251,11 +256,11 @@ Dividing by the square of the total volume proves the claim.
 \node at (3.4,-1) {$\max(p_i,h_i)<\min(p_j,h_j)$};
 \end{scope}
 \end{tikzpicture}
-\caption{The auxiliary graph in Lemma~\ref{lem:balance}, for one arrow
+\caption{The auxiliary graph in Lemma~\ref{lem:balance}, for one arc
 $i\to j$. Each segment joins the two available values of its coordinate.
 On the left, swapping just one endpoint could select $h_i$ and $p_j$,
-violating the arrow. On the right, the two segments are separated in the
-required order, so swapping either endpoint is safe. Every boundary arrow
+violating $X_i<X_j$. On the right, the two segments are separated in the
+required order, so swapping either endpoint is safe. Every boundary arc
 of a component has this second form.}
 \label{fig:balance-components}
 \end{figure}
@@ -316,7 +321,8 @@ A \emph{sweep} visits every vertex of the full graph once, in a fixed
 topological order; the retained graph uses the restriction of this order.
 Consider one assignment and condition on all its coordinates other than
 $X_x$. The only constraints still depending on $X_x$ are its interval
-and the arrows incident with $x$. Its available values form the interval
+and the inequalities imposed by arcs incident with $x$. Its available
+values form the interval
 $(a,b)$, where
 \[
 a=\max\{\ell_x,\ X_y:y\to x\},\qquad
@@ -326,7 +332,7 @@ Because the joint density is constant on the feasible region, the
 conditional distribution of $X_x$ is uniform on this interval. Replace
 it by $(1-U_x)a+U_xb$, where $U_x$ is uniform on $(0,1)$. In the retained
 assignment, use the endpoints computed from $\widehat X$ and its retained
-arrows. Use independent $U_x$ at different vertices and in different
+arcs. Use independent $U_x$ at different vertices and in different
 sweeps, but share the same $U_x$ between the two assignments whenever
 $x$ is retained. Vertices outside the retained graph are updated only
 in the full assignment.
@@ -344,7 +350,7 @@ sweep, superscripts ${\rm old}$ and ${\rm new}$ denote values before and
 after that vertex is visited. Every old value is also its value at the start
 of the sweep: updating another vertex does not change it. Thus the whole
 old discrepancy vector is independent of this sweep's fresh variables $U$.
-Whenever every incident edge is retained,
+Whenever every incident arc is retained,
 \begin{equation}\label{eq:coupling}
 \Delta_x^{\rm new}
 \le(1-U_x)\max_{y\to x}\Delta_y^{\rm new}
@@ -352,28 +358,28 @@ Whenever every incident edge is retained,
 \end{equation}
 Here and below an empty maximum is zero. To obtain this inequality,
 compare the two available lower endpoints: both include the same fixed
-bound $\ell_x$, so their difference is at most the largest predecessor
-discrepancy. The same argument for the upper endpoints uses the common
-bound $r_x$ and the successors. Multiplying by the shared coefficients
-$1-U_x$ and $U_x$ gives \eqref{eq:coupling}. Topological order explains the
-superscripts: every predecessor has already been visited in this sweep,
-whereas no successor has.
+bound $\ell_x$, so their difference is at most the largest discrepancy
+at an in-neighbor. The same argument for the upper endpoints uses the
+common bound $r_x$ and the out-neighbors. Multiplying by the shared
+coefficients $1-U_x$ and $U_x$ gives \eqref{eq:coupling}. Topological order explains the
+superscripts: every in-neighbor has already been visited in this sweep,
+whereas no out-neighbor has.
 
-We next expand the dependence on the new predecessor values until it
+We next expand the dependence on the new in-neighbor values until it
 reaches a fixed interval endpoint. Let $B_h(x)$ denote the vertices at
 undirected distance at most $h$ from $x$, suppose this ball is retained,
 and put
 \[
 D=\max_{y\in B_h(x)}\Delta_y^{\rm old}.
 \]
-Starting with $z_0=x$, repeatedly choose a predecessor attaining the
+Starting with $z_0=x$, repeatedly choose an in-neighbor attaining the
 maximum new discrepancy in \eqref{eq:coupling}. Stop at a vertex with
-no predecessor. The resulting reverse directed path is
+no in-neighbor. The resulting reverse directed path is
 $z_0,z_1,\ldots,z_{s-1}$, where $s\le h$ because the graph has height
 at most $h$. Write $a_i=1-U_{z_i}$.
 
-Every successor of $z_i$ is at distance at most $i+1\le h$ from $x$,
-so its old discrepancy is at most $D$. All incident edges used here are
+Every out-neighbor of $z_i$ is at distance at most $i+1\le h$ from $x$,
+so its old discrepancy is at most $D$. All incident arcs used here are
 retained for the same reason. Thus \eqref{eq:coupling} gives
 \[
 \Delta_{z_i}^{\rm new}
@@ -382,7 +388,7 @@ retained for the same reason. Thus \eqref{eq:coupling} gives
 \qquad
 \Delta_{z_{s-1}}^{\rm new}\le(1-a_{s-1})D.
 \]
-The last inequality has no predecessor term: the lower endpoint at that
+The last inequality has no in-neighbor term: the lower endpoint at that
 vertex is fixed and identical in the two regions. Substituting backwards
 along the path gives
 \[
@@ -417,7 +423,7 @@ p=(4M^2)^{h+1}.
 \]
 Degree at most $d$ implies that $B_h(x)$ has at most
 $1+d+\cdots+d^h\le(d+1)^{h+1}=M$ vertices. Every ancestor of $x$ lies
-in this ball because any directed path has at most $h-1$ edges. Thus at
+in this ball because any directed path has at most $h-1$ arcs. Thus at
 most $M$ fresh uniform random variables define $A_x$. A union bound gives
 \[
 \Prb(A_x<a)\le Ma=\frac1{4M}.
@@ -483,7 +489,7 @@ For two queried vertices, apply this estimate at each one.
 \subsection{Comparison probabilities}
 
 If the queried labels are comparable, their directed path has at most
-$h-1$ edges and is retained because $\rho\ge h$. The full and local
+$h-1$ arcs and is retained because $\rho\ge h$. The full and local
 comparison probabilities are then the same, either zero or one.
 
 Otherwise the labels are incomparable. Let $x$ be a queried coordinate
@@ -543,9 +549,9 @@ positions, so the number of orders is at most
 \[
 \prod_{j=1}^b(s+j)\le(3b)^b.
 \]
-Reject an order if it places a coordinate outside its interval or reverses
-an arrow. For an accepted order, let $r_j$ count the coordinates between
-$e_j$ and $e_{j+1}$. Their relative order is fixed. Permuting these
+Reject an order if it places a coordinate outside its interval or violates
+the inequality imposed by an arc. For an accepted order, let $r_j$ count
+the coordinates between $e_j$ and $e_{j+1}$. Their relative order is fixed. Permuting these
 coordinates partitions their cube into $r_j!$ equal-volume regions,
 apart from equalities of volume zero. The accepted order therefore has
 volume
@@ -587,7 +593,7 @@ polynomial number of arithmetic operations in $b$. The total is
 $(3b)^b\operatorname{poly}(b)$ operations, proving the remaining claim
 of Theorem~\ref{thm:local}.
 
-For a comparison numerator, add its arrow and repeat the calculation.
+For a comparison numerator, add its arc and repeat the calculation.
 For a threshold $c\le\ell_x$, the numerator is zero; for $c\ge r_x$,
 it equals the denominator. Otherwise replace the queried coordinate's
 upper endpoint by $c$ and repeat. There are still at most $2b$ endpoints.

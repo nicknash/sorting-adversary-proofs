@@ -3,11 +3,13 @@
 Nicholas Nash · 8 November 2026 · ORCID [0009-0003-0475-7852](https://orcid.org/0009-0003-0475-7852)
 
 The current manuscript presents the unit-interval adversary with a single
-potential for repairs. It begins with the classical binary-tree adversaries,
-gives the complete mechanical algorithm, and develops legality, local
+potential for repairs. It introduces the derandomization problem, reviews
+the classical binary-tree adversaries and the interval lattice of Kaplan,
+Zamir, and Zwick, then gives an illustrated overview and the complete
+mechanical algorithm. The later sections develop legality, local
 probabilities, geometric packing, the comparison bound, and a uniform
 polynomial-time implementation. Worked examples distinguish fixed parent
-positions from fresh child coordinates. Five TikZ figures illustrate the
+positions from fresh child coordinates. TikZ figures illustrate the
 construction, the volume identity, and the geometric proof. The potential
 coefficients are derived from the changes caused by a refinement.
 

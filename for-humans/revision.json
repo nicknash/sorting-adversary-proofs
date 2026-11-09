@@ -4,11 +4,11 @@
   "argument": "unit-interval adversary with a single repair potential",
   "source_pdf_sha256": "3f83f2dc85d014f502c559961e5f49f4cf923bf3b8708a57c4941b8438bbdc41",
   "source_zip_sha256": "d66ddee35fef71a974c96fda7aa2c9e1701a7b3d6134c20199ddd8f635a92ddc",
-  "local_pdf_sha256": "7f1acab7ed1bc5d6e1a5614d50f1d8ecdd4358ac03f000a0a2b74b30b38a6247",
-  "prepared_zip_sha256": "4f459b877745634acff9ed2d768b6088c91e42a78430546209eae6b4a37f3ffe",
+  "local_pdf_sha256": "d9b8eb5929506ebb28a0011ec2701b22a1299114b016ef00bedfc9bf1ddc0871",
+  "prepared_zip_sha256": "612cc712e103e0edeb1af8bb001ee586343f15ce3e899d11b1ba17ef649ff2a4",
   "previous_hexagon_submission": "hexagon:2611.00196",
   "previous_submission_metadata": "submission.json",
   "formalization": "Related earlier integer-colour construction; this continuous presentation is not formally verified.",
-  "exposition": "Explains derandomization at the optimal asymptotic bound, randomized baselines, Kahn-Kim graph-entropy adversaries, and the KZZ open question; introduces the tree and stored comparisons before their use, with worked examples and expanded proofs",
-  "pages": 31
+  "exposition": "Separate related-work section with worked binary-tree examples and the KZZ interval lattice, retained pairs, comparison bound, and open question; concise illustrated overview of the new state, refinement, and comparison flow; consistent DAG terminology throughout.",
+  "pages": 33
 }

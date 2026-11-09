@@ -1,4 +1,4 @@
-\section{The adversary}\label{sec:algorithm}
+\section{The complete algorithm}\label{sec:algorithm}
 
 We first describe what a state means and how an item moves from a parent to
 its child. We then give the comparison rule and the conditions that trigger
@@ -10,8 +10,10 @@ section, after their roles have been explained.
 Each item is stored at exactly one node of a rooted tree. At that node it
 has a variable position $X_x$ in an open interval $(a_x,b_x)\subseteq(0,1)$.
 We call the item \emph{free} at this node: its position has not been fixed,
-although comparisons may already constrain it. An arrow $x\to y$ records
-the requirement $X_x<X_y$. The graph has no directed cycle.
+although comparisons may already constrain it. The free items at a node
+are the vertices of a directed acyclic graph (DAG).
+We call this the node's \emph{active graph}. An
+arc $x\to y$ records the requirement $X_x<X_y$.
 
 A child occupies a fixed position $c\in(0,1)$ in its parent. This position,
 called its \emph{anchor}, represents the entire child subtree as one
@@ -31,7 +33,7 @@ list. The coordinates describe possible orders of the keys, not their
 unknown numerical values.
 
 Initially the tree has only a root. All $n$ items are free there, their
-intervals are $(0,1)$, and there are no arrows. Every order is represented.
+intervals are $(0,1)$, and there are no arcs. Every order is represented.
 The algorithm will ensure that every order it represents is consistent
 with all the comparisons it has answered. It may discard additional orders
 when it changes the representation; the lower-bound proof will account for
@@ -41,19 +43,19 @@ that loss.
 
 The basic operation moves an item $x$ into a child. Choose a position $c$
 strictly inside the interval of values still possible for $X_x$. Replace
-its parent coordinate by the constant $c$. Every arrow incident to $x$
-then tightens an interval bound on its other endpoint:
+its parent coordinate by the constant $c$. The inequality imposed by each
+arc incident to $x$ then tightens an interval bound on its other endpoint:
 \[
 y\to x\quad\Longrightarrow\quad b_y\gets\min(b_y,c),
 \qquad
 x\to z\quad\Longrightarrow\quad a_z\gets\max(a_z,c).
 \]
 Retain every other bound already stored in the parent. Remove $x$ and
-these arrows, then propagate the new bounds through the remaining graph
+these arcs, then propagate the new bounds through the remaining graph
 (the operation \textnormal{\textsc{Tighten}} defined below). Now put $x$ in the
 child anchored at $c$, creating that child if necessary. It receives a new
-coordinate $U_x\in(0,1)$ with no incident arrows. None of the child's
-previous intervals or arrows changes. We call this operation a
+coordinate $U_x\in(0,1)$ with no incident arcs. None of the child's
+previous intervals or arcs changes. We call this operation a
 \emph{refinement}. Thereafter we may write $X_x$ for its new coordinate,
 since its old coordinate is no longer a variable.
 
@@ -137,7 +139,7 @@ that comparison.
 For either case involving free coordinates, let
 \begin{equation}\label{eq:node-region}
 K_v=\{X:a_x<X_x<b_x\text{ for all free }x,
-             \quad X_x<X_y\text{ for every stored arrow }x\to y\}
+             \quad X_x<X_y\text{ for every stored arc }x\to y\}
 \end{equation}
 be the region of allowed assignments at this node, and let $V_v=\vol(K_v)$.
 The uniform distribution on $K_v$ gives equal weight to equal-volume parts.
@@ -152,9 +154,9 @@ $1/2-\eta$ of the old volume. The algorithm is deterministic; the
 probability notation describes volumes, not random choices made by the
 adversary.
 
-Store the chosen answer as an arrow when both coordinates are free.
-Repeated comparisons do not create a second copy of an arrow, and we do
-not add arrows merely because they follow transitively from other arrows.
+Store the chosen answer as an arc when both coordinates are free.
+Repeated comparisons do not create a second copy of an arc, and we do
+not add arcs merely because they follow transitively from other arcs.
 For a free item $x$ and an anchor $c$, estimate $\Prb(X_x<c)$ instead and
 store the chosen upper or lower interval bound. Translate that direction
 back to the queried labels, reversing it if $x$ is the second label.
@@ -162,8 +164,8 @@ back to the queried labels, reversing it if $x$ is the second label.
 To obtain an estimate, the algorithm keeps a neighborhood of the queried
 items in the graph and calculates the above ratio exactly in the smaller
 region. The neighborhood consists of all vertices within a prescribed
-number of edges, ignoring edge direction, together with all arrows between
-those vertices. Its intervals are the bounds already implied by the full
+distance in the underlying undirected graph, together with all arcs
+between those vertices. Its intervals are the bounds already implied by the full
 graph. Section~\ref{sec:oracle} specifies the radius and the finite volume
 calculation, and proves that the resulting estimate is accurate.
 
@@ -175,7 +177,7 @@ interval of adequate width. We arrange these conditions as follows. Fix an
 integer $k\ge16$ and error $\eta=1/(100k)$. Use a path threshold $H$ and a
 width threshold $1/R$, with values given below.
 
-First we include every interval bound already forced by the arrows. If
+First we include every interval bound implied by the arc inequalities. If
 $y\to x$ and $X_y>a_y$, then also $X_x>a_y$; an upper bound propagates in
 the reverse direction. Writing $y\preceq x$ when $y=x$ or a directed path
 leads from $y$ to $x$, the resulting interval is
@@ -186,8 +188,8 @@ r_x=\min_{y\succeq x}b_y,\qquad W_x=r_x-\ell_x.
 We call $(\ell_x,r_x)$ the \emph{effective interval}. The operation
 \textnormal{\textsc{Tighten}} sets $a_x\gets\ell_x$ and $b_x\gets r_x$
 for every free item $x$. It is performed after
-any changed arrow or interval, and before a width test or probability
-calculation. These bounds remain stored even if the arrows that implied
+any change to the arcs or intervals, and before a width test or probability
+calculation. These bounds remain stored even if the arcs that implied
 them are later removed. Tightening does not discard any allowed assignment.
 
 There are exactly three reasons to refine an item.
@@ -199,9 +201,9 @@ free coordinates in the requested comparison are narrow, refine one of
 them before answering. It receives an unconstrained unit coordinate in its
 child. The reason one wide coordinate is enough is explained in
 Section~\ref{sec:oracle}.
-\item \textbf{Too many arrows meet an item.}
+\item \textbf{A vertex has too many neighbors.}
 After an answer, if a vertex has at least $k$ neighbors, refine it.
-This removes all arrows incident to it from the parent graph.
+This removes all arcs incident to it from the parent graph.
 \item \textbf{A directed path is too long.}
 After the degree condition has been restored, select any directed path
 with $H$ vertices and refine all its items. Complete this selected list
@@ -231,7 +233,7 @@ allowed assignments on either side. Start with a search cell $[0,1]$.
 At its midpoint $c$, estimate $F_x(c)=\Prb(X_x<c)$ to error $\eta$.
 If the estimate is below $1/4$, search the right half; if it is above $3/4$,
 search the left half; otherwise accept $c$. A rejected test changes only
-this search cell. It does not change any stored interval, arrow, or allowed
+this search cell. It does not change any stored interval, arc, or allowed
 assignment. Every test concerns the same current region $K_v$.
 
 For a narrow item, no probability calculation is needed. Choose the unique
@@ -247,14 +249,14 @@ volume factor whose logarithm is at least $(1-1/k)m-4$.
 
 Resolve choices between eligible items by label order. Select a directed
 path by the lexicographically first eligible label sequence. Degree counts
-neighbors regardless of arrow direction; the length of a directed path
+neighbors regardless of arc direction; the length of a directed path
 counts its vertices.
 
 \begin{quote}
 \begin{minipage}{\linewidth}
 \textbf{Restore$(v)$.}
 \begin{enumerate}
-\item While the free graph at $v$ has a vertex of degree at least $k$,
+\item While the active DAG at $v$ has a vertex of degree at least $k$,
 refine such a vertex.
 \item While it contains a directed path on $H$ vertices, select one and
 refine all its vertices in label order. Finish that list before selecting
@@ -272,7 +274,7 @@ representations differ. If both are anchors, return their order.
 \item Tighten $v$. If none of the free queried coordinates is wide,
 refine one of them and restart step 1.
 \item Estimate the probability of $A<B$ to error $\eta$ and choose an
-answer by the rule above. Store its arrow or interval bound.
+answer by the rule above. Store its arc or interval bound.
 \item Tighten $v$, run \textnormal{\textsc{Restore}}$(v)$, and return the
 chosen answer.
 \end{enumerate}
@@ -288,7 +290,7 @@ it cannot need preparation again before this answer
 Every answer is also recorded in a separate graph on the original labels,
 before restoration or, for an answer between anchors, before returning.
 This graph stores the public history of comparisons, which we call the
-\emph{transcript}. Its edges are never counted as part of a group's active
+\emph{transcript}. Its arcs are never counted as part of a group's active
 graph. In Section~\ref{sec:runtime} we use it to finish with a compatible
 fixed order after a prescribed number of queries.
 

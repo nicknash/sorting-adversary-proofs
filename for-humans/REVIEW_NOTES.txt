@@ -77,3 +77,25 @@ https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af0ab2
 It did not supply a replacement for the locality proof. Its optional determinant
 and auxiliary-forest proposals were not imported into this exposition. Its
 reported numerical experiments were not independently rerun in this revision.
+
+
+Related work and overview revision -- 9 November 2026
+---------------------------------------------------
+Section 2 now reviews the binary-tree adversaries and the four-child interval
+lattice of Kaplan, Zamir, and Zwick. The KZZ description, retained-pair
+restrictions, example transition, and open question were checked against the
+local primary paper A Sort of an Adversary, Sections 5--6 and Table 4. The
+binary-tree examples were checked against Brodal et al.'s rules.
+
+Section 3 is a brief illustrated overview of the state, refinement, comparison
+flow, and proof obligations. Its two diagrams follow the definitions they use;
+the complete mechanical algorithm remains in Section 4. The paper consistently
+uses DAG terminology, distinguishing arcs from the inequalities they impose.
+Conference names appear in the bibliography rather than the body prose.
+The abstract and methodological disclosure are unchanged by this revision.
+
+The saved source compiles with both the repository build and the editor's
+built-in compiler. Cross-references and citations resolve, all 33 pages were
+rendered and checked for layout, and the rebuilt source archive contains 16
+files matching the saved sources. No new formal or external mathematical
+verification is claimed. The previous Hexagon deposit is unchanged.

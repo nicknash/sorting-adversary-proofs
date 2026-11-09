@@ -26,11 +26,11 @@ There are two graphs to keep distinct. The public comparison graph has the
 original labels as vertices and records every answer. A directed path in it
 is an order relation implied by the transcript. An active graph belongs to
 one node and contains only its stored comparisons between currently free
-items. Removing an active arrow never retracts the corresponding public
+items. Removing an active arc never retracts the corresponding public
 answer: the recursive state must continue to enforce it.
 
 \begin{lemma}[Effective intervals and sections]\label{lem:interior}
-For an acyclic active graph, tightening leaves the feasible region unchanged.
+For an active DAG, tightening leaves the feasible region unchanged.
 The region has positive volume if and only if every effective width is
 positive. Moreover, fixing $X_x=c$ at any $c\in(\ell_x,r_x)$ leaves a
 positive-volume section in the remaining coordinates.
@@ -43,7 +43,7 @@ introduced by \eqref{eq:effective} already hold, so tightening changes no
 feasible assignment.
 
 Positive volume requires positive widths. Conversely, suppose all widths
-are positive. Along an arrow $x\to y$, the definitions give
+are positive. Along an arc $x\to y$, the definitions give
 $\ell_x\le\ell_y$ and $r_x\le r_y$. Choose numbers $0<\theta_x<1$
 increasing in a topological order, and set
 \[
@@ -52,13 +52,13 @@ X_x=(1-\theta_x)\ell_x+\theta_xr_x.
 Increasing $\theta_x$ to $\theta_y$ strictly increases this value because
 $r_x>\ell_x$. Replacing its endpoints by the larger endpoints
 $\ell_y,r_y$ cannot decrease it. Hence $X_x<X_y$. All coordinates are
-inside their intervals and all arrows are strict, so a sufficiently small
-open neighborhood of this assignment is feasible.
+inside their intervals and all arc inequalities hold strictly, so a
+sufficiently small open neighborhood of this assignment is feasible.
 
-Now fix $X_x=c$ and delete its coordinate. The incident arrows become upper
-bounds $c$ at its immediate predecessors and lower bounds $c$ at its
-immediate successors. Upper bounds propagate only backward along arrows,
-and lower bounds only forward. Since all previous effective bounds remain
+Now fix $X_x=c$ and delete its coordinate. The inequalities imposed by
+its incident arcs become upper bounds $c$ at its in-neighbors and lower
+bounds $c$ at its out-neighbors. Upper bounds propagate only backward
+along arcs, and lower bounds only forward. Since all previous effective bounds remain
 stored, the new effective intervals are therefore
 \[
 \begin{cases}
@@ -238,19 +238,19 @@ performs at most $n$ refinements, all at the node changed by the answer.
 \end{lemma}
 \begin{proof}
 Preparation preserves the strict bounds by Lemma~\ref{lem:preparation}.
-The answer adds at most one arrow, raising any degree by at most one.
-Any new directed path consists of two old paths joined by that arrow, so
+The answer adds at most one arc, raising any degree by at most one.
+Any new directed path consists of two old paths joined by that arc, so
 it has fewer than $2H$ vertices. A positive-volume answer cannot create a
-directed cycle. An interval change adds no edges.
+directed cycle. An interval change adds no arcs.
 
-Every refinement removes a vertex and its incident arrows from the parent.
+Every refinement removes a vertex and its incident arcs from the parent.
 Thus degrees and heights cannot increase during restoration. The first
 pass removes every degree violation. The second pass removes every path
 violation without increasing degrees. All selected path vertices are
 processed, even if earlier refinements have broken the original path.
 Each refinement removes a different free item from this node, so there
 are at most $n$. A child receives an isolated coordinate and keeps all
-its old edges. Its degree and height bounds are preserved as well, so no
+its old arcs. Its degree and height bounds are preserved as well, so no
 child requires restoration.
 \end{proof}
 
@@ -279,7 +279,7 @@ unless the query has already been decided by two anchors.
 The local estimator of Section~\ref{sec:oracle} now applies to the positive
 queried region with the strict graph bounds. Its chosen answer retains at
 least $1/2-\eta>0$ of the volume and makes that comparison true in every
-represented order. In particular, a new arrow cannot create a directed
+represented order. In particular, a new arc cannot create a directed
 cycle. An answer between anchors was already true in every represented
 order. The selected answer is recorded in the public graph before any
 restoration refinement.
@@ -290,6 +290,7 @@ allow the position guarantees of Section~\ref{sec:oracle} to be used.
 The chosen anchor is interior, and Lemma~\ref{lem:admission} preserves the
 invariant and positivity for the next step. Restoration terminates with
 the strict bounds. This completes the induction. The numerical results
-used here concern arbitrary positive interval-and-arrow regions with the
-stated bounds; their proofs do not assume legality of this adversary.
+used here concern arbitrary positive-volume regions defined by interval
+bounds and the inequalities of a DAG, subject to their stated hypotheses;
+their proofs do not assume legality of this adversary.
 \end{proof}

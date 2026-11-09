@@ -1,0 +1,162 @@
+\section{Overview of our adversary}\label{sec:overview}
+
+The adversary retains comparisons within groups and moves items down a
+tree when needed to keep its calculations tractable. Section~\ref{sec:algorithm}
+gives the complete rules.
+
+\subsection{A tree of groups}
+
+Each item $x$ is stored at exactly one tree node, where it has a variable
+coordinate $X_x$ in an open subinterval of $(0,1)$ and is called \emph{free}.
+The free items form a directed acyclic graph (DAG). An arc $x\to y$
+records an answered comparison $X_x<X_y$; transitive consequences are not
+added as arcs. The intervals and arc inequalities define a region of
+allowed coordinate assignments at each node. Initially all items are at
+the root, with unit intervals and no arcs.
+
+Each child has a fixed \emph{anchor} in its parent's unit interval,
+locating the whole child subtree as a consecutive block. The child has
+its own unit interval and DAG. Coordinates specify possible orders, not
+numerical key values. Choose feasible coordinates without ties, order
+each node's free items and child anchors by position, and recursively
+replace anchors by child orders. Every resulting total order must respect
+the public answers, which remain recorded in a separate graph.
+Figure~\ref{fig:overview-state} shows the two levels of representation.
+
+\begin{center}
+\begin{minipage}{\linewidth}
+\captionsetup{hypcap=false}
+\centering
+\begin{tikzpicture}[>=Latex,font=\small,
+  group/.style={draw=ink!65,rounded corners=2pt,fill=pale},
+  item/.style={circle,draw=ink,fill=white,minimum size=6mm,inner sep=1pt}]
+\draw[group] (-5.6,0) rectangle (5.6,1.9);
+\node at (0,2.2) {One node $v$};
+\node at (-3.2,1.5) {DAG of free items};
+\node[item] (oa) at (-4.1,.75) {$a$};
+\node[item] (ob) at (-2.3,.75) {$b$};
+\draw[->,thick,accent] (oa)--(ob);
+\node at (-3.2,.2) {$X_a,X_b\in(0,1)$};
+\draw[ink!30] (-.8,.15)--(-.8,1.7);
+\node at (2.4,1.5) {Anchors in $v$'s unit interval};
+\draw[thick] (0,.75)--(4.8,.75);
+\fill (1.2,.75) circle (2pt);
+\fill (3.6,.75) circle (2pt);
+\node[above=3pt] at (0,.75) {$0$};
+\node[above=3pt] at (4.8,.75) {$1$};
+\node[above=3pt] at (1.2,.75) {$1/4$};
+\node[above=3pt] at (3.6,.75) {$3/4$};
+\draw[thick,ink!55] (1.2,.75)--(1.2,-.65);
+\draw[thick,ink!55] (3.6,.75)--(4.2,-.65);
+\draw[group] (-.25,-1.95) rectangle (2.65,-.65);
+\draw[group] (2.75,-1.95) rectangle (5.65,-.65);
+\node at (1.2,-.95) {Child at $1/4$};
+\node at (1.2,-1.35) {$p,q$ free; no arc};
+\node[font=\footnotesize] at (1.2,-1.73) {own unit interval};
+\node at (4.2,-.95) {Child at $3/4$};
+\node at (4.2,-1.35) {$r$ free};
+\node[font=\footnotesize] at (4.2,-1.73) {own unit interval};
+\end{tikzpicture}
+\captionof{figure}{The DAG drawing does not assign values to $X_a,X_b$.
+To compare $p$ with $q$, descend into their child. To compare $p$ with $r$,
+compare the anchors $1/4$ and $3/4$. To compare $a$ with $p$, compare
+$X_a$ with $1/4$ at $v$. The gray lines are tree edges.}
+\label{fig:overview-state}
+\end{minipage}
+\end{center}
+
+\subsection{Moving an item into a child}
+
+Propagating interval bounds through the DAG gives each coordinate's
+\emph{effective interval}, its full range of feasible values. These implied
+bounds remain stored when arcs are deleted.
+
+A \emph{refinement} fixes an item's parent coordinate at a point $c$
+inside its effective interval. Incoming arcs become upper bounds $c$ on their other
+endpoints; outgoing arcs become lower bounds $c$. Delete the item and its
+incident arcs, retain the other constraints, and propagate the new bounds.
+The item enters the child anchored at $c$, creating it if necessary, with
+a fresh unconstrained unit coordinate. The child's previous constraints
+remain unchanged (Figure~\ref{fig:overview-refine}).
+
+\begin{center}
+\begin{minipage}{\linewidth}
+\captionsetup{hypcap=false}
+\centering
+\begin{tikzpicture}[>=Latex,font=\small,
+  group/.style={draw=ink!65,rounded corners=2pt,fill=pale},
+  item/.style={circle,draw=ink,fill=white,minimum size=6mm,inner sep=1pt}]
+\begin{scope}[shift={(-3.2,0)}]
+\node at (0,1.55) {Before refinement};
+\draw[group] (-2.4,-.45) rectangle (2.4,1.2);
+\node[item] (ra) at (-1.5,.65) {$a$};
+\node[item] (rx) at (0,.65) {$x$};
+\node[item] (rb) at (1.5,.65) {$b$};
+\draw[->,thick,accent] (ra)--(rx);
+\draw[->,thick,accent] (rx)--(rb);
+\fill (0,-.15) circle (2pt) node[right=4pt] {anchor $c$};
+\draw[thick,ink!55] (0,-.15)--(0,-1);
+\draw[group] (-1.8,-2) rectangle (1.8,-1);
+\node at (0,-1.3) {Existing child at $c$};
+\node at (0,-1.7) {$z$ free};
+\end{scope}
+\draw[->,thick] (-.55,-.2)--(.55,-.2);
+\begin{scope}[shift={(3.2,0)}]
+\node at (0,1.55) {After fixing $X_x=c$};
+\draw[group] (-2.4,-.45) rectangle (2.4,1.2);
+\node[item] at (-1.5,.65) {$a$};
+\node[item] at (1.5,.65) {$b$};
+\node at (0,.65) {$X_a<c<X_b$};
+\fill (0,-.15) circle (2pt) node[right=4pt] {anchor $c$};
+\draw[thick,ink!55] (0,-.15)--(0,-1);
+\draw[group] (-1.8,-2) rectangle (1.8,-1);
+\node at (0,-1.3) {Same child at $c$};
+\node at (0,-1.7) {$x,z$ free; no arc};
+\end{scope}
+\end{tikzpicture}
+\captionof{figure}{The two arc inequalities become bounds on the remaining parent
+coordinates. The new coordinate of $x$ orders it within the child, where
+both $x<z$ and $z<x$ remain possible. The anchor $c$ fixes the child's
+location, not the order of its contents.}
+\label{fig:overview-refine}
+\end{minipage}
+\end{center}
+
+Reusing a child leaves the arriving item's order within it open.
+Lemma~\ref{lem:admission} proves that an interior choice of $c$ implies
+that the public answers have not ordered the item relative to any label
+in that child subtree. Section~\ref{sec:median-search} explains how to
+choose $c$ to control the volume change.
+
+\subsection{Answering a comparison}
+
+Descend from the root while both queried labels belong to the same child
+subtree. Where they first differ, each is represented by a free item or
+a child anchor. Two anchors determine an answer, which is recorded
+publicly and returned immediately.
+
+Otherwise, estimate the fraction of this node's allowed assignments
+supporting each answer, measured by volume. Retain a small neighborhood
+of the queried vertices, with effective intervals inherited from the full
+DAG, and compute its volumes exactly. This deterministic calculation is
+accurate when degrees and directed path lengths are bounded and at least
+one queried coordinate has an effective interval of sufficient width
+(Theorem~\ref{thm:local}).
+
+Before calculating the estimate, if no queried coordinate has sufficient
+width, refine one of the queried free items and restart from the root. The handling node may
+change. Choose the answer with the larger estimate; it retains at least
+half the full node volume, up to a small error. Record the answer publicly
+and store it as an arc or interval bound, then restore this node's degree
+and path-length bounds by refinement.
+
+The proof must establish legality, sufficient comparison cost, and
+polynomial work. Moving items can discard orders beyond those excluded
+by comparison answers, so this additional loss must be controlled. A
+\emph{potential}, a number used only in the analysis, starts at $n!$ and
+ends at most $2^n$. Preparing the state and restoring its graph bounds do
+not decrease this potential overall, while each comparison decreases its
+logarithm by at most $1+o(1)$, forcing the claimed bound
+(Proposition~\ref{prop:repairs} and Theorem~\ref{thm:fixed-stage}). Legality
+is proved in Proposition~\ref{prop:legality}; Section~\ref{sec:runtime}
+bounds all work by one fixed polynomial.

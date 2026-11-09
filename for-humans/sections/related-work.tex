@@ -1,0 +1,157 @@
+\section{Related Work}\label{sec:related}
+
+\subsection{Binary-tree adversaries}
+
+Atallah and Kosaraju~\cite{atallah} gave an efficient sorting adversary with
+a lower bound of $\tfrac12 n\log n$ comparisons. Related adversaries occur in the work of
+Borodin, Guibas, Lynch, and Yao~\cite{borodin} on searching after partial
+sorting, Richards and Vaidya~\cite{richards} on the distribution of
+comparisons among keys, and Brodal, Chaudhuri, and
+Radhakrishnan~\cite{brodal} on maintaining the minimum.
+The binary-tree rule of Borodin et al. and Brodal et al. provides the
+starting point for our construction.
+
+Place every item at the root of an ordered binary tree. Items in disjoint
+subtrees have the left-to-right order of those subtrees. A comparison changes
+the placement as follows.
+\begin{itemize}
+\item If both items occupy the same node, move one to its left child and
+the other to its right child, and answer accordingly.
+\item If one item is at an ancestor of the other, move the higher item to
+the child whose subtree does not contain the lower item.
+\item If their nodes are unrelated by ancestry, answer from their
+left-to-right order, without moving either item.
+\end{itemize}
+For a concrete example, start with $A,B,C,D$ at the root.
+Answering $A<B$ moves $A$ to the left child and $B$ to the right, while
+$C,D$ remain at the root. If the sorter next compares $A$ and $C$, the
+ancestor rule moves $C$ to the right child and gives $A<C$.
+Comparing $D$ and $B$ then moves $D$ to the left child and gives $D<B$.
+The two children now contain $\{A,D\}$ and $\{B,C\}$.
+A subsequent comparison of $D$ with $C$ is answered $D<C$ without moving
+either item. The orders within $\{A,D\}$ and within $\{B,C\}$ remain
+unresolved. Figure~\ref{fig:binary-example} shows the placements.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[>=Latex,font=\small,
+  group/.style={draw=ink!65,rounded corners=2pt,fill=pale,
+                minimum height=7mm,minimum width=17mm}]
+\begin{scope}[shift={(-3.4,0)}]
+\node at (0,1.25) {After answering $A<B$};
+\node[group] (root1) at (0,.5) {$C,\ D$};
+\node[group] (left1) at (-1.3,-.75) {$A$};
+\node[group] (right1) at (1.3,-.75) {$B$};
+\draw[->] (root1)--(left1);
+\draw[->] (root1)--(right1);
+\end{scope}
+\draw[->,thick,accent] (-.9,-.1)--(.9,-.1);
+\begin{scope}[shift={(3.4,0)}]
+\node at (0,1.25) {After also answering $A<C$ and $D<B$};
+\node[circle,draw=ink,fill=white,minimum size=4mm] (root2) at (0,.5) {};
+\node[group] (left2) at (-1.3,-.75) {$A,\ D$};
+\node[group] (right2) at (1.3,-.75) {$B,\ C$};
+\draw[->] (root2)--(left2);
+\draw[->] (root2)--(right2);
+\end{scope}
+\end{tikzpicture}
+\caption{The binary-tree adversary. The first comparison separates two
+items at the same node. The next two comparisons each move an item from
+an ancestor into the opposite child. In the final state, comparing $D$
+with $C$ requires no movement.}
+\label{fig:binary-example}
+\end{figure}
+
+Each comparison increases the sum of item depths by at most two.
+At completion, occupied nodes must be distinct and unrelated by ancestry:
+otherwise two represented items can occur in either relative order, leaving
+an unresolved comparison. Associate the root with $(0,1)$, and associate
+each child with the corresponding half of its parent's interval.
+A node of depth $d_i$ therefore represents an interval of length $2^{-d_i}$.
+At completion these intervals are disjoint, giving
+\[
+\sum_i2^{-d_i}\le1,
+\qquad
+2^{-\frac1n\sum_i d_i}\le\frac1n\sum_i2^{-d_i}\le\frac1n.
+\]
+Convexity gives the bound on $2^{-\frac1n\sum_i d_i}$. Hence $\sum_i d_i\ge n\log n$, and
+at least $\tfrac12 n\log n$ comparisons are
+necessary~\cite[Section~4.1]{brodal}.
+
+The tree representation can settle relations that have never been queried.
+For example, start again with four items at the root and answer $A<B$ and
+$C<D$. Placing $A,C$ in the left child and $B,D$ in the right child also
+commits the adversary to $A<D$ and $C<B$. Neither relation follows from
+those two answers alone.
+
+\subsection{The adversary of Kaplan, Zamir, and Zwick}
+
+Kaplan, Zamir, and Zwick~\cite{kzz} replace each step of a four-child tree
+by a small directed acyclic graph (DAG), allowing an item to move towards a group of consecutive
+children before selecting one child. Number the children $0,1,2,3$.
+The intermediate node $[i,j]$ represents the possible destinations
+$i,i+1,\ldots,j$. The parent itself is $[0,3]$, and $[i,i]$ is child $i$.
+For $i<j$, a downward step removes one endpoint of the range, reaching
+$[i,j-1]$ or $[i+1,j]$. Figure~\ref{fig:kzz-lattice} shows this interval
+lattice. For example, $[0,2]$ and $[1,3]$ both lead to $[1,2]$; the
+intermediate nodes have shared descendants. The same construction is
+repeated at every node of the four-child tree.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[>=Latex,font=\small,
+  state/.style={draw=ink!65,rounded corners=2pt,fill=pale,
+                minimum height=7mm,minimum width=15mm},
+  leaf/.style={state,fill=white}]
+\node[state] (n03) at (0,0) {$[0,3]$};
+\node[state] (n02) at (-1.25,-1) {$[0,2]$};
+\node[state] (n13) at (1.25,-1) {$[1,3]$};
+\node[state] (n01) at (-2.5,-2) {$[0,1]$};
+\node[state] (n12) at (0,-2) {$[1,2]$};
+\node[state] (n23) at (2.5,-2) {$[2,3]$};
+\node[leaf] (n0) at (-3.75,-3) {$0$};
+\node[leaf] (n1) at (-1.25,-3) {$1$};
+\node[leaf] (n2) at (1.25,-3) {$2$};
+\node[leaf] (n3) at (3.75,-3) {$3$};
+\foreach \a/\b in {n03/n02,n03/n13,n02/n01,n02/n12,n13/n12,n13/n23,n01/n0,n01/n1,n12/n1,n12/n2,n23/n2,n23/n3}
+  \draw[->] (\a)--(\b);
+\end{tikzpicture}
+\caption{One step of the four-child tree in the adversary of Kaplan,
+Zamir, and Zwick~\cite[Section~5]{kzz}. An intermediate node records a
+range of possible children. In particular, an item at $[1,3]$ has not
+committed to child $1$, $2$, or $3$.}
+\label{fig:kzz-lattice}
+\end{figure}
+
+Within a node, the adversary stores unpaired items and disjoint ordered
+pairs. There can be many items at a node, but its retained comparison
+components have at most two vertices. Tree nodes and intermediate nodes
+representing three children may store pairs; intermediate nodes
+representing two children store only unpaired items. Comparing two
+unpaired items $A,B$ at a tree node can therefore record $A<B$ as a pair
+without moving either item.
+
+A comparison between two pairs illustrates the role of the lattice.
+Suppose $A<B$ and $C<D$ are retained at the same tree node. On comparing
+$A$ and $C$, one permitted response is $A<C$: move $A$ into child $0$,
+and move $B$ and the pair $C<D$ into $[1,3]$. The three remaining items
+have been placed after $A$, but their destinations among children $1,2,3$
+remain open. The local state still consists of one unpaired item and one
+pair~\cite[Table~4]{kzz}.
+
+A retained pair also restricts its members' possible destinations: they
+cannot enter the same child of the underlying four-child tree. For
+example, if $A<B$ is stored at $[0,2]$, then $A$ can enter only child $0$
+or $1$, and $B$ can enter only child $1$ or $2$. These restrictions are
+used when choosing subsequent comparison answers. They distinguish the
+pair state from simply recording one inequality between otherwise
+unrestricted items~\cite[Section~5]{kzz}.
+
+Their analysis measures progress using item depths, intermediate
+placements, and retained pairs. The comparison rules bound the increase
+in this measure and give a lower bound of
+$\frac{37}{64}n\log n$ comparisons, improving the earlier
+$\frac12 n\log n$ bound. Their concluding discussion proposes allowing
+more complicated comparison components than pairs, and asks whether an
+efficient deterministic adversary can force
+$(1-o(1))n\log n$ comparisons~\cite[Section~6]{kzz}.
