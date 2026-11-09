@@ -4,6 +4,23 @@ We now give an overview of the data structure maintained by our adversary
 and how it is updated in response to comparison queries from the sorting
 algorithm.
 
+Kaplan, Zamir, and Zwick~\cite{kzz} retain disjoint ordered pairs within a
+node. Our adversary maintains a rooted tree with a DAG at each node, so
+several retained comparisons can involve the same item. For example, it
+can keep $a<b$ and $a<c$ together while leaving the order of $b$ and $c$
+undecided. This lets it represent richer partial orders before moving
+items further down the tree.
+
+The computational challenge is to use these richer orders without having
+to approximately count the linear extensions of an entire DAG. We
+periodically simplify a node's DAG by removing vertices and moving their
+items into child nodes, creating children when needed. Constraints at the
+parent preserve the comparisons involving the moved items, while their
+order within a child can remain unresolved. These simplifications allow
+comparison answers to be chosen by deterministic calculations on small
+neighborhoods in the DAG. The analysis must show that the resulting loss
+of possible orders is small enough to retain the optimal comparison bound.
+
 \subsection{The data structure}
 
 Our data structure is a rooted tree. Each node stores item records and
