@@ -1,12 +1,16 @@
 \section{Local computation and running time}\label{sec:runtime}\label{sec:parameter-selection}
 
 \paragraph{Why local information suffices.}
-An order-restriction DAG (defined in Section~\ref{sec:order-dags}) can
-have a large connected component even when its degree and longest
-directed path are bounded. To estimate the probability of
-$X_x<X_y$, we must control how much the distant constraints can affect
-these two coordinates. The proof does this by following two extreme
-choices of positions.
+The key to the adversary is estimating, from local information, the
+probability of $X_x<X_y$ under a uniform feasible assignment to an
+order-restriction DAG (defined in Section~\ref{sec:order-dags}). This is
+the fraction of feasible volume retained by that answer.
+Lemma~\ref{lem:local-routines} supplies the guarantee: \texttt{Select}
+either certifies an answer retaining nearly half the volume or finds a
+refinement with large volume gain. Although its proof is deferred to
+Appendices~\ref{sec:oracle}--\ref{app:execution}, we pause here to explain
+why local information can suffice even when the DAG has a large
+connected component.
 
 \begin{proof}[Proof idea for Lemma~\ref{lem:local-routines}]
 Start one calculation at all lower interval endpoints, and another at
@@ -19,6 +23,54 @@ preserves the uniform distribution on feasible assignments. Thus an
 unknown uniform feasible assignment, updated with the same choices,
 stays between the two calculations. When their positions for $x$ are
 close, they locate $X_x$ within a short interval.
+Figure~\ref{fig:local-enclosure} illustrates this for the queried coordinates.
+
+\begin{center}
+\begin{minipage}{\linewidth}
+\captionsetup{hypcap=false}
+\centering
+\begin{tikzpicture}[>=Latex,font=\small,
+  enclosure/.style={accent,very thick},
+  position/.style={circle,fill=ink,inner sep=1.7pt}]
+\begin{scope}
+\node at (2.4,1.1) {Before updates};
+\foreach \name/\row/\point in {x/.4/3.36,y/-.45/1.2}{
+  \node[left] at (-.15,\row) {$\name$};
+  \draw[enclosure] (0,\row)--(4.8,\row);
+  \draw[enclosure] (0,\row-.09)--(0,\row+.09);
+  \draw[enclosure] (4.8,\row-.09)--(4.8,\row+.09);
+  \node[position] at (\point,\row) {};
+}
+\draw[ink!45] (0,-1.05)--(4.8,-1.05);
+\node[below] at (0,-1.05) {$0$};
+\node[below] at (4.8,-1.05) {$1$};
+\end{scope}
+\draw[->,thick] (5.3,0)--(6.7,0);
+\node[align=center,font=\footnotesize] at (6,.5) {Shared\\updates};
+\begin{scope}[shift={(7.4,0)}]
+\node at (2.4,1.1) {After updates};
+\foreach \name/\row/\lo/\hi/\point in {x/.4/1.2/2.4/2.04,y/-.45/3.6/4.8/3.9}{
+  \node[left] at (-.15,\row) {$\name$};
+  \draw[ink!20] (0,\row)--(4.8,\row);
+  \draw[enclosure] (\lo,\row)--(\hi,\row);
+  \draw[enclosure] (\lo,\row-.09)--(\lo,\row+.09);
+  \draw[enclosure] (\hi,\row-.09)--(\hi,\row+.09);
+  \node[position] at (\point,\row) {};
+}
+\draw[ink!45] (0,-1.05)--(4.8,-1.05);
+\node[below] at (0,-1.05) {$0$};
+\node[below] at (4.8,-1.05) {$1$};
+\node at (2.4,-1.8) {The intervals certify $X_x<X_y$.};
+\end{scope}
+\end{tikzpicture}
+\captionof{figure}{One choice of updates, shown for two coordinates.
+The intervals join the lower and upper calculated positions; the dots
+show one enclosed feasible assignment. All three assignments use the
+same update choices. The final intervals determine the answer without
+knowing the positions of the dots.}
+\label{fig:local-enclosure}
+\end{minipage}
+\end{center}
 
 The fixed lower bounds at sources allow the two calculations to move
 closer, and this decrease propagates along directed paths. The graph
@@ -37,7 +89,6 @@ positions must often be nearly equal. Under the graph bounds, the
 density estimates force both stored coordinate intervals to be very
 short; their middle halves then have density greater than $2^k$.
 This supplies the refinement promised by the lemma.
-The details are in Appendices~\ref{sec:oracle}--\ref{app:execution}.
 \end{proof}
 
 \paragraph{Polynomial running time.}
