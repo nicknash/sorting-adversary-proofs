@@ -107,9 +107,11 @@ T_q\ge n!(1-1/k)^s Z\mathcal W.
 The same inequality holds before the first call.
 \end{lemma}
 \begin{proof}
-In this sampling construction, the labels are independent and have the
-same distribution. Ties have probability zero, so each of their $s!$
-relative orders has probability $1/s!$.
+The rule above samples each queried label's position by following
+children with probabilities $w(c)$ and choosing a uniform coordinate
+at the node where it stops. These positions are independent and
+identically distributed. Ties have probability zero, so each of their
+$s!$ relative orders has probability $1/s!$.
 
 The product $\mathcal W$ is the probability that all $s$ labels reach
 the nodes where the adversary stores them. Once there, they all stop
