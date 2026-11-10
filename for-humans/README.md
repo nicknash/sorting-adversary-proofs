@@ -3,12 +3,13 @@
 Nicholas Nash · 10 November 2026 · ORCID [0009-0003-0475-7852](https://orcid.org/0009-0003-0475-7852)
 
 Section 1 states the main theorem and explains the derandomization
-problem. Section 2 reviews earlier adversaries. Section 3 first defines
-order-restriction DAGs and the tree that stores them. It then presents
-Compare, followed by the refinement and repair subroutines. The section
-ends with the independent DAG guarantees, the refinement identity, local
-selection, consistency and termination, and the comparison-prefix theorem.
-These results are stated without their proofs.
+problem. Section 2 reviews earlier adversaries. Section 3 defines
+order-restriction DAGs and their tree, presents Compare, then develops
+the local-selection lemma as the central algorithmic result. Coordinate
+restriction and refinement turn the selected densities into volume gains;
+repair maintains the graph bounds needed by local selection. The section
+ends with consistency, the refinement count, and the comparison-prefix
+theorem. Proofs are deferred through explicit proof environments.
 
 Section 4 proves the comparison-prefix theorem. It first shows that
 refinements are rare by counting the binary denominators in a path repair.

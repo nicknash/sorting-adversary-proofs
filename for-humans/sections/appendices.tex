@@ -34,7 +34,12 @@ Delete $x$ and its incident arcs\;
 \Return $D$\;
 \end{algorithm}
 
-\begin{proof}[Proof of Lemma~\ref{lem:interior}]
+\begin{lemma}[Normalization]\label{lem:normalization}
+\textnormal{\texttt{Normalize}} preserves $K(D)$. The resulting region
+has positive volume if and only if every interval has positive width;
+in that case the intervals are canonical.
+\end{lemma}
+\begin{proof}[Proof of Lemmas~\ref{lem:normalization} and~\ref{lem:interior}]
 Every propagated bound is already implied by an arc and an interval
 bound. A forward topological pass propagates every lower bound to all
 its successors; the reverse pass propagates every upper bound to all
@@ -71,7 +76,9 @@ A predecessor retains positive width because $r_y>\ell_y$ and
 $c>\ell_x\ge\ell_y$. A successor does too because $r_y>\ell_y$ and
 $c<r_x\le r_y$. Other widths are unchanged. The criterion just proved
 shows that the section has positive volume. Since this holds for every
-$c\in(\ell_x,r_x)$, that interval is exactly the coordinate projection.
+$c\in(\ell_x,r_x)$, that interval is exactly the coordinate projection. The volume identity
+in Lemma~\ref{lem:interior} follows from the definition of $f_x(c)$ as
+section volume divided by $V(D)$.
 \end{proof}
 
 \subsection{Bounds from convex sections}

@@ -25,6 +25,9 @@ There is a deterministic legal adversary, initialized using only $n$, that
 uses polynomially many bit operations per query and forces every correct
 sorter to make at least $(1-o(1))n\log n$ comparisons.
 \end{theorem}
+\begin{proof}
+See Section~\ref{sec:runtime}.
+\end{proof}
 
 We refer to an adversary satisfying Theorem \ref{thm:main} as an \textit{optimal} adversary.
 Without the restriction to polynomial-time, a deterministic optimal
@@ -76,8 +79,8 @@ estimate which answer retains more orders.
 \paragraph{Organization of this paper.}
 To motivate our adversary, we describe the earlier adversaries of Brodal et al. \cite{brodal}, and Kaplan et al \cite{kzz} in Section \ref{sec:related-work}.
 Section~\ref{sec:overview} describes the data structure and the comparison
-procedure, then states the mathematical guarantees on which the adversary
-relies. This gives an operational account with the proofs deferred.
+procedure, centering the explanation on the local selection lemma and
+its consequences. This gives an operational account with the proofs deferred.
 Section~\ref{sec:potential} proves the comparison lower bound using the local
 guarantees stated in Section~\ref{sec:overview}. The appendices prove the properties of order-restriction DAGs and the
 consistency of the tree updates, and give the deterministic local calculations.

@@ -1,14 +1,11 @@
 \subsection{Answering a comparison}\label{sec:comparison}\label{sec:legal}
 
-Algorithm~\ref{alg:compare} descends from the root while one child subtree
-contains both queried items. At the node where it stops, each item is
-represented by its free coordinate or its child's anchor. Two distinct
-anchors determine the answer directly. Otherwise, \texttt{Select} returns
-either an answer or a pair $(x,c)$: move the queried item $x$ into the
-child anchored at $c$, then retry. After recording the answer,
-\texttt{Repair} restores the degree and path-length bounds.
+Algorithm~\ref{alg:compare} gives the comparison procedure. Its main
+choice is delegated to \texttt{Select}, whose guarantee we state next.
+The call to \texttt{Normalize} restores canonical intervals after an
+answer; Appendix~\ref{app:geometry} gives its two graph passes.
 
-The adversary uses this recursive state for at most
+The adversary uses the recursive state for at most
 \begin{equation}\label{eq:comparison-horizon}
 Q(n)=n\ceil{\log n}
 \end{equation}
@@ -53,34 +50,86 @@ Append $\mathit{answer}$ to $\mathcal T$\;
 \Return $\mathit{answer}$\;
 \end{algorithm}
 
-The routine \texttt{Select} examines the order-restriction DAG at the
-node handling the comparison. Each possible answer selects a part of
-its feasible region. A deterministic local calculation tries to certify
-an answer retaining roughly half the region's volume or more. If it
-cannot do so, it returns an interior position $c$ for one of the queried
-items, so that \texttt{RefineAt} can move that item into a child.
+\subsubsection{Choosing an answer}\label{sec:selection}
 
-An answer between two free items adds an arc to the in-node DAG. An
-answer between a free item and an anchor tightens the item's interval.
-We now describe how \texttt{RefineAt} moves an item and how
-\texttt{Repair} uses these moves to keep the graphs small.
+\texttt{Select} rests on the local selection lemma below, the key
+algorithmic result of the paper. An answer divides the feasible region
+into two parts. We would
+like to keep the larger part, but computing its volume may be expensive.
+\texttt{Select} instead examines a bounded neighborhood of the queried
+coordinates and tries to certify an answer retaining almost half the
+volume.
 
+An inconclusive calculation is useful too: it identifies a queried
+coordinate confined to a sufficiently short interval. Moving that item
+into a child gives it a fresh unit interval. The lemma guarantees that the section left by fixing this coordinate
+is large enough to compensate for the move.
+The companion routine \texttt{ChooseAnchor} supplies a position when
+\texttt{Repair} has already specified which item must move.
+
+To state the guarantee, let $f_x$ be the density of $X_x$ for a uniform
+feasible assignment in $K(D)$. We define $f_x(c)$ pointwise as the volume
+of the section $X_x=c$, measured in the remaining coordinates, divided
+by $V(D)$. Thus high density means that fixing $X_x=c$ leaves a large
+section relative to the original volume.
+
+Choose a degree threshold $k\ge64$ and a path threshold $H=2^k$.
+Degree counts neighbors in either direction, and path length counts
+vertices. The error allowed in the fraction retained by an answer is
+\begin{equation}\label{eq:path-threshold}
+\eta=\frac1{100k}.
+\end{equation}
+
+\begin{lemma}[Local selection]\label{lem:local-routines}
+Let $D$ be an order-restriction DAG with canonical dyadic intervals,
+$V(D)>0$, degree at most $k$, and directed paths of at most $2H$ vertices.
+\begin{enumerate}
+\item For a comparison $X_a<X_b$ with $a\ne b$, or between $X_a$ and
+a dyadic constant, \textnormal{\texttt{Select}} returns either an answer
+retaining at least $1/2-\eta$ of $V(D)$ or a queried coordinate $x$
+and a dyadic $c\in(\ell_x,r_x)$ with $\log f_x(c)>k$.
+\item Given a coordinate $x$, \textnormal{\texttt{ChooseAnchor}}$(D,x)$
+returns a dyadic $c\in(\ell_x,r_x)$.
+\end{enumerate}
+For either routine, write the returned position in reduced form as
+$c=(2i+1)/2^{m+1}$. Then
+\begin{equation}\label{eq:tariff}
+\log f_x(c)\ge(1-1/k)m-4.
+\end{equation}
+The routines are deterministic and use only the graph and interval bounds
+in a neighborhood of the queried coordinates whose radius depends on $k$.
+\end{lemma}
+\begin{proof}
+See Appendices~\ref{sec:oracle} and~\ref{app:execution}.
+\end{proof}
+
+The bound involving $m$ ensures that an anchor requiring many binary
+digits has large density. This will control the moves made by
+\texttt{Repair}.
 
 \subsubsection{Moving an item into a child}\label{sec:overview-refine}
 
-For a canonical $D$ and $c\in(\ell_x,r_x)$, the operation
-\texttt{Restrict}$(D,x,c)$ fixes $X_x=c$ and removes its coordinate. For each arc $y\to x$, it sets
-$r_y\gets\min(r_y,c)$, and for each arc $x\to z$, it sets
-$\ell_z\gets\max(\ell_z,c)$. It then deletes $x$ and its incident arcs
-and normalizes the remaining bounds. Algorithm~\ref{alg:restrict}
-gives the procedure.
+The move chosen by \texttt{Select} has two parts: fix the item's position
+in its current node, then give it a fresh position in the corresponding
+child. The first part is an operation on an order-restriction DAG.
+For $c\in(\ell_x,r_x)$, \texttt{Restrict}$(D,x,c)$ substitutes $c$ for
+$X_x$ in the incident inequalities, deletes $x$, and normalizes the
+remaining intervals. Algorithm~\ref{alg:restrict} gives the procedure.
 
-The operation \texttt{RefineAt}$(x,c)$ moves $x$ from its current node
-$v$ into the child anchored at $c\in(\ell_x,r_x)$. It first replaces
-$D_v$ by \texttt{Restrict}$(D_v,x,c)$. It then inserts $x$ into the
-child's order-restriction DAG as an isolated vertex with interval
-$(0,1)$, creating the child if needed.
-Figure~\ref{fig:overview-refine} illustrates reuse of an existing child.
+\begin{lemma}[Coordinate restriction]\label{lem:interior}
+Let $D$ be canonical with $V(D)>0$ and $c\in(\ell_x,r_x)$.
+Then \textnormal{\texttt{Restrict}}$(D,x,c)$ represents the section
+$X_x=c$ of $K(D)$, and
+\begin{equation}\label{eq:restriction-volume}
+V(\operatorname{Restrict}(D,x,c))=V(D)f_x(c)>0.
+\end{equation}
+\end{lemma}
+\begin{proof}
+See Appendix~\ref{app:geometry}.
+\end{proof}
+
+Algorithm~\ref{alg:refine} uses this operation in the tree.
+Figure~\ref{fig:overview-refine} illustrates a move into an existing child.
 
 \begin{algorithm}[H]
 \caption{\texttt{RefineAt}$(x,c)$: move an item into a child.}
@@ -141,24 +190,49 @@ within that block.}
 \end{minipage}
 \end{center}
 
+
+To measure the effect of the move on the whole tree, write
+$K_v=K(D_v)$, $V_v=V(D_v)$, and
+\begin{equation}\label{eq:Z}
+Z=\prod_v V_v.
+\end{equation}
+Initially $Z=1$, and positive node volumes give $0<Z\le1$.
+Each item has one coordinate, so the product region always has dimension
+$n$. The following identity accounts for both parts of the move.
+Here $f_x$ is the density at the parent before refinement.
+
+\begin{lemma}[Refinement identity]\label{lem:section-volume}
+Suppose every node region has positive volume. Refining $x$ at an interior
+anchor $c$ satisfies
+\begin{equation}\label{eq:refine}
+\frac{Z_{\rm after}}{Z_{\rm before}}=f_x(c).
+\end{equation}
+\end{lemma}
+\begin{proof}
+See Appendix~\ref{app:execution}.
+\end{proof}
+
+We call the change
+\begin{equation}\label{eq:refinement-gain}
+ g=\log\frac{Z_{\rm after}}{Z_{\rm before}}=\log f_x(c)
+\end{equation}
+the refinement's \emph{volume gain}. Thus a refinement requested by
+\texttt{Select} gains more than $k$ in $\log Z$, whereas an answer
+loses at most $-\log(1/2-\eta)=1+O(1/k)$.
+\label{sec:refinement-volume}
+
 \subsubsection{Keeping the in-node DAGs small}\label{sec:repairs}
 
-Fix an integer degree threshold $k\ge64$. We also bound directed paths
-by $H=2^k$ vertices; degree counts neighbors in either direction.
-Between queries, every in-node DAG has degree below $k$ and directed
-paths with fewer than $H$ vertices. Recording an answer adds at most
-one arc, and \texttt{Repair} restores these bounds.
+The local selection lemma requires bounds on degree and directed path
+length. Algorithm~\ref{alg:repair} maintains degree below $k$ and paths
+with fewer than $H$ vertices between queries. Inserting one comparison
+arc can temporarily raise these bounds to $k$ and fewer than $2H$
+vertices, which explains the hypotheses of the lemma.
 
-If there is a path on $H$ vertices, refine every item on the selected
-path in path order, including those whose arcs have already been
-removed. Otherwise, if a vertex has degree $k$, refine that vertex.
-Each move uses \texttt{ChooseAnchor} to select an interior position
-and \texttt{RefineAt} to move the item into the corresponding child.
-Only isolated vertices are inserted into children.
-
-For determinism, choose the lexicographically first eligible path and
-the smallest eligible label for a degree repair. When \texttt{Select}
-can return either queried item for refinement, use the smaller label.
+These repairs move items prescribed by the graph structure.
+\texttt{ChooseAnchor} provides their anchors, so every such move
+satisfies \eqref{eq:tariff}. This bound will limit the total number of
+repair moves in Section~\ref{sec:rare-refinements}.
 
 \begin{algorithm}[H]
 \caption{\texttt{Repair}$(v)$: restore the graph bounds after an answer.}
@@ -166,14 +240,14 @@ can return either queried item for refinement, use the smaller label.
 \DontPrintSemicolon
 \KwIn{The node $v$ at which the answer was determined.}
 \If{the graph at $v$ has a directed path on $H$ vertices}{
-  $L\gets$ the selected path's list of labels, in path order\;
+  $L\gets$ the lexicographically first $H$-vertex path, in path order\;
   \ForEach{$x\in L$ in path order}{
     $c\gets$ \texttt{ChooseAnchor}$(D_v,x)$\;
     \texttt{RefineAt}$(x,c)$\;
   }
 }
 \ElseIf{a vertex at $v$ has degree $k$}{
-  $x\gets$ the selected such vertex\;
+  $x\gets$ the smallest label of degree $k$\;
   $c\gets$ \texttt{ChooseAnchor}$(D_v,x)$\;
   \texttt{RefineAt}$(x,c)$\;
 }

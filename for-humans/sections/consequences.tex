@@ -3,8 +3,7 @@
 The counting argument also applies when the algorithm starts or finishes
 with a partial order. The two settings have different information bounds:
 initial relations reduce what remains to be learned, whereas a target
-partial order specifies what the algorithm must establish. We state the
-consequences here and give their proofs in Appendix~\ref{app:consequences}.
+partial order specifies what the algorithm must establish.
 
 \subsection{Producing a prescribed partial order}
 
@@ -33,6 +32,9 @@ to make at least
 comparisons. The adversary is initialized using only $n$ and works for
 every target $R$.
 \end{corollary}
+\begin{proof}
+See Appendix~\ref{app:consequences}.
+\end{proof}
 
 Its leading term matches Cardinal et al.'s upper bound when
 $I(R)=\omega(n)$. The information bound can be smaller than the task's
@@ -55,6 +57,9 @@ at least
 \]
 additional comparisons. Both error terms are uniform over $P$.
 \end{corollary}
+\begin{proof}
+See Appendix~\ref{app:consequences}.
+\end{proof}
 
 The construction uses Cardinal et al.'s polynomial-time procedure~\cite{cardinal-production} to
 extend $P$ to a \emph{weak order}: a sequence of antichain layers, with

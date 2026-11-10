@@ -1,106 +1,8 @@
-\subsection{Properties of the operations}\label{sec:operation-properties}
+\subsection{From local choices to the comparison bound}\label{sec:operation-properties}
 
-We now state the guarantees used in the analysis. The first concerns
-normalization and restriction of a single order-restriction DAG. The
-others describe the effect of refinement, the choices made by the local
-routines, and consistency of the whole tree with the transcript.
-
-\begin{lemma}[Canonical intervals and coordinate restriction]\label{lem:interior}
-Normalization preserves $K(D)$. This region has positive volume exactly
-when all the resulting intervals have positive width. In that case the
-intervals are canonical. For any $c\in(\ell_x,r_x)$, the feasible region
-of \textnormal{\texttt{Restrict}}$(D,x,c)$ is exactly the section of
-$K(D)$ with $X_x=c$, measured in the remaining coordinates, and has
-positive volume.
-\end{lemma}
-Appendix~\ref{app:geometry} proves the lemma.
-
-To measure the effect of restriction, suppose $V(D)>0$ and choose $X$
-uniformly from $K(D)$. The density $f_x(c)$ of coordinate $X_x$ is the
-volume of the section at $c$ divided by $V(D)$. Thus the lemma gives
-\begin{equation}\label{eq:restriction-volume}
-V(\operatorname{Restrict}(D,x,c))=V(D)f_x(c).
-\end{equation}
-This defines the density at every interior $c$ and gives
-$\Prb(a<X_x<b)=\int_a^b f_x(t)\,dt$.
-
-\paragraph{The effect of refinement.}
-Write $K_v=K(D_v)$ and $V_v=V(D_v)$. To measure the effect of a
-refinement on the whole state, take the product of the node volumes,
-\begin{equation}\label{eq:Z}
-Z=\prod_v V_v.
-\end{equation}
-Each item has a position variable at exactly one node, so the product
-region has dimension $n$. A node with no free items contributes volume
-one. Initially $Z=1$; whenever every node has positive volume,
-$0<Z\le1$.
-
-Refinement fixes an item's position in its parent and gives it a fresh
-unit coordinate in a child. Write
-\begin{equation}\label{eq:refinement-gain}
-g=\log\frac{Z_{\rm after}}{Z_{\rm before}}
-\end{equation}
-for the resulting change in $\log Z$. We call $g$ the refinement's
-\emph{volume gain}; it can be negative.
-
-\label{sec:refinement-volume}
-
-The restriction identity \eqref{eq:restriction-volume} now gives the
-change in this product. Here $f_x$ is the coordinate density in $D_v$
-before the move.
-
-\begin{lemma}[Refinement identity]\label{lem:section-volume}
-Suppose every node region has positive volume. Refining $x$ at an interior
-anchor $c$ satisfies
-\begin{equation}\label{eq:refine}
-\frac{Z_{\rm after}}{Z_{\rm before}}=f_x(c).
-\end{equation}
-\end{lemma}
-Appendix~\ref{app:execution} proves the identity.
-
-Thus the refinement's volume gain is $g=\log f_x(c)$.
-
-\paragraph{Choosing answers and anchors.}
-The next lemma makes the guarantee of \texttt{Select} precise and
-specifies the anchors returned by both local routines. Put
-\begin{equation}\label{eq:path-threshold}
-\eta=\frac1{100k}.
-\end{equation}
-The temporary bounds $k$ and $2H$ allow for the arc inserted by a comparison
-before \texttt{Repair} runs. The final inequality ensures that anchors
-requiring many binary digits produce a correspondingly large volume gain.
-
-\begin{lemma}[Local selection]\label{lem:local-routines}
-Let $D$ be an order-restriction DAG with canonical dyadic intervals,
-$V(D)>0$, degree at most $k$, and directed paths of at most $2H$ vertices.
-\begin{enumerate}
-\item For a comparison $X_a<X_b$ with $a\ne b$, or between $X_a$ and
-a dyadic constant, \textnormal{\texttt{Select}} returns either an answer
-retaining at least $1/2-\eta$ of $V(D)$ or a queried coordinate $x$
-and a dyadic $c\in(\ell_x,r_x)$ with $\log f_x(c)>k$.
-\item Given a coordinate $x$, \textnormal{\texttt{ChooseAnchor}}$(D,x)$
-returns a dyadic $c\in(\ell_x,r_x)$.
-\end{enumerate}
-Every returned position $c=(2i+1)/2^{m+1}$ in reduced form satisfies
-\begin{equation}\label{eq:tariff}
-\log f_x(c)\ge(1-1/k)m-4.
-\end{equation}
-The routines are deterministic and use only the graph and interval bounds
-in a neighborhood of the queried coordinates whose radius depends on $k$.
-\end{lemma}
-
-Appendix~\ref{sec:oracle} constructs the local calculations, and
-Appendix~\ref{app:execution} proves the lemma. Thus \texttt{Select}
-either answers while losing at most about one bit of $\log Z$, or
-requests a refinement that gains more than $k$ bits. Every repair
-anchor also satisfies \eqref{eq:tariff}.
-Section~\ref{sec:runtime} states the running-time guarantee.
-
-\paragraph{Consistency and termination.}
-The following proposition ensures that these local choices fit together
-into a legal adversary. Its proof uses the fact that an item can enter
-an existing child only when the transcript leaves its order relative
-to the items there unrestricted.
+The local selection lemma supplies answers and anchors for individual
+order-restriction DAGs. We also need these choices to preserve consistency
+with all earlier answers when items move between nodes.
 
 \begin{proposition}[Consistency and termination]\label{prop:legality}
 Throughout the recursive phase the state has positive feasible volume,
@@ -108,11 +10,27 @@ and every represented order satisfies the transcript. Each call
 terminates with at most $n+2$ refinements. The strict degree and path
 bounds hold between calls.
 \end{proposition}
-Appendix~\ref{app:execution} gives the induction over the state updates.
+\begin{proof}
+See Appendix~\ref{app:execution}.
+\end{proof}
 
-\paragraph{The comparison guarantee.}
-Let $T_q$ be the number of total orders consistent with the first $q$
-answers. The preceding guarantees lead to the following bound.
+The volume guarantees then limit how often items can move. Each
+comparison reduces $\log Z$ by at most about one, and a move requested
+by \texttt{Select} increases it by more than $k$. The anchor bound
+\eqref{eq:tariff} also controls the gains from repairs. Since $Z$ never
+exceeds one, these gains cannot accumulate without enough comparisons.
+
+\begin{lemma}[Refinement count]\label{lem:rare-refinements}
+After $q$ completed recursive calls, the total number $P$ of refinements
+is at most $Cq/k$ for an absolute constant $C$.
+\end{lemma}
+\begin{proof}
+See Section~\ref{sec:rare-refinements}.
+\end{proof}
+
+Finally, the refinement count and the anchor bound allow us to count
+the total orders consistent with the transcript. Let $T_q$ be their
+number after $q$ answers.
 
 \begin{theorem}[Comparison prefixes]\label{thm:fixed-stage}
 For every integer $k\ge64$, the adversary with parameter $k$ is
@@ -123,10 +41,11 @@ such that after any $q$ answers
 \log T_q\ge\log(n!)-(1+\delta_k)q.
 \end{equation}
 \end{theorem}
+\begin{proof}
+See Section~\ref{sec:potential}.
+\end{proof}
 
-Section~\ref{sec:potential} proves the theorem by first showing that
-only $O(q/k)$ refinements occur in $q$ comparisons. When a correct sorter
-stops, $T_q=1$, so the theorem forces at least
+When a correct sorter stops, $T_q=1$, so the theorem forces at least
 $\log(n!)/(1+\delta_k)$ comparisons. Section~\ref{sec:runtime} chooses
 $k$ as a function of $n$ to obtain the optimal asymptotic bound in
 polynomial time.

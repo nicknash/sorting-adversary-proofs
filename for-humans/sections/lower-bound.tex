@@ -18,11 +18,7 @@ Since $Z$ starts at one and never exceeds one,
 G\le\log Z+a_\eta q\le a_\eta q.
 \end{equation}
 
-\begin{lemma}[Refinement count]\label{lem:rare-refinements}
-After $q$ completed recursive calls, the total number $P$ of refinements
-is at most $Cq/k$ for an absolute constant $C$.
-\end{lemma}
-\begin{proof}
+\begin{proof}[Proof of Lemma~\ref{lem:rare-refinements}]
 Let $D$ count degree repairs. Each removes $k$ arcs, and each call
 inserts at most one arc. Thus $D\le q/k$. By \eqref{eq:tariff}, each such
 move gains at least $-4$. A move after a failed comparison test gains
