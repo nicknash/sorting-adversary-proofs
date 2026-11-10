@@ -5,10 +5,10 @@ expected=$(mktemp)
 actual=$(mktemp)
 trap 'rm -f "$expected" "$actual"' EXIT
 
-rg --files SortingAdversary/Continuous -g '*.lean' \
+find SortingAdversary/Continuous -type f -name '*.lean' -print \
   | sed '/\/Audit\.lean$/d; s/\.lean$//; s|/|.|g; s/^/import /' \
   | sort > "$expected"
-rg '^import SortingAdversary\.Continuous\.' SortingAdversary/Continuous/Audit.lean \
+grep -E '^import SortingAdversary\.Continuous\.' SortingAdversary/Continuous/Audit.lean \
   | sort > "$actual"
 
 if ! diff -u "$expected" "$actual"; then
