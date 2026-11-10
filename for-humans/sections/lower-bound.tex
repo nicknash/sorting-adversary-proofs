@@ -17,7 +17,8 @@ its loss in $\log Z$ is at most
 \begin{equation}\label{eq:comparison-loss}
 a_\eta=-\log(1/2-\eta)=1+O(1/k).
 \end{equation}
-Let $G$ be the sum of the refinement gains through $q$ completed calls.
+Let $G$ be the sum of the refinement gains through $q$ completed calls
+to \texttt{Compare}.
 Since $Z$ starts at one and never exceeds one,
 \begin{equation}\label{eq:total-refinement-gain}
 G\le\log Z+a_\eta q\le a_\eta q.

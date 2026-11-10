@@ -307,7 +307,8 @@ at most $k$ and every directed path has fewer than $2H=2^{k+1}$ vertices.
 Further insertions could exceed these bounds, so \texttt{Repair} restores
 the stricter bounds before the next comparison.
 
-A repair specifies which items must move. Its routine
+A repair selects items to move into children so that the parent's DAG
+again satisfies the degree and path-length bounds. Its routine
 \texttt{ChooseAnchor}$(D,x)$ chooses an interior position for the
 specified item $x$. Lemma~\ref{lem:anchor-selection} gives the guarantee
 needed for these choices.
