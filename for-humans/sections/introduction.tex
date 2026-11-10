@@ -1,13 +1,13 @@
 \section{Introduction}\label{sec:classical}
 
-We consider comparison sorting of $n$ distinct labelled keys. A sorter
+We consider comparison sorting of $n$ distinct labelled keys.\footnote{Throughout,
+$\log$ denotes $\log_2$, and $\ln$ the natural logarithm; we assume $n\ge2$.} A sorter
 chooses each pair using the answers to its earlier comparisons and must be
 correct for every strict total order on the labels. A sorting adversary
 supplies those answers as the comparisons arrive. It is \emph{legal} if
 every finite sequence of its answers is consistent with at least one total
 order. The adversary knows $n$ and sees the comparisons, but need not inspect
-the sorter that generates them. Throughout, $\log$ denotes $\log_2$, and
-$\ln$ the natural logarithm; we assume $n\ge2$.
+the sorter that generates them.
 
 A binary comparison tree must distinguish all $n!$ total orders, giving
 the \emph{information-theoretic lower bound} (ITLB) of
