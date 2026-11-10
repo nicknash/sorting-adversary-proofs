@@ -1045,3 +1045,15 @@ no warnings or unresolved references. The 32-page PDF was visually checked
 at the Introduction, new Related Work subsection and bibliography. All
 25 source-archive members match the saved files. The manuscript remains
 a local/GitHub revision, without replacing the existing Hexagon deposit.
+
+10 November 2026: Explicit open question and Kahn--Kim wording
+
+The Introduction now states the epsilon-form question before Theorem 1.1,
+qualified by sufficiently large n, and says we answer it affirmatively.
+The next sentence notes that one adversary works for every epsilon.
+Section 7 of the authors' online KZZ minimum paper was checked again for
+the original asymptotically optimal sorting-adversary question. Related
+Work now states Kahn--Kim's adversary guarantee directly instead of
+referring back to the Introduction. Both compilers pass, with no TeX
+warnings. The affected pages were visually checked; the PDF remains
+32 pages. All archive members match the saved sources.
