@@ -28,7 +28,25 @@ budget `E_k <= n` to obtain uniform polynomial time. The appendices give
 the normalization and density proofs, local contraction, certificate
 calibration, refinement and consistency details, and arithmetic bounds.
 
-This revision follows the newest proposal in
+Section 8 states two corollaries: partial-order production with a
+vanishing relative error and an additive `o(n)` loss, and sorting from
+supplied partial information with a vanishing relative error and an
+additive `O(n log log(n+2))` loss. Appendix G proves them. Rescaling the
+counting weights reduces the once-per-item loss without changing the
+adversary. A compatible weak-order extension supplies the stronger
+initial-poset guarantee; a second construction initializes the adversary
+by running a partial-order producer against it and then continuing from
+the saved state, with an additive `o(n log n)` loss.
+
+These additions incorporate
+[Completed Codex Guide](https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af2e3ac-2854-83ed-8a06-6625e70d1318)
+and [Corollary Guide Writing](https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af2e39a-0fac-83eb-8a0f-4a120e37ce4b).
+They retain the additive losses and leave a uniform relative guarantee
+for all initial partial orders as an open question. Related work includes
+the recent explicit-DAG sorting results and distinguishes the oracle and
+geometric models.
+
+The core construction follows the proposal in
 [Simplify Paper Arguments](https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af20322-5238-83eb-8c1a-60fbea8e1d71),
 based on commit `d0da5c2`. It removes the implicit anchor tree, shortest-anchor
 search, mixed comparison-failure/central-success branch, and the lambda/sigma
@@ -68,6 +86,8 @@ Lean files, and the precompiled PDF.
 The exact-rational diagnostics check the charging inequalities, continuous
 moments of the finite digit update, binary-grid rounding, middle-half
 precision, and interval certificates against small-instance probabilities.
+The accounting checks also cover the rescaled child weights and their
+additional cost for mixtures with signed refinement gains.
 A separate exhaustive diagnostic checks repair after one inserted arc on
 DAGs with at most five vertices, including every eligible repair choice.
 Small examples retain every digit sequence with its multiplicity. Independent volume

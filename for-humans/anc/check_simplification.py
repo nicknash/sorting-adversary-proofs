@@ -30,6 +30,7 @@ def coefficients(log_bound, k):
     # contribute at least k/2 each, while total gain is at most loss_bound.
     refinement_bound = (1 + 2 * loss_bound + 2 * b / (a * k)) / k
     charge = a * loss_bound + b * refinement_bound
+    rescaled_charge = charge + (log_bound - 1) * refinement_bound
     return {
         "alpha": alpha,
         "gamma_bound": gamma_bound,
@@ -40,6 +41,7 @@ def coefficients(log_bound, k):
         "path_mean_gain": path_mean_gain,
         "refinement_bound": refinement_bound,
         "charge": charge,
+        "rescaled_charge": rescaled_charge,
     }
 
 
@@ -65,6 +67,10 @@ def coefficient_checks(log_bound, k):
             1 <= c["charge"] <= 1 + Fraction(4 * log_bound + 28, k),
         # Summing over the 2**m anchors cancels the factor 2**(-m).
         "child_weights_sum_to_one_half": Fraction(1, 2 * k) / (1 - alpha) == Fraction(1, 2),
+        "rescaled_child_weights_sum_to_one_over_k":
+            Fraction(1, k * k) / (1 - alpha) == Fraction(1, k),
+        "rescaled_comparison_coefficient_growth":
+            1 <= c["rescaled_charge"] <= 1 + Fraction(8 * log_bound + 24, k),
         # ln 2 >= 56/81 follows from two terms of 2*atanh(1/3).
         # Combining this with -ln(1-x) <= x/(1-x) bounds gamma.
         "anchor_cost_logarithm_majorant": Fraction(81, 56 * (k - 1)) <= gamma - 1,
@@ -111,6 +117,10 @@ assert that a particular adversary execution realizes the inputs.
                         total_cost == a * total_gain + b * refinement_count,
                         rarity_slack >= 0,
                         comparison_slack >= 0,
+                        # Supplementary counting pays log2(k/2) per move.
+                        # log_bound - 1 is exact at the power-of-two stages.
+                        final_log_volume - total_cost
+                        - (log_bound - 1) * refinement_count + c["rescaled_charge"] >= 0,
                     )
                     if not all(checks):
                         raise AssertionError({"k": k, "degree_count": str(degree_count),
@@ -144,6 +154,7 @@ def stage(j):
         "derived_degree_gain_floor": display(c["degree_gain_floor"]),
         "refinements_per_comparison_bound": display(c["refinement_bound"]),
         "rational_comparison_charge": display(c["charge"]),
+        "rescaled_prefix_comparison_charge": display(c["rescaled_charge"]),
         "coefficient_from_rational_charge": display(1 / c["charge"]),
         "checks": checks,
         "signed_accounting_examples": signed_accounting_examples(j, k),
@@ -196,7 +207,7 @@ def main():
     total_checks = (stage_checks + examples["count"] * examples["checks_per_case"]
                     + integers["count"] * integers["checks_per_case"] + cutoffs["count"])
     output = {
-        "purpose": "Finite exact-rational diagnostics of refinement rarity, signed gains, affine costs, AM-GM path batches, comparison accounting, and the cutoff; not a proof of geometric or structural hypotheses.",
+        "purpose": "Finite exact-rational diagnostics of refinement rarity, signed gains, affine costs, AM-GM path batches, original and rescaled prefix accounting, and the cutoff; not a proof of geometric or structural hypotheses.",
         "range": {"first_j": 6, "last_j": 128, "count": len(rows)},
         "all_checks_passed": True,
         "checks_per_stage": len(rows[0]["checks"]),

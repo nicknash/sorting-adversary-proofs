@@ -22,6 +22,23 @@ choose comparisons. Our adversary faces the corresponding task of choosing
 answers efficiently while forcing asymptotically the full ITLB for ordinary
 sorting.
 
+For an initial partial order $P$ supplied as a DAG with $m$ arcs,
+Haeupler et al.~\cite{haeupler} give a deterministic algorithm using
+$O(m+\log e(P))$ time and $O(\log e(P))$ new comparisons.
+Rutschmann~\cite{rutschmann} separates this work into $O(m)$ preprocessing
+and $O(\log e(P))$ sorting time. These results make efficient use of the
+known relations; Corollary~\ref{cor:initial-poset} supplies an efficient
+adversary whose comparison coefficient approaches one when
+$\log e(P)=\omega(n\log\log n)$.
+
+Van der Hoog and Rutschmann~\cite{hoog-rutschmann} study a model with
+separate oracles for the initial partial order and the unknown total
+order. They establish tight tradeoffs between preprocessing queries and
+the later sorting cost. Our reduction processes the full supplied DAG;
+its guarantee concerns subsequent key comparisons. Lower bounds with
+restricted access to the initial relations require the additional
+analysis of their oracle model.
+
 \subsection{Binary-tree adversaries}
 
 Atallah and Kosaraju~\cite{atallah} gave an efficient sorting adversary with

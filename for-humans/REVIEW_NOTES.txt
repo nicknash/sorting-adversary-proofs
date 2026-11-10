@@ -1057,3 +1057,56 @@ Work now states Kahn--Kim's adversary guarantee directly instead of
 referring back to the Introduction. Both compilers pass, with no TeX
 warnings. The affected pages were visually checked; the PDF remains
 32 pages. All archive members match the saved sources.
+
+10 November 2026: Two corollaries and a sharper prefix count
+
+Sources: complete recommendation messages in Completed Codex Guide
+(6af2e3ac-2854-83ed-8a06-6625e70d1318, message
+3b77b2dc-a0d7-52ac-b307-a8aa0371fa6e, 11,029 characters) and Corollary
+Guide Writing (6af2e39a-0fac-83eb-8a0f-4a120e37ce4b, message
+82ecbd25-2753-59ec-a65a-5b7ed5ebb52f, 10,503 characters). Both were read
+without truncation. Their linked guide PDF/TeX/ZIP attachments were not
+downloaded; browser access was unavailable. The recommendations contain
+the proposed bounds and reductions, which were checked directly against
+the manuscript and primary sources.
+
+Section 8 gives the production guarantee (1-epsilon_n)I(R)-epsilon_n*n,
+with one target-independent sequence tending to zero. The initial-poset
+corollary uses the stronger weak-order reduction: (1-o(1))log e(P) minus
+O(n log log(n+2)). All layer copies share the ambient parameter k(n);
+local horizons, singleton layers, interleaved queries, and finite fallback
+sizes are covered in the proof. Appendix G also gives the production-based
+initialization from the second chat, with log e(P)-o(n log n) remaining
+comparisons. This subtracts a uniform production upper bound from the
+ordinary-sorting lower bound.
+
+The supplementary counting weights (2/k)w(c) sum to 1/k, reducing the
+stopping loss to -n log(1-1/k). Extra cost log(k/2) per refinement is paid
+using the existing O(q/k) rarity bound. This changes only the counting
+experiment. The original algorithm, weights in the main proof, numeric
+contracts, abstract, disclosure, figures, and Sections 3--7 are unchanged.
+
+Cardinal et al.'s authors' manuscript arXiv:0811.2572v2 was checked at
+Section 3, Lemmas 1 and 3, and Theorem 4 for the deterministic weak-order
+construction, its entropy/extension loss and the production upper bound.
+Section 4, Theorem 5 establishes the obstruction to improving the
+weak-order loss below order n log log n. The ordered-layer compatibility
+requirement is explicit, including the two-disjoint-chains counterexample
+to an arbitrary antichain partition. Kaligosi et al.'s authors' paper
+KMMS05.pdf verifies the deterministic multiple-selection component.
+Publisher/author records verify the new bibliography: Cardinal et al.
+(SICOMP 2010), Haeupler et al. (Algorithmica 88, article 41, 2026),
+van der Hoog--Rutschmann (FOCS 2024), Rutschmann (arXiv:2604.12653v2),
+the 2019 imprecise-points paper and its 2024 JOCG treatment. No improved
+limited-oracle or geometric reconstruction bound is claimed.
+
+All five current diagnostics pass. The extended exact-rational accounting
+checks include the rescaled weight sum, its asymptotic coefficient bound,
+and signed-gain mixtures, for 13,268 cases and 132,900 exact checks. These
+are finite accounting diagnostics, not a formal verification of the new
+corollaries or the cited black boxes. Both compilers pass with no warnings,
+undefined references or overfull/underfull boxes. The Introduction, related
+work, theorem transition, Section 8, Appendix G and bibliography were
+visually reviewed. The PDF is 38 pages, with main text ending on page 23;
+all 27 archive members match saved sources. No Hexagon replacement was
+submitted; the related earlier Lean development is unchanged.

@@ -119,6 +119,13 @@ Merge sort uses at most $n\ceil{\log n}$ comparisons, so this bound is
 asymptotically optimal. The running-time guarantee is asymptotic and
 involves very large parameter thresholds.
 
+Section~\ref{sec:consequences} gives two further consequences. The same
+adversary forces nearly the information bound for arranging keys into a
+prescribed partial order, with a vanishing relative error and an additive
+$o(n)$ loss. A reduction also handles supplied initial relations: for an
+initial partial order $P$, it forces
+$(1-o(1))\log e(P)-O(n\log\log(n+2))$ further comparisons.
+
 Section~\ref{sec:related} reviews the earlier adversaries.
 Section~\ref{sec:overview} gives our data structure and comparison procedure.
 Items are stored at nodes of a rooted tree, with a directed acyclic graph
@@ -170,5 +177,6 @@ The appendices supply the interval and density facts
 (Appendices~\ref{app:coupling} and~\ref{app:certificates}), refinement and
 consistency proofs (Appendix~\ref{app:execution}), and arithmetic details
 and parameter choices (Appendices~\ref{app:arithmetic} and~\ref{app:parameters}).
+Appendix~\ref{app:consequences} proves the two corollaries.
 The manuscript source is available
 online.\footnote{\url{https://github.com/nicknash/sorting-adversary-proofs/tree/main/for-humans}}
