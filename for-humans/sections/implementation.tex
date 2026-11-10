@@ -83,6 +83,16 @@ the finite horizon, these bounds give one fixed polynomial for the work
 per query, independent of the selected parameters and the length of the
 interaction. After the horizon, each answer compares two stored ranks.
 
+\begin{theorem}\label{thm:main}
+There is a deterministic legal adversary, initialized using only $n$, that
+performs a fixed polynomial number of bit operations per comparison and
+forces every correct comparison sorter to make
+\[
+(1-o(1))n\log n
+\]
+comparisons.
+\end{theorem}
+
 \begin{proof}[Proof of Theorem~\ref{thm:main}]
 Initialization and every comparison call are deterministic and take
 polynomial time. The recursive phase is legal by

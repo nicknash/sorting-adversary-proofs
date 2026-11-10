@@ -2,8 +2,8 @@
   "date": "2026-11-10",
   "status": "not_submitted",
   "argument": "one repair after each recorded answer; upward rounding on a binary grid; normalized stored coordinate intervals; a refinement-rarity lemma P=O(q/k); finite enclosing intervals and a bounded recursive phase",
-  "local_pdf_sha256": "950abcebd71ee142ea701a539e79bb84ed12645d4eca2af8f94bb6053b98460d",
-  "prepared_zip_sha256": "1001cdf9c65b9113f49098d7ac81d2d887f372b55665bcc129ef09a6230a5418",
+  "local_pdf_sha256": "fe640f3fbde67194b808c0c2496607bc8cc5a4d683f2005a7fccba88b7372c97",
+  "prepared_zip_sha256": "a26824e10e81a72dcd5cc621b4be295f9820a9ff8631213f45d856848bcd8669",
   "previous_hexagon_submission": "hexagon:2611.00196",
   "previous_submission_metadata": "submission.json",
   "formalization": "Related earlier integer-colour construction; this continuous presentation is not formally verified.",
@@ -18,8 +18,8 @@
   "source_zip_reference": "https://chatgpt.com/library?file_id=libfile_fde3_f-875b25aa3d3c8191baa4fb2674ef43ba_742fa1b94fe0819190166d79e79a577c&account_id=personal",
   "previous_source_material": "The preceding 10 November revision at d0da5c2 used certificate-failure refinement, an all-pair gap bound, finite horizon and conditional moments. Its source turn was aecbce95-5afa-444b-ba80-8ab8534669ee, message 8bb9204a-0647-571c-a590-82c8a349b672.",
   "source_material": "The complete latest assistant message in Simplify Paper Arguments, retrieved through the connected chat reader: 15,850 characters, not truncated. It proposes simplifications and proof placement against d0da5c2. The linked eleven-page PDF and source archive were not downloaded. The proposal was implemented in the existing manuscript and independently reviewed; exact diagnostics for rounding, one-arc repair and rarity were added or revised.",
-  "base_revision": "b4a4641e14fef4d1cfa9bdbcbf25a2423824d26b",
+  "base_revision": "fa01ee828bf8178106673b15daddc0b7998e94eb",
   "source_chat_message": "9611da7d-c0eb-51d8-af7a-6bce42f8b072",
   "implementation_change": "The answer-selection loop refines only queried labels after a failed certificate, at most twice, using the middle half directly. After recording the answer, one complete path batch in path order or one degree repair restores the strict bounds. Refine passes its reason to ChooseAnchor, which uses central certification only for structural repairs. Normalize propagates all bounds in two topological passes. RoundUp replaces minimum-depth anchor search. The rarity bound gives P=O(Q(n)/k+n) including an unfinished call; stored precision is O(n log^2 n).",
-  "editorial_revision": "Move the logarithm notation and n >= 2 convention to a footnote on the first sentence of the Introduction. No other manuscript changes."
+  "editorial_revision": "Replace the repeated main-theorem statement after the introductory open question with a direct reference in the affirmative-answer sentence. Move the unchanged formal statement to Section 7 immediately before its proof, where it is now Theorem 7.1. Both compilers pass with no warnings; the Introduction and theorem pages were visually checked."
 }

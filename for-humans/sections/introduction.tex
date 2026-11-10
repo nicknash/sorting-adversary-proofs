@@ -106,25 +106,14 @@ The issue is therefore \emph{derandomization}: obtain the optimal
 asymptotic comparison bound with a single deterministic response rule whose
 work per comparison is polynomial in $n$. Kaplan, Zamir, and
 Zwick~\cite[Section~7]{kzz-min} ask whether an efficient adversary can
-attain this bound. We answer the following question in the affirmative:
+attain this bound. We answer the following question in the affirmative
+(Theorem~\ref{thm:main}):
 \begin{quote}
 \itshape
 For every $\varepsilon>0$, is there a deterministic polynomial-time sorting
 adversary that forces any correct sorting algorithm to perform at least
 $(1-\varepsilon)n\log n$ comparisons, for all sufficiently large $n$?
 \end{quote}
-Our main theorem gives a single adversary that works for every
-$\varepsilon>0$.
-
-\begin{theorem}\label{thm:main}
-There is a deterministic legal adversary, initialized using only $n$, that
-performs a fixed polynomial number of bit operations per comparison and
-forces every correct comparison sorter to make
-\[
-(1-o(1))n\log n
-\]
-comparisons.
-\end{theorem}
 
 Merge sort uses at most $n\ceil{\log n}$ comparisons, so this bound is
 asymptotically optimal. The running-time guarantee is asymptotic and
