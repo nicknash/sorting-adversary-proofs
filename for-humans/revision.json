@@ -6,7 +6,7 @@
   "prepared_zip_sha256": "623c999ad979fa2a07e92b723bffd258de5a864b8918a6b773513b0eec186f24",
   "previous_hexagon_submission": "hexagon:2611.00196",
   "previous_submission_metadata": "submission.json",
-  "formalization": "Related earlier integer-colour construction; this continuous presentation is not formally verified.",
+  "formalization": "The continuous construction is formalized under SortingAdversary/Continuous: unconditional leading-one sorting, transcript-prefix counting, target-independent production, and a concrete stored implementation with polynomial primitive work and binary charges in the explicit arithmetic model. The supplied-information layer reduction retains the external weak-order construction and entropy theorem as explicit inputs. See docs/continuous-adversary-formalization.md for the exact verification boundary.",
   "exposition": "Section 3 gives Compare, Select, Enclose, Restrict, Normalize, RefineAt, and Repair pseudocode at their points of introduction. It states the local selection, restriction, refinement, and anchor guarantees before their proofs. The volume accounting distinguishes answers, moves requested by Select, degree repairs, and path repairs.",
   "pages": 34,
   "source_chat": "https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af20322-5238-83eb-8c1a-60fbea8e1d71",
@@ -51,5 +51,14 @@
     "geometry": "Identify closures as marked order polytopes and explain the volume-preserving connection to bipartite independent-set polytopes.",
     "counting": "State the unresolved general deterministic approximation problem for linear extensions. Appendix H.3 proves constant-factor-to-FPTAS amplification by disjoint union; Appendix H.4 proves that an FPTAS would yield a near-optimal adversary for every supplied poset.",
     "verification": "Primary literature checked; elementary reductions independently reviewed; PDF rebuilt and added pages visually inspected. No new formal verification of the underlying adversary is claimed."
+  },
+  "formalization_sync": {
+    "date": "2026-11-10",
+    "paper_commit": "42a7f75b8e03238dbc101501e21dc844138c07d3",
+    "paper_pdf_sha256": "3fbb0ce35f85b95659f6b5874b436400e46aed1a3489cd0d3f383bfbbdb364b6",
+    "main_theorem": "SortingAdversary.Continuous.UniformAdversary.asymptoticallyOptimal",
+    "standard_axiom_audit": "SortingAdversary/Continuous/Audit.lean",
+    "theorem_map": "docs/continuous-adversary-formalization.md",
+    "implementation_theorem": "SortingAdversary.Continuous.UniformEfficient.asymptoticallyOptimal_and_polynomial"
   }
 }

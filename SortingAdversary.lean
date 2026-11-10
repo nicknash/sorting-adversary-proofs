@@ -11,12 +11,15 @@ import SortingAdversary.StrengthenedCurvature.EfficientRule
 import SortingAdversary.StrengthenedCurvature.Schedule
 import SortingAdversary.Audit
 import SortingAdversary.Optimal
+import SortingAdversary.Continuous
 
 /-!
-# Sorting-adversary formalization
+# Sorting-adversary formalizations
 
-This is the trusted, placeholder-free library root.  Its exported lower bound
-is proved by the deterministic curvature/volumetric adversary. The recursive
-colour construction has checked components under `SortingAdversary.Optimal`;
-its complete polynomial-time leading-one theorem is not yet formalized.
+The trusted library exports the current continuous construction under
+`SortingAdversary.Continuous`, the earlier integer-colour construction under
+`SortingAdversary.Optimal`, and the curvature/volumetric development.
+Both leading-one constructions connect their actual online strategy to the
+shared comparison-tree semantics. Their separate all-declaration axiom
+audits allow only the standard logical axioms.
 -/

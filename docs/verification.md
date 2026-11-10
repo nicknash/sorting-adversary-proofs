@@ -36,10 +36,34 @@ turns consistency plus a long interaction into a standard worst-case input.
 Adversary-specific bookkeeping is not allowed to redefine this semantics.  It
 must prove that its final state has at least one realizing ranking.
 
-## 3. Is the large proof mechanically valid?
+## 3. Which construction is being checked?
 
-The trusted development is built by Lean and checked again by the configured
-independent checks.  Exact rational arithmetic is used for potential bounds;
+The current paper's continuous construction is exported by
+`Continuous.UniformAdversary.asymptoticallyOptimal` and
+`Continuous.UniformAdversary.worst_case`. Its actual controller discharges
+the geometric, local-certificate, sampling and accounting hypotheses. The
+[continuous theorem map](continuous-adversary-formalization.md) records the
+correspondence to the manuscript and the explicit external input to the
+supplied-information corollary.
+
+`Continuous.UniformMachineWork` implements the stored program and proves
+exact agreement with that strategy. `Continuous.UniformEfficient` combines
+its counted execution, reachable operand certificates and fixed polynomial
+charges in an explicit schoolbook arithmetic model. This resource theorem
+does not certify native compiler or bigint timings.
+
+The earlier recursive-colour theorem remains under `Optimal/`. Both
+constructions have enforced all-declaration axiom audits allowing only
+`propext`, `Classical.choice` and `Quot.sound`. They require no native
+certificate axiom. The separate curvature construction below has the
+historical native-evaluation trust requirement described explicitly here.
+
+## 4. Is the large proof mechanically valid?
+
+The trusted development is built by Lean, replayed with `leanchecker`, and
+checked by source and axiom audits. Kernel replay reuses Lean's kernel;
+an external exported-proof checker is a separate check.
+Exact rational arithmetic is used for potential bounds;
 floating-point optimization output is not trusted.  The 7,315-leaf
 strengthened certificate covers all 22 schedule segments and all normalized
 positive energies in `[0,1]`.  Its finite Boolean replay uses `native_decide`,
@@ -48,20 +72,26 @@ interval checker's soundness is an ordinary Lean proof.
 The source check rejects `sorry`, `admit`, `sorryAx`, and project-specific
 `axiom` declarations in every trusted Lean module.
 
-The final result is exposed through the fixed source specification
+The curvature result is exposed through the fixed source specification
 `StrengthenedCurvatureTarget` and the closing theorem
 `StrengthenedCurvature.efficient_curvature_adversary`.  `Audit.lean` prints
 both the target and the proof's axiom dependencies.
 
 ## Trust base
 
-The intended trust base is:
+The common trust base is:
 
 - the human reading of the small semantic interface;
 - Lean's logic and kernel;
-- the pinned mathlib definitions and theorems;
-- Lean's native evaluator for the exact rational certificate Boolean; and
-- optionally, an independent exported-proof checker through the CI pipeline.
+- the pinned mathlib definitions and theorems.
+
+An external exported-proof checker can provide an additional independent
+check. The [CI workflow](../.github/workflows/lean.yml) records why its
+optional `nanoda` step is currently disabled.
+
+The curvature certificate additionally trusts Lean's native evaluator for
+its exact rational Boolean replay. This additional dependency is excluded
+by both the continuous and recursive-colour audits.
 
 Tactics, generated code, search scripts, numerical optimizers, and certificate
 generators are conveniences.  None should be trusted as theorem-producing

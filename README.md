@@ -1,9 +1,53 @@
 # Sorting adversaries in Lean
 
 This repository is an audit-oriented, `sorry`-free Lean 4 formalization of
-deterministic adversaries for comparison sorting. It now proves the leading-one
-online comparison guarantee for the executable recursive colour adversary,
-as well as the earlier curvature/volumetric construction described below.
+deterministic adversaries for comparison sorting. The current continuous
+construction from [the paper](for-humans/output/pdf/paper.pdf) is formalized
+under [`SortingAdversary/Continuous/`](SortingAdversary/Continuous/).
+The earlier integer-colour and curvature/volumetric developments remain
+available alongside it.
+
+## Current continuous-adversary formalization
+
+[`Continuous.UniformAdversary.asymptoticallyOptimal`](SortingAdversary/Continuous/UniformAdversary.lean)
+proves the leading-one comparison bound for the actual continuous adversary.
+For every real `δ > 0`, the single constructed family forces at least
+`(1−δ)n log₂ n` comparisons against every correct sorter for all sufficiently
+large `n`. The theorem has no assumed oracle, packing, accounting or
+convergence hypotheses. `worst_case` transfers the bound to a genuine ranking
+input of every correct comparison tree.
+
+The development implements exact affine-digit enclosures, retained local
+neighborhoods, finite comparison and anchor certificates, dyadic refinement,
+child admission, selection termination, degree/path repair, the single
+sampling-weight distribution, and the queried-label packing argument.
+`Controller.prefix_count` proves the paper's bound on every completed prefix.
+`UniformAdversary.production` applies the same initialized family to every
+partial-order production target.
+
+[`Continuous.UniformMachineWork.build`](SortingAdversary/Continuous/UniformMachineWork.lean)
+constructs the measured stored program. Its strategy agrees exactly with
+the continuous adversary on every history. Initialization has a fixed
+quadratic primitive-work bound, and every reachable query has a fixed
+degree-seventeen bound, including parameter calibration, local enumeration,
+repairs and the one-time transition to cached ranks.
+[`Continuous.UniformEfficient`](SortingAdversary/Continuous/UniformEfficient.lean)
+combines these results with operand certificates and fixed polynomial binary
+charges of degrees eleven and twenty-six. These are conservative bounds in
+the explicit schoolbook arithmetic model, not timing guarantees for Lean's
+compiler or native bigint library.
+
+The supplied-information layer reduction states the external weak-order
+extension and entropy-retention theorem as explicit inputs. The new
+approximate-counting appendix has a conditional branch-retention proof.
+See the [continuous theorem map and verification boundary](docs/continuous-adversary-formalization.md)
+for exact coverage, parameter correspondence and the execution model.
+
+[`Continuous/Audit.lean`](SortingAdversary/Continuous/Audit.lean) enforces the
+standard-axiom trust boundary for every continuous declaration, including
+private and generated declarations. The continuous development uses no
+native-evaluation assumptions. CI builds it from the trusted library root
+and runs its audit alongside the earlier construction's audit.
 
 ## November 7 optimal-adversary formalization
 
