@@ -106,6 +106,106 @@ bounds within a distance of the queried coordinates depending only on $k$.
 See Appendices~\ref{sec:oracle} and~\ref{app:execution}.
 \end{proof}
 
+\begin{proof}[Proof idea for Lemma~\ref{lem:local-routines}]
+Consider repeatedly passing through the vertices in topological order,
+changing one position at a time. With all other positions fixed, the permitted
+range at a vertex is determined by its stored interval and its
+neighbors' positions. Split this range into $S$ equal pieces, choose
+one, and move the position to the same relative point in that piece.
+For example, choosing the second quarter of $(0,1)$ sends a position
+$u$ to $(1+u)/4$.
+
+Run this procedure on two copies of the position vector, starting one
+at all lower interval endpoints and the other at all upper endpoints.
+At each step, use the same piece number in both copies, each within its
+own permitted range. Any feasible assignment updated with these same
+choices remains between the two copies, coordinate by coordinate.
+For the analysis, imagine starting this third assignment uniformly in
+$K(D)$ and choosing each piece uniformly. Conditional on the other
+positions, the coordinate being changed is uniform in its permitted
+range; choosing a piece uniformly keeps it so. Thus the third assignment
+remains uniform in $K(D)$, enclosed by the two copies as
+Figure~\ref{fig:local-enclosure} illustrates.
+This use of enclosing copies is related to sampling algorithms for
+linear extensions~\cite[Section~4.2]{talvitie-counting}; here we enumerate
+finitely many choices in a bounded neighborhood to obtain deterministic
+probability bounds.
+
+\begin{center}
+\begin{minipage}{\linewidth}
+\captionsetup{hypcap=false}
+\centering
+\begin{tikzpicture}[>=Latex,font=\small,
+  enclosure/.style={accent,very thick},
+  position/.style={circle,fill=ink,inner sep=1.7pt}]
+\begin{scope}
+\node at (2.4,1.1) {Before updates};
+\foreach \name/\row/\point in {x/.4/3.36,y/-.45/1.2}{
+  \node[left] at (-.15,\row) {$\name$};
+  \draw[enclosure] (0,\row)--(4.8,\row);
+  \draw[enclosure] (0,\row-.09)--(0,\row+.09);
+  \draw[enclosure] (4.8,\row-.09)--(4.8,\row+.09);
+  \node[position] at (\point,\row) {};
+}
+\draw[ink!45] (0,-1.05)--(4.8,-1.05);
+\node[below] at (0,-1.05) {$0$};
+\node[below] at (4.8,-1.05) {$1$};
+\end{scope}
+\draw[->,thick] (5.3,0)--(6.7,0);
+\node[align=center,font=\footnotesize] at (6,.5) {Shared\\updates};
+\begin{scope}[shift={(7.4,0)}]
+\node at (2.4,1.1) {After updates};
+\foreach \name/\row/\lo/\hi/\point in {x/.4/1.2/2.4/2.04,y/-.45/3.6/4.8/3.9}{
+  \node[left] at (-.15,\row) {$\name$};
+  \draw[ink!20] (0,\row)--(4.8,\row);
+  \draw[enclosure] (\lo,\row)--(\hi,\row);
+  \draw[enclosure] (\lo,\row-.09)--(\lo,\row+.09);
+  \draw[enclosure] (\hi,\row-.09)--(\hi,\row+.09);
+  \node[position] at (\point,\row) {};
+}
+\draw[ink!45] (0,-1.05)--(4.8,-1.05);
+\node[below] at (0,-1.05) {$0$};
+\node[below] at (4.8,-1.05) {$1$};
+\node at (2.4,-1.8) {The intervals certify $X_x<X_y$.};
+\end{scope}
+\end{tikzpicture}
+\captionof{figure}{Updating two unconstrained coordinates using four
+pieces. All three copies choose the second piece for $x$ and the fourth
+for $y$. The blue interval endpoints are the positions in the lower
+and upper copies; the dots show one feasible assignment between them.
+The resulting disjoint intervals certify $X_x<X_y$.}
+\label{fig:local-enclosure}
+\end{minipage}
+\end{center}
+
+To see where the gaps begin to shrink, consider a vertex $z$ with no
+incoming arcs. Both copies use the same fixed lower endpoint $\ell_z$.
+Choosing the first piece sends either position $u$ to
+$\ell_z+(u-\ell_z)/S$, dividing the gap between the copies by $S$.
+The proof tracks how reductions of this kind reach other vertices
+through their neighbors' positions. It bounds the number of passes
+needed to make the queried gaps small for all but a small fraction of
+choice sequences, using only the degree and path bounds and the desired
+accuracy.
+
+These passes can be computed locally. Within one pass, dependence on
+positions already changed follows directed paths. The longest directed
+path therefore bounds how far a pass can carry information. After a
+fixed number of passes, only a bounded neighborhood of the queried
+vertices can affect their positions. Bounded degree makes this a
+bounded number of vertices, even if the full DAG is large.
+
+\texttt{Enclose} enumerates all update choices in this neighborhood.
+Whenever the resulting intervals for $x$ and $y$ are disjoint, their
+order determines the answer for the enclosed assignment. Counting these
+entries gives certified lower bounds on the answer probabilities.
+If the intervals overlap too often to certify an answer, the two
+positions must often be nearly equal. Under the graph bounds, the
+density estimates force both stored coordinate intervals to be very
+short; their middle halves then have density greater than $2^k$.
+This supplies the refinement promised by the lemma.
+\end{proof}
+
 Keeping nearly half the volume at each answer is the geometric counterpart
 of keeping at least half the possible total orders.
 Section~\ref{sec:potential} relates the node volumes to the number of
@@ -259,6 +359,13 @@ within that block.}
 \end{center}
 
 
+At an interior anchor, the old constraints allow $x$ immediately before
+or after the existing child block. Both placements satisfy the transcript,
+so no earlier answer compares $x$ with an item in that block. It is
+therefore safe to let $x$ enter the block; the full argument is in
+Appendix~\ref{app:execution}. This move can allow orders previously
+excluded by the tree, while preserving every answer in the transcript.
+
 When \texttt{Select} returns $(x,c)$, \texttt{RefineAt} moves $x$ into
 the child anchored at $c$. To measure the resulting change in volume
 across the tree, write
@@ -268,9 +375,12 @@ Z=\prod_v V_v.
 \end{equation}
 Initially $Z=1$, and positive node volumes give $0<Z\le1$.
 Each item has one coordinate, so the product region always has dimension
-$n$. The following identity gives the change in $Z$; here $f_x$ is the
+$n$. This volume is not by itself the fraction of total orders consistent
+with the transcript; Section~\ref{sec:potential} supplies the counting
+argument. The following identity gives the change in $Z$; here $f_x$ is the
 density at the parent before refinement.
 
+\begin{samepage}
 \begin{lemma}[Refinement identity]\label{lem:section-volume}
 Suppose every node region has positive volume. Let $Z_{\rm before}$ and
 $Z_{\rm after}$ be the product volumes before and after refining $x$ at an
@@ -282,6 +392,56 @@ interior anchor $c$. Then
 \begin{proof}
 See Appendix~\ref{app:execution}.
 \end{proof}
+\end{samepage}
+
+\begin{samepage}
+For example, the parent region $0<X_A<X_B<1$ has area $1/2$. Fixing
+$X_A=1/4$ leaves the interval $X_B\in(1/4,1)$ of length $3/4$. The new
+child coordinate $U_A\in(0,1)$ turns this into a rectangle of area $3/4$,
+so refinement multiplies $Z$ by $3/2$; see Figure~\ref{fig:section-volume}.
+Both regions represent the order $A<B$. Replacing the fixed parent
+coordinate by a fresh child coordinate gives the larger area.
+
+\end{samepage}
+
+\begin{figure}[tb]
+\centering
+\begin{tikzpicture}[x=3.25cm,y=3.25cm,>=Latex,font=\small]
+\begin{scope}
+\node at (.5,1.38) {Before refinement};
+\fill[pale] (0,0)--(0,1)--(1,1)--cycle;
+\draw[ink!55] (0,0)--(1,1)--(0,1);
+\draw[->] (0,0)--(1.12,0) node[right] {$X_A$};
+\draw[->] (0,0)--(0,1.12) node[above] {$X_B$};
+\draw[dashed,ink!60] (.25,0)--(.25,.25);
+\draw[accent,very thick] (.25,.25)--(.25,1);
+\node[below] at (.25,0) {$\frac14$};
+\node[below left] at (0,0) {$0$};
+\node[below] at (1,0) {$1$};
+\node[left] at (0,1) {$1$};
+\node at (.55,.83) {area $\frac12$};
+\end{scope}
+\draw[->,thick] (1.2,.53)--(1.63,.53);
+\node[above] at (1.415,.56) {refine $A$};
+\begin{scope}[shift={(1.9,0)}]
+\node at (.5,1.38) {After refinement};
+\fill[pale] (0,.25) rectangle (1,1);
+\draw[ink!55] (0,.25)--(1,.25)--(1,1)--(0,1);
+\draw[->] (0,0)--(1.12,0) node[right] {$U_A$};
+\draw[->] (0,0)--(0,1.12) node[above] {$X_B$};
+\node[below left] at (0,0) {$0$};
+\node[left] at (0,.25) {$\frac14$};
+\node[below] at (1,0) {$1$};
+\node[left] at (0,1) {$1$};
+\node at (.5,.65) {area $\frac34$};
+\end{scope}
+\end{tikzpicture}
+\caption{The highlighted section of the triangle has length $3/4$.
+Replacing the fixed parent coordinate by a fresh unit coordinate in the
+child gives the rectangle on the right. Its area is $3/2$ times the
+original area.}
+\label{fig:section-volume}
+\end{figure}
 
 We call the change
 \begin{equation}\label{eq:refinement-gain}
@@ -332,6 +492,11 @@ needed for these choices.
   \texttt{RefineAt}$(x,c)$\;
 }
 \end{algorithm}
+
+One repair suffices: every new path on $H$ vertices contains the inserted
+arc, and only its endpoints can newly reach degree $k$. Either repair
+removes an endpoint of that arc, leaving a subgraph of the graph before
+the answer.
 
 \begin{lemma}[Anchor selection]\label{lem:anchor-selection}
 Under the assumptions on $D$ in Lemma~\ref{lem:local-routines},

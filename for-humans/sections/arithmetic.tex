@@ -15,19 +15,6 @@ Appendix~\ref{app:certificates}. The enumeration bound is
 E_k=S_k^{b_k t_k}.
 \end{equation}
 
-\subsection{Choosing the parameter}
-
-A fixed program generates the parameters and $E_k$ for
-$k=64,128,\ldots$, writing each completed tuple in binary. On input
-size $n$, run this program for $n$ steps and choose the largest completed
-$k$ with $E_k\le n$. If none qualifies, answer from the fixed label
-order. The simulation writes at most $n$ bits, so parsing its output
-and selecting a tuple also take polynomial time.
-
-For every fixed $k$, both its generation time and $E_k$ are finite.
-That tuple therefore qualifies for all sufficiently large $n$, proving
-$k(n)\to\infty$.
-
 \subsection{Precision in the interval calculation}\label{sec:digit-arithmetic}
 
 Suppose the stored endpoints have at most $\Lambda$ fractional binary
