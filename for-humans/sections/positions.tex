@@ -34,11 +34,6 @@ For a fixed digit, this is uniform on the corresponding one of the $S$
 equal subintervals. Averaging over the digits makes $r'$ uniform on
 $(0,1)$ again.
 
-For $S=2$, the two updates are $r\mapsto r/2$ and
-$r\mapsto(r+1)/2$. Each sends a uniform coordinate to one half of
-its interval. With no neighbors, enumerating the two digits in each
-of two sweeps gives the four quarter intervals.
-
 \subsection{The enclosing-interval guarantee}
 
 In Algorithm~\ref{alg:finite-digits}, call the vertices at distance
@@ -113,13 +108,8 @@ Exact agreement transfers that estimate to the local lists.
 
 \subsection{From intervals to answers and anchors}
 
-For two queried positions, count the entries with $B_x<A_y$ and those
-with $B_y<A_x$. For a threshold use $[c,c]$ as its interval.
-Each count divided by $N$ is a lower bound on the corresponding
-probability because the enclosed positions obey the certified order.
-\texttt{Select} uses the answer with the larger bound if that bound is
-at least $1/2-\eta$. Otherwise it chooses a queried coordinate
-and rounds in the middle half of its range.
+The enclosure guarantee makes the fractions counted by \texttt{Select}
+lower bounds on the corresponding answer probabilities.
 
 The routine \texttt{ChooseAnchor} uses a one-coordinate list. It tests
 whether a proposed interval contains at least a quarter of the mass,

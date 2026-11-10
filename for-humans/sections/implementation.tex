@@ -1,4 +1,43 @@
-\section{Polynomial running time}\label{sec:runtime}\label{sec:parameter-selection}
+\section{Local computation and running time}\label{sec:runtime}\label{sec:parameter-selection}
+
+\paragraph{Why local information suffices.}
+Theorem~\ref{thm:local} gives the guarantee behind \texttt{Enclose}:
+for any desired interval width and allowed fraction of exceptions, its
+parameters can be chosen so that all but that fraction of its entries
+have intervals narrower than that width. The list size and neighborhood radius depend
+only on these tolerances and the degree and longest-path bounds.
+The fraction of entries establishing an answer is a lower bound on
+that answer's probability under a uniform feasible assignment.
+
+\begin{proof}[Proof idea for Theorem~\ref{thm:local}]
+With the neighboring coordinates fixed, an update maps the coordinate's
+feasible interval linearly onto one of equally sized subintervals.
+Choosing the subinterval uniformly
+preserves the uniform distribution on feasible assignments. The updates
+also preserve coordinatewise inequalities. Applying the same choices
+to the lower and upper endpoints therefore encloses the updated
+assignment between the two calculations.
+
+The fixed lower bounds at sources provide the starting point for
+reducing endpoint gaps. When the updates give enough weight to lower
+bounds, this reduction propagates along directed paths. The main
+estimate shows that repeated passes make the queried gaps small for
+most update sequences.
+During a pass in topological order, dependence on newly updated values
+also follows directed paths. The path-length bound therefore limits
+how far information can travel in a fixed number of passes; the degree
+bound limits the number of vertices within that distance. Enumerating
+all update choices in this neighborhood gives the deterministic list.
+Appendices~\ref{sec:oracle} and~\ref{app:coupling} give the full argument.
+\end{proof}
+
+If the comparison test still fails, Lemma~\ref{lem:certificate-success}
+shows that every queried coordinate has a very short stored interval.
+The density bound in Lemma~\ref{lem:fiber} then gives $f_x(c)>2^k$
+throughout its middle half. Thus a failed test supplies the large
+volume gain required by Lemma~\ref{lem:local-routines}.
+
+\paragraph{Polynomial running time.}
 
 The local routines inspect a bounded neighborhood. Their cost also depends
 on the precision of the interval endpoints. The following bound makes
