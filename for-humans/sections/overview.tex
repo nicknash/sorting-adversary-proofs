@@ -1,18 +1,19 @@
 \section{The new optimal adversary}\label{sec:overview}\label{sec:algorithm}
 
 Kaplan, Zamir, and Zwick~\cite{kzz} keep a comparison between two items
-at a node as an ordered pair. We allow comparisons to share items.
-For example, one node can retain $a<b$ and $a<c$ while leaving the order
-of $b$ and $c$ open. The adversary bounds the degree and path length of
-each node's graph so it can answer comparisons using small neighborhoods.
+at a node as an ordered pair. However, in their adversary, an item can only belong to at most one pair.
+
+A key ingredient of our adversary is to simply relax this requirement, and allow DAGs of items to form at each node.
+The adversary then periodically simplifies these DAGs in order to bound the degree of nodes in these DAGs, as well as their path lengths.
+This in turn allows the adversary to answer comparisons using only small neighborhoods of nodes in these in-node DAGs.
 
 \subsection{The data structure}
 
-Our data structure is a rooted tree. Each node stores item records and
+The core data structure of our adversary is a rooted tree. Each node stores item records and
 a single directed acyclic graph (DAG), whose vertices are the items
 recorded at that node. Figure~\ref{fig:overview-state} shows an example.
 
-Each item has a record $(x,\ell_x,r_x)$ stored at exactly one node.
+Each item has a \textit{record} $(x,\ell_x,r_x)$ stored at exactly one node.
 The label $x$ identifies the key. Its position variable $X_x$ ranges
 over the open interval $(\ell_x,r_x)\subseteq(0,1)$.
 The bounds $\ell_x,r_x$ are fractions whose denominators are powers of two.

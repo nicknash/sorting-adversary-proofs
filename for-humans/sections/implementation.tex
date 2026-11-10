@@ -1,91 +1,18 @@
-\section{A uniform polynomial-time implementation}\label{sec:runtime}
+\section{Polynomial running time}\label{sec:runtime}\label{sec:parameter-selection}
 
-For each fixed degree threshold $k$, the preceding sections give a
-finite deterministic adversary. We now bound how long it maintains the
-recursive state and choose $k$ slowly enough that its local calculations
-take polynomial time. Computation is measured on a fixed deterministic
-multitape Turing machine, with integers represented in binary.
-
-\subsection{A finite horizon for the recursive state}
-
-Recall the horizon $Q(n)=n\ceil{\log n}$ from
-\eqref{eq:comparison-horizon}. The algorithm runs the recursive
-adversary for at most $Q(n)$ answers, recording this prefix of the
-transcript. If another query arrives, it forms the directed
-graph of those answers and chooses its lexicographically first topological
-ordering. It answers that query and every subsequent query from the
-resulting fixed ranks.
-
-Proposition~\ref{prop:legality} ensures that the prefix is consistent with
-a total order, so this graph is acyclic and the topological ordering
-exists. Every later answer remains consistent with the prefix.
-Lemma~\ref{lem:rare-refinements} bounds the number of refinements after
-$q$ completed calls by $O(q/k)$. An unfinished call adds at most $n+2$:
-two while selecting an answer and at most $n$ in the structural repair.
-Thus the number $P$ of refinements before the horizon, including any
-call still in progress, satisfies
-\begin{equation}\label{eq:refinement-runtime}
-P=O\bigl(Q(n)/k+n\bigr).
-\end{equation}
-The recursive tree has at most $P+1$ nodes and contains $n$ item records.
-The stored transcript has at most $Q(n)$ pairs. After switching to fixed
-ranks, the recursive state is no longer needed.
-
-\subsection{An explicit budget for the finite calculations}\label{sec:parameter-selection}
-
-Appendix~\ref{app:certificates} chooses the parameters in the local
-enclosure theorem. Write $S_k$ for its number of digit choices,
-$t_k$ for the number of sweeps, and $b_k$ for the bound on retained
-vertices in \eqref{eq:local-size}. The number of digit sequences in one
-calculation is at most
-\begin{equation}\label{eq:enumeration-budget}
-E_k=S_k^{b_k t_k}.
-\end{equation}
-
-For $k=64,128,\ldots$, a fixed program writes the complete parameter
-tuple and $E_k$ in binary. On input size $n$, simulate this program for
-$n$ steps. Among the tuples it has completed, choose the largest $k$ with
-\begin{equation}\label{eq:stage-gate}
-E_k\le n.
-\end{equation}
-Use these parameters for the entire recursive phase. If no tuple
-qualifies, answer all comparisons according to the fixed label order.
-
-The initialization takes polynomial time: the simulation writes at most
-$n$ bits, and its completed tuples can be parsed and compared within a
-polynomial bound. For every fixed $k$, the program finishes its tuple in
-some finite time $T(k)$. Once $n\ge\max\{T(k),E_k\}$, that tuple is
-available and meets the budget. Hence the selected $k(n)$ tends to infinity.
-
-\subsection{Precision and work per call}
-
-Each finite calculation enumerates at most $E_k\le n$ digit assignments.
-For each assignment, either endpoint calculation uses at most
-$\log E_k$ updates, so the work involves polynomially many arithmetic
-operations. A comparison
-call uses at most three comparison calculations and at most $n$
-central-interval calculations, one for each structural refinement.
-
-The numbers also have polynomial length. Let $\Lambda$ be the greatest
-number of fractional binary digits in any stored endpoint or anchor.
-A refinement increases this by at most $\log E_k$, and normalization
-only copies existing bounds. Hence
-\begin{equation}\label{eq:precision}
-\Lambda\le P\log E_k=O(n\log^2 n).
-\end{equation}
-Appendix~\ref{app:arithmetic} proves this precision bound and accounts
-for the graph operations, rounding, and exact arithmetic. Together with
-the finite horizon, these bounds give one fixed polynomial for the work
-per query, independent of the selected parameters and the length of the
-interaction. After the horizon, each answer compares two stored ranks.
+Choose $k=k(n)\to\infty$ slowly enough that the enumeration bound
+$E_k$ in Lemma~\ref{lem:local-routines} satisfies $E_k\le n$.
+Appendix~\ref{app:arithmetic} gives a polynomial-time rule for this
+choice and verifies that the stored state and exact arithmetic have
+polynomial cost. This yields a fixed polynomial bound on bit operations
+per query, independent of the length of the interaction.
 
 \begin{proof}[Proof of Theorem~\ref{thm:main}]
-Initialization and every comparison call are deterministic and take
-polynomial time. The recursive phase is legal by
-Proposition~\ref{prop:legality}, and the final fixed order respects its
-recorded answers. For all sufficiently large $n$, a parameter tuple qualifies.
-When a correct sorter stops, $T_q=1$. Theorem~\ref{thm:fixed-stage} then gives
+The adversary is deterministic and polynomial-time. By
+Theorem~\ref{thm:fixed-stage} it is legal, and a correct sorter can stop
+only when $T_q=1$, which requires
 \[
-q\ge\frac{\log(n!)}{1+\delta_{k(n)}}=(1-o(1))n\log n.
+q\ge\frac{\log(n!)}{1+\delta_{k(n)}}=(1-o(1))n\log n,
 \]
+since $\delta_k=O(\log k/k)$ and $k(n)\to\infty$.
 \end{proof}

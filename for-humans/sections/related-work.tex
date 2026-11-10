@@ -1,4 +1,4 @@
-\section{Related Work}\label{sec:related}
+\section{Related Work}\label{sec:related}\label{sec:related-work}
 
 \subsection{Sorting with partial information}
 
@@ -21,23 +21,6 @@ distinction between comparison complexity and the computation needed to
 choose comparisons. Our adversary faces the corresponding task of choosing
 answers efficiently while forcing asymptotically the full ITLB for ordinary
 sorting.
-
-For an initial partial order $P$ supplied as a DAG with $m$ arcs,
-Haeupler et al.~\cite{haeupler} give a deterministic algorithm using
-$O(m+\log e(P))$ time and $O(\log e(P))$ new comparisons.
-Rutschmann~\cite{rutschmann} separates this work into $O(m)$ preprocessing
-and $O(\log e(P))$ sorting time. These results make efficient use of the
-known relations; Corollary~\ref{cor:initial-poset} supplies an efficient
-adversary whose comparison coefficient approaches one when
-$\log e(P)=\omega(n\log\log n)$.
-
-Van der Hoog and Rutschmann~\cite{hoog-rutschmann} study a model with
-separate oracles for the initial partial order and the unknown total
-order. They establish tight tradeoffs between preprocessing queries and
-the later sorting cost. Our reduction processes the full supplied DAG;
-its guarantee concerns subsequent key comparisons. Lower bounds with
-restricted access to the initial relations require the additional
-analysis of their oracle model.
 
 \subsection{Binary-tree adversaries}
 
@@ -127,11 +110,11 @@ those two answers alone.
 
 Kaplan, Zamir, and Zwick~\cite{kzz} use a four-child tree. Intermediate
 states correspond to consecutive ranges of children, so an item can
-narrow its range before entering a particular child. Each step drops
-one endpoint of the range (Figure~\ref{fig:kzz-lattice}).
-At a tree node, a comparison between two unpaired items can be retained
-as an ordered pair without moving either item. Retained pairs are disjoint, and their
-order constrains which children the two items may enter.
+narrow its range before entering a particular child. See Figure~\ref{fig:kzz-lattice}.
+
+A key idea of this adversary is that a comparison between two items need not immediately cause them
+to descend in the tree structure. Instead, pairs of items whose relative order are fixed can remain in the
+same node. We extend this idea to sufficiently structured DAGs in our adversary of Section \ref{sec:overview}.
 
 \begin{figure}[htbp]
 \centering
@@ -159,11 +142,6 @@ children $1$, $2$, or $3$.}
 \label{fig:kzz-lattice}
 \end{figure}
 
-Their analysis measures progress using item depths, intermediate
-placements, and retained pairs. The comparison rules bound the increase
-in this measure and give a lower bound of
-$\frac{37}{64}n\log n$ comparisons, improving the earlier
-$\frac12 n\log n$ bound. Their concluding discussion proposes allowing
-more complicated comparison components than pairs, and asks whether an
-efficient deterministic adversary can force
-$(1-o(1))n\log n$ comparisons~\cite[Section~6]{kzz}.
+Their analysis measures the sorters progress in terms of a suitably defined potential, our analysis is similar, although more involved.
+The resulting lower bound of this adversary is $\frac{37}{64}n\log n$ comparisons, improving the earlier
+$\frac12 n\log n$ bound.

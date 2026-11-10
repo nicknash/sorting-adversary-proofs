@@ -1,25 +1,19 @@
 \section{Introduction}\label{sec:classical}
 
 We consider comparison sorting of $n$ distinct labelled keys.\footnote{Throughout,
-$\log$ denotes $\log_2$, and $\ln$ the natural logarithm. We assume $n\ge2$.} A sorter
+$\log$ denotes $\log_2$, and $\ln$ the natural logarithm. We assume $n\ge2$.} A sorting algorithm (or \textit{sorter}, for short)
 chooses each pair using the answers to its earlier comparisons and must be
 correct for every strict total order on the labels. A sorting adversary
-supplies those answers as the comparisons arrive. It is \emph{legal} if
+supplies those answers as the comparisons arrive. The sorting adversary is \emph{legal} if
 every finite sequence of its answers is consistent with at least one total
-order. The adversary knows $n$ and sees the comparisons, but need not inspect
+order. The adversary knows $n$ and sees the comparisons, but it need not inspect
 the sorter that generates them.
 
-A binary comparison tree must distinguish all $n!$ total orders, giving
-the \emph{information-theoretic lower bound} (ITLB) of
+The classical \emph{information-theoretic lower bound} (ITLB) shows that any sorter must perform
 $\ceil{\log(n!)}=n\log n-O(n)$ comparisons in the worst
-case~\cite[Section~5.3.1]{knuth}.
-This bound guarantees the existence of a hard input for every correct
+case~\cite[Section~5.3.1]{knuth}. This bound guarantees the existence of a hard input for every correct
 sorter. Here the problem is to produce hard answers by
-one \emph{deterministic, polynomial-time} procedure. The polynomial bound
-applies to the adversary's computation; the comparison lower bound applies
-to the sorter. Without the time restriction, a deterministic optimal
-adversary is immediate. With randomness, polynomial-time adversaries achieve
-the optimal asymptotic bound in expectation and with high probability.
+one \emph{deterministic, polynomial-time} adversary algorithm.
 
 Kaplan, Zamir, and Zwick~\cite[Section~7]{kzz-min} ask whether an efficient
 deterministic adversary can force $(1-\varepsilon)n\log n$ comparisons
@@ -32,48 +26,36 @@ uses polynomially many bit operations per query and forces every correct
 sorter to make at least $(1-o(1))n\log n$ comparisons.
 \end{theorem}
 
-\paragraph{Without the time restriction.}
-Keep all total orders consistent with the answers so far. Each comparison
-partitions them into two classes; answer so as to retain a larger class.
+We refer to an adversary satisfying Theorem \ref{thm:main} as an \textit{optimal} adversary.
+Without the restriction to polynomial-time, a deterministic optimal
+adversary is immediate. With randomness, simple, polynomial-time adversaries achieve
+optimality in both expectation and with high probability, just by generating random permutations.
+
+\paragraph{Deterministic adversaries without the polynomial-time restriction}
+If an adversary need not operate in polynomial-time, an optimal deterministic adversary is a simple book-keeping exercise.
+The adversary must simply keep all total orders consistent with the answers so far. Each comparison
+partitions them into two classes. The adversary answers so as to retain a larger class.
 After $q$ comparisons, at least $n!/2^q$ orders remain, forcing
 $q\ge\log(n!)$. This rule is deterministic, but enumerating its classes
 may require factorial work. A consistent total order is a \emph{linear
 extension} of the partial order given by the answered comparisons; counting
 these extensions exactly is $\#\mathrm P$-complete~\cite{brightwell}.
 
-\paragraph{Deterministic adversaries from graph entropy.}
+\paragraph{Deterministic adversaries in polynomial-time}
 Kahn and Kim~\cite{kahn-kim} already give a deterministic polynomial-time
 adversary for sorting with partial information. Starting from any given
 partial order $P$, it answers comparisons online and forces
-$\Omega(\log e(P))$ comparisons, where $e(P)$ is the number of linear
-extensions of $P$. Their method uses graph entropy and
-convex optimization via the ellipsoid method. For ordinary sorting, the
-initial partial order has no relations, so $e(P)=n!$ and their guarantee
-is $\Omega(n\log n)$ comparisons.
+$\frac{1}{2}\log e(P)$ comparisons, where $e(P)$ is the number of linear
+extensions of $P$, and thus $\frac{1}{2}n \log n$ for ordinary sorting.
+We note that, for ordinary sorting, the much simpler adversary of Brodal et al \cite{brodal} achieves the same guarantee.
 
-\paragraph{With randomness.}
-An efficient adversary can simply choose a uniformly random permutation
-of the labels, keep it hidden, and answer from the ranks in that permutation.
+\paragraph{With randomness}
+If randomness is allowed, an optimal, polynomial-time adversary is a simple matter of generating
+a single uniformly random permutation.
+After choosing such a permutation the adversary simply answers from the ranks in that permutation.
 For every fixed correct sorter, the usual comparison-tree argument gives
-an expected cost of at least $\log(n!)$. It also gives a high-probability
-bound. At most $2^q$ permutations can terminate at leaves of depth at most
-an integer $q$, so the comparison count $C$ satisfies
-\[
-\Prb(C\le q)\le\frac{2^q}{n!}.
-\]
-Thus $C\ge\log(n!)-O(\log n)$ with probability $1-o(1)$.
-Generating an exactly uniform permutation takes expected polynomial bit
-time; subsequent answers require only rank lookups. A fixed polynomial
-time bound is obtained by using an almost uniform permutation, with a
-vanishing additional failure probability. These guarantees also hold for
-an always-correct randomized sorter whose random bits are independent of the adversary's:
-condition on the sorter's random choices and apply the same argument.
-
-For any prescribed permutation, a correct sorter can first check its
-$n-1$ consecutive pairs, finish if all
-checks agree, and otherwise use a general sorting algorithm. That
-permutation then costs only $n-1$ comparisons. The deterministic adversary
-must choose its answers in response to the questions it receives.
+at least $\log(n!)$ comparisons in expectation and
+$\log(n!)-O(\log n)$ comparisons with probability $1-o(1)$.
 
 \paragraph{Randomized approximation of the number of linear extensions.}
 Randomization also makes it possible to estimate how many linear extensions
@@ -86,26 +68,15 @@ Each allowed total order occupies volume $1/n!$ in the unit cube. Hence
 $\vol(K(P))=e(P)/n!$~\cite{stanley}. The two possible answers to a comparison
 cut this region into two parts, and their volumes are proportional to their
 counts of allowed orders.
-
 Dyer, Frieze, and Kannan~\cite{dfk} approximate these volumes in
 randomized polynomial time, so randomness also lets the adversary
-estimate which answer retains more orders. The challenge is to
-obtain the asymptotic bound with a deterministic calculation.
+estimate which answer retains more orders.
 
-Our adversary retains comparisons in graphs at the nodes of a tree
-(Section~\ref{sec:overview}). Finite calculations on small neighborhoods
-either certify an answer or identify an item whose position can be fixed
-with a large volume gain (Section~\ref{sec:oracle}). Moving that item
-into a child limits the graph size. Section~\ref{sec:potential} uses
-the volume gains to bound the number of moves, then counts all orders
-consistent with the answers. Section~\ref{sec:runtime} chooses the
-graph bounds as a function of $n$ to obtain polynomial running time.
 
-Section~\ref{sec:consequences} applies the same prefix bound to
-arranging keys into a prescribed partial order, with a vanishing
-relative loss from the information bound. For sorting from supplied
-initial relations $P$, a reduction forces
-$(1-o(1))\log e(P)-O(n\log\log n)$ further comparisons.
-Appendix~\ref{app:consequences} proves both consequences.
-The manuscript source is available
-online.\footnote{\url{https://github.com/nicknash/sorting-adversary-proofs/tree/main/for-humans}}
+\paragraph{Organization of this paper.}
+To motivate our adversary, we describe the earlier adversaries of Brodal et al. \cite{brodal}, and Kaplan et al \cite{kzz} in Section \ref{sec:related-work}.
+The core of our adversary is similar in spirit to these earlier adversaries, we describe this core in Section \ref{sec:overview}. We intend this to allow understanding the adversary operationally, with the technical details deferred.
+Next, Sections \ref{sec:potential} and \ref{sec:oracle} prove the key technical results relied upon in Section \ref{sec:overview}.
+Section~\ref{sec:runtime} then spells out how to choose graph bounds as a function of $n$ to obtain polynomial running time.
+
+Lastly, Section~\ref{sec:consequences} states some immediate corollaries for sorting under partial information, as well as for efficient partial order production.
