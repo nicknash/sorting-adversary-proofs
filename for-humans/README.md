@@ -31,7 +31,7 @@ calibration, refinement and consistency details, and arithmetic bounds.
 Section 8 states two corollaries: partial-order production with a
 vanishing relative error and an additive `o(n)` loss, and sorting from
 supplied partial information with a vanishing relative error and an
-additive `O(n log log(n+2))` loss. Appendix G proves them. Rescaling the
+additive `O(n log log n)` loss. Appendix G proves them. Rescaling the
 counting weights reduces the once-per-item loss without changing the
 adversary. A compatible weak-order extension supplies the stronger
 initial-poset guarantee; a second construction initializes the adversary

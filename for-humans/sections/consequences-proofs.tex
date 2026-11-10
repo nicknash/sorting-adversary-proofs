@@ -90,7 +90,7 @@ of Cardinal et al.'s construction.
 Given a partial order $P$ on $n$ elements, one can deterministically
 construct in polynomial time a weak order $W$ extending $P$ such that
 \[
-\log e(W)\ge\log e(P)-C_0 n\log\log(n+2)
+\log e(W)\ge\log e(P)-C_0 n\log\log n
 \]
 for an absolute constant $C_0$.
 \end{lemma}
@@ -101,7 +101,7 @@ construct $W$ in polynomial time with
 I(W)\le I(P)+2n\log\bigl(I(P)/n+1\bigr)+O(n).
 \]
 Since $I(P)\le\log(n!)\le n\log n$, the extra term is
-$O(n\log\log(n+2))$. Substitute
+$O(n\log\log n)$. Substitute
 $I(W)-I(P)=\log e(P)-\log e(W)$.
 \end{proof}
 
@@ -136,7 +136,7 @@ was reached. Since $\sum_i m_i=n$ and $e(W)=\prod_i m_i!$, summing gives
 \begin{align*}
 q\ge\sum_i q_i
 &\ge\frac{\log e(W)-nd_k}{1+\delta_k}\\
-&\ge\frac{\log e(P)-C_0 n\log\log(n+2)-nd_k}{1+\delta_k}.
+&\ge\frac{\log e(P)-C_0 n\log\log n-nd_k}{1+\delta_k}.
 \end{align*}
 As $k(n)\to\infty$, this implies the stated bound, uniformly over $P$.
 

@@ -58,7 +58,7 @@ $n$-element partial order $P$ in polynomial time, gives legal answers in
 polynomial time per comparison, and forces every correct sorter to make
 at least
 \[
-(1-o(1))\log e(P)-O(n\log\log(n+2))
+(1-o(1))\log e(P)-O(n\log\log n)
 \]
 additional comparisons. Both error terms are uniform over $P$.
 \end{corollary}
@@ -67,7 +67,7 @@ The construction uses Cardinal et al.'s polynomial-time procedure~\cite{cardinal
 extend $P$ to a \emph{weak order}: a sequence of antichain layers, with
 every key in an earlier layer preceding every key in a later one.
 The additional relations reduce $\log e(P)$ by at most
-$O(n\log\log(n+2))$.
+$O(n\log\log n)$.
 Run an independent copy of our adversary within each layer and answer
 between layers from their fixed order. All copies use the same parameters,
 chosen from the total size $n$, so the guarantee also covers small layers.
