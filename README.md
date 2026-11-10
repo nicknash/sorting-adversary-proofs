@@ -2,27 +2,16 @@
 
 **[Read the human-friendly paper (PDF)](for-humans/output/pdf/paper.pdf)**
 
-This repository formalizes a deterministic sorting adversary in Lean 4 that
-forces every correct comparison sorter to make $(1-o(1))n\log_2 n$
-comparisons. The proofs establish consistency of its answers, the comparison
-lower bound, and polynomial initialization and per-query cost in an explicit
-arithmetic cost model. The combined theorem is in
-[UniformEfficient.lean](SortingAdversary/Optimal/UniformEfficient.lean).
+The paper's continuous adversary is formalized in Lean 4 under
+[SortingAdversary/Continuous](https://github.com/nicknash/sorting-adversary-proofs/tree/68ba6a2073abb8ea661d5347a3fee06c120c5a64/SortingAdversary/Continuous)
+([PR #10](https://github.com/nicknash/sorting-adversary-proofs/pull/10)).
+Lean proves consistency of its answers, the $(1-o(1))n\log_2 n$ comparison
+lower bound against every correct sorter, and polynomial initialization and
+per-query cost in an explicit arithmetic cost model. The combined theorem is in
+[Continuous/UniformEfficient.lean](https://github.com/nicknash/sorting-adversary-proofs/blob/68ba6a2073abb8ea661d5347a3fee06c120c5a64/SortingAdversary/Continuous/UniformEfficient.lean).
 
-The Lean proofs use the earlier recursive colour construction. The paper
-presents a simplified continuous version that is not yet fully aligned with
-the Lean development.
+The earlier recursive colour and curvature adversary formalizations are also
+retained.
 
-The repository also formalizes an earlier curvature adversary with comparison
-bound $c n\log_2 n-O(n)$, where $c=2/\log_2(347/50)\approx0.71558$.
-
-For detailed coverage and verification assumptions, see the
-[optimal-adversary formalization notes](docs/optimal-adversary-formalization.md)
-and [verification model](docs/verification.md).
-
-To build with the pinned Lean toolchain and mathlib revision:
-
-```sh
-lake exe cache get
-lake build SortingAdversary
-```
+See the [continuous formalization notes](https://github.com/nicknash/sorting-adversary-proofs/blob/68ba6a2073abb8ea661d5347a3fee06c120c5a64/docs/continuous-adversary-formalization.md)
+for the theorem map, build instructions, and verification assumptions.
