@@ -107,16 +107,27 @@ least $1-1/k$. Order the resulting positions by the tree and its anchors.
 Ties have probability zero. Since the labels have the same distribution,
 each of their $s!$ relative orders has probability $1/s!$.
 
-The event that all labels follow their stored paths and stop at their
-storage nodes has probability at least $(1-1/k)^s\mathcal W$.
-Given these locations, their coordinates are independent and uniform,
-so they satisfy the node constraints with probability $Z$. Here we use
-the fact proved above that omitting the unqueried labels preserves $Z$.
-The resulting orders therefore have total probability at least
-$(1-1/k)^s Z\mathcal W$ and respect the transcript by
-Proposition~\ref{prop:legality}. Each such order extends to $n!/s!$ full
-orders by inserting the other labels, whose positions the transcript
-does not constrain. Multiplying gives the bound.
+The product $\mathcal W$ is the probability that all $s$ labels reach
+the nodes where the adversary stores them. Once there, they all stop
+with probability at least $(1-1/k)^s$. Conditional on these choices,
+their independently uniform coordinates satisfy the node constraints
+with probability $Z$; here we use the fact that omitting unqueried labels
+does not change $Z$.
+
+Multiplying these three factors gives probability at least
+$(1-1/k)^s Z\mathcal W$ of obtaining an order consistent with the
+transcript, by Proposition~\ref{prop:legality}. Since each relative order
+has probability $1/s!$, there are at least $s!(1-1/k)^s Z\mathcal W$
+such orders of the queried labels.
+
+Each extends to $\binom ns(n-s)!=n!/s!$ full orders: choose the positions
+of the queried labels and arrange the remaining labels. Every extension
+respects the transcript, since no answer involves an unqueried label.
+Therefore
+\[
+T_q\ge \bigl[s!(1-1/k)^s Z\mathcal W\bigr]\frac{n!}{s!}
+    =n!(1-1/k)^s Z\mathcal W.
+\]
 \end{proof}
 
 \subsection{The prefix bound}\label{sec:comparison-cost}
