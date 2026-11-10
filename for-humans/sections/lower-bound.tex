@@ -74,14 +74,22 @@ it, and no bound can propagate to it along an arc. Its coordinate
 therefore contributes an independent factor of volume one. Omitting all
 such coordinates leaves the volume $Z$ for the $s$ queried labels.
 
-To count orders of these $s$ labels, we use the sampling experiment in
-Lemma~\ref{lem:packing}. In that experiment, the probability of entering
-a child at the reduced dyadic anchor $c=(2i+1)/2^{m+1}$ is
+To count orders of these $s$ labels, we sample positions in the
+adversary's tree. Assign each child at the reduced dyadic anchor
+$c=(2i+1)/2^{m+1}$ the weight
 \begin{equation}\label{eq:child-weight}
 w(c)=\frac1{k^2}\left(\frac{1-1/k}{2}\right)^m.
 \end{equation}
 The sum over all possible anchors is $1/k$ because there are $2^m$
-anchors for each $m$. For each label $x$, let $d_x$ be the depth of the
+anchors for each $m$.
+
+For each of the $s$ labels independently, start at the root. At each
+node, enter a child with probability equal to its weight, or stop with
+the remaining probability and draw a uniform coordinate in $(0,1)$
+there. The stopping probability is at least $1-1/k$. Order the resulting
+positions by the tree and its anchors.
+
+For each label $x$, let $d_x$ be the depth of the
 node storing it, and write $c_{x,1},\ldots,c_{x,d_x}$ for the child
 anchors on the path from the root to that node.
 The product of these weights over all labels is
@@ -99,13 +107,9 @@ T_q\ge n!(1-1/k)^s Z\mathcal W.
 The same inequality holds before the first call.
 \end{lemma}
 \begin{proof}
-For each of the $s$ labels independently, draw a position in the
-adversary's tree. Start at the root. At each node, enter a child with probability
-equal to its weight, or stop with the remaining probability and draw
-a uniform coordinate in $(0,1)$ there. The stopping probability is at
-least $1-1/k$. Order the resulting positions by the tree and its anchors.
-Ties have probability zero. Since the labels have the same distribution,
-each of their $s!$ relative orders has probability $1/s!$.
+In this sampling construction, the labels are independent and have the
+same distribution. Ties have probability zero, so each of their $s!$
+relative orders has probability $1/s!$.
 
 The product $\mathcal W$ is the probability that all $s$ labels reach
 the nodes where the adversary stores them. Once there, they all stop
