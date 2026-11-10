@@ -78,9 +78,10 @@ estimate which answer retains more orders.
 
 \paragraph{Organization of this paper.}
 To motivate our adversary, we describe the earlier adversaries of Brodal et al. \cite{brodal}, and Kaplan et al \cite{kzz} in Section \ref{sec:related-work}.
-Section~\ref{sec:overview} describes the data structure and the comparison
-procedure, centering the explanation on the local selection lemma and
-its consequences. This gives an operational account with the proofs deferred.
+Section~\ref{sec:overview} describes how the adversary records comparisons
+in directed acyclic graphs and uses calculations on small graph
+neighborhoods to choose its answers. The key guarantees are stated there,
+with proofs deferred.
 Section~\ref{sec:potential} proves the comparison lower bound using the local
 guarantees stated in Section~\ref{sec:overview}.
 Section~\ref{sec:runtime} then spells out how to choose graph bounds as a function of $n$ to obtain polynomial running time.
