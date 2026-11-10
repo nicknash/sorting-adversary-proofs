@@ -116,6 +116,9 @@ In particular, an isolated coordinate with interval $(0,1)$ has density
 one, so Lemma~\ref{lem:local-routines} prevents \texttt{Select} from
 returning it for refinement. If both queried coordinates have this form,
 \texttt{Select} must answer the comparison.
+Whenever the local calculation cannot certify an answer, it supplies a
+refinement that increases the product of the node volumes by a factor
+greater than $2^k$ (Lemma~\ref{lem:section-volume}).
 
 \begin{algorithm}[H]
 \caption{\texttt{Enclose}$(D,T)$: compute enclosing intervals for the queried coordinates.}
