@@ -1,25 +1,5 @@
 \section{Counting the orders that remain}\label{sec:potential}
 
-Let $T_q$ count the total orders consistent with the first $q$ answers.
-Every represented order contributes to $T_q$, which also counts any
-compatible orders outside the state.
-
-\begin{theorem}[Comparison prefixes]\label{thm:fixed-stage}
-For every integer $k\ge64$, the adversary with parameter $k$ is
-deterministic and legal. There is a nonnegative
-$\delta_k=O(\log k/k)$, independent of $n$ and the query sequence,
-such that after any $q$ answers
-\begin{equation}\label{eq:prefix-orders}
-\log T_q\ge\log(n!)-(1+\delta_k)q.
-\end{equation}
-\end{theorem}
-
-To prove the bound we account for two changes. Each comparison can
-reduce the volume of feasible positions. Each refinement changes the
-tree locations of the keys, and following those locations has a cost
-in the order count. Volume gains from refinement help pay for the new
-locations. We first bound how many times this cost is incurred.
-
 \subsection{Refinements are rare}\label{sec:rare-refinements}\label{sec:guarantees}
 
 Recording an answer between two anchors leaves $Z$ unchanged.
@@ -63,7 +43,8 @@ $C=8$ since $k\ge64$.
 
 \subsection{Counting with the queried labels}\label{sec:movement-volume}
 
-For example, if
+Write $T_q$ for the number of total orders consistent with the first
+$q$ answers. The state can represent fewer orders. For example, if
 $a<b$ lie in the same child block and $z$ is at the root, the state
 cannot place $z$ between $a$ and $b$. If the sole recorded relation
 among them is $a<b$, the transcript permits $a<z<b$ as well.
@@ -77,31 +58,16 @@ isolated root coordinate unchanged. Temporarily discard the unqueried
 labels. Their independent unit intervals contribute a factor of one to
 $Z$, so the product volume is the same for the remaining $s$ labels.
 
-To count orders of the $s$ queried labels, draw a position for each
-label independently from the same distribution on the tree. Comparing
-the positions gives a uniform relative order, since relabelling the
-draws leaves their distribution unchanged and ties have probability
-zero. Every draw that reproduces the stored locations and satisfies
-their constraints gives a represented order. The probability of this
-event is at most the fraction of represented orders.
-
-Start each draw at the root. At a node, reserve probability $1/k$ for
-entering a child. In that case, choose a level $m\ge0$ with probability
-$\frac1k(1-1/k)^m$, then choose uniformly among the $2^m$ anchors of
-reduced denominator $2^{m+1}$. The probability allocated to a particular
-anchor $c=(2i+1)/2^{m+1}$ is
+We assign a weight to a child at the reduced dyadic anchor
+$c=(2i+1)/2^{m+1}$ by
 \begin{equation}\label{eq:child-weight}
-w(c)=\frac1k\cdot\frac1k(1-1/k)^m\cdot 2^{-m}
-=\frac1{k^2}\left(\frac{1-1/k}{2}\right)^m.
+w(c)=\frac1{k^2}\left(\frac{1-1/k}{2}\right)^m.
 \end{equation}
-If that child exists, enter it and repeat. Stop at the current node
-with probability $1-1/k$, or when the chosen anchor has no child,
-and draw a uniform coordinate in $(0,1)$ there.
-
-The probability of following a label's stored path is the product of
-the weights along that path. Let $\mathcal W$ be the product of these
-path probabilities over all labels. Root labels contribute one, so
-discarding the unqueried labels leaves $\mathcal W$ unchanged.
+The sum over all possible anchors is $1/k$ because there are $2^m$
+anchors for each $m$. For each label, multiply the weights along the
+path to its storage node. Let $\mathcal W$ be the product over all
+labels. A label stored at the root contributes one, so discarding the
+unqueried labels also leaves $\mathcal W$ unchanged.
 
 \begin{lemma}[Orders consistent with the transcript]\label{lem:packing}
 After a completed recursive call,
@@ -111,13 +77,17 @@ T_q\ge n!(1-1/k)^s Z\mathcal W.
 The same inequality holds before the first call.
 \end{lemma}
 \begin{proof}
-The probability that all labels follow their stored paths is
-$\mathcal W$. Stopping at each destination has probability at least
-$1-1/k$. The independent uniform coordinates then satisfy the stored
-constraints with probability $Z$. The combined event has probability
-at least $(1-1/k)^s Z\mathcal W$ and so yields at least
-$s!(1-1/k)^s Z\mathcal W$ orders on the queried labels.
-Its orders respect the transcript by
+For each of the $s$ labels independently, draw a position in the state
+tree. Start at the root. At each node, enter a child with probability
+equal to its weight, or stop with the remaining probability and draw
+a uniform coordinate in $(0,1)$ there. The stopping probability is at
+least $1-1/k$. Order the resulting positions by the tree and its anchors.
+Ties have probability zero. Since the labels have the same distribution,
+each of their $s!$ relative orders has probability $1/s!$.
+
+The event that the labels follow their stored paths, stop at their
+storage nodes, and satisfy all node constraints has probability at least
+$(1-1/k)^s Z\mathcal W$. Its orders respect the transcript by
 Proposition~\ref{prop:legality}. Each such order extends to $n!/s!$ full
 orders by inserting the other labels, whose positions the transcript
 does not constrain. Multiplying gives the bound.
@@ -125,7 +95,17 @@ does not constrain. Multiplying gives the bound.
 
 \subsection{The prefix bound}\label{sec:comparison-cost}
 
-\begin{proof}[Proof of Theorem~\ref{thm:fixed-stage}]
+\begin{theorem}[Comparison prefixes]\label{thm:fixed-stage}
+For every integer $k\ge64$, the adversary with parameter $k$ is
+deterministic and legal. There is a nonnegative
+$\delta_k=O(\log k/k)$, independent of $n$ and the query sequence,
+such that after any $q$ answers
+\begin{equation}\label{eq:prefix-orders}
+\log T_q\ge\log(n!)-(1+\delta_k)q.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
 In the recursive phase, legality and termination follow from
 Proposition~\ref{prop:legality}. After the horizon, the fixed ranks
 respect the recorded answers. For $q\ge Q(n)\ge\log(n!)$, the right
