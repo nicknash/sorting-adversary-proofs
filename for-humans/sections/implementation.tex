@@ -1,7 +1,22 @@
 \section{Polynomial running time}\label{sec:runtime}\label{sec:parameter-selection}
 
+The local routines inspect a bounded neighborhood. Their cost also depends
+on the precision of the interval endpoints. The following bound makes
+both dependencies explicit.
+
+\begin{lemma}[Cost of the local routines]\label{lem:local-cost}
+For the routines in Lemma~\ref{lem:local-routines}, there is a computable
+budget $E_k$, depending only on $k$, such that each call enumerates at
+most $E_k$ digit assignments. If the stored interval bounds have at most
+$\Lambda$ fractional binary digits, every returned anchor has at most
+$\Lambda+\log E_k$ such digits.
+\end{lemma}
+Theorem~\ref{thm:local} gives the enumeration bound;
+Appendix~\ref{app:arithmetic} proves the precision bound and accounts for
+the associated exact arithmetic.
+
 Choose $k=k(n)\to\infty$ slowly enough that the enumeration bound
-$E_k$ in Lemma~\ref{lem:local-routines} satisfies $E_k\le n$.
+$E_k$ in Lemma~\ref{lem:local-cost} satisfies $E_k\le n$.
 Appendix~\ref{app:arithmetic} gives a polynomial-time rule for this
 choice and verifies that the stored state and exact arithmetic have
 polynomial cost. This yields a fixed polynomial bound on bit operations

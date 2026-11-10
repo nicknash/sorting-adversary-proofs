@@ -1,68 +1,19 @@
-\subsection{Answering a comparison}\label{sec:comparison}\label{sec:repairs}\label{sec:legal}
+\subsection{Answering a comparison}\label{sec:comparison}\label{sec:legal}
 
-To compare $A$ and $B$, descend from the root while one child subtree
-contains both items. At the node where the descent stops, represent
-each item by its free coordinate if stored there, or by the anchor of
-its child subtree. Two distinct anchors determine the answer directly.
-Otherwise, the following routines either settle the comparison or
-supply an anchor for a refinement.
+Algorithm~\ref{alg:compare} descends from the root while one child subtree
+contains both queried items. At the node where it stops, each item is
+represented by its free coordinate or its child's anchor. Two distinct
+anchors determine the answer directly. Otherwise, \texttt{Select} returns
+either an answer or a pair $(x,c)$: move the queried item $x$ into the
+child anchored at $c$, then retry. After recording the answer,
+\texttt{Repair} restores the degree and path-length bounds.
 
-Choose an integer $k\ge64$ and put
-\begin{equation}\label{eq:path-threshold}
-H=2^k,\qquad \eta=\frac1{100k}.
-\end{equation}
-Degree counts all neighbors, and path length counts vertices. Between
-calls the graph at every node has degree below $k$ and path length
-below $H$. During a call we allow degree $k$ and paths of up to $2H$
-vertices.
-
-The following lemma supplies the choices used by both comparison and
-repair. Its hypotheses concern a single order-restriction DAG.
-
-\begin{lemma}[Local selection]\label{lem:local-routines}
-Let $D$ be an order-restriction DAG with canonical dyadic intervals,
-$V(D)>0$, degree at most $k$, and directed paths of at most $2H$ vertices.
-\begin{enumerate}
-\item For a comparison $X_a<X_b$ with $a\ne b$, or between $X_a$ and
-a dyadic constant, \textnormal{\texttt{Select}} returns either an answer
-retaining at least $1/2-\eta$ of $V(D)$ or a queried coordinate $x$
-and a dyadic $c\in(\ell_x,r_x)$ with $\log f_x(c)>k$.
-\item Given a coordinate $x$, \textnormal{\texttt{ChooseAnchor}}$(D,x)$
-returns a dyadic $c\in(\ell_x,r_x)$.
-\end{enumerate}
-Every returned position $c=(2i+1)/2^{m+1}$ in reduced form satisfies
-\begin{equation}\label{eq:tariff}
-\log f_x(c)\ge(1-1/k)m-4.
-\end{equation}
-The routines are deterministic and use only the graph and interval bounds
-in a neighborhood of the queried coordinates whose radius depends on $k$.
-Each enumerates at most $E_k$ digit
-assignments for a computable budget $E_k$ depending only on $k$. If the
-interval bounds have at most $\Lambda$ fractional binary digits, each
-returned position has at most $\Lambda+\log E_k$ such digits.
-\end{lemma}
-
-Appendix~\ref{sec:oracle} constructs the local calculations, and
-Appendix~\ref{app:execution} proves the lemma. In the tree, the returned
-position becomes a child anchor. The refinement identity turns the
-bounds on $\log f_x(c)$ into bounds on the volume gain $g$.
-
-A comparison between two free items adds an arc. A comparison between a
-free item and an anchor tightens one interval bound. After recording the
-answer, repair its node if there is a path on $H$ vertices or a vertex
-of degree $k$. Give the path priority. Choose the lexicographically first
-eligible path and refine every item on it in path order, including those
-whose arcs have already been removed. For a degree repair, refine the
-smallest eligible label. Each repair anchor comes from
-\texttt{ChooseAnchor}. Use the smallest eligible label for a refinement
-returned by \texttt{Select}.
-
-The adversary keeps the recursive state for at most
+The adversary uses this recursive state for at most
 \begin{equation}\label{eq:comparison-horizon}
 Q(n)=n\ceil{\log n}
 \end{equation}
-answers. On the next query it chooses fixed ranks by topologically sorting
-the transcript, with ties broken by label.
+answers, then answers from fixed ranks consistent with the transcript.
+By then the required comparison lower bound has already been reached.
 
 \begin{algorithm}[H]
 \caption{\texttt{Compare}$(A,B)$: answer a comparison query.}
@@ -102,6 +53,113 @@ Append $\mathit{answer}$ to $\mathcal T$\;
 \Return $\mathit{answer}$\;
 \end{algorithm}
 
+The routine \texttt{Select} examines the order-restriction DAG at the
+node handling the comparison. Each possible answer selects a part of
+its feasible region. A deterministic local calculation tries to certify
+an answer retaining roughly half the region's volume or more. If it
+cannot do so, it returns an interior position $c$ for one of the queried
+items, so that \texttt{RefineAt} can move that item into a child.
+
+An answer between two free items adds an arc to the in-node DAG. An
+answer between a free item and an anchor tightens the item's interval.
+We now describe how \texttt{RefineAt} moves an item and how
+\texttt{Repair} uses these moves to keep the graphs small.
+
+
+\subsubsection{Moving an item into a child}\label{sec:overview-refine}
+
+For a canonical $D$ and $c\in(\ell_x,r_x)$, the operation
+\texttt{Restrict}$(D,x,c)$ fixes $X_x=c$ and removes its coordinate. For each arc $y\to x$, it sets
+$r_y\gets\min(r_y,c)$, and for each arc $x\to z$, it sets
+$\ell_z\gets\max(\ell_z,c)$. It then deletes $x$ and its incident arcs
+and normalizes the remaining bounds. Algorithm~\ref{alg:restrict}
+gives the procedure.
+
+The operation \texttt{RefineAt}$(x,c)$ moves $x$ from its current node
+$v$ into the child anchored at $c\in(\ell_x,r_x)$. It first replaces
+$D_v$ by \texttt{Restrict}$(D_v,x,c)$. It then inserts $x$ into the
+child's order-restriction DAG as an isolated vertex with interval
+$(0,1)$, creating the child if needed.
+Figure~\ref{fig:overview-refine} illustrates reuse of an existing child.
+
+\begin{algorithm}[H]
+\caption{\texttt{RefineAt}$(x,c)$: move an item into a child.}
+\label{alg:refine}
+\DontPrintSemicolon
+\KwIn{A free item $x$, an interior anchor $c$, and the current adversary state.}
+\KwOut{The updated state, with $x$ stored in a child of its former node.}
+$v\gets$ the node storing $x$\;
+$D_v\gets$ \texttt{Restrict}$(D_v,x,c)$\;
+\If{$v$ has no child anchored at $c$}{
+  Create a child of $v$ at $c$, with an empty order-restriction DAG\;
+}
+$u\gets$ the child of $v$ anchored at $c$\;
+Insert $x$ into $D_u$ as an isolated vertex with record $(x,0,1)$\;
+\end{algorithm}
+
+\begin{center}
+\begin{minipage}{\linewidth}
+\captionsetup{hypcap=false}
+\centering
+\begin{tikzpicture}[>=Latex,font=\small,
+  group/.style={draw=ink!65,rounded corners=2pt,fill=pale},
+  item/.style={circle,draw=ink,fill=white,minimum size=6mm,inner sep=1pt}]
+\begin{scope}[shift={(-3.2,0)}]
+\node at (0,1.55) {Before refinement};
+\draw[group] (-2.4,-.45) rectangle (2.4,1.2);
+\node[item] (ra) at (-1.5,.65) {$a$};
+\node[item] (rx) at (0,.65) {$x$};
+\node[item] (rb) at (1.5,.65) {$b$};
+\draw[->,thick,accent] (ra)--(rx);
+\draw[->,thick,accent] (rx)--(rb);
+\fill (0,-.15) circle (2pt) node[right=4pt] {anchor $c$};
+\draw[thick,ink!55] (0,-.15)--(0,-1);
+\draw[group] (-1.8,-2) rectangle (1.8,-1);
+\node at (0,-1.3) {Existing child at $c$};
+\node at (0,-1.7) {$z$ free};
+\end{scope}
+\draw[->,thick] (-.55,-.2)--(.55,-.2);
+\begin{scope}[shift={(3.2,0)}]
+\node at (0,1.55) {After fixing $X_x=c$};
+\draw[group] (-2.4,-.45) rectangle (2.4,1.2);
+\node[item] at (-1.5,.65) {$a$};
+\node[item] at (1.5,.65) {$b$};
+\node at (0,.65) {$X_a<c<X_b$};
+\fill (0,-.15) circle (2pt) node[right=4pt] {anchor $c$};
+\draw[thick,ink!55] (0,-.15)--(0,-1);
+\draw[group] (-1.8,-2) rectangle (1.8,-1);
+\node at (0,-1.3) {Same child at $c$};
+\node at (0,-1.7) {$x,z$ free; no arc};
+\end{scope}
+\end{tikzpicture}
+\captionof{figure}{The two arc inequalities become bounds on the remaining parent
+coordinates. The new coordinate of $x$ orders it within the child, where
+both $x<z$ and $z<x$ remain possible. The anchor $c$ locates the child
+block among the parent items; the child's constraints determine the orders
+within that block.}
+\label{fig:overview-refine}
+\end{minipage}
+\end{center}
+
+\subsubsection{Keeping the in-node DAGs small}\label{sec:repairs}
+
+Fix an integer degree threshold $k\ge64$. We also bound directed paths
+by $H=2^k$ vertices; degree counts neighbors in either direction.
+Between queries, every in-node DAG has degree below $k$ and directed
+paths with fewer than $H$ vertices. Recording an answer adds at most
+one arc, and \texttt{Repair} restores these bounds.
+
+If there is a path on $H$ vertices, refine every item on the selected
+path in path order, including those whose arcs have already been
+removed. Otherwise, if a vertex has degree $k$, refine that vertex.
+Each move uses \texttt{ChooseAnchor} to select an interior position
+and \texttt{RefineAt} to move the item into the corresponding child.
+Only isolated vertices are inserted into children.
+
+For determinism, choose the lexicographically first eligible path and
+the smallest eligible label for a degree repair. When \texttt{Select}
+can return either queried item for refinement, use the smaller label.
+
 \begin{algorithm}[H]
 \caption{\texttt{Repair}$(v)$: restore the graph bounds after an answer.}
 \label{alg:repair}
@@ -120,43 +178,3 @@ Append $\mathit{answer}$ to $\mathcal T$\;
   \texttt{RefineAt}$(x,c)$\;
 }
 \end{algorithm}
-
-\begin{lemma}[One-arc repair]\label{lem:restoration}
-Suppose all node graphs have degree below $k$ and directed paths with
-fewer than $H$ vertices before an answer is recorded. Recording the
-answer and executing \textnormal{\texttt{Repair}} restores these bounds.
-During this operation, degrees are at most $k$ and directed paths have
-fewer than $2H$ vertices.
-\end{lemma}
-\begin{proof}
-An answer involving an anchor adds only an interval bound. An answer
-between free items adds at most one arc, say $x\to y$. Its certified
-positive probability ensures that the resulting region is nonempty,
-so the arc cannot create a directed cycle. Only $x$ and $y$ can reach
-degree $k$. Every new path consists of two old paths joined by this arc,
-so it has fewer than $2H$ vertices.
-
-If an $H$-vertex path now exists, it must contain $x\to y$. Refining
-its entire vertex set removes both endpoints. Otherwise a degree repair
-removes an endpoint that has reached degree $k$. Either repair deletes
-the new arc; the remaining parent DAG is a subgraph of the previously
-valid DAG. Each child receives only isolated vertices, so its bounds
-remain valid too. If neither violation occurs, no repair is needed.
-\end{proof}
-
-
-Before recording the answer, only queried labels can move. After moving,
-a label has an isolated coordinate on $(0,1)$. Further refinements
-preserve this interval and leave it isolated. Its density is one, so
-refining it again would have gain zero, contradicting the failure
-guarantee in Lemma~\ref{lem:local-routines}. The loop thus makes at most
-two refinements and three calls to \texttt{Select}. After the answer,
-the repair makes at most $n$ further moves.
-
-\begin{proposition}[Consistency and termination]\label{prop:legality}
-Throughout the recursive phase the state has positive feasible volume,
-and every represented order satisfies the transcript. Each call
-terminates with at most $n+2$ refinements. The strict degree and path
-bounds hold between calls.
-\end{proposition}
-Appendix~\ref{app:execution} gives the induction over the state updates.

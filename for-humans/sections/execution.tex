@@ -23,9 +23,6 @@ Reduction of the fraction cannot increase its denominator, so
 $m+1\le r$ and $|J|<2h\le2^{-m}$.
 \end{proof}
 
-
-
-
 \begin{proof}[Proof of Lemma~\ref{lem:local-routines}]
 The interval comparisons in Appendix~\ref{sec:oracle} certify lower
 probability bounds. If the larger bound is at least $1/2-\eta$,
@@ -46,10 +43,118 @@ Lemma~\ref{lem:rounding}. Thus
 \log f_x(c)\ge L-2B>(1-1/k)L>(1-1/k)m-4.
 \]
 Both intervals used for rounding lie strictly inside the coordinate's
-range. The enumeration bound comes from Theorem~\ref{thm:local}.
-Appendix~\ref{app:arithmetic} bounds the precision of the rounded
-endpoints by $\Lambda+\log E_k$.
+range.
 \end{proof}
+
+\subsection{Refinement and child admission}
+
+\begin{proof}[Proof of Lemma~\ref{lem:section-volume}]
+By \eqref{eq:restriction-volume}, restriction multiplies the parent
+volume by $f_x(c)$. Inserting the isolated vertex into the child replaces
+$K_u$ by $K_u\times(0,1)$, which has the same volume. The ratio of the
+products is therefore $f_x(c)$.
+\end{proof}
+
+For example, the parent region $0<X_A<X_B<1$ has area $1/2$. Fixing
+$X_A=1/4$ leaves the interval $X_B\in(1/4,1)$ of length $3/4$. The new
+child coordinate $U_A\in(0,1)$ turns this into a rectangle of area $3/4$,
+so refinement multiplies $Z$ by $3/2$; see Figure~\ref{fig:section-volume}.
+Both regions represent the order $A<B$. Replacing the fixed parent
+coordinate by a fresh child coordinate gives the larger area.
+
+\begin{figure}[tb]
+\centering
+\begin{tikzpicture}[x=3.25cm,y=3.25cm,>=Latex,font=\small]
+\begin{scope}
+\node at (.5,1.38) {Before refinement};
+\fill[pale] (0,0)--(0,1)--(1,1)--cycle;
+\draw[ink!55] (0,0)--(1,1)--(0,1);
+\draw[->] (0,0)--(1.12,0) node[right] {$X_A$};
+\draw[->] (0,0)--(0,1.12) node[above] {$X_B$};
+\draw[dashed,ink!60] (.25,0)--(.25,.25);
+\draw[accent,very thick] (.25,.25)--(.25,1);
+\node[below] at (.25,0) {$\frac14$};
+\node[below left] at (0,0) {$0$};
+\node[below] at (1,0) {$1$};
+\node[left] at (0,1) {$1$};
+\node at (.55,.83) {area $\frac12$};
+\end{scope}
+\draw[->,thick] (1.2,.53)--(1.63,.53);
+\node[above] at (1.415,.56) {refine $A$};
+\begin{scope}[shift={(1.9,0)}]
+\node at (.5,1.38) {After refinement};
+\fill[pale] (0,.25) rectangle (1,1);
+\draw[ink!55] (0,.25)--(1,.25)--(1,1)--(0,1);
+\draw[->] (0,0)--(1.12,0) node[right] {$U_A$};
+\draw[->] (0,0)--(0,1.12) node[above] {$X_B$};
+\node[below left] at (0,0) {$0$};
+\node[left] at (0,.25) {$\frac14$};
+\node[below] at (1,0) {$1$};
+\node[left] at (0,1) {$1$};
+\node at (.5,.65) {area $\frac34$};
+\end{scope}
+\end{tikzpicture}
+\caption{The highlighted section of the triangle has length $3/4$.
+Replacing the fixed parent coordinate by a fresh unit coordinate in the
+child gives the rectangle on the right. Its area is $3/2$ times the
+original area.}
+\label{fig:section-volume}
+\end{figure}
+
+
+
+\begin{lemma}[Refinement and child admission]\label{lem:admission}
+Suppose the state represents only orders consistent with the transcript
+and every node has positive feasible volume. An interior refinement
+preserves both properties.
+\end{lemma}
+\begin{proof}
+Take feasible positions representing any order after the move. Remove
+the fresh coordinate of $x$ from the child and restore $X_x=c$ in the
+parent. The parent positions satisfy the old inequalities by construction.
+Keeping the other coordinates fixed, we can perturb $X_x$ slightly to
+either side of $c$, since its inequalities are strict. These two old
+orders place $x$ immediately before and immediately after the child
+block. Both respect the transcript, so it contains no comparison between
+$x$ and an item in the block. In the new order, $x$ can occur anywhere
+inside that block, with its order relative to all outside items preserved.
+For a new child the block was empty, and the same argument places $x$
+at its former parent position. Positivity follows from
+Lemma~\ref{lem:interior} and the refinement identity.
+\end{proof}
+
+
+A refinement can change which orders the state represents. For instance,
+a move into an existing child allows interleavings inside that child
+that were previously excluded. The invariant concerns consistency with
+the transcript.
+
+\subsection{Restoring the graph bounds}
+
+\begin{lemma}[One-arc repair]\label{lem:restoration}
+Suppose all node graphs have degree below $k$ and directed paths with
+fewer than $H$ vertices before an answer is recorded. Recording the
+answer and executing \textnormal{\texttt{Repair}} restores these bounds.
+During this operation, degrees are at most $k$ and directed paths have
+fewer than $2H$ vertices.
+\end{lemma}
+\begin{proof}
+An answer involving an anchor adds only an interval bound. An answer
+between free items adds at most one arc, say $x\to y$. Its certified
+positive probability ensures that the resulting region is nonempty,
+so the arc cannot create a directed cycle. Only $x$ and $y$ can reach
+degree $k$. Every new path consists of two old paths joined by this arc,
+so it has fewer than $2H$ vertices.
+
+If an $H$-vertex path now exists, it must contain $x\to y$. Refining
+its entire vertex set removes both endpoints. Otherwise a degree repair
+removes an endpoint that has reached degree $k$. Either repair deletes
+the new arc; the remaining parent DAG is a subgraph of the previously
+valid DAG. Each child receives only isolated vertices, so its bounds
+remain valid too. If neither violation occurs, no repair is needed.
+\end{proof}
+
+
 
 \subsection{Consistency and termination}
 
@@ -83,10 +188,12 @@ removed earlier in the batch. The full batch is completed, and
 Lemma~\ref{lem:restoration} restores the strict bounds for the next call.
 
 The finite certificate calculations and the explicit rounding rule
-terminate. As shown in Section~\ref{sec:repairs}, before answering each
-queried label can be refined only once: a second move would have gain
-zero, contradicting the failed-certification gain guarantee. Thus there
-are at most two such moves. A repair makes at most $n$ further moves,
+terminate. Before answering, only queried labels can move. After a
+move, the label has an isolated coordinate with interval $(0,1)$. Further
+refinements leave it isolated with the same interval, so its density
+remains one. A second move would therefore have gain zero, contradicting
+the failed-certification gain guarantee. Thus there are at most two
+such moves. A repair makes at most $n$ further moves,
 so every call terminates with at most $n+2$ refinements.
 All analytic guarantees used here apply to arbitrary positive-volume
 regions with the stated DAG bounds, independently of the interaction

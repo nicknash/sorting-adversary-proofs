@@ -18,29 +18,3 @@ its coordinate in feasible assignments. The routine
 \texttt{Normalize}$(D)$ propagates lower bounds forward along arcs and
 upper bounds backward. Two topological passes suffice, as shown in
 Algorithm~\ref{alg:normalize}.
-
-For a canonical $D$, the operation \texttt{Restrict}$(D,x,c)$ fixes
-$X_x=c$ and removes its coordinate. For each arc $y\to x$, it sets
-$r_y\gets\min(r_y,c)$, and for each arc $x\to z$, it sets
-$\ell_z\gets\max(\ell_z,c)$. It then deletes $x$ and its incident arcs
-and normalizes the remaining bounds. Algorithm~\ref{alg:restrict}
-gives the procedure.
-
-\begin{lemma}[Canonical intervals and coordinate restriction]\label{lem:interior}
-Normalization preserves $K(D)$. This region has positive volume exactly
-when all the resulting intervals have positive width. In that case the
-intervals are canonical. For any $c\in(\ell_x,r_x)$, the feasible region
-of \textnormal{\texttt{Restrict}}$(D,x,c)$ is exactly the section of
-$K(D)$ with $X_x=c$, measured in the remaining coordinates, and has
-positive volume.
-\end{lemma}
-Appendix~\ref{app:geometry} proves the lemma.
-
-To measure the effect of restriction, suppose $V(D)>0$ and choose $X$
-uniformly from $K(D)$. The density $f_x(c)$ of coordinate $X_x$ is the
-volume of the section at $c$ divided by $V(D)$. Thus the lemma gives
-\begin{equation}\label{eq:restriction-volume}
-V(\operatorname{Restrict}(D,x,c))=V(D)f_x(c).
-\end{equation}
-This defines the density at every interior $c$ and gives
-$\Prb(a<X_x<b)=\int_a^b f_x(t)\,dt$.

@@ -3,26 +3,26 @@
 Nicholas Nash · 10 November 2026 · ORCID [0009-0003-0475-7852](https://orcid.org/0009-0003-0475-7852)
 
 Section 1 states the main theorem and explains the derandomization
-problem. Section 2 reviews earlier adversaries. Section 3 defines
-order-restriction DAGs, their canonical intervals, and coordinate
-restriction. It then assembles them into a tree and gives the comparison,
-repair, and refinement procedures. A failed comparison test supplies an
-interior anchor with large volume gain. A repair chooses its anchor
-separately and passes it to the same move operation.
+problem. Section 2 reviews earlier adversaries. Section 3 first defines
+order-restriction DAGs and the tree that stores them. It then presents
+Compare, followed by the refinement and repair subroutines. The section
+ends with the independent DAG guarantees, the refinement identity, local
+selection, consistency and termination, and the comparison-prefix theorem.
+These results are stated without their proofs.
 
-Section 4 proves that refinements are rare by counting the binary
-denominators in a path repair. It then counts the total orders consistent
-with the answers. Unqueried labels can be inserted freely into each
-compatible order on queried labels, giving the prefix guarantee
-`log T_q >= log(n!) - (1 + O(log k/k))q`.
+Section 4 proves the comparison-prefix theorem. It first shows that
+refinements are rare by counting the binary denominators in a path repair.
+It then counts orders consistent with the answers, freely inserting
+unqueried labels into compatible orders on the queried labels.
 
-Section 5 chooses the parameters within a polynomial-time budget. Section 6
-applies the prefix bound to partial-order production with vanishing
-relative error. A weak-order extension gives a supplied-poset guarantee
-of `(1-o(1))log e(P) - O(n log log n)` further comparisons.
-The appendices prove the independent DAG lemmas, construct the finite
-local calculations, and supply the quantitative estimates and corollary
-proofs. The tree-dependent child-admission argument remains in Section 3.
+Section 5 bounds the cost of the local routines and chooses the parameters
+within a polynomial-time budget. Section 6 applies the prefix bound to
+partial-order production with vanishing relative error. A weak-order
+extension gives a supplied-poset guarantee of
+`(1-o(1))log e(P) - O(n log log n)` further comparisons.
+The appendices prove the independent DAG lemmas and tree-dependent
+consistency guarantees, construct the finite local calculations, and
+supply the quantitative estimates and corollary proofs.
 
 The revision follows the mathematical and expository recommendations in
 [Simplify Paper Arguments](https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af20322-5238-83eb-8c1a-60fbea8e1d71).

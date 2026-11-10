@@ -1,5 +1,9 @@
 \section{Counting the orders that remain}\label{sec:potential}
 
+We prove Theorem~\ref{thm:fixed-stage} in two steps. First, the gain
+bounds limit the number of refinements. We then count orders consistent
+with the transcript using the volumes and the anchors in the stored tree.
+
 \subsection{Refinements are rare}\label{sec:rare-refinements}\label{sec:guarantees}
 
 Recording an answer between two anchors leaves $Z$ unchanged.
@@ -43,8 +47,8 @@ $C=8$ since $k\ge64$.
 
 \subsection{Counting with the queried labels}\label{sec:movement-volume}
 
-Write $T_q$ for the number of total orders consistent with the first
-$q$ answers. The state can represent fewer orders. For example, if
+The state can represent fewer orders than the $T_q$ orders consistent
+with the transcript. For example, if
 $a<b$ lie in the same child block and $z$ is at the root, the state
 cannot place $z$ between $a$ and $b$. If the sole recorded relation
 among them is $a<b$, the transcript permits $a<z<b$ as well.
@@ -95,17 +99,7 @@ does not constrain. Multiplying gives the bound.
 
 \subsection{The prefix bound}\label{sec:comparison-cost}
 
-\begin{theorem}[Comparison prefixes]\label{thm:fixed-stage}
-For every integer $k\ge64$, the adversary with parameter $k$ is
-deterministic and legal. There is a nonnegative
-$\delta_k=O(\log k/k)$, independent of $n$ and the query sequence,
-such that after any $q$ answers
-\begin{equation}\label{eq:prefix-orders}
-\log T_q\ge\log(n!)-(1+\delta_k)q.
-\end{equation}
-\end{theorem}
-
-\begin{proof}
+\begin{proof}[Proof of Theorem~\ref{thm:fixed-stage}]
 In the recursive phase, legality and termination follow from
 Proposition~\ref{prop:legality}. After the horizon, the fixed ranks
 respect the recorded answers. For $q\ge Q(n)\ge\log(n!)$, the right
@@ -131,6 +125,5 @@ Lemma~\ref{lem:rare-refinements}. We can therefore take
 $\delta_k=aa_\eta-1+2d_k+Cb/k$.
 \end{proof}
 
-When a correct sorter stops, $T_q=1$. The theorem forces at least
-$\log(n!)/(1+\delta_k)$ comparisons. The same prefix bound applies when
-an algorithm can stop with several orders still possible.
+The same prefix bound applies when an algorithm can stop with several
+orders still possible.
