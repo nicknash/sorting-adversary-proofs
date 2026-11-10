@@ -3,7 +3,8 @@
 Nicholas Nash · 10 November 2026 · ORCID [0009-0003-0475-7852](https://orcid.org/0009-0003-0475-7852)
 
 Section 1 states the main theorem and explains the derandomization
-problem. Section 2 reviews earlier adversaries. Section 3 describes the
+problem. Section 2 develops the tree by fixing a position in a comparison
+graph and moving the item into a child. Section 3 describes the
 tree of item records and its comparison graphs, then gives the comparison,
 repair, and refinement procedures. A failed comparison test supplies an
 interior anchor with large volume gain. A repair chooses its anchor
@@ -21,6 +22,7 @@ and chooses the parameters within a polynomial-time budget. Section 7
 applies the prefix bound to partial-order production with vanishing
 relative error. A weak-order extension gives a supplied-poset guarantee
 of `(1-o(1))log e(P) - O(n log log n)` further comparisons.
+Section 8 reviews earlier adversaries.
 The appendices supply the quantitative estimates and corollary proofs.
 
 The revision follows the mathematical and expository recommendations in

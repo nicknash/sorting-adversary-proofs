@@ -1,0 +1,102 @@
+\Needspace{11\baselineskip}
+\section{Developing the adversary}\label{sec:development}
+
+\subsection{Keeping the comparison graph small}
+
+Start with the larger-half rule. Give each key $x$ a position
+$X_x\in(0,1)$ and record a comparison answered $x<y$ by imposing
+$X_x<X_y$. Let $P$ be their partial order. Its feasible region is
+\[
+K(P)=\{X\in(0,1)^n:X_x<X_y\text{ whenever }x<_P y\}.
+\]
+Each total order occupies volume $1/n!$, so $\vol(K(P))=e(P)/n!$
+\cite{stanley}. To decide which answer retains more orders, compare the
+volumes on the two sides of $X_x=X_y$.
+Dyer, Frieze, and Kannan~\cite{dfk} approximate such volumes in
+randomized polynomial time. We need a deterministic way to choose an
+answer that keeps almost half the volume.
+
+We record comparisons as arcs and use finite calculations around the
+queried vertices. A vertex with many neighbors makes even one
+coordinate update depend on many other positions. A long directed path
+causes a different problem. In a pass that updates predecessors before
+successors, a change can travel through the whole path in one pass.
+Bounding both degree and directed path length limits how far a
+calculation can reach and how many vertices it needs to visit.
+As comparisons accumulate, we need a way to remove vertices while
+preserving the answers they record.
+
+\subsection{Fixing a position and continuing in a child}
+
+Choose a point $c$ inside the range of feasible positions of a key $x$.
+Fixing $X_x=c$ turns each incoming comparison $y<x$ into the bound
+$X_y<c$ and each outgoing comparison $x<z$ into $c<X_z$. We can
+remove the vertex of $x$ and keep those bounds.
+
+The key still needs a place in the order. Put it in a block anchored
+at $c$. Positions below $c$ precede the whole block, and positions above
+$c$ follow it. Several keys can enter the block as long as their
+placement respects earlier answers. Give each a fresh position in
+$(0,1)$ to describe its order inside the block. That block is a child
+node with its own comparison graph, so the same operation can be used
+there. Each position describes an item's order at the node that stores
+it.
+
+For example, start with $0<X_A<X_B<1$, a triangle of area $1/2$.
+Fixing $X_A=1/4$ leaves $X_B\in(1/4,1)$. Give $A$ a fresh child
+coordinate $U_A\in(0,1)$. The new feasible assignments form a rectangle
+of area $3/4$ (Figure~\ref{fig:section-volume}). The volume grows by
+a factor of $3/2$, and both regions represent just the order $A<B$.
+
+\begin{figure}[!htb]
+\centering
+\begin{tikzpicture}[x=3.25cm,y=3.25cm,>=Latex,font=\small]
+\begin{scope}
+\node at (.5,1.38) {Before refinement};
+\fill[pale] (0,0)--(0,1)--(1,1)--cycle;
+\draw[ink!55] (0,0)--(1,1)--(0,1);
+\draw[->] (0,0)--(1.12,0) node[right] {$X_A$};
+\draw[->] (0,0)--(0,1.12) node[above] {$X_B$};
+\draw[dashed,ink!60] (.25,0)--(.25,.25);
+\draw[accent,very thick] (.25,.25)--(.25,1);
+\node[below] at (.25,0) {$\frac14$};
+\node[below left] at (0,0) {$0$};
+\node[below] at (1,0) {$1$};
+\node[left] at (0,1) {$1$};
+\node at (.55,.83) {area $\frac12$};
+\end{scope}
+\draw[->,thick] (1.2,.53)--(1.63,.53);
+\node[above] at (1.415,.56) {refine $A$};
+\begin{scope}[shift={(1.9,0)}]
+\node at (.5,1.38) {After refinement};
+\fill[pale] (0,.25) rectangle (1,1);
+\draw[ink!55] (0,.25)--(1,.25)--(1,1)--(0,1);
+\draw[->] (0,0)--(1.12,0) node[right] {$U_A$};
+\draw[->] (0,0)--(0,1.12) node[above] {$X_B$};
+\node[below left] at (0,0) {$0$};
+\node[left] at (0,.25) {$\frac14$};
+\node[below] at (1,0) {$1$};
+\node[left] at (0,1) {$1$};
+\node at (.5,.65) {area $\frac34$};
+\end{scope}
+\end{tikzpicture}
+\caption{The highlighted section of the triangle has length $3/4$.
+Replacing the fixed parent coordinate by a fresh unit coordinate in the
+child gives the rectangle on the right. Its area is $3/2$ times the
+original area.}
+\label{fig:section-volume}
+\end{figure}
+
+The factor $3/2$ is the length of the section at $X_A=1/4$ divided by
+the area of the triangle. This ratio is the density of $X_A$ at the
+chosen point under the uniform distribution on feasible positions.
+The same identity holds for a general move
+(Lemma~\ref{lem:section-volume}). It gives us a reason to look for
+anchors of high density.
+
+Once keys move into blocks, the initial identity between volume and
+order count no longer applies. The counting proof must account for
+the locations of the blocks as well as the volume inside each node.
+A finer binary location takes more bits to specify. We choose anchors
+so that their volume gains help pay for this cost, and bound how
+often the adversary needs to move a key.

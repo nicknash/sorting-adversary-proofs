@@ -2,13 +2,13 @@
   "date": "2026-11-10",
   "status": "not_submitted",
   "argument": "Count all transcript-compatible orders by freely inserting untouched labels after sampling the queried labels. The single weight distribution has total child mass 1/k. Dyadic resolution gives refinement rarity before weights enter the proof. Full sweeps contract and finite dependence identifies the queried endpoints with their local calculations.",
-  "local_pdf_sha256": "712321cb5f4323e3d779ab86366f270c8069ecec16e3016d6c8162ab619c7e5d",
-  "prepared_zip_sha256": "bc051544579a171570660514bc0d12bf5be1affbb19ff432697de0fd4cbc10a9",
+  "local_pdf_sha256": "b3efb60fbfdffa9a0abf4145de414ca25bdbb64639a692ded7235df303487826",
+  "prepared_zip_sha256": "d589b444bde71307e27d3a7b65da9649b1117e358c087f479d27399739203f2e",
   "previous_hexagon_submission": "hexagon:2611.00196",
   "previous_submission_metadata": "submission.json",
   "formalization": "Related earlier integer-colour construction; this continuous presentation is not formally verified.",
-  "exposition": "The Introduction states the main theorem. Section 3 groups the state, move and volume identity, child admission, selection interface, comparison controller and repairs. Section 4 gives rarity and the prefix count. Sections 5 and 6 give finite certificates and uniform polynomial time. Section 7 states the consequences. The main text reaches page 18. The detailed KZZ pair-routing example and its figure are removed, while the lattice diagram and six pseudocode blocks are retained.",
-  "pages": 30,
+  "exposition": "The disclosure follows the abstract. Section 2 develops the adversary, Section 3 specifies the construction, and Sections 4 through 6 establish the prefix bound, local calculations, and running time. Section 7 gives consequences and Section 8 gives related work. The baseline mathematical statements, drawings, and six algorithms were verified verbatim.",
+  "pages": 31,
   "source_chat": "https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af20322-5238-83eb-8c1a-60fbea8e1d71",
   "previous_argument_source_chat": "https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af1b5f8-a1d0-83ed-b93d-fe7efd94df67",
   "previous_argument_source_pdf_sha256": "577836ef3235bd8c452b8bdf0b5cbf3840c943c1a1837bed8c9f7ce3f41ab907",
@@ -18,10 +18,10 @@
   "source_zip_reference": "https://chatgpt.com/library?file_id=libfile_fde3_f-ba1a20db6f588191ac375700e2454a7c_742fa1b94fe0819190166d79e79a577c&account_id=personal",
   "previous_source_material": "The complete latest assistant message in Simplify Paper Arguments, retrieved through the connected chat reader: 15,850 characters, not truncated. It proposes simplifications and proof placement against d0da5c2. The linked eleven-page PDF and source archive were not downloaded. The proposal was implemented in the existing manuscript and independently reviewed; exact diagnostics for rounding, one-arc repair and rarity were added or revised.",
   "source_material": "The connected chat reader returned the first 20,000 characters of the latest review, covering all seven numbered recommendations and truncating the closing verification note. The linked review PDF and replacement source archive were not downloaded. The edits were derived from the visible recommendations and the manuscript.",
-  "base_revision": "e1f8873cfa015aaa62471373e42dfc52887e67cf",
+  "base_revision": "59b1188dcf1867b68cf233ac320934a8a392f646",
   "source_chat_message": "03c0c585-f8ba-5904-b62b-eb04d81b7dde",
   "implementation_change": "Select returns either a certified answer or a queried label and an interior anchor. ChooseAnchor selects anchors for repairs. RefineAt applies the specified move. Enclose uses a topological order of the retained graph, with its boundary frozen.",
-  "editorial_revision": "Apply the deep review, retain the KZZ lattice figure in Related Work and keep the pseudocode per follow-up. Remove the duplicate prefix count and the alternative production-based initialization.",
+  "editorial_revision": "Develop the tree from a single comparison graph and move the triangle example into the development. Introduce the selection requirements before their lemma. State the prefix theorem before the accounting and derive the weights from the sampling experiment. Begin the local calculations with a single interval. Move Related Work after Consequences.",
   "consequences": {
     "production": "One target-independent adversary forces (1-epsilon_n) I(R) comparisons, epsilon_n -> 0, where I(R)=log(n!)-log e(R).",
     "prefix_count": "For each fixed stage k, log T_q >= log(n!) - (1+O(log k/k))q for every completed comparison prefix. T_q counts all orders consistent with the transcript.",
@@ -43,5 +43,11 @@
       "characters": 10503
     }
   ],
-  "consequence_source_material": "Both complete recommendation messages were retrieved through the connected chat reader, with no truncated messages or older pages. Linked guide attachments were not downloaded. The derivations were checked against the existing manuscript and the cited primary papers, including Cardinal et al. and the deterministic multiple-selection subroutine."
+  "consequence_source_material": "Both complete recommendation messages were retrieved through the connected chat reader, with no truncated messages or older pages. Linked guide attachments were not downloaded. The derivations were checked against the existing manuscript and the cited primary papers, including Cardinal et al. and the deterministic multiple-selection subroutine.",
+  "editorial_source": {
+    "library_url": "https://chatgpt.com/library?file_id=libfile_fde3_f-6cbbaae9836c8191aa9bbce0879360f4_742fa1b94fe0819190166d79e79a577c",
+    "chat_turn": "a3a8894a-8df9-4aa4-b174-1a9e266400aa",
+    "chat_message": "255e8a32-bf18-53c6-916e-f2f553db852c",
+    "material": "The Library link required sign-in and the browser surface was unavailable. The revision uses the complete 7,559-character guide summary and the relevant earlier recommendations in Simplify Paper Arguments."
+  }
 }

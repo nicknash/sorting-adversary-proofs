@@ -1,11 +1,5 @@
 \section{The new optimal adversary}\label{sec:overview}\label{sec:algorithm}
 
-Kaplan, Zamir, and Zwick~\cite{kzz} keep a comparison between two items
-at a node as an ordered pair. We allow comparisons to share items.
-For example, one node can retain $a<b$ and $a<c$ while leaving the order
-of $b$ and $c$ open. The adversary bounds the degree and path length of
-each node's graph so it can answer comparisons using small neighborhoods.
-
 \subsection{The data structure}
 
 Our data structure is a rooted tree. Each node stores item records and
@@ -285,53 +279,6 @@ The dimension lost in the parent is restored by the new child coordinate.
 \end{proof}
 
 Thus the refinement's volume gain is $g=\log f_x(c)$.
-
-For example, the parent region $0<X_A<X_B<1$ has area $1/2$. Fixing
-$X_A=1/4$ leaves the interval $X_B\in(1/4,1)$ of length $3/4$. The new
-child coordinate $U_A\in(0,1)$ turns this into a rectangle of area $3/4$,
-so refinement multiplies $Z$ by $3/2$; see Figure~\ref{fig:section-volume}.
-Both regions represent the order $A<B$. Replacing the fixed parent
-coordinate by a fresh child coordinate gives the larger area.
-
-\begin{figure}[tb]
-\centering
-\begin{tikzpicture}[x=3.25cm,y=3.25cm,>=Latex,font=\small]
-\begin{scope}
-\node at (.5,1.38) {Before refinement};
-\fill[pale] (0,0)--(0,1)--(1,1)--cycle;
-\draw[ink!55] (0,0)--(1,1)--(0,1);
-\draw[->] (0,0)--(1.12,0) node[right] {$X_A$};
-\draw[->] (0,0)--(0,1.12) node[above] {$X_B$};
-\draw[dashed,ink!60] (.25,0)--(.25,.25);
-\draw[accent,very thick] (.25,.25)--(.25,1);
-\node[below] at (.25,0) {$\frac14$};
-\node[below left] at (0,0) {$0$};
-\node[below] at (1,0) {$1$};
-\node[left] at (0,1) {$1$};
-\node at (.55,.83) {area $\frac12$};
-\end{scope}
-\draw[->,thick] (1.2,.53)--(1.63,.53);
-\node[above] at (1.415,.56) {refine $A$};
-\begin{scope}[shift={(1.9,0)}]
-\node at (.5,1.38) {After refinement};
-\fill[pale] (0,.25) rectangle (1,1);
-\draw[ink!55] (0,.25)--(1,.25)--(1,1)--(0,1);
-\draw[->] (0,0)--(1.12,0) node[right] {$U_A$};
-\draw[->] (0,0)--(0,1.12) node[above] {$X_B$};
-\node[below left] at (0,0) {$0$};
-\node[left] at (0,.25) {$\frac14$};
-\node[below] at (1,0) {$1$};
-\node[left] at (0,1) {$1$};
-\node at (.5,.65) {area $\frac34$};
-\end{scope}
-\end{tikzpicture}
-\caption{The highlighted section of the triangle has length $3/4$.
-Replacing the fixed parent coordinate by a fresh unit coordinate in the
-child gives the rectangle on the right. Its area is $3/2$ times the
-original area.}
-\label{fig:section-volume}
-\end{figure}
-
 
 \begin{lemma}[Refinement and child admission]\label{lem:admission}
 Suppose the state represents only orders consistent with the transcript

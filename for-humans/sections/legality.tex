@@ -16,6 +16,16 @@ calls the graph at every node has degree below $k$ and path length
 below $H$. During a call we allow degree $k$ and paths of up to $2H$
 vertices.
 
+We want an answer to cost about one bit of volume, so the comparison
+routine must retain nearly half the volume. When its test fails, it
+must give us a move with enough gain to pay for the refinement. Repairs
+also need a way to choose an anchor for any item selected by the graph
+rules. The finer the binary location, the more the counting proof must
+pay for it, so the guaranteed gain grows with the anchor's precision.
+To use these guarantees in polynomial time we need a computable limit
+on the finite enumeration and a bound on the number of bits in each
+new anchor.
+
 \begin{lemma}[Comparison and anchor selection]\label{lem:local-routines}
 Consider a node with positive feasible volume, degree at most $k$, and
 directed paths of at most $2H$ vertices.
@@ -42,8 +52,15 @@ The finite calculation in Section~\ref{sec:oracle} implements these
 routines. Appendix~\ref{app:execution} proves the guarantees.
 
 A comparison between two free items adds an arc. A comparison between a
-free item and an anchor tightens one interval bound. After recording the
-answer, repair its node if there is a path on $H$ vertices or a vertex
+free item and an anchor tightens one interval bound. A degree repair
+removes $k$ arcs inserted by earlier comparisons, including the arc
+that triggered the repair. In a path repair, moving one item sets a
+lower bound on the next item's position. The anchors increase along
+the path. Moving the whole path gives $2^k$ distinct anchors, so many
+of them require fine binary locations and bring large gains.
+
+After recording the answer, repair its node if there is a path on $H$
+vertices or a vertex
 of degree $k$. Give the path priority. Choose the lexicographically first
 eligible path and refine every item on it in path order, including those
 whose arcs have already been removed. For a degree repair, refine the

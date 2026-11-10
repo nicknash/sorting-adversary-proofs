@@ -1140,3 +1140,26 @@ local/full endpoint cases, 4,149 accounting parameter cases, 15
 untouched-label insertion cases, and 256 horizons. Both TeX compilers
 pass and the repository log has no warnings or overfull/underfull boxes.
 The 30-page PDF and all 27 source archive entries were checked.
+
+10 November 2026: Exposition plan
+
+Base 59b1188. The requested codex_exposition_plan.md opened to a sign-in
+page and the connected reader exposed the guide's full summary in
+Simplify Paper Arguments (turn a3a8894a-8df9-4aa4-b174-1a9e266400aa,
+message 255e8a32-bf18-53c6-916e-f2f553db852c). The revision follows that
+summary and the corresponding preceding exposition recommendations.
+
+Section 2 develops the graph and tree through the refinement operation,
+including the triangle figure. The formal refinement identity remains
+with the construction. The comparison and anchor selection guarantees
+follow their motivation. The prefix theorem opens Section 4 and the
+child weights follow from the three choices in the counting experiment.
+The certificate section begins with one interval and separates
+enclosure, finite dependence, and width. Related Work follows the
+consequences and retains the lattice figure.
+
+The abstract, disclosure, six pseudocode blocks, formal lemma and
+theorem statements, corollaries, proposition, and TikZ drawings match
+the base sources. Both compilers and all five diagnostics passed.
+The 31-page PDF has no TeX warnings. The revised pages were visually
+reviewed and all 28 archive entries match saved files.

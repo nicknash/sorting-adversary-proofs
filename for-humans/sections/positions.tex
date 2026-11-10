@@ -7,6 +7,22 @@ candidate anchor interval.
 
 \subsection{A coordinate update with finitely many choices}
 
+Start with a uniform position $r\in(0,1)$. The updates
+\[
+r\longmapsto r/2,\qquad r\longmapsto(r+1)/2
+\]
+send it uniformly to the left and right halves of the interval,
+respectively. Choosing either update with probability $1/2$
+therefore leaves the position uniform on $(0,1)$. With two updates,
+the four possible sequences give the four quarter intervals. For any
+particular sequence, we know the quarter that contains the output
+even if the starting position is unknown.
+
+Apply the same idea to one coordinate while holding its neighbors
+fixed. Divide the permitted interval into $S$ equal pieces. Each
+digit chooses a piece and sends the coordinate to the same relative
+position within that piece.
+
 Let $G$ be the node graph, with its stored canonical interval endpoints
 $\ell_z,r_z$. For a current assignment $Y$, the interval permitted at coordinate $z$ has endpoints
 \[
@@ -33,23 +49,32 @@ For a fixed digit, this is uniform on the corresponding one of the $S$
 equal subintervals. Averaging over the digits makes $r'$ uniform on
 $(0,1)$ again.
 
-For $S=2$, the two updates are $r\mapsto r/2$ and
-$r\mapsto(r+1)/2$. Each sends a uniform coordinate to one half of
-its interval. With no neighbors, enumerating the two digits in each
-of two sweeps gives the four quarter intervals.
-
 \subsection{Enclosing intervals from two calculations}
 
 Let $T$ be the set of queried coordinates. Retain every vertex within undirected distance
 $\rho$ of $T$, together with all arcs between retained vertices. Retain
-their stored interval endpoints. Vertices at distance
-exactly $\rho$ form the boundary; those at smaller distance form the
-interior.
+their stored interval endpoints. Vertices at distance exactly $\rho$
+form the boundary. The other retained vertices form the interior.
 
-Run two calculations using the same digits. The lower calculation starts
-at $A_z=\ell_z$, and the upper calculation starts at $B_z=r_z$.
-Keep the boundary values fixed throughout both calculations. A
-\emph{sweep} updates each interior coordinate once in topological order. All neighbors of an updated vertex are retained.
+Follow a feasible assignment $X$ drawn uniformly from the node region
+$K$ in the proof. Update it on the full graph using independent
+uniform digits. It stays uniform by the coordinate argument above.
+To enclose its positions, run two endpoint calculations sharing its
+digits on the interior vertices. Start the lower calculation at
+$A_z=\ell_z$ and the upper one at $B_z=r_z$. Hold both boundary arrays
+fixed. A \emph{sweep} updates each interior vertex once in topological
+order, and all its neighbors are retained.
+
+An update uses the new predecessor values, the old successor values,
+and its own old value. These dependencies determine the endpoint
+values for any topological order. For the enclosure proof, use the
+restriction of the full order to the retained graph. At an interior
+update, the maxima, minima, and nonnegative coefficients in
+\eqref{eq:digit-update} preserve $A_z\le X_z\le B_z$. At the boundary,
+the full assignment stays within the fixed bounds. Thus each digit
+sequence bounds the queried positions of the hidden uniform point.
+The adversary only runs the endpoint calculations and enumerates
+their digits.
 
 Enumerate every assignment of digits to $t$ sweeps. If there are $b'$
 interior vertices, this gives
@@ -57,7 +82,9 @@ interior vertices, this gives
 N=S^{b't}
 \end{equation}
 computations. Each contributes the intervals $[A_x,B_x]$, $x\in T$,
-to the list, including repeated entries.
+to the list, including repeated entries. In the proof experiment,
+each of the $N$ digit sequences is equally likely, so it selects a
+uniform entry of this list.
 
 \begin{algorithm}[H]
 \caption{\texttt{Enclose}: compute a finite list of enclosing intervals.}
@@ -79,6 +106,32 @@ $\mathcal L\gets$ the empty list\;
 \Return $\mathcal L$\;
 \end{algorithm}
 
+\subsection{How far a sweep can reach}\label{sec:finite-dependence}
+
+After $t$ sweeps the queried endpoints agree exactly with a calculation
+on the full graph, provided the retained neighborhood is large enough.
+To see how large, trace the dependencies of a queried endpoint.
+
+Within one sweep, a dependency on a new value follows an incoming arc.
+If directed paths have at most $h$ vertices, this trace follows at most
+$h-1$ arcs. Moving from that path to an old value crosses at most one more
+arc. A value after $t$ sweeps thus depends only on digits, bounds and
+initial values within distance $ht$. With $\rho=ht+1$, every update
+in this dependency calculation is in the retained interior. Its initial
+values, stored bounds, and digits are the same in the local and full
+calculations. Consequently the queried endpoints agree exactly for
+every assignment of the digits, with arbitrary digits outside the
+retained region.
+
+\subsection{How narrow the intervals become}
+
+The enclosure argument gives a valid interval for every digit
+sequence. Finite dependence explains where its endpoints can be
+computed. To certify a comparison, we also need most intervals to be
+short. Appendix~\ref{app:coupling} bounds the widths after full
+sweeps by a contraction estimate. Exact agreement transfers that
+bound to the local calculation.
+
 \begin{theorem}[Local enclosing intervals]\label{thm:local}
 Let $d,h\ge1$ be integers and let $\delta,\alpha\in(0,1)$ be rational.
 There are computable parameters $S,t,\rho$ and a bound $E$, depending
@@ -99,40 +152,6 @@ The calculation enumerates at most $E$ digit assignments. If the stored
 bounds have at most $\Lambda$ fractional binary digits, every computed
 endpoint has at most $\Lambda+\log E$ fractional digits.
 \end{theorem}
-
-The enclosure guarantee holds for every finite number of sweeps and
-every choice of radius $\rho\ge1$. Start a full assignment uniformly on
-$K$ and update the entire graph with independent uniform digits. Share
-its digits with the two endpoint calculations at interior vertices.
-The update is increasing in every coordinate, since maxima, minima, and
-the nonnegative linear combination in \eqref{eq:digit-update} are
-increasing. Thus it preserves the inequalities $A_z\le X_z\le B_z$ at
-an interior update. At a boundary vertex the full position always remains
-between its fixed interval endpoints, even as it changes during the full
-calculation. The full assignment remains uniform, and every interior
-digit sequence has probability $1/N$. This proves the first guarantee.
-
-\subsection{How far a sweep can reach}\label{sec:finite-dependence}
-
-For the width estimate, consider lower and upper sweeps that update the
-full graph. In either calculation, the update of a coordinate uses the
-new values of its predecessors, the old values of its successors, and
-its own old value. The resulting values are independent of the choice
-of topological order because these dependencies specify every update.
-
-To trace a dependency backwards through one sweep, follow new values
-along incoming arcs. This follows a directed path with at most $h-1$
-arcs. Moving from that path to an old value crosses at most one more
-arc. A value after $t$ sweeps thus depends only on digits, bounds and
-initial values within distance $ht$. With $\rho=ht+1$, every update
-in this dependency calculation is in the retained interior. Its initial
-values, stored bounds, and digits are the same in the local and full
-calculations. Consequently the queried endpoints agree exactly for
-every assignment of the digits, with arbitrary digits outside the
-retained region.
-
-Appendix~\ref{app:coupling} bounds the widths on the full graph.
-Exact agreement transfers that estimate to the local lists.
 
 \subsection{From intervals to answers and anchors}
 

@@ -75,31 +75,13 @@ checks agree, and otherwise use a general sorting algorithm. That
 permutation then costs only $n-1$ comparisons. The deterministic adversary
 must choose its answers in response to the questions it receives.
 
-\paragraph{Randomized approximation of the number of linear extensions.}
-Randomization also makes it possible to estimate how many linear extensions
-remain after each possible answer. Given the current partial order $P$,
-assign each label a real coordinate in $(0,1)$ and form the region
-\[
-K(P)=\{X\in(0,1)^n:X_i<X_j\text{ whenever }i<_Pj\}.
-\]
-Each allowed total order occupies volume $1/n!$ in the unit cube. Hence
-$\vol(K(P))=e(P)/n!$~\cite{stanley}. The two possible answers to a comparison
-cut this region into two parts, and their volumes are proportional to their
-counts of allowed orders.
-
-Dyer, Frieze, and Kannan~\cite{dfk} approximate these volumes in
-randomized polynomial time, so randomness also lets the adversary
-estimate which answer retains more orders. The challenge is to
-obtain the asymptotic bound with a deterministic calculation.
-
-Our adversary retains comparisons in graphs at the nodes of a tree
-(Section~\ref{sec:overview}). Finite calculations on small neighborhoods
-either certify an answer or identify an item whose position can be fixed
-with a large volume gain (Section~\ref{sec:oracle}). Moving that item
-into a child limits the graph size. Section~\ref{sec:potential} uses
-the volume gains to bound the number of moves, then counts all orders
-consistent with the answers. Section~\ref{sec:runtime} chooses the
-graph bounds as a function of $n$ to obtain polynomial running time.
+Section~\ref{sec:development} develops the construction from the
+larger-half rule. The formal adversary
+(Section~\ref{sec:overview}) retains comparisons in graphs at the nodes
+of a tree. Section~\ref{sec:potential} bounds the number of moves and
+counts orders consistent with the answers.
+Sections~\ref{sec:oracle} and~\ref{sec:runtime} give the local calculation
+and the polynomial running-time bound.
 
 Section~\ref{sec:consequences} applies the same prefix bound to
 arranging keys into a prescribed partial order, with a vanishing
@@ -107,5 +89,6 @@ relative loss from the information bound. For sorting from supplied
 initial relations $P$, a reduction forces
 $(1-o(1))\log e(P)-O(n\log\log n)$ further comparisons.
 Appendix~\ref{app:consequences} proves both consequences.
+Section~\ref{sec:related} reviews earlier adversaries.
 The manuscript source is available
 online.\footnote{\url{https://github.com/nicknash/sorting-adversary-proofs/tree/main/for-humans}}
