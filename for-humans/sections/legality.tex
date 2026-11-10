@@ -1,462 +1,143 @@
-\section{Refinement and its guarantees}\label{sec:legal}
+\section{Choosing anchors and repairing nodes}\label{sec:legal}
 
-We now prove the refinement guarantees used in Section~\ref{sec:potential}:
-moving an item preserves the answers already given, and the resulting
-change in volume controls the cost of choosing a child.
-
-\subsection{Preserving the represented orders}
-
-We use the interpretation of the state given in Section~\ref{sec:overview}.
-Assignments with equal free coordinates, or with a free coordinate equal
-to an anchor, lie on a finite union of sets of volume zero and are excluded
-when reading an order. We maintain the following invariant:
-\begin{quote}
-Every represented total order respects every comparison already answered.
-\end{quote}
-The state may discard some orders that still respect the answers. Legality
-requires only that at least one remains. Positive volume in every node
-will ensure this.
-
-The invariant must continue to hold when refinement removes an arc from
-an in-node DAG.
-
-\begin{lemma}[Effective intervals and sections]\label{lem:interior}
-Replacing interval bounds by their effective endpoints leaves the
-feasible region unchanged.
-The region has positive volume if and only if every effective width is
-positive. When these widths are positive, fixing $X_x=c$ at any
-$c\in(\ell_x,r_x)$ leaves a
-positive-volume section in the remaining coordinates.
-\end{lemma}
-\begin{proof}
-If $y\ne x$ precedes $x$ on a directed path, every feasible assignment
-satisfies $X_x>X_y>a_y$; the stored bound $X_x>a_x$ covers $y=x$.
-Taking the maximum over these bounds gives $X_x>\ell_x$. The upper-bound argument is the reverse. Thus all bounds
-given by \eqref{eq:effective} already hold.
-
-Positive volume requires positive widths. Conversely, suppose all widths
-are positive. Along an arc $x\to y$, the definitions give
-$\ell_x\le\ell_y$ and $r_x\le r_y$. Choose numbers $0<\theta_x<1$
-increasing in a topological order, and set
-\[
-X_x=(1-\theta_x)\ell_x+\theta_xr_x.
-\]
-Increasing $\theta_x$ to $\theta_y$ strictly increases this value because
-$r_x>\ell_x$. Replacing its endpoints by the larger endpoints
-$\ell_y,r_y$ cannot decrease it. Hence $X_x<X_y$. All coordinates are
-inside their intervals and all arc inequalities hold strictly, so a
-sufficiently small open neighborhood of this assignment is feasible.
-
-Now fix $X_x=c$ and delete its coordinate. The inequalities imposed by
-its incident arcs become upper bounds $c$ at its in-neighbors and lower
-bounds $c$ at its out-neighbors. Upper bounds propagate only backward
-along arcs, and lower bounds only forward. Any lower bound that previously
-reached a successor through $x$ is superseded by $c>\ell_x$; any upper
-bound that reached a predecessor through $x$ is superseded by $c<r_x$.
-Thus the new effective intervals are
-\[
-\begin{cases}
-(\ell_y,\min(r_y,c)),&y\text{ precedes }x,\\
-(\max(\ell_y,c),r_y),&y\text{ succeeds }x,\\
-(\ell_y,r_y),&y\text{ is incomparable with }x.
-\end{cases}
-\]
-The first two cases are disjoint because the in-node DAG is acyclic. A predecessor
-retains positive width: $r_y>\ell_y$ and
-$c>\ell_x\ge\ell_y$. A successor does too: $r_y>\ell_y$ and
-$c<r_x\le r_y$. All other widths stay positive. The criterion just proved,
-applied to the remaining in-node DAG, shows that the section has positive volume.
-\end{proof}
-
-\begin{lemma}[Refinement and child admission]\label{lem:admission}
-Suppose the node regions have positive volume and the order invariant holds.
-Refining $x$ at an interior anchor $c$ preserves both properties, including
-when the child at $c$ already exists. The transcript implies no
-relation between $x$ and any label already in that child subtree.
-\end{lemma}
-\begin{proof}
-Consider first an existing child at $c$, and denote its label set by $S$.
-Choose a feasible assignment in the parent section $X_x=c$, with the other
-free coordinates pairwise distinct and different from every child anchor.
-Such an assignment exists by Lemma~\ref{lem:interior}. Also choose feasible
-assignments in the other nodes.
-
-There is a positive distance from $c$ to every other child anchor and
-every free parent coordinate in this assignment. All incident inequalities at $x$ are strict. Thus, with
-everything else fixed, $x$ can be moved slightly to either side of $c$
-while keeping the old state feasible. The resulting two represented orders
-place $x$ immediately before or immediately after the entire block $S$.
-Both orders respect the transcript. For each $y\in S$, one has $x<y$ and
-the other has $y<x$; neither relation can therefore be implied by the
-transcript.
-
-Now take any order represented after the refinement. Deleting $x$ from the
-child leaves an assignment of its old coordinates and hence an old child
-order. Apply the preceding perturbation using this assignment's parent
-coordinates and old child coordinates. It gives two feasible old orders
-that agree with the new one on every label except $x$. The new order
-inserts $x$ somewhere into their child block. No
-answered comparison joins $x$ to a label in $S$, so this insertion violates
-none of them. Relative to every label outside $S\cup\{x\}$, the whole
-block occupies the old anchor position. The item $x$ is consequently on
-the same side of each outside label as in either of the two feasible old
-orders above. Comparisons between other labels are unchanged. The new
-order therefore respects the entire transcript.
-
-If there was no child at $c$, the same argument uses an empty block: the
-new singleton child places $x$ where its fixed parent coordinate stood.
-Finally, the remaining parent region is a positive-volume section, and
-the child receives an independent coordinate in $(0,1)$. All node regions
-remain positive.
-\end{proof}
-
-\subsection{The volume gained by refinement}\label{sec:refinement-volume}
-
-Refining an item $x$ stored at node $v$ fixes $X_x=c$ in $v$ and gives
-$x$ a fresh unit coordinate in the child. To measure the volume change, let
-$S_x(c)$ be the volume of the section of $K_v$ obtained by fixing
-$X_x=c$, measured in the remaining coordinates. Under the uniform
-distribution on $K_v$, the coordinate $X_x$ has density
-\[
-f_x(c)=\frac{S_x(c)}{V_v},\qquad
-\Prb(a<X_x<b)=\int_a^b f_x(t)\,dt.
-\]
-
-\begin{lemma}[Refinement identity]\label{lem:section-volume}
-Suppose every node region has positive volume. Refining $x$ at an interior
-anchor $c$ satisfies
-\begin{equation}\label{eq:refine}
-\frac{Z_{\rm after}}{Z_{\rm before}}=f_x(c).
-\end{equation}
-\end{lemma}
-\begin{proof}
-Let $u$ be the child at $c$, taking $V_u=1$ if it is newly created. The
-parent loses the coordinate $X_x$ and retains precisely the section of
-volume $S_x(c)$. The child gains a new coordinate $U_x\in(0,1)$, with no
-constraints involving its old coordinates. Its region becomes
-$K_u\times(0,1)$ and still has volume $V_u$. Therefore the affected
-factors in the product change as follows:
-\[
-V_vV_u\quad\longrightarrow\quad S_x(c)V_u.
-\]
-Their ratio is $S_x(c)/V_v=f_x(c)$. All other node factors stay unchanged.
-The dimension lost in the parent is restored by the new child coordinate.
-\end{proof}
-
-Thus the refinement's volume gain is $g=\log f_x(c)$.
-
-For example, the parent region $0<X_A<X_B<1$ has area $1/2$. Fixing
-$X_A=1/4$ leaves the interval $X_B\in(1/4,1)$ of length $3/4$. The new
-child coordinate $U_A\in(0,1)$ turns this into a rectangle of area $3/4$,
-so refinement multiplies $Z$ by $3/2$; see Figure~\ref{fig:section-volume}.
-Both regions represent the order $A<B$. Replacing the fixed parent
-coordinate by a fresh child coordinate gives the larger area.
-
-\begin{figure}[tb]
-\centering
-\begin{tikzpicture}[x=3.25cm,y=3.25cm,>=Latex,font=\small]
-\begin{scope}
-\node at (.5,1.38) {Before refinement};
-\fill[pale] (0,0)--(0,1)--(1,1)--cycle;
-\draw[ink!55] (0,0)--(1,1)--(0,1);
-\draw[->] (0,0)--(1.12,0) node[right] {$X_A$};
-\draw[->] (0,0)--(0,1.12) node[above] {$X_B$};
-\draw[dashed,ink!60] (.25,0)--(.25,.25);
-\draw[accent,very thick] (.25,.25)--(.25,1);
-\node[below] at (.25,0) {$\frac14$};
-\node[below left] at (0,0) {$0$};
-\node[below] at (1,0) {$1$};
-\node[left] at (0,1) {$1$};
-\node at (.55,.83) {area $\frac12$};
-\end{scope}
-\draw[->,thick] (1.2,.53)--(1.63,.53);
-\node[above] at (1.415,.56) {refine $A$};
-\begin{scope}[shift={(1.9,0)}]
-\node at (.5,1.38) {After refinement};
-\fill[pale] (0,.25) rectangle (1,1);
-\draw[ink!55] (0,.25)--(1,.25)--(1,1)--(0,1);
-\draw[->] (0,0)--(1.12,0) node[right] {$U_A$};
-\draw[->] (0,0)--(0,1.12) node[above] {$X_B$};
-\node[below left] at (0,0) {$0$};
-\node[left] at (0,.25) {$\frac14$};
-\node[below] at (1,0) {$1$};
-\node[left] at (0,1) {$1$};
-\node at (.5,.65) {area $\frac34$};
-\end{scope}
-\end{tikzpicture}
-\caption{The highlighted section of the triangle has length $3/4$.
-Replacing the fixed parent coordinate by a fresh unit coordinate in the
-child gives the rectangle on the right. Its area is $3/2$ times the
-original area.}
-\label{fig:section-volume}
-\end{figure}
+We complete the refinement rule by specifying how to choose an anchor.
+We then explain why one structural repair after each answer restores the
+in-node DAG bounds, and why selecting an answer requires at most two moves.
 
 \subsection{Choosing an anchor}\label{sec:median-search}\label{sec:anchor-contract}
 
-The choice of anchor balances two quantities: a larger density gives
-more volume gain, while a smaller anchor depth costs less in
-\eqref{eq:anchor-cost}. We will bound the density using the number of
-coordinates comparable with $x$. Put
-\begin{equation}\label{eq:comparable-bound}
-B=(k+1)^{2H+1}.
+An anchor should lie where fixing the coordinate retains a substantial
+section of the feasible region. A short binary representation also keeps
+its child-choice cost small. We obtain both properties by choosing an
+interval and rounding one of its endpoints.
+
+For a nondegenerate closed interval $J=[u,v]\subset(0,1)$, choose the
+largest power-of-two spacing $h$ no greater than its length. The routine
+\texttt{RoundUp} rounds $u$ up to a multiple of $h$:
+\begin{equation}\label{eq:round-up}
+h=2^{-r},\qquad h\le|J|<2h,\qquad
+c=h\ceil{u/h}.
 \end{equation}
-In an in-node DAG of degree at most $k$ and directed paths of at most
-$2H$ vertices, every coordinate comparable with $x$ lies within undirected
-distance $2H$ of $x$. Thus $B$ bounds the number of other coordinates
-comparable with $x$.
 
-Set the calibration width
-\begin{equation}\label{eq:width-threshold}
-w_*=2^{-2kB}.
-\end{equation}
-The finite calculations use this scale to guarantee success when a
-queried coordinate has a sufficiently large effective interval.
-
-\begin{lemma}[When certification succeeds]\label{lem:certificate-success}
-Suppose a node has positive feasible volume, its in-node DAG has degree
-at most $k$, and its directed paths have at most $2H$ vertices.
-If any free coordinate involved in a comparison has effective width at
-least $w_*$, comparison certification succeeds. If $W_x\ge w_*$, then
-\textnormal{\texttt{CentralInterval}}$(v,x)$ succeeds.
-\end{lemma}
-
-Section~\ref{sec:oracle} proves this lemma. In particular, failure of a
-central-interval certificate implies $W_x<w_*$. This is the information
-used to justify the anchor routine's fallback.
-
-\begin{lemma}[Anchor selection]\label{lem:anchor-density}
-Suppose a node's feasible region has positive volume, its interval
-endpoints are dyadic, and its in-node DAG has degree at most $k$ and
-directed paths of at most $2H$ vertices. With calibration width \eqref{eq:width-threshold},
-\textnormal{\texttt{ChooseAnchor}} deterministically returns an anchor
-$c\in(\ell_x,r_x)$ at depth $m$ in the implicit anchor tree satisfying
-\begin{equation}\label{eq:tariff}
-\log f_x(c)\ge(1-1/k)m-4.
-\end{equation}
-If $x$ is refined because comparison certification failed, then
-\begin{equation}\label{eq:failure-gain}
-\log f_x(c)>k.
+\begin{lemma}[Rounding to a binary fraction]\label{lem:rounding}
+The value $c$ returned by \textnormal{\texttt{RoundUp}}$(J)$ belongs to $J$.
+Writing $c=(2i+1)/2^{m+1}$ in reduced form, it satisfies
+\begin{equation}\label{eq:rounding-length}
+|J|<2^{-m}.
 \end{equation}
 \end{lemma}
+\begin{proof}
+The rounded value obeys $u\le c<u+h\le v$, so $c\in J$.
+The choice of spacing gives $h\le|J|<2h$.
+Reduction of the fraction cannot increase its denominator, so
+$m+1\le r$ and $|J|<2h\le2^{-m}$.
+\end{proof}
 
-Algorithm~\ref{alg:choose-anchor} first tries \texttt{CentralInterval}.
-On success, it uses the returned interval; on failure, it uses the middle
-half of the effective interval. It then selects the shallowest anchor in
-the chosen interval. Both choices give the density bound required by
-Lemma~\ref{lem:anchor-density}.
+The reason for refinement determines the interval used by
+Algorithm~\ref{alg:choose-anchor}. After failed comparison certification,
+it uses the middle half of the coordinate's interval directly.
+For a structural repair it first asks \texttt{CentralInterval} for an
+interval with substantial probability on both sides and inside; if this
+calculation fails, it also uses the middle half.
 
 \begin{algorithm}[H]
-\caption{\texttt{ChooseAnchor}$(x)$: choose a position for refinement.}
+\caption{\texttt{ChooseAnchor}$(x,\mathit{reason})$: choose a position for refinement.}
 \label{alg:choose-anchor}
 \DontPrintSemicolon
-\KwIn{A free item $x$ stored at node $v$ and its effective interval $(\ell_x,r_x)$.}
+\KwIn{A free item $x$ at node $v$, with stored interval $(\ell_x,r_x)$; $\mathit{reason}\in\{\mathrm{failure},\mathrm{repair}\}$.}
 \KwOut{A dyadic anchor $c\in(\ell_x,r_x)$.}
-$J\gets$ \texttt{CentralInterval}$(v,x)$\;
+$J\gets$ \texttt{FAIL}\;
+\If{$\mathit{reason}=\mathrm{repair}$}{
+  $J\gets$ \texttt{CentralInterval}$(v,x)$\;
+}
 \If{$J$ is \textnormal{\texttt{FAIL}}}{
   $W_x\gets r_x-\ell_x$\;
   $J\gets[\ell_x+W_x/4,\ r_x-W_x/4]$\;
 }
-$[a,b]\gets J$\;
-$u\gets$ the root of the implicit anchor tree\;
-\While{true}{
-  \uIf{$c(u)<a$}{$u\gets$ the right child of $u$\;}
-  \uElseIf{$c(u)>b$}{$u\gets$ the left child of $u$\;}
-  \Else{\Return $c(u)$\;}
-}
+\Return \texttt{RoundUp}$(J)$\;
 \end{algorithm}
 
-An anchor at depth $m$ has $m+1$ fractional binary digits in reduced
-form. Thus the walk finds the shortest binary fraction in $[a,b]$.
+The successful central choice explains the relation between interval
+length and volume gain. We use the following geometric fact, proved in
+Appendix~\ref{app:geometry}.
 
-\begin{lemma}[Shortest anchor in an interval]\label{lem:shortest-anchor}
-For a nondegenerate closed interval $[a,b]\subset(0,1)$, the walk in
-Algorithm~\ref{alg:choose-anchor} returns its unique minimum-depth anchor.
-If its node is $u$ and its depth is $m$, then
-$[a,b]\subseteq I(u)$ and $|I(u)|=2^{-m}$.
+\begin{lemma}[Density in a central interval]\label{lem:central-density}
+Let $X$ be uniform on a positive-volume node region. Suppose
+$J=[u,v]\subset(\ell_x,r_x)$ satisfies
+\[
+\Prb(X_x\le u)\ge\tfrac14,\qquad
+\Prb(X_x\in J)\ge\tfrac14,\qquad
+\Prb(X_x\ge v)\ge\tfrac14.
+\]
+Then, for every $c\in J$,
+\[
+f_x(c)\ge\frac1{16|J|}.
+\]
+\end{lemma}
+
+When \texttt{CentralInterval} succeeds, its guarantee supplies these
+three mass bounds. Lemma~\ref{lem:rounding} and the refinement identity
+therefore give
+\begin{equation}\label{eq:certified-anchor}
+g=\log f_x(c)\ge\log(1/|J|)-4>m-4.
+\end{equation}
+Thus a longer binary representation is accompanied by a larger volume
+gain. Appendix~\ref{app:refinement-guarantees} proves the corresponding
+bound for the middle-half choice and deduces the affine cost guarantee
+of Lemma~\ref{lem:refinement-cost}.
+
+\subsection{One repair after each answer}\label{sec:repairs}
+
+An interior anchor allows an item to move without contradicting earlier
+answers, even when its destination child already contains items.
+We state this property here; Appendix~\ref{app:execution} proves it by
+examining the orders represented before and after the move.
+
+\begin{lemma}[Refinement and child admission]\label{lem:admission}
+Suppose every node has positive volume and every represented total order
+respects the transcript. Refining an item at an interior anchor preserves
+both properties, including when its destination child already exists.
+\end{lemma}
+
+Between calls, the adversary maintains degree below $k$ and directed
+paths with fewer than $H$ vertices. The important feature of
+Algorithm~\ref{alg:repair} is that every new violation involves the arc
+just inserted.
+
+\begin{lemma}[One-arc repair]\label{lem:restoration}
+Suppose all in-node DAGs have degree below $k$ and directed paths with
+fewer than $H$ vertices before an answer is recorded. Recording the
+answer and executing \textnormal{\texttt{Repair}} restores these bounds.
+During this operation, degrees are at most $k$ and directed paths have
+fewer than $2H$ vertices.
 \end{lemma}
 \begin{proof}
-Initially $[a,b]\subseteq I(u)=[0,1]$. Whenever $c(u)<a$, the whole
-interval lies in the right child's interval; whenever $c(u)>b$, it lies
-in the left child's interval. The rejected anchor and the other subtree
-contain no candidate in $[a,b]$. The first accepted anchor therefore has
-minimum depth, and every other anchor of that depth lies outside $I(u)$.
-The intervals halve at every step and continue to contain $[a,b]$, so
-the walk must accept before their length becomes smaller than $b-a$.
+An answer involving an anchor adds only an interval bound. An answer
+between free items adds at most one arc, say $x\to y$. Its certified
+positive probability ensures that the resulting region is nonempty,
+so the arc cannot create a directed cycle. Only $x$ and $y$ can reach
+degree $k$. Every new path consists of two old paths joined by this arc,
+so it has fewer than $2H$ vertices.
+
+If an $H$-vertex path now exists, it must contain $x\to y$. Refining
+its entire vertex set removes both endpoints. Otherwise a degree repair
+removes an endpoint that has reached degree $k$. Either repair deletes
+the new arc; the remaining parent DAG is a subgraph of the previously
+valid DAG. Each child receives only isolated vertices, so its bounds
+remain valid too. If neither violation occurs, no repair is needed.
 \end{proof}
 
-\subsubsection{Density bounds for central intervals}
+Before the answer is recorded, only the queried labels can move. Once
+one has been refined, its fresh coordinate is isolated with interval
+$(0,1)$. Further refinements leave it isolated and leave this interval
+unchanged. Refining it again at that stage would have volume gain zero,
+by the refinement identity. Lemma~\ref{lem:refinement-cost}, however,
+requires gain greater than $k$ after failed comparison certification.
+Thus each queried label moves at most once before an answer, giving at
+most two refinements and three comparison-certificate calculations.
 
-The first bounds use the effective width and the number of comparable
-coordinates.
-
-\begin{lemma}[Coordinate density bounds]\label{lem:fiber}
-Suppose a node's feasible region has positive volume, and $x$ has at most
-$B$ other comparable coordinates and effective interval $(\ell,r)$ of
-width $W$. Its density satisfies
-\begin{align}
-f_x(t)&\le\frac{B+1}{W},\label{eq:fiber-upper}\\
-f_x(t)&\ge\frac{4^{-B}}{W}
-\qquad(\ell+W/4\le t\le r-W/4).\label{eq:fiber-lower}
-\end{align}
-\end{lemma}
-
-The lower bound controls the fallback choice in the middle half of the
-effective interval. The upper bound will help bound the probability of
-an unresolved comparison. Appendix~\ref{app:geometry} proves both by
-comparing convex sections.
-
-For a certified central interval we use another consequence of convexity. A density is
-\emph{log-concave} if its positive support is convex and its logarithm
-is concave there. The uniform density on a convex feasible region is
-log-concave, and Pr\'ekopa's marginal theorem gives the same property to
-each coordinate density \cite[Theorem~8]{prekopa}. The following bound says
-that a position with substantial probability on each side has density
-comparable to the largest value.
-
-\begin{lemma}[Density at central positions]\label{lem:central-quantiles}
-Let $X$ have a log-concave density $f$. If
-$\Prb(X\le c)\ge p$ and $\Prb(X\ge c)\ge p$ for some $0<p\le1/2$, then
-\[
-f(c)\ge p\sup_t f(t).
-\]
-\end{lemma}
-
-Appendix~\ref{app:geometry} proves the lemma directly from log-concavity.
-
-\subsubsection{Anchors from a certified interval}
-
-\begin{lemma}[Certified anchor choices]\label{lem:median-search}
-If \textnormal{\texttt{CentralInterval}} succeeds, the anchor $c$ selected
-by Algorithm~\ref{alg:choose-anchor} has depth $m$ and satisfies
-\[
-\log f_x(c)\ge m-4,\qquad
-\log f_x(c)\ge\log(1/W_x)-2.
-\]
-\end{lemma}
-\begin{proof}
-Let $J$ be the interval returned by \texttt{CentralInterval}, and put
-$M=\sup_t f_x(t)$. By Lemma~\ref{lem:central-interval}, $J$ is contained
-in $(\ell_x,r_x)$ and has probability at least $1/4$, so $M|J|\ge1/4$.
-Every position $c\in J$ also has probability at least $1/4$ on each side.
-Lemma~\ref{lem:central-quantiles} therefore gives $f_x(c)\ge M/4$
-throughout $J$.
-
-Lemma~\ref{lem:shortest-anchor} selects $c\in J$ at a node $u$ whose
-interval contains $J$. Its interval has length $2^{-m}$, so
-\[
-2^{-m}f_x(c)\ge |J|\frac M4\ge\frac1{16}.
-\]
-This proves the first bound. Since $f_x$ integrates to one over an
-interval of width $W_x$, its supremum satisfies $M\ge1/W_x$.
-The inequality $f_x(c)\ge M/4$ proves the second bound.
-\end{proof}
-
-\subsubsection{The anchor guarantee}\label{sec:anchor-guarantee}
-
-The certified choice already gives the required bound. For the fallback,
-failure of the central-interval calculation implies $W_x<w_*$, so
-$\log(1/W_x)>2kB$. This pays for the loss of $2B$ in the lower density
-bound \eqref{eq:fiber-lower}.
-
-\begin{proof}[Proof of Lemma~\ref{lem:anchor-density}]
-The in-node DAG bounds imply that $x$ has at most $B$ other comparable
-coordinates, by \eqref{eq:comparable-bound}. If central certification
-succeeds, Lemma~\ref{lem:median-search} gives the stronger lower bound
-$m-4$. Otherwise, Lemma~\ref{lem:certificate-success} gives
-$W_x<w_*$. Write $L=\log(1/W_x)>2kB$. The fallback anchor is in the
-central half of its effective interval, so \eqref{eq:fiber-lower}
-gives
-\[
-\log f_x(c)\ge L-2B.
-\]
-By Lemma~\ref{lem:shortest-anchor}, its node interval contains that central
-half. Hence $W_x/2\le2^{-m}$ and $m\le L+1$, giving
-\[
-\log f_x(c)\ge L-2B>(1-1/k)L
-\ge(1-1/k)(m-1)>(1-1/k)m-4.
-\]
-This proves \eqref{eq:tariff} in both branches.
-
-Now suppose comparison certification failed and the algorithm selected
-$x$ for refinement. Lemma~\ref{lem:certificate-success} implies
-$W_x<w_*$, regardless of the subsequent central-interval result.
-If central certification succeeds, Lemma~\ref{lem:median-search} gives
-\[
-\log f_x(c)\ge\log(1/W_x)-2>2kB-2>k.
-\]
-If it fails, the fallback bound above gives
-$\log f_x(c)\ge\log(1/W_x)-2B>2B(k-1)>k$.
-This proves \eqref{eq:failure-gain}.
-Both cases use a finite deterministic calculation to obtain the central
-interval, followed by the finite walk of Lemma~\ref{lem:shortest-anchor}.
-\end{proof}
-
-\subsection{Bounds during a comparison call}\label{sec:repairs}
-
-The preparation loop in Algorithm~\ref{alg:compare} simplifies the current
-node before an answer is selected. We check that the in-node DAG bounds
-hold throughout the call, and that the loop makes only finitely many
-moves.
-
-\begin{lemma}[In-node DAG bounds and termination]\label{lem:restoration}
-Suppose every node region has positive volume and every in-node DAG has
-degree at most $k$ and directed paths of fewer than $2H$ vertices at the
-start of a call. These properties hold throughout the call. Each label
-is refined at most once, so the call makes at most $n$ refinements.
-\end{lemma}
-\begin{proof}
-A refinement uses an interior anchor by Lemma~\ref{lem:anchor-density}.
-It leaves a positive-volume parent section by Lemma~\ref{lem:interior}
-and gives the child a fresh unit coordinate. It deletes a vertex and its
-incident arcs from the parent and adds an isolated vertex to the child,
-so it cannot increase any degree or extend any directed path.
-
-A returned comparison certificate gives its chosen answer positive
-probability, so recording it preserves positive feasible volume.
-Its arc cannot create a directed cycle, which would make the region
-empty. Immediately before a new answer is selected,
-the current in-node DAG has no path on $H$ vertices and the queried free
-vertices have degree below $k$. Adding their comparison arc leaves degree
-at most $k$. Any new directed path consists of two old paths joined by
-this arc, so it has fewer than $2H$ vertices. An answer involving an anchor
-adds only an interval bound. These observations prove positivity and
-the in-node DAG bounds by induction through the call.
-
-Once a label is refined, it has an isolated coordinate with interval
-$(0,1)$ in its child. Until the final answer, every subsequent state change
-is another refinement. These moves affect interval bounds only at
-neighbors of the vertex being removed, so they cannot narrow this isolated
-coordinate or give it an incident arc. It cannot lie on a selected path
-or have degree $k$. Lemma~\ref{lem:estimation} guarantees that comparison
-certification succeeds whenever such a unit-interval coordinate is
-queried, so it cannot be selected after a failed certificate either.
-Thus no label is selected again, even if the query is rerouted to its new
-node. Every restart refines at least one label, giving the bound of $n$
-refinements.
-\end{proof}
-
-\begin{proof}[Proof of Proposition~\ref{prop:legality}]
-Initially every node region has positive volume, every order is represented,
-and the in-node DAG bounds hold. We induct over the changes made by a
-comparison call. The bounds follow from Lemma~\ref{lem:restoration}.
-At a refinement, Lemma~\ref{lem:anchor-density} supplies an interior
-anchor, and Lemma~\ref{lem:admission} preserves positive volume and the
-order invariant. This applies to every item of a selected path, including
-those whose incident arcs have already been removed by earlier moves.
-
-If the queried labels lie in different child subtrees, their anchors
-determine the answer in every represented order. Otherwise, a comparison
-certificate supplies a chosen answer retaining at least $1/2-\eta>0$
-of the current node's volume, by the acceptance test in
-Algorithm~\ref{alg:compare} and Lemma~\ref{lem:estimation}.
-Recording its arc or interval bound makes that answer true in every
-represented order and preserves every earlier constraint. This completes
-the induction.
-
-The comparison calculation and anchor search terminate by
-Lemmas~\ref{lem:estimation} and~\ref{lem:anchor-density}. Together with
-Lemma~\ref{lem:restoration}, this proves termination of the full call.
-These analytic lemmas apply to arbitrary positive-volume regions with
-the stated in-node DAG bounds; their proofs are independent of the
-adversary's history.
-\end{proof}
+After the answer, a queried label may move again in the structural
+repair. The repair refines either one vertex or a whole path of at most
+$n$ vertices. Hence a full call makes at most $n+2$ refinements.
+Appendix~\ref{app:execution} combines these observations with the
+consistency argument to prove Proposition~\ref{prop:legality}.

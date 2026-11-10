@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "scope": "Exhaustive small-graph checks of repair after one inserted arc.\n\nThe old DAGs have vertices 0,...,n-1 in topological order. Each possible\nnew arc is tried, including backward arcs when the result is acyclic.\nEvery eligible path or degree choice is checked. These tests concern the\ngraph invariant, not the probability certificates or complete executions.",
+  "maximum_vertices": 5,
+  "valid_old_states": 9220,
+  "acyclic_insertions": 93776,
+  "complete_path_repairs": 21978,
+  "repair_choices_verified": 32478,
+  "no_repair_needed": 67824,
+  "cyclic_insertions_excluded": 47094,
+  "degree_repairs": 10500
+}

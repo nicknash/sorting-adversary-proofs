@@ -1,0 +1,92 @@
+\section{Calibration of the finite certificates}\label{app:certificates}
+
+We verify the central-interval routine and choose the finite calculation's
+parameters. The purpose of the calibration is to ensure that a failed
+certificate identifies a coordinate whose short interval makes a
+middle-half refinement profitable.
+
+\subsection{The central-interval test}
+
+For the one-coordinate list $[A_i,B_i]$, $1\le i\le N$, take $u$ to be
+the $N/4$-th upper endpoint in sorted order and $v$ to be the $3N/4$-th
+lower endpoint. The alphabet size $S$ is divisible by four, and the queried
+coordinate is interior, so $N/4$ is an integer. Return \texttt{FAIL} if
+$u\ge v$ or fewer than $N/4$ list intervals lie wholly in $[u,v]$.
+Otherwise return $[u,v]$.
+
+\begin{proof}[Proof of Lemma~\ref{lem:central-interval}]
+At least $N/4$ intervals end at or below $u$, and at least $N/4$ begin
+at or above $v$. On success, at least $N/4$ intervals also lie wholly
+inside $[u,v]$. Enclosure certifies mass at least $1/4$ in each of the
+three regions. The true distribution is continuous and supported on
+$(\ell_x,r_x)$, so these masses imply $\ell_x<u<v<r_x$.
+The endpoints are dyadic, and sorting and counting finite lists are
+deterministic.
+\end{proof}
+
+\subsection{The width at which certificates succeed}
+
+The graph bounds limit how many coordinates can be comparable with a
+queried coordinate. Define
+\begin{equation}\label{eq:comparable-bound}
+B=(k+1)^{2H+1}.
+\end{equation}
+In an in-node DAG of degree at most $k$ and directed paths of at most
+$2H$ vertices, every comparable coordinate lies within undirected distance
+$2H$. Thus $B$ bounds the number of other comparable coordinates.
+Set
+\begin{equation}\label{eq:width-threshold}
+w_*=2^{-2kB}.
+\end{equation}
+This width calibrates the finite calculations. The algorithms test the
+computed certificates directly.
+
+\begin{lemma}[When certification succeeds]\label{lem:certificate-success}
+Suppose a node has positive feasible volume, its in-node DAG has degree
+at most $k$, and its directed paths have at most $2H$ vertices.
+If any free coordinate involved in a comparison has interval width at
+least $w_*$, comparison certification succeeds. If $W_x\ge w_*$, then
+\textnormal{\texttt{CentralInterval}}$(v,x)$ succeeds.
+\end{lemma}
+
+\begin{proof}[Proof of Lemma~\ref{lem:certificate-success}]
+Calibrate both routines using
+Theorem~\ref{thm:local} with
+\begin{equation}\label{eq:estimator-coupling-parameters}
+d=k,\qquad h=2H,\qquad
+\alpha=\frac\eta2,\qquad
+\delta=\frac{\eta w_*}{8(B+1)}.
+\end{equation}
+These parameters are fixed for the interaction. They do not depend on
+the queried widths.
+
+Suppose one queried free coordinate $x$ has $W_x\ge w_*$.
+If the computed intervals overlap and both have width at most $\delta$,
+the enclosed positions differ by at most $2\delta$.
+Lemma~\ref{lem:gap} therefore bounds the unresolved fraction by
+\[
+1-p-q\le\alpha+\Prb(|X_x-X_y|\le2\delta)
+\le\alpha+\frac{4(B+1)\delta}{w_*}=\eta.
+\]
+Thus $\max(p,q)\ge(1-\eta)/2>1/2-\eta$, so comparison certification
+succeeds. For a threshold $c$, an unresolved interval contains $c$.
+If its width is at most $\delta$, its enclosed position is within
+$\delta$ of $c$, giving the stronger bound
+\begin{equation}\label{eq:threshold-unresolved}
+\alpha+\frac{2(B+1)\delta}{w_*}=\frac{3\eta}{4}.
+\end{equation}
+
+It remains to show that \texttt{CentralInterval} succeeds when
+$W_x\ge w_*$. By \eqref{eq:threshold-unresolved}, at most a fraction
+$\tau=3\eta/4$ of its intervals contain any fixed real number.
+This bound applies in particular to the selected endpoints $u$ and $v$.
+An interval extending below $u$ either ends strictly below $u$ or
+contains $u$. By the rank defining $u$, fewer than $N/4$ intervals end
+strictly below it. Thus at most $(1/4+\tau)N$ intervals extend below $u$.
+Similarly, at most $N/4$ intervals begin strictly above $v$, so at most
+$(1/4+\tau)N$ extend above $v$.
+
+At least $(1/2-2\tau)N\ge N/4$ intervals therefore lie wholly inside
+$[u,v]$, since $\eta<1/32$. Enclosure gives this interval mass at least
+$1/4$. Continuity forces $u<v$, so both success tests pass.
+\end{proof}

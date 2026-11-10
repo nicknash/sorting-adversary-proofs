@@ -10,8 +10,7 @@ number of sweeps, and neighborhood radius in the local enclosure theorem.
 \begin{center}
 \begin{minipage}{\linewidth}
 \captionsetup{hypcap=false}
-\captionof{table}{Parameters and their roles. Section references lead to
-the explanations in the main text.}
+\captionof{table}{Parameters and their roles. References lead to the explanations in the text.}
 \label{tab:parameters}
 \small
 \setlength{\tabcolsep}{4pt}
@@ -20,10 +19,10 @@ the explanations in the main text.}
 \toprule
 Symbol & Value & Role & Introduced & Choice\\
 \midrule
-$k$ & Integer, $k\ge64$ & Refine a queried free item when it has this many neighbors. & \S\ref{sec:comparison} & \S\ref{sec:potential}\\
+$k$ & Integer, $k\ge64$ & Repair a vertex that reaches this degree after an answer. & \S\ref{sec:comparison} & \S\ref{sec:potential}\\
 $H$ & $2^k$ & Number of vertices refined in a selected directed path. & \S\ref{sec:comparison} & \S\ref{sec:refinement-cost}\\
-$B$ & $(k+1)^{2H+1}$ & Bounds the number of other vertices comparable with one vertex in its in-node DAG. & \S\ref{sec:anchor-contract} & \S\ref{sec:anchor-contract}\\
-$w_*$ & $2^{-2kB}$ & Calibrates the finite calculations: a coordinate of at least this width guarantees certification. & \S\ref{sec:anchor-contract} & \S\ref{sec:anchor-contract}\\
+$B$ & $(k+1)^{2H+1}$ & Bounds the number of other vertices comparable with one vertex in its in-node DAG. & App.~\ref{app:certificates} & App.~\ref{app:certificates}\\
+$w_*$ & $2^{-2kB}$ & Calibrates the finite calculations: a coordinate of at least this width guarantees certification. & App.~\ref{app:certificates} & App.~\ref{app:certificates}\\
 $\eta$ & $1/(100k)$ & Accept an answer whose certified probability is at least $1/2-\eta$. & \S\ref{sec:comparison} & \S\ref{sec:guarantees}\\
 $Q(n)$ & $n\ceil{\log n}$ & Number of answers before switching to a fixed consistent order. & \S\ref{sec:comparison} & \S\ref{sec:comparison}\\
 \bottomrule

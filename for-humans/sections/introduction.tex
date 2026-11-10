@@ -128,8 +128,8 @@ region's volume retained by each answer. Three technical ingredients make
 this possible.
 
 \emph{Certifying comparisons with enclosing intervals.}
-After propagating interval bounds through the full graph, we perform
-finite computations on a bounded neighborhood. Each computation returns
+The stored interval bounds include the inequalities implied by the graph.
+We perform finite computations on a bounded neighborhood. Each computation returns
 intervals enclosing uniformly distributed feasible positions. Disjoint
 intervals establish a comparison, so counting these cases gives certified
 lower bounds on the probabilities of the two answers. Degree and
@@ -139,23 +139,23 @@ confined to very short intervals. This identifies an item to refine
 (Section~\ref{sec:oracle}).
 
 \emph{Choosing positions with large remaining volume.}
-Moving an item into a child fixes its position in the parent. We choose
-a binary fraction with the fewest digits in a suitable interval. We first
-try to certify substantial probability inside an interval and on both
-sides. Log-concavity then gives every point inside a density comparable
-to the peak. If certification fails, the middle half of the item's
-effective interval supplies the required volume gain
+Moving an item into a child fixes its position in the parent. We round
+to a binary fraction inside an interval chosen to ensure a large volume
+gain. For a structural repair, an interval with substantial probability
+inside and on both sides supplies the anchor: log-concavity gives a useful
+density bound throughout that interval. A failed certificate instead
+justifies using the middle half of the item's allowed interval
 (Section~\ref{sec:median-search}).
 
-\emph{Bounding the cost of graph simplification.}
-Section~\ref{sec:potential} compares the volume gained by moving items with
-the probability of choosing their children in a counting experiment.
-Failed comparison certificates and long directed paths supply enough
-volume gain to pay for these choices. Moves triggered by high degree
-are charged to the comparisons whose arcs they remove.
-The experiment gives a lower bound on the number of orders represented
-by any state, connecting the analysis to the sorter's task of determining
-one order.
+\emph{Showing that refinements are rare.}
+Section~\ref{sec:potential} relates the volume gained by moving an item
+to the cost of choosing its child. Failed comparison certificates give
+large gains, as do complete batches of items moved from a directed path.
+High-degree moves are limited by the number of arcs inserted. Together,
+these facts show that only $O(q/k)$ refinements occur during $q$
+comparisons, where $k$ is the degree threshold. Their total overhead is
+therefore small. A counting experiment combines node volumes and child
+choices to bound the number of orders still represented by the state.
 
 Finally, Section~\ref{sec:runtime} lets the degree and
 path-length bounds grow slowly with $n$, keeping the computation polynomial
@@ -164,8 +164,10 @@ answers, the adversary can choose a fixed order consistent with its
 answers and use that order thereafter. This bounds the lifetime of the
 recursive construction.
 
-Appendix~\ref{app:geometry} proves the density estimates,
-Appendix~\ref{app:coupling} proves the local enclosure theorem, and
-Appendix~\ref{app:parameters} collects the parameters.
+The appendices supply the interval and density facts
+(Appendix~\ref{app:geometry}), quantitative certificate estimates
+(Appendices~\ref{app:coupling} and~\ref{app:certificates}), refinement and
+consistency proofs (Appendix~\ref{app:execution}), and arithmetic details
+and parameter choices (Appendices~\ref{app:arithmetic} and~\ref{app:parameters}).
 The manuscript source is available
 online.\footnote{\url{https://github.com/nicknash/sorting-adversary-proofs/tree/main/for-humans}}

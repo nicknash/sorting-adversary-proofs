@@ -8,9 +8,8 @@ probability bounds.
 
 \subsection{A coordinate update with finitely many choices}
 
-Let $G$ be the in-node DAG. Compute its effective endpoints
-$\ell_z,r_z$ using the full graph, in temporary storage. For a current
-assignment $Y$, the interval permitted at coordinate $z$ has endpoints
+Let $G$ be the in-node DAG, with its stored canonical interval endpoints
+$\ell_z,r_z$. For a current assignment $Y$, the interval permitted at coordinate $z$ has endpoints
 \[
 L_z=\max\bigl(\{\ell_z\}\cup\{Y_u:u\to z\}\bigr),\qquad
 U_z=\min\bigl(\{r_z\}\cup\{Y_u:z\to u\}\bigr).
@@ -39,8 +38,8 @@ $(0,1)$ again.
 
 Fix a topological order of the full graph $G$, and let $T$ be the set of
 queried coordinates. Retain every vertex within undirected distance
-$\rho$ of $T$, together with all arcs between retained vertices. Copy
-their effective endpoints from the full graph. Vertices at distance
+$\rho$ of $T$, together with all arcs between retained vertices. Retain
+their stored interval endpoints. Vertices at distance
 exactly $\rho$ form the boundary; those at smaller distance form the
 interior.
 
@@ -62,7 +61,7 @@ to the list, including repeated entries.
 \caption{\texttt{Enclose}: compute a finite list of enclosing intervals.}
 \label{alg:finite-digits}
 \DontPrintSemicolon
-\KwIn{The retained in-node DAG and its effective bounds, its interior vertices, the restricted full topological order, queried coordinates $T$, and integers $S,t$.}
+\KwIn{The retained in-node DAG and its stored interval bounds, its interior vertices, the restricted full topological order, queried coordinates $T$, and integers $S,t$.}
 \KwOut{A list of enclosing intervals $([A_x,B_x])_{x\in T}$, one per digit assignment.}
 $\mathcal L\gets$ the empty list\;
 \ForEach{assignment of digits $j_{z,s}\in\{0,\ldots,S-1\}$ to the $b't$ interior visits}{
@@ -84,14 +83,14 @@ distributions; here it joins a uniformly selected list entry to a
 uniform feasible assignment.
 
 \begin{theorem}[Local enclosing intervals]\label{thm:local}
-Let $d,h,r\ge1$ be integers and let $\delta,\alpha\in(0,1)$ be rational.
+Let $d,h\ge1$ be integers and let $\delta,\alpha\in(0,1)$ be rational.
 There are computable parameters $S,t,\rho$ and a bound $E$, depending
-only on $d,h,r,\delta,\alpha$, with the following property.
+only on $d,h,\delta,\alpha$, with the following property.
 
-Suppose $G$ is a finite DAG with dyadic interval bounds, degree at most
+Suppose $G$ is a finite DAG with canonical dyadic interval bounds, degree at most
 $d$, directed paths of at most $h$ vertices, and a positive-volume
 feasible region $K\subseteq(0,1)^{V(G)}$. For any nonempty set $T$ of
-at most $r$ coordinates, Algorithm~\ref{alg:finite-digits} returns a list
+one or two coordinates, Algorithm~\ref{alg:finite-digits} returns a list
 satisfying two guarantees:
 \begin{enumerate}
 \item A uniformly selected entry can be coupled with $X$ uniform on $K$
@@ -112,7 +111,7 @@ The update is increasing in every coordinate, since maxima, minima, and
 the nonnegative linear combination in \eqref{eq:digit-update} are
 increasing. Thus it preserves the inequalities $A_z\le X_z\le B_z$ at
 an interior update. At a boundary vertex the full position always remains
-between its fixed effective endpoints, even as it changes during the full
+between its fixed interval endpoints, even as it changes during the full
 calculation. The full assignment remains uniform, and every interior
 digit sequence has probability $1/N$. This proves the first guarantee.
 
@@ -122,7 +121,8 @@ within $h$ vertices, where the lower endpoint is fixed. Most digit choices
 therefore reduce the interval widths. Bounded degree limits the number
 of dependencies to consider across successive sweeps.
 Appendix~\ref{app:coupling} proves the width bound and gives explicit
-parameter choices.
+parameter choices. Appendix~\ref{app:arithmetic} proves the precision
+bound.
 
 \subsection{Certifying comparison answers}
 
@@ -143,94 +143,21 @@ p\le\Prb(X_x<X_y),\qquad q\le\Prb(X_y<X_x).
 The same argument applies to a fixed threshold.
 These bounds hold for every list, including when neither fraction passes
 the acceptance test. The counts and their denominators are exact integers,
-so the routine is deterministic. The unit-width success guarantee follows
-from Lemma~\ref{lem:certificate-success}, proved below, since $w_*\le1$.
+so the routine is deterministic.
 \end{proof}
 
 \subsection{Certifying a central interval}
 
-For a free coordinate $x$, \texttt{CentralInterval} runs
-Algorithm~\ref{alg:finite-digits} with $T=\{x\}$. Write its intervals as
-$[A_i,B_i]$, $1\le i\le N$. The chosen $S$ is divisible by four, so
-$N/4$ is an integer. Sort the upper endpoints and take their $N/4$-th
-value as $u$. Sort the lower endpoints and take their $3N/4$-th value as
-$v$. Count the intervals wholly contained in $[u,v]$. If $u\ge v$ or
-fewer than $N/4$ intervals pass this test, return \texttt{FAIL}.
-Otherwise return $[u,v]$.
+For a free coordinate $x$, \texttt{CentralInterval} uses the one-coordinate
+list. It chooses a candidate interval $[u,v]$ from the sorted endpoints
+and checks how many list intervals lie to its left, wholly inside it,
+and to its right. It returns $[u,v]$ only when each count is at least
+$N/4$ and $u<v$; otherwise it returns \texttt{FAIL}. Enclosure then
+certifies the three probability bounds in
+Lemma~\ref{lem:central-interval}. Appendix~\ref{app:certificates} gives
+the endpoint selection and proves its success guarantee.
 
-\begin{proof}[Proof of Lemma~\ref{lem:central-interval}]
-At least $N/4$ intervals end at or below $u$, and at least $N/4$ begin
-at or above $v$. On success, at least $N/4$ intervals also lie wholly
-inside $[u,v]$. Enclosure certifies mass at least $1/4$ in each of the
-three regions. The true distribution is continuous and supported on
-$(\ell_x,r_x)$, so these masses imply $\ell_x<u<v<r_x$.
-The endpoints are dyadic, and sorting and counting finite lists are
-deterministic.
-\end{proof}
-
-\subsection{When certification succeeds}
-
-The preceding certificates are valid whenever their finite tests pass.
-To prove that the tests succeed on sufficiently dispersed coordinates,
-we bound the fraction of entries whose intervals overlap. The following
-geometric estimate applies to every pair of distinct free coordinates.
-
-\begin{lemma}[A bound for small differences]\label{lem:gap}
-Let $X$ be uniform on a positive-volume node region, and suppose $x$ has
-at most $B$ other comparable coordinates and effective width $W$.
-Let $Y$ be a fixed number or $X_y$ for any distinct free coordinate $y$.
-For every interval $I$ of length $a$,
-\begin{equation}\label{eq:gap}
-\Prb(X_x-Y\in I)\le\frac{(B+1)a}{W}.
-\end{equation}
-\end{lemma}
-
-Appendix~\ref{app:geometry} proves this bound by applying a density
-estimate for linear projections to a convex region with at most $B+1$
-free coordinates.
-
-\begin{proof}[Proof of Lemma~\ref{lem:certificate-success}]
-Computing effective endpoints preserves the positive-volume feasible
-region by Lemma~\ref{lem:interior}. Calibrate both routines using
-Theorem~\ref{thm:local} with
-\begin{equation}\label{eq:estimator-coupling-parameters}
-d=k,\qquad h=2H,\qquad r=2,\qquad
-\alpha=\frac\eta2,\qquad
-\delta=\frac{\eta w_*}{8(B+1)}.
-\end{equation}
-These parameters are fixed for the interaction. They do not depend on
-the queried widths.
-
-Suppose one queried free coordinate $x$ has $W_x\ge w_*$.
-If the computed intervals overlap and both have width at most $\delta$,
-the enclosed positions differ by at most $2\delta$.
-Lemma~\ref{lem:gap} therefore bounds the unresolved fraction by
-\[
-1-p-q\le\alpha+\Prb(|X_x-X_y|\le2\delta)
-\le\alpha+\frac{4(B+1)\delta}{w_*}=\eta.
-\]
-Thus $\max(p,q)\ge(1-\eta)/2>1/2-\eta$, so comparison certification
-succeeds. For a threshold $c$, an unresolved interval contains $c$.
-If its width is at most $\delta$, its enclosed position is within
-$\delta$ of $c$, giving the stronger bound
-\begin{equation}\label{eq:threshold-unresolved}
-\alpha+\frac{2(B+1)\delta}{w_*}=\frac{3\eta}{4}.
-\end{equation}
-
-It remains to show that \texttt{CentralInterval} succeeds when
-$W_x\ge w_*$. By \eqref{eq:threshold-unresolved}, at most a fraction
-$\tau=3\eta/4$ of its intervals contain any fixed real number.
-This bound applies in particular to the selected endpoints $u$ and $v$.
-An interval extending below $u$ either ends strictly below $u$ or
-contains $u$. By the rank defining $u$, fewer than $N/4$ intervals end
-strictly below it. Thus at most $(1/4+\tau)N$ intervals extend below $u$.
-Similarly, at most $N/4$ intervals begin strictly above $v$, so at most
-$(1/4+\tau)N$ extend above $v$.
-
-At least $(1/2-2\tau)N\ge N/4$ intervals therefore lie wholly inside
-$[u,v]$, since $\eta<1/32$. Enclosure gives this interval mass at least
-$1/4$. Continuity forces $u<v$, so both success tests pass.
-\end{proof}
-
-The next section chooses the parameters as a function of $n$ and bounds
-the work in every comparison call.
+Thus both routines decide by exact finite counts. The same appendix
+chooses their parameters and shows why a failed test permits a
+profitable refinement. The next section uses the resulting enumeration
+budget to obtain a uniform polynomial running time.

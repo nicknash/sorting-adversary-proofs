@@ -23,11 +23,13 @@ If the sorter reaches the horizon, it has already made at least
 $n\log n$ comparisons. If it stops earlier, the comparison bound for
 the recursive adversary applies.
 
-Lemma~\ref{lem:restoration} bounds the number of refinements in one call
-by $n$. Thus their total number $P$, including those in a call still
-in progress before the horizon, satisfies
+Lemma~\ref{lem:rare-refinements} bounds the number of refinements after
+$q$ completed calls by $O(q/k)$. An unfinished call adds at most $n+2$:
+two while selecting an answer and at most $n$ in the structural repair.
+Thus the number $P$ of refinements before the horizon, including any
+call still in progress, satisfies
 \begin{equation}\label{eq:refinement-runtime}
-P\le nQ(n)=O(n^2\log n).
+P=O\bigl(Q(n)/k+n\bigr).
 \end{equation}
 The recursive tree has at most $P+1$ nodes and contains $n$ item records.
 The stored transcript has at most $Q(n)$ pairs. After switching to fixed
@@ -35,8 +37,8 @@ ranks, the recursive state is no longer needed.
 
 \subsection{An explicit budget for the finite calculations}\label{sec:parameter-selection}
 
-Use the calibration in \eqref{eq:estimator-coupling-parameters} for the
-local enclosure theorem. Write $S_k$ for its number of digit choices,
+Appendix~\ref{app:certificates} chooses the parameters in the local
+enclosure theorem. Write $S_k$ for its number of digit choices,
 $t_k$ for the number of sweeps, and $b_k$ for the bound on retained
 vertices in \eqref{eq:local-size}. The number of digit sequences in one
 calculation is at most
@@ -61,41 +63,25 @@ available and meets the budget. Hence the selected $k(n)$ tends to infinity.
 
 \subsection{Precision and work per call}
 
-Let $\Lambda$ be the largest fractional binary precision among the stored
-bounds and anchors. The finite calculation produces endpoints with at
-most $\Lambda+\log E_k$ digits. If central certification succeeds, either
-endpoint of the returned interval is an admissible anchor candidate.
-The shortest binary fraction in that interval uses no more digits.
-If certification fails, the midpoint of the effective interval is a
-candidate in its middle half and uses at most $\Lambda+1$ digits.
-Since $E_k\ge2$, either branch increases the stored precision by at most
-$\log E_k$. Maxima and minima of existing bounds add no precision.
-Starting from the bounds $0,1$, we obtain
+Each finite calculation enumerates at most $E_k\le n$ digit assignments.
+For each assignment, either endpoint calculation uses at most
+$\log E_k$ updates, so the work involves polynomially many arithmetic
+operations. A comparison
+call uses at most three comparison calculations and at most $n$
+central-interval calculations, one for each structural refinement.
+
+The numbers also have polynomial length. Let $\Lambda$ be the greatest
+number of fractional binary digits in any stored endpoint or anchor.
+A refinement increases this by at most $\log E_k$, and normalization
+only copies existing bounds. Hence
 \begin{equation}\label{eq:precision}
-\Lambda\le P\log E_k=O(n^2\log^2 n).
+\Lambda\le P\log E_k=O(n\log^2 n).
 \end{equation}
-
-There are at most $n$ digit sequences per certificate calculation.
-Each sequence uses two endpoint calculations, each with at most
-$b_k t_k\le\log n$ updates. Each calculation adds at most
-$b_k t_k\log S_k=\log E_k\le\log n$ fractional bits.
-The frozen boundary requires no updates. Tallies have at most
-$\log n+1$ bits. Central certification sorts at most $n$ lower and
-upper endpoints and counts the intervals inside the proposed interval.
-All this arithmetic involves polynomially many bits. The shortest-fraction
-search examines at most the bit length of the candidate just described,
-so it also takes polynomial time.
-
-A comparison call makes at most $n$ refinements and hence at most $n+1$
-calls to \texttt{Certify} and $n$ calls to \texttt{CentralInterval}.
-Routing queries and computing effective endpoints take polynomial time
-in the stored state. Directed-path lengths are computed in reverse
-topological order; if $H>n$, no path can require refinement. The
-lexicographic tie rules can be implemented by scanning labels in order.
-Recording the bounded transcript and computing its topological ordering
-also take polynomial time. After the horizon, each answer compares two
-stored ranks. Thus one fixed polynomial bounds the work per query,
-independently of the selected parameters and the length of the interaction.
+Appendix~\ref{app:arithmetic} proves this precision bound and accounts
+for the graph operations, rounding, and exact arithmetic. Together with
+the finite horizon, these bounds give one fixed polynomial for the work
+per query, independent of the selected parameters and the length of the
+interaction. After the horizon, each answer compares two stored ranks.
 
 \begin{proof}[Proof of Theorem~\ref{thm:main}]
 Initialization and every comparison call are deterministic and take

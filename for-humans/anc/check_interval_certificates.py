@@ -12,6 +12,7 @@ from itertools import combinations_with_replacement, permutations, product
 from math import factorial
 from pathlib import Path
 import json
+from check_finite_digits import round_anchor
 
 
 def topological(n, arcs):
@@ -28,7 +29,7 @@ def topological(n, arcs):
     return order
 
 
-def effective(bounds, arcs):
+def normalize(bounds, arcs):
     n = len(bounds)
     order = topological(n, arcs)
     low, high = [a for a, _ in bounds], [b for _, b in bounds]
@@ -72,7 +73,7 @@ def bits(x):
 
 
 def enclose(bounds, arcs, targets, radius, radix, sweeps):
-    low, high, order = effective(bounds, arcs)
+    low, high, order = normalize(bounds, arcs)
     retained, interior = neighborhood(len(bounds), arcs, targets, radius)
     index = {v: i for i, v in enumerate(retained)}
     b = len(retained)
@@ -196,26 +197,14 @@ def certified_central(boxes):
     return u, v
 
 
-def shortest_fraction(left, right):
-    precision = 1
-    while True:
-        denominator = 2**precision
-        numerator = (left.numerator*denominator+left.denominator-1)//left.denominator
-        if numerator % 2 == 0:
-            numerator += 1
-        candidate = F(numerator, denominator)
-        if candidate <= right:
-            return candidate
-        precision += 1
-
-
-def anchor_from_certificate(boxes, low, high):
-    interval = certified_central(boxes)
+def anchor_for_refinement(boxes, low, high, reason):
+    assert reason in ('failure', 'repair')
+    interval = certified_central(boxes) if reason == 'repair' else None
     branch = 'central' if interval is not None else 'middle_half'
     if interval is None:
         width = high-low
         interval = low+width/4, high-width/4
-    return shortest_fraction(*interval), branch
+    return round_anchor(*interval)[0], branch
 
 
 def check_moment_lemma():
@@ -262,7 +251,7 @@ def check_moment_lemma():
 
 def shared_full_run(bounds, arcs, targets, radius, radix, sweeps, digits, initial,
                     freeze=True, require_enclosure=True):
-    low, high, order = effective(bounds, arcs)
+    low, high, order = normalize(bounds, arcs)
     retained, interior = neighborhood(len(bounds), arcs, targets, radius)
     update_set = interior if freeze else set(retained)
     full = list(initial)
@@ -399,22 +388,20 @@ def run():
     _, _, early_counts, _, _ = central(boxes)
     assert early_counts[1] < F(1,4)
     assert certified_central(boxes) is None
-    fallback, branch = anchor_from_certificate(boxes, F(0), F(1))
+    fallback, branch = anchor_for_refinement(boxes, F(0), F(1), 'repair')
     assert branch == 'middle_half' and fallback == F(1,2)
 
-    # A failed comparison need not make the subsequent central certificate
-    # fail. Use a concentrated uniform example where its successful anchor
-    # has density exactly 1/width, independently of the digit calculation.
+    # Comparison failure goes directly to the middle half. Supplying no
+    # marginal list makes an accidental central-certificate call fail here.
+    # The chosen coordinate is uniform, so its density is independently 1/W.
     low, high = F(1,2), F(1,2)+F(1,2**20)
     boxes, _ = enclose([(low,high)]*2, [], [0,1], 2, 2, 2)
     assert accepted_comparison(boxes, F(1,64)) is None
-    marginal = Counter()
-    for entry,count in boxes.items():
-        marginal[(entry[0],)] += count
-    central_anchor, branch = anchor_from_certificate(marginal, low, high)
-    assert branch == 'central' and low < central_anchor < high
+    direct_anchor, branch = anchor_for_refinement(None, low, high, 'failure')
+    assert branch == 'middle_half' and low < direct_anchor < high
+    assert low+(high-low)/4 <= direct_anchor <= high-(high-low)/4
     assert F(1,1)/(high-low) == 2**20
-    assert bits(central_anchor) <= max(bits(x) for entry in marginal for x in entry[0])
+    assert bits(direct_anchor) <= max(bits(low), bits(high))+2
 
     # Check the all-pair small-gap conclusion on a comparable pair directly:
     # on 0<x<y<1, the gap has density 2(1-d), 0<d<1.
@@ -441,8 +428,8 @@ def run():
             'moving_omitted_vertex_runs':moving_outside_runs,
             'unsafe_unfrozen_boundary_detected':True,
             'insufficient_sweeps_rejected':True,
-            'central_failure_midpoint_fallback_checked':True,
-            'comparison_failure_with_central_success_checked':True,
+            'central_failure_middle_half_checked':True,
+            'comparison_failure_direct_middle_checked':True,
             'repeated_endpoint_central_cases':repeated_endpoint_cases,
             'comparison_cases':reports, 'central_interval_cases':central_reports}
 

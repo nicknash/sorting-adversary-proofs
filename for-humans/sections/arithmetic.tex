@@ -1,0 +1,79 @@
+\section{Exact arithmetic and the stored state}\label{app:arithmetic}
+
+The budget $E_k\le n$ bounds the number of digit assignments and their
+length. We verify that it also bounds their bit cost, and that the
+recursive state remains of polynomial size up to the comparison horizon.
+
+\subsection{Precision in the interval calculation}\label{sec:digit-arithmetic}
+
+Suppose the stored endpoints have at most $\Lambda$ fractional binary
+digits. An update takes maxima and minima, forms an integer linear
+combination, and divides by the power of two $S$. It therefore adds at
+most $\log S$ fractional digits. If there are $b'$ interior vertices,
+each endpoint calculation makes $b't$ updates. The two calculations share
+digits but use their own values, so the precision in either is at most
+\begin{equation}\label{eq:digit-precision}
+\Lambda+b't\log S\le\Lambda+\log E.
+\end{equation}
+This proves the precision claim of Theorem~\ref{thm:local}. All computed
+positions remain in $[0,1]$, so their integer numerators need at most one
+additional bit. Digits and counts have at most $\log S$ and $\log E+1$
+bits, respectively.
+
+\subsection{Precision of new anchors}
+
+If a nondegenerate interval has dyadic endpoints with at most $F$
+fractional digits, its length is at least $2^{-F}$. The rounding rule
+of Lemma~\ref{lem:rounding} therefore uses a grid exponent at most $F$,
+and its anchor has at most $F$ fractional digits.
+
+For a certified central interval, \eqref{eq:digit-precision} gives
+$F\le\Lambda+\log E_k$. Forming the middle half of a stored interval
+gives endpoints with at most $\Lambda+2$ digits. Since $E_k\ge4$, both
+choices produce anchors with at most $\Lambda+\log E_k$ digits. This
+also covers the direct middle-half choice after a failed comparison
+certificate. The update of neighboring bounds and
+\texttt{Normalize} take maxima and minima of existing endpoints and the
+chosen anchor, adding no precision.
+
+All initial endpoints are $0$ or $1$. After $P$ refinements, induction
+therefore gives $\Lambda\le P\log E_k$, as claimed in
+\eqref{eq:precision}. The bound includes the stored state during an
+unfinished call. Temporary endpoints in the next calculation add at most
+another $\log E_k$ digits.
+
+\subsection{Inventory and work per call}
+
+Each refinement creates at most one recursive-tree node. There are thus
+at most $P+1$ nodes, $n$ item records, and at most $P$ stored child anchors.
+An item belongs to exactly one in-node DAG, so their total numbers of
+vertices and arcs are at most $n$ and $n^2$, respectively. The recorded
+prefix contains at most $Q(n)$ comparisons. Labels, pointers, depths,
+and counters have polynomial length, as do all dyadic endpoints by
+\eqref{eq:precision}.
+
+For one certificate, the algorithm enumerates at most $E_k\le n$ digit
+assignments. Each assignment uses two endpoint calculations, each with
+at most $b_k t_k\le\log E_k\le\log n$ updates. The boundary vertices
+remain fixed. Maxima, minima, integer multiplication, and division by
+powers of two operate on polynomially many bits. Central certification
+sorts at most $n$ lower and upper endpoints and counts the intervals
+inside its candidate. Rounding computes a grid exponent and a ceiling
+using the same bounded-precision integers. Standard binary arithmetic
+therefore gives a fixed polynomial bound for each operation.
+
+Before selecting an answer, a call makes at most two failure refinements
+and three calls to \texttt{Certify}. Failure refinements use the middle
+half directly. After recording the answer, the single structural repair
+makes at most $n$ refinements and hence at most $n$ calls to
+\texttt{CentralInterval}.
+
+The remaining work is polynomial in the stored graph size. Topological
+passes normalize intervals and compute directed-path lengths. A finite
+graph search finds each retained neighborhood; it stops when either the
+prescribed radius or all available vertices have been reached. Routing
+uses the recursive tree, and deterministic choices can be made by scanning
+labels. At the horizon, topologically sorting the bounded transcript DAG
+produces the fixed ranks for all later answers. Thus the bit-operation
+bound has a fixed exponent, independent of $k$ and of the number of
+queries already answered.

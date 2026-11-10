@@ -18,7 +18,7 @@ vertex $z$, the shared digit $j_z$ gives
 +\frac{S-1-j_z}{S}\max_{u\to z}\Delta_u^{\rm new}
 +\frac{j_z}{S}\max_{z\to u}\Delta_u^{\rm old},
 \end{equation}
-with an empty maximum equal to zero. The effective interval bounds in the two calculations are identical.
+with an empty maximum equal to zero. The stored interval bounds in the two calculations are identical.
 
 Let $B_h(z)$ be the vertices at undirected distance at most $h$ from $z$,
 and suppose they are all interior vertices. Put
@@ -86,6 +86,7 @@ Markov's inequality.
 
 \subsection{Choosing the parameters}
 
+Write $r=2$ for the bound on the number of queried coordinates.
 Both $B_h(z)$ and the set consisting of $z$ and its directed-path
 predecessors have at most $M$ vertices. Choose
 \begin{equation}\label{eq:digit-alphabet}
@@ -135,20 +136,4 @@ $1+d+\cdots+d^\rho\le(d+1)^{\rho+1}$ vertices. We may therefore use
 b=r(d+1)^{\rho+1},\qquad E=S^{bt}
 \end{equation}
 as bounds on the retained vertices and enumerated digit assignments.
-All these choices depend only on $d,h,r,\delta,\alpha$.
-
-\subsection{Exact arithmetic}\label{sec:digit-arithmetic}
-
-Suppose the effective endpoints have at most $\Lambda$ fractional binary
-digits. An update takes maxima and minima, forms an integer linear
-combination, and divides by the power of two $S$. It adds at most
-$\log S$ fractional digits. If $b'$ interior vertices are updated, each endpoint calculation makes
-$b't$ updates. The two calculations share digits but use their own values,
-so the precision in either is at most
-\begin{equation}\label{eq:digit-precision}
-\Lambda+b't\log S\le\Lambda+\log E.
-\end{equation}
-All positions remain in $[0,1]$, so their integer numerators need at most
-one additional bit. Digits and tallies have at most $\log S$ and
-$\log E+1$ bits, respectively. This proves the remaining claims of
-Theorem~\ref{thm:local}.
+All these choices depend only on $d,h,\delta,\alpha$.

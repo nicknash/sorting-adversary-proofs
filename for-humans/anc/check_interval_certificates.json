@@ -41,8 +41,8 @@
   "moving_omitted_vertex_runs": 512,
   "unsafe_unfrozen_boundary_detected": true,
   "insufficient_sweeps_rejected": true,
-  "central_failure_midpoint_fallback_checked": true,
-  "comparison_failure_with_central_success_checked": true,
+  "central_failure_middle_half_checked": true,
+  "comparison_failure_direct_middle_checked": true,
   "repeated_endpoint_central_cases": 2,
   "comparison_cases": [
     {

@@ -932,3 +932,98 @@ match the saved files. Title, abstract, disclosure, Section 2, and every
 figure environment are unchanged. Sections 1 and 3 change only as needed
 for the new algorithm and roadmap. This revision has not replaced the
 Hexagon deposit.
+
+
+One repair, binary-grid rounding, and refinement rarity -- 10 November 2026
+------------------------------------------------------------------------
+Source: the complete latest assistant message in Simplify Paper Arguments,
+turn ed988b03-f093-451a-a72b-14722de6cf28,
+message 9611da7d-c0eb-51d8-af7a-6bce42f8b072. The connected chat reader
+returned all 15,850 characters without truncation. Its stated baseline is
+d0da5c2d8c7767cab74042e7689be6295e3f2e34, which matched local and remote
+main at the start. The linked eleven-page proposal PDF and source archive
+were not downloaded. All mathematical and organizational changes below
+were developed from the complete source message and existing manuscript.
+
+Compare now selects and records an answer before one structural Repair.
+Between completed calls every degree is below k and every directed path
+has fewer than H vertices. A new violation must involve the single arc
+just inserted. A complete H-vertex path batch removes both endpoints;
+otherwise a degree repair removes one. The new arc is deleted, restoring
+the strict bounds. Temporary bounds are still degree at most k and path
+length below 2H. Path batches are completed in path order, even after the
+first few moves have repaired the graph.
+
+Before the answer, only the two queried labels can move. Each moves at
+most once: its fresh isolated unit coordinate would give zero volume gain
+if moved again, contradicting the failed-certification gain greater than k.
+The call therefore has at most two such refinements and three comparison
+calculations. A queried label may move again after the answer adds a
+relation. The total call bound is n+2, not n or two. The public unit-width
+certification clause is removed.
+
+A failed comparison certificate now goes directly to the physical middle
+half. Structural refinements first try CentralInterval and use the middle
+half if that fails. The mixed comparison-failure/central-success branch is
+removed. For an interval J=[u,v], choose h=2^(-r) with h<=|J|<2h and use
+c=h ceil(u/h). The rounded anchor lies in J; if c=(2i+1)/2^(m+1) in reduced
+form, then |J|<2^(-m). The implicit anchor tree, its diagram, shortest-anchor
+optimization, uniqueness proof, containment lemma and walk implementation
+are removed. The existing recursive tree and its diagrams remain.
+
+Records now store just ell_x,r_x, equal to the full feasible range of the
+coordinate. Normalize propagates lower bounds forward in topological
+order and upper bounds backward after mutations. The appendix proves
+this preserves the feasible region, represented orders, volume and binary
+precision. The existing geometric example and section-volume proof move
+to the beginning of Section 4, where they explain g=log f_x(c).
+
+The main counting proof uses only the affine refinement bound ell<=a g+b
+and the stronger failure gain. Degree moves satisfy D<=q/k by arc counting.
+Path-order refinement produces increasing anchors; AM-GM gives batch cost
+at least H(k+1). The affine bound then gives average gain at least k/2.
+Since child costs are nonnegative, the same affine bound gives g>=-b/a for
+degree moves, without exporting a separate g>=-4 assertion. Combining
+G >= (k/2)(P-D)-(b/a)D with G<=a_eta q proves P=O(q/k). The final telescope
+uses a and bP, removing lambda, sigma, and their separate corrections.
+The appendix verifies a<=3/2 and b<=k/4 for all k>=64, so the rarity estimate
+also applies at every parameter stage used by the implementation.
+
+Section 5 retains the elementary rounding proof, the central-density
+consequence f_x(c)>=1/(16|J|), its short application to the gain, one-arc
+repair, and progress before answering. Canonical-interval facts, general
+projection and gap estimates, general log-concavity bounds, certificate
+failure conditions and rank counts are private to the appendices.
+The finite-digit uniformity and monotone enclosure mechanisms remain in
+Section 6; its local theorem concerns one or two queried coordinates.
+Quantitative contraction and parameter calibration are deferred. Section 7
+keeps the horizon and clocked parameter selection. The rarity lemma bounds
+P=O(Q(n)/k+n), including n+2 moves in an unfinished call. Rounding and the
+finite calculation give Lambda<=P log E=O(n log^2 n). Detailed arithmetic
+and state inventories are in a separate appendix.
+
+Independent reviews checked normalization, coordinate sections, density,
+rounding and direct-middle gain, admission into existing children,
+one-arc repair, two-move progress, signed-gain rarity, the final telescope,
+certificate calibration, rounding precision and the runtime inventory.
+All five current diagnostic scripts pass. Rarity diagnostics include
+13,268 finite cases and 115,732 exact inequalities, including 2,952 mixtures
+with negative degree gains and all 4,033 integers from 64 through 4096.
+Rounding checks cover 1,953 intervals and 2,206 middle-half cases, including
+an example where rounding deliberately returns a non-shortest fraction.
+The new graph diagnostic enumerates 93,776 acyclic arc insertions on DAGs
+of at most five vertices and verifies 32,478 repair choices: 21,978 complete
+path batches and 10,500 degree repairs. Existing invariant-moment, interval
+certificate, gap, contraction, enclosure, and independent section-volume
+checks pass. These are finite diagnostics, not a formal verification of
+all executions. The related earlier Lean formalization is unchanged.
+
+Both repository and desktop-editor compilers pass. The final TeX log has
+no warnings, unresolved references, or overfull/underfull boxes. The main
+text ends on page 21; the full PDF remains 32 pages. Affected algorithm,
+counting, rounding, implementation and appendix pages were visually checked.
+All 25 archive members match saved sources. The title, abstract, disclosure,
+Section 2, and all six retained TikZ figures are unchanged. The obsolete
+anchor-tree figure is the only removed figure. Sections 1 and 3 change only
+for the revised representation, algorithm and roadmap. The current revision
+has not replaced the Hexagon deposit.

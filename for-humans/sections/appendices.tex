@@ -1,8 +1,58 @@
-\section{Coordinate densities}\label{app:geometry}
+\section{Canonical intervals and densities}\label{app:geometry}
 
-We prove the density bounds used to choose anchors and to bound the
-fraction of unresolved comparisons. The geometric argument applies to
-linear projections of convex regions. Let $V$ be the set of coordinates,
+We first verify that normalization stores the full range of each
+coordinate without changing the feasible region. We then establish the
+density bounds used to choose anchors and analyse probability certificates.
+
+\begin{lemma}[Canonical intervals and sections]\label{lem:interior}
+Algorithm~\ref{alg:normalize} preserves the feasible region and its volume.
+After normalization, the region has positive volume if and only if all
+stored widths $r_x-\ell_x$ are positive. In that case $(\ell_x,r_x)$ is
+the projection of the region onto coordinate $x$, and fixing any
+$X_x=c\in(\ell_x,r_x)$ leaves a positive-volume section.
+\end{lemma}
+\begin{proof}
+Every propagated bound is already implied by an arc and an interval
+bound. A forward topological pass propagates every lower bound to all
+its successors; the reverse pass propagates every upper bound to all
+its predecessors. Thus normalization preserves the region and gives
+$\ell_x\le\ell_y$ and $r_x\le r_y$ along every arc $x\to y$.
+
+Positive volume requires positive widths. Conversely, suppose all widths
+are positive. Choose numbers $0<\theta_x<1$ increasing in a topological
+order, and set
+\[
+X_x=(1-\theta_x)\ell_x+\theta_xr_x.
+\]
+Along an arc $x\to y$, increasing $\theta_x$ to $\theta_y$ strictly
+increases this value, because $r_x>\ell_x$. Replacing the endpoints by
+$\ell_y,r_y$ cannot decrease it. Thus $X_x<X_y$, all interval bounds
+hold strictly, and a small open neighborhood is feasible.
+
+Now fix $X_x=c$ in the stored interval and delete its coordinate.
+Incident arcs impose the upper bound $c$ at its in-neighbors and the
+lower bound $c$ at its out-neighbors. Lower bounds propagate forward
+and upper bounds backward. Any earlier lower bound that reached a
+successor through $x$ is superseded by $c>\ell_x$; any earlier upper
+bound that reached a predecessor through $x$ is superseded by $c<r_x$.
+The normalized intervals of the remaining coordinates are therefore
+\begin{equation}\label{eq:section-intervals}
+\begin{cases}
+(\ell_y,\min(r_y,c)),&y\text{ precedes }x,\\
+(\max(\ell_y,c),r_y),&y\text{ succeeds }x,\\
+(\ell_y,r_y),&y\text{ is incomparable with }x.
+\end{cases}
+\end{equation}
+A predecessor retains positive width because $r_y>\ell_y$ and
+$c>\ell_x\ge\ell_y$. A successor does too because $r_y>\ell_y$ and
+$c<r_x\le r_y$. Other widths are unchanged. The criterion just proved
+shows that the section has positive volume. Since this holds for every
+$c\in(\ell_x,r_x)$, that interval is exactly the coordinate projection.
+\end{proof}
+
+\subsection{Bounds from convex sections}
+
+Let $V$ be the set of coordinates,
 let $N=|V|$, and let
 $K\subseteq\R^V$ be their feasible region.
 For a coordinate $x$ and a real number $t$, write
@@ -73,10 +123,20 @@ g(s)\ge4^{-(d-1)}g(t_0)\ge\frac{4^{-(d-1)}}{W}.
 The case $s=t_0$ satisfies the same bound directly.
 \end{proof}
 
-\begin{proof}[Proof of Lemma~\ref{lem:fiber}]
+\begin{lemma}[Coordinate density bounds]\label{lem:fiber}
+Suppose a node's feasible region has positive volume, and $x$ has at most
+$B$ other comparable coordinates and canonical interval $(\ell,r)$ of
+width $W$. Its density satisfies
+\begin{align}
+f_x(t)&\le\frac{B+1}{W},\label{eq:fiber-upper}\\
+f_x(t)&\ge\frac{4^{-B}}{W}
+\qquad(\ell+W/4\le t\le r-W/4).\label{eq:fiber-lower}
+\end{align}
+\end{lemma}
+\begin{proof}
 Fix all coordinates incomparable with $x$, at values leaving a nonempty
 region. By the section formula in Lemma~\ref{lem:interior}, each such
-fixing leaves $x$'s effective interval unchanged. The remaining region
+fixing leaves $x$'s canonical interval unchanged. The remaining region
 $C$ is open and convex, has dimension $d\le B+1$, and still projects
 onto $(\ell,r)$ in coordinate $x$. Lemma~\ref{lem:projection-density}
 therefore gives both required bounds for the density of $x$ in $C$.
@@ -93,17 +153,26 @@ Empty slices contribute zero. The bounds on $g_\omega$ are uniform in
 $\omega$, so they also hold for $f_x$.
 \end{proof}
 
-\begin{proof}[Proof of Lemma~\ref{lem:gap}]
+\begin{lemma}[A bound for small differences]\label{lem:gap}
+Let $X$ be uniform on a positive-volume node region, and suppose $x$ has
+at most $B$ other comparable coordinates and canonical interval of width
+$W$. Let $Y$ be a fixed number or $X_y$ for any distinct free coordinate
+$y$. For every interval $I$ of length $a$,
+\begin{equation}\label{eq:gap}
+\Prb(X_x-Y\in I)\le\frac{(B+1)a}{W}.
+\end{equation}
+\end{lemma}
+\begin{proof}
 For a fixed number $Y$, integrate the coordinate-density upper bound
 over $I+Y$. Now let $Y=X_y$ for any free coordinate $y\ne x$.
 As above, fix all coordinates incomparable with $x$. The remaining
 convex region $C$ has dimension $d\le B+1$, and $x$ retains its
-effective width $W$. We show that the projection $X_x-X_y$ has width
+width $W$. We show that the projection $X_x-X_y$ has width
 at least $W$ in each such region.
 
 If $y$ is incomparable with $x$, it is now fixed, so the projection is
 a translate of $X_x$ and has width $W$. Otherwise $y$ remains free.
-Write $(\ell_z,r_z)$ for effective intervals in $C$; $x$'s endpoints
+Write $(\ell_z,r_z)$ for canonical intervals in $C$; $x$'s endpoints
 are unchanged. If a directed path goes from $x$ to $y$, then $r_y\ge r_x$.
 Fixing $X_y=t\in(\ell_y,r_y)$ leaves $x$ the interval
 $(\ell_x,\min(r_x,t))$, by Lemma~\ref{lem:interior}. As $t$ approaches
@@ -121,13 +190,23 @@ at most $B$ comparable coordinates, exchanging $x$ and $y$ gives the
 same bound with $\max(W_x,W_y)$ in the denominator.
 \end{proof}
 
-The coordinate densities above are log-concave pointwise: the uniform
+\subsection{Density in a central interval}
+
+A density is \emph{log-concave} if its positive support is convex and its
+logarithm is concave there. The coordinate densities above are log-concave pointwise: the uniform
 density on $K$ is log-concave, and integrating out the other coordinates
 preserves this property by Pr\'ekopa's marginal theorem
 \cite[Theorem~8]{prekopa}. We finish with the density bound used for
 positions having substantial probability on each side.
 
-\begin{proof}[Proof of Lemma~\ref{lem:central-quantiles}]
+\begin{lemma}[Density at central positions]\label{lem:central-quantiles}
+Let $X$ have a log-concave density $f$. If
+$\Prb(X\le c)\ge p$ and $\Prb(X\ge c)\ge p$ for some $0<p\le1/2$, then
+\[
+f(c)\ge p\sup_t f(t).
+\]
+\end{lemma}
+\begin{proof}
 For $s\le c\le t$, log-concavity gives
 \[
 f(s)f(t)\le f(c)f(s+t-c).
@@ -143,4 +222,10 @@ and the last uses that a density integrates to one. Fixing $s\le c$ and
 integrating over $t\ge c$ instead uses the right-hand mass and gives
 $p f(s)\le f(c)$. Taking the supremum over both sides of $c$ proves the
 claim.
+\end{proof}
+
+\begin{proof}[Proof of Lemma~\ref{lem:central-density}]
+Put $M=\sup_t f_x(t)$. The inside-mass condition gives $M|J|\ge1/4$.
+Every $c\in J$ has probability at least $1/4$ on each side, so
+Lemma~\ref{lem:central-quantiles} gives $f_x(c)\ge M/4\ge1/(16|J|)$.
 \end{proof}

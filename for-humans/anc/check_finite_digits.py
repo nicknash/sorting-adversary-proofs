@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Small exact diagnostics for finite digit updates and shortest anchors.
+"""Small exact diagnostics for finite digit updates and rounded anchors.
 
 These check finite examples and algebraic identities, not the general locality
 proof or every adversary trajectory. No nonstandard dependencies are used.
@@ -15,17 +15,16 @@ def update(z, low, high, digit, radix):
     return (z + (radix - 1 - digit) * low + digit * high) / radix
 
 
-def shortest(left, right):
-    a, b, depth = F(0), F(1), 0
-    while True:
-        c = (a + b) / 2
-        if c < left:
-            a = c
-        elif c > right:
-            b = c
-        else:
-            return c, depth, (a, b)
-        depth += 1
+def round_anchor(left, right):
+    """Round up on the largest binary grid no wider than the interval."""
+    assert F(0) < left < right < F(1)
+    spacing, exponent = F(1), 0
+    while spacing > right-left:
+        spacing /= 2
+        exponent += 1
+    scaled = left / spacing
+    c = spacing * (-(-scaled.numerator // scaled.denominator))
+    return c, exponent
 
 
 def bits(x):
@@ -53,37 +52,41 @@ def run():
 
     anchor_checks = 0
     for a in range(1, 64):
-        for b in range(a, 64):
+        for b in range(a+1, 64):
             left, right = F(a, 64), F(b, 64)
-            c, depth, interval = shortest(left, right)
-            # Independently enumerate reduced fractions by precision.
-            for m in range(7):
-                candidates = [F(2*i+1, 2**(m+1)) for i in range(2**m)
-                              if left <= F(2*i+1, 2**(m+1)) <= right]
-                if candidates:
-                    assert candidates == [c] and m == depth
-                    break
-            else:
-                raise AssertionError('No candidate')
-            assert interval[0] <= left <= right <= interval[1]
-            assert interval[1]-interval[0] == F(1, 2**depth)
-            assert bits(c) <= max(bits(left), bits(right)) + 1
+            c, exponent = round_anchor(left, right)
+            spacing = F(1, 2**exponent)
+            assert spacing <= right-left < 2*spacing
+            assert left <= c <= right
+            assert bits(c) <= max(bits(left), bits(right))
+            m = bits(c)-1
+            assert right-left < F(1, 2**m)
+            # Independently enumerate the selected grid and check upward rounding.
+            choices = [F(j, 2**exponent) for j in range(2**exponent+1)
+                       if left <= F(j, 2**exponent) <= right]
+            assert c == min(choices)
             anchor_checks += 1
+
+    # This distinguishes the algorithm from minimum-denominator selection.
+    nonminimal = round_anchor(F(11,32), F(17,32))[0]
+    assert nonminimal == F(3,8) and F(11,32) < F(1,2) < F(17,32)
 
     fallback_checks = 0
     for a in range(64):
         for b in range(a+1, 65):
             ell, upper = F(a, 64), F(b, 64)
             width = upper-ell
-            c, depth, interval = shortest(ell+width/4, upper-width/4)
+            c, exponent = round_anchor(ell+width/4, upper-width/4)
+            assert ell+width/4 <= c <= upper-width/4
             assert ell < c < upper
             assert bits(c) <= max(bits(ell), bits(upper))+1
-            assert width/2 <= interval[1]-interval[0]
+            assert width/2 < F(1, 2**(bits(c)-1))
             fallback_checks += 1
     for precision in range(3, 129):
         width = F(1, 2**precision)
-        c, depth, _ = shortest(F(1, 2)-width/4, F(1, 2)+width/4)
-        assert c == F(1, 2) and depth == 0
+        c, exponent = round_anchor(F(1, 2)-width/4, F(1, 2)+width/4)
+        assert c == F(1, 2)
+        assert bits(c) <= precision+2
         fallback_checks += 1
 
     # All finite computations for a two-item chain. Equal final states are
@@ -109,7 +112,8 @@ def run():
     assert any(state[0]==state[1] for state in states)
     return {'status':'passed','scope':__doc__.strip(),
             'continuous_invariance_moment_checks':invariant_checks,
-            'shortest_fraction_checks':anchor_checks,'fallback_anchor_checks':fallback_checks,
+            'rounding_checks':anchor_checks,'fallback_anchor_checks':fallback_checks,
+            'nonminimal_anchor_example_checked':True,
             'finite_chain_update_checks':update_checks,
             'finite_chain':chain_reports,
             'note':'Small chain parameters are diagnostic examples, not the much larger certified locality parameters.'}
