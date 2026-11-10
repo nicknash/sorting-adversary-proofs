@@ -1,16 +1,14 @@
 \subsection{Answering a comparison}\label{sec:comparison}\label{sec:legal}
 
 Algorithm~\ref{alg:compare} gives the comparison procedure. Its main
-choice is delegated to \texttt{Select}, whose guarantee we state next.
-The call to \texttt{Normalize} restores canonical intervals after an
-answer; Appendix~\ref{app:geometry} gives its two graph passes.
+choice is delegated to \texttt{Select}.
 
-The adversary uses the recursive state for at most
+The desired lower bound is already reached after
 \begin{equation}\label{eq:comparison-horizon}
 Q(n)=n\ceil{\log n}
 \end{equation}
-answers, then answers from fixed ranks consistent with the transcript.
-By then the required comparison lower bound has already been reached.
+comparisons. For later queries, use a fixed total order consistent with
+the transcript.
 
 \begin{algorithm}[H]
 \caption{\texttt{Compare}$(A,B)$: answer a comparison query.}
@@ -52,60 +50,76 @@ Append $\mathit{answer}$ to $\mathcal T$\;
 
 \subsubsection{Choosing an answer}\label{sec:selection}
 
-\texttt{Select} rests on the local selection lemma below, the key
-algorithmic result of the paper. An answer divides the feasible region
-into two parts. We would
-like to keep the larger part, but computing its volume may be expensive.
-\texttt{Select} instead examines a bounded neighborhood of the queried
-coordinates and tries to certify an answer retaining almost half the
-volume.
+\texttt{Select} uses deterministic estimates of the fractions of $K(D)$
+retained by the two answers. The guarantee for this routine is the key
+algorithmic result, Lemma~\ref{lem:local-routines}.
 
-An inconclusive calculation is useful too: it identifies a queried
-coordinate confined to a sufficiently short interval. Moving that item
-into a child gives it a fresh unit interval. The lemma guarantees that the section left by fixing this coordinate
-is large enough to compensate for the move.
-The companion routine \texttt{ChooseAnchor} supplies a position when
-\texttt{Repair} has already specified which item must move.
+The amount of graph that the calculation must examine depends on both
+vertex degree and directed path length. Degree counts neighbors in
+either direction. We use one integer $k\ge64$
+to specify these bounds in Lemma~\ref{lem:local-routines}. Larger $k$
+allows more complicated DAGs and makes the retained fraction closer
+to one half.
 
-To state the guarantee, let $f_x$ be the density of $X_x$ for a uniform
-feasible assignment in $K(D)$. We define $f_x(c)$ pointwise as the volume
-of the section $X_x=c$, measured in the remaining coordinates, divided
-by $V(D)$. Thus high density means that fixing $X_x=c$ leaves a large
-section relative to the original volume.
+Algorithm~\ref{alg:select} uses a local calculation called
+\texttt{Enclose}$(D,T)$, where $T$ is the set of queried coordinates.
+It produces a finite list of intervals, one per queried coordinate in
+each entry; write these intervals as $I_\alpha,I_\beta$. For either answer, the fraction of entries whose intervals
+force that answer is a lower bound on its probability under a uniform
+feasible assignment. Algorithm~\ref{alg:finite-digits} gives this
+calculation; its parameters are fixed as in
+Appendix~\ref{app:certificates}.
 
-Choose a degree threshold $k\ge64$ and a path threshold $H=2^k$.
-Degree counts neighbors in either direction, and path length counts
-vertices. The error allowed in the fraction retained by an answer is
-\begin{equation}\label{eq:path-threshold}
-\eta=\frac1{100k}.
+\begin{algorithm}[H]
+\caption{\texttt{Select}$(D,\alpha,\beta)$: choose an answer or a position for refinement.}
+\label{alg:select}
+\DontPrintSemicolon
+\KwIn{A canonical order-restriction DAG $D$; distinct coordinates $\alpha,\beta$, or one coordinate and one dyadic constant.}
+\KwOut{An answer $\alpha<\beta$ or $\beta<\alpha$, or a pair $(x,c)$.}
+$T\gets$ the queried coordinates\;
+$\mathcal L\gets$ \texttt{Enclose}$(D,T)$\;
+In every entry, use $[t,t]$ for a queried constant $t$\;
+$p\gets$ the fraction of entries with $\max I_\alpha<\min I_\beta$\;
+$q\gets$ the fraction of entries with $\max I_\beta<\min I_\alpha$\;
+\If{$\max(p,q)\ge 1/2-1/(100k)$}{
+  \lIf{$p\ge q$}{\Return $\alpha<\beta$}
+  \Return $\beta<\alpha$\;
+}
+$x\gets$ the smallest label in $T$\;
+$W_x\gets r_x-\ell_x$\;
+$h\gets$ the largest power of two at most $W_x/2$\;
+$c\gets h\left\lceil(\ell_x+W_x/4)/h\right\rceil$\;
+\Return $(x,c)$\;
+\end{algorithm}
+
+To state the guarantee provided by \texttt{Select}, let $f_x$ be the
+density of $X_x$ under a uniform feasible assignment in $K(D)$. Explicitly,
+\begin{equation}\label{eq:coordinate-density}
+f_x(c)=\frac{\vol_{|V|-1}\bigl(K(D)\cap\{X_x=c\}\bigr)}{V(D)}.
 \end{equation}
+The numerator is the volume of the section $X_x=c$, measured in the
+remaining $|V|-1$ coordinates.
 
 \begin{lemma}[Local selection]\label{lem:local-routines}
 Let $D$ be an order-restriction DAG with canonical dyadic intervals,
-$V(D)>0$, degree at most $k$, and directed paths of at most $2H$ vertices.
+$V(D)>0$, degree at most $k$, and directed paths of at most $2^{k+1}$
+vertices. Algorithm~\ref{alg:select} returns either
 \begin{enumerate}
-\item For a comparison $X_a<X_b$ with $a\ne b$, or between $X_a$ and
-a dyadic constant, \textnormal{\texttt{Select}} returns either an answer
-retaining at least $1/2-\eta$ of $V(D)$ or a queried coordinate $x$
-and a dyadic $c\in(\ell_x,r_x)$ with $\log f_x(c)>k$.
-\item Given a coordinate $x$, \textnormal{\texttt{ChooseAnchor}}$(D,x)$
-returns a dyadic $c\in(\ell_x,r_x)$.
+\item an answer retaining at least $1/2-1/(100k)$ of $V(D)$; or
+\item a queried coordinate $x$ and a dyadic $c\in(\ell_x,r_x)$ with
+$f_x(c)>2^k$.
 \end{enumerate}
-For either routine, write the returned position in reduced form as
-$c=(2i+1)/2^{m+1}$. Then
-\begin{equation}\label{eq:tariff}
-\log f_x(c)\ge(1-1/k)m-4.
-\end{equation}
-The routines are deterministic and use only the graph and interval bounds
-in a neighborhood of the queried coordinates whose radius depends on $k$.
+The calculation is deterministic and uses only the graph and interval
+bounds within a distance of the queried coordinates depending only on $k$.
 \end{lemma}
 \begin{proof}
 See Appendices~\ref{sec:oracle} and~\ref{app:execution}.
 \end{proof}
 
-The bound involving $m$ ensures that an anchor requiring many binary
-digits has large density. This will control the moves made by
-\texttt{Repair}.
+In particular, an isolated coordinate with interval $(0,1)$ has density
+one, so Lemma~\ref{lem:local-routines} prevents \texttt{Select} from
+returning it for refinement. If both queried coordinates have this form,
+\texttt{Select} must answer the comparison.
 
 \subsubsection{Moving an item into a child}\label{sec:overview-refine}
 
@@ -115,6 +129,13 @@ child. The first part is an operation on an order-restriction DAG.
 For $c\in(\ell_x,r_x)$, \texttt{Restrict}$(D,x,c)$ substitutes $c$ for
 $X_x$ in the incident inequalities, deletes $x$, and normalizes the
 remaining intervals. Algorithm~\ref{alg:restrict} gives the procedure.
+
+Here normalization accounts for bounds implied by the remaining arcs.
+For an arc $y\to z$, the lower bound $\ell_y$ also applies to $X_z$,
+and the upper bound $r_z$ also applies to $X_y$. \texttt{Normalize}
+propagates the lower bounds in topological order and the upper bounds
+in reverse topological order. This makes the intervals canonical
+without changing $K(D)$ (Lemma~\ref{lem:normalization}).
 
 \begin{lemma}[Coordinate restriction]\label{lem:interior}
 Let $D$ be canonical with $V(D)>0$ and $c\in(\ell_x,r_x)$.
@@ -218,21 +239,25 @@ We call the change
 \end{equation}
 the refinement's \emph{volume gain}. Thus a refinement requested by
 \texttt{Select} gains more than $k$ in $\log Z$, whereas an answer
-loses at most $-\log(1/2-\eta)=1+O(1/k)$.
+loses at most $-\log(1/2-1/(100k))=1+O(1/k)$.
 \label{sec:refinement-volume}
 
 \subsubsection{Keeping the in-node DAGs small}\label{sec:repairs}
 
-The local selection lemma requires bounds on degree and directed path
-length. Algorithm~\ref{alg:repair} maintains degree below $k$ and paths
-with fewer than $H$ vertices between queries. Inserting one comparison
-arc can temporarily raise these bounds to $k$ and fewer than $2H$
-vertices, which explains the hypotheses of the lemma.
+To keep the DAGs within the bounds of Lemma~\ref{lem:local-routines},
+Algorithm~\ref{alg:repair} maintains degree below $k$ and directed paths
+with fewer than
+\begin{equation}\label{eq:path-threshold}
+H=2^k
+\end{equation}
+vertices between comparisons. Inserting one arc can raise these bounds
+to $k$ and fewer than $2H=2^{k+1}$ vertices, still within the hypotheses
+of Lemma~\ref{lem:local-routines}.
 
-These repairs move items prescribed by the graph structure.
-\texttt{ChooseAnchor} provides their anchors, so every such move
-satisfies \eqref{eq:tariff}. This bound will limit the total number of
-repair moves in Section~\ref{sec:rare-refinements}.
+A repair specifies which items must move. Its routine
+\texttt{ChooseAnchor}$(D,x)$ chooses an interior position for the
+specified item $x$. Lemma~\ref{lem:anchor-selection} gives the guarantee
+needed for these choices.
 
 \begin{algorithm}[H]
 \caption{\texttt{Repair}$(v)$: restore the graph bounds after an answer.}
@@ -252,3 +277,25 @@ repair moves in Section~\ref{sec:rare-refinements}.
   \texttt{RefineAt}$(x,c)$\;
 }
 \end{algorithm}
+
+\begin{lemma}[Anchor selection]\label{lem:anchor-selection}
+Under the assumptions on $D$ in Lemma~\ref{lem:local-routines},
+for any vertex $x$, \textnormal{\texttt{ChooseAnchor}}$(D,x)$ returns a dyadic
+$c\in(\ell_x,r_x)$. The routine is deterministic and uses only a
+neighborhood of $x$ whose radius depends on $k$.
+
+Every position $c$ returned by \textnormal{\texttt{Select}} or
+\textnormal{\texttt{ChooseAnchor}}, written in reduced form as
+$c=(2i+1)/2^{m+1}$ with $m\ge0$, satisfies
+\begin{equation}\label{eq:tariff}
+\log f_x(c)\ge(1-1/k)m-4.
+\end{equation}
+\end{lemma}
+\begin{proof}
+See Appendices~\ref{sec:oracle} and~\ref{app:execution}.
+\end{proof}
+
+Since $m\ge0$, each repair move loses at most four in $\log Z$.
+For a path repair, the dependence on $m$ gives a stronger bound on
+the combined gain; Section~\ref{sec:rare-refinements} uses it to limit
+the total number of moves.

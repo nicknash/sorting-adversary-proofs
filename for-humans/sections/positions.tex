@@ -1,7 +1,7 @@
 \section{Local calculations on order-restriction DAGs}\label{sec:oracle}
 
-We construct the routines in Lemma~\ref{lem:local-routines} for a
-single order-restriction DAG. Both use lists of intervals enclosing the
+We construct the routines in Lemmas~\ref{lem:local-routines}
+and~\ref{lem:anchor-selection} for a single order-restriction DAG. Both use lists of intervals enclosing the
 queried coordinates. A pair of disjoint intervals certifies an order, and a list
 of intervals can certify how much probability lies on each side of a
 candidate anchor interval.
@@ -159,7 +159,7 @@ coordinate's range. Appendix~\ref{app:certificates} gives the endpoint
 selection and shows that a failed test identifies a short coordinate
 interval. The gain and precision estimates in
 Appendix~\ref{app:execution} complete the proof of
-Lemma~\ref{lem:local-routines}.
+Lemmas~\ref{lem:local-routines} and~\ref{lem:anchor-selection}.
 
 \begin{algorithm}[H]
 \caption{\texttt{ChooseAnchor}$(D,x)$: choose an interior position.}

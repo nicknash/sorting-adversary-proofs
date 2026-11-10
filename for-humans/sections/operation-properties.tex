@@ -1,11 +1,11 @@
 \subsection{From local choices to the comparison bound}\label{sec:operation-properties}
 
-The local selection lemma supplies answers and anchors for individual
-order-restriction DAGs. We also need these choices to preserve consistency
+Lemmas~\ref{lem:local-routines} and~\ref{lem:anchor-selection}
+supply answers and anchors for individual order-restriction DAGs. We also need these choices to preserve consistency
 with all earlier answers when items move between nodes.
 
 \begin{proposition}[Consistency and termination]\label{prop:legality}
-Throughout the recursive phase the state has positive feasible volume,
+During the first $Q(n)$ comparisons, the state has positive feasible volume,
 and every represented order satisfies the transcript. Each call
 terminates with at most $n+2$ refinements. The strict degree and path
 bounds hold between calls.
@@ -21,7 +21,7 @@ by \texttt{Select} increases it by more than $k$. The anchor bound
 exceeds one, these gains cannot accumulate without enough comparisons.
 
 \begin{lemma}[Refinement count]\label{lem:rare-refinements}
-After $q$ completed recursive calls, the total number $P$ of refinements
+After $q\le Q(n)$ completed comparison calls, the total number $P$ of refinements
 is at most $Cq/k$ for an absolute constant $C$.
 \end{lemma}
 \begin{proof}

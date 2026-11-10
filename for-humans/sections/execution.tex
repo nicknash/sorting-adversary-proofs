@@ -23,7 +23,7 @@ Reduction of the fraction cannot increase its denominator, so
 $m+1\le r$ and $|J|<2h\le2^{-m}$.
 \end{proof}
 
-\begin{proof}[Proof of Lemma~\ref{lem:local-routines}]
+\begin{proof}[Proof of Lemmas~\ref{lem:local-routines} and~\ref{lem:anchor-selection}]
 The interval comparisons in Appendix~\ref{sec:oracle} certify lower
 probability bounds. If the larger bound is at least $1/2-\eta$,
 \texttt{Select} returns its answer, breaking a tie in favor of the
@@ -181,7 +181,8 @@ make the region empty. Normalization preserves this updated region.
 The transcript is then extended by the chosen answer.
 
 During the subsequent repair, the temporary DAG bounds follow from
-Lemma~\ref{lem:restoration}. Each move again preserves positive volume
+Lemma~\ref{lem:restoration}, and Lemma~\ref{lem:anchor-selection}
+supplies interior anchors. Each move again preserves positive volume
 and the transcript by Lemma~\ref{lem:admission}. This applies to every
 vertex of a selected path, including those whose incident arcs were
 removed earlier in the batch. The full batch is completed, and

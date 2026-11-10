@@ -20,10 +20,10 @@ number of sweeps, and neighborhood radius in the local enclosure theorem.
 Symbol & Value & Role & Introduced & Choice\\
 \midrule
 $k$ & Integer, $k\ge64$ & Repair a vertex that reaches this degree after an answer. & \S\ref{sec:comparison} & \S\ref{sec:potential}\\
-$H$ & $2^k$ & Number of vertices refined in a selected directed path. & \S\ref{sec:comparison} & \S\ref{sec:comparison}\\
+$H$ & $2^k$ & Number of vertices refined in a selected directed path. & \S\ref{sec:repairs} & \S\ref{sec:repairs}\\
 $B$ & $(k+1)^{2H+1}$ & Bounds the number of other vertices comparable with one vertex in its node graph. & App.~\ref{app:certificates} & App.~\ref{app:certificates}\\
 $w_*$ & $2^{-2kB}$ & Calibrates the finite calculations: a coordinate of at least this width guarantees certification. & App.~\ref{app:certificates} & App.~\ref{app:certificates}\\
-$\eta$ & $1/(100k)$ & Accept an answer whose certified probability is at least $1/2-\eta$. & \S\ref{sec:comparison} & \S\ref{sec:comparison}\\
+$\eta$ & $1/(100k)$ & Error in the retained fraction, abbreviated in the comparison-count proof. & \S\ref{sec:rare-refinements} & \S\ref{sec:selection}\\
 $Q(n)$ & $n\ceil{\log n}$ & Number of answers before switching to a fixed consistent order. & \S\ref{sec:comparison} & \S\ref{sec:comparison}\\
 \bottomrule
 \end{tabular}
