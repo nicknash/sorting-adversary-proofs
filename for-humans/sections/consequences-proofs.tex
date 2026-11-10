@@ -82,3 +82,56 @@ The construction of $W$ is polynomial-time as well. For the finitely
 many sizes at which no tuple qualifies, use a fixed topological order of
 $P$.
 \end{proof}
+
+\subsection{Amplifying a constant-factor estimate}
+\label{app:counting-amplification}
+
+Suppose a deterministic polynomial-time algorithm estimates $V(D)>0$
+within a fixed factor $C>1$. Let $D^{(k)}$ be the disjoint union of $k$
+copies of $D$. Its feasible region is a Cartesian product, so
+\[
+V(D^{(k)})=V(D)^k.
+\]
+A factor-$C$ estimate for this volume, followed by a $k$th root, estimates
+$V(D)$ within a factor $C^{1/k}$. Taking $k=O(1/\varepsilon)$ makes this
+factor at most $1+\varepsilon/4$. Computing the root to relative error at
+most $\varepsilon/4$ then gives relative error at most $\varepsilon$.
+The expanded input and the required rational arithmetic have size
+polynomial in the original input length and $1/\varepsilon$.
+Disjoint union preserves both the maximum degree and the directed-path
+bound, so the argument applies to each fixed-$d,h$ class.
+
+For linear-extension counts, if $Q$ is the disjoint union of $k$ copies
+of an $n$-element partial order $P$, then
+\[
+e(Q)=\frac{(kn)!}{(n!)^k}\,e(P)^k.
+\]
+Choose a linear extension within each copy and then interleave the
+copies, giving the displayed multinomial factor. Divide a factor-$C$
+estimate for $e(Q)$ by this explicitly computable factor before taking
+the root. The factorials have $O(kn\log(kn))$ bits, so the same
+polynomial-time conclusion holds. In particular, a deterministic PTAS,
+run at any fixed sufficiently small error, would already yield an
+FPTAS.
+
+\subsection{From approximate counting to an adversary}
+\label{app:counting-adversary}
+
+Suppose a deterministic FPTAS for $e(P)$ is available. For an unresolved
+comparison, let $a,b$ be the positive numbers of extensions consistent
+with its two answers. Estimate both counts to relative error at most
+$\eta=1/n$ and choose the larger estimate. If the chosen branch has
+count $a$, then $(1+\eta)a\ge(1-\eta)b$, and hence
+\[
+a\ge\frac{1-\eta}{2}(a+b).
+\]
+Already determined comparisons lose no extensions. Starting from any
+supplied $P$, after $q$ answers at least
+$e(P)((1-\eta)/2)^q$ extensions remain. A correct sorter can terminate
+only when this number is at most one, so
+\[
+q\ge\frac{\log e(P)}{1-\log(1-1/n)}
+  =(1-O(1/n))\log e(P).
+\]
+The approximation calls use polynomial time, and every chosen answer
+is legal. This proves the claimed implication uniformly over $P$.

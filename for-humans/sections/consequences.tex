@@ -95,3 +95,46 @@ locations are known only to lie in specified intervals
 \cite{imprecise-points,interval-orders}. Extending our adversary to those
 models would require answers compatible with realizable coordinates and
 with the permitted geometric operations.
+
+\paragraph{Volume approximation for order-restriction DAGs.}
+The closures of the regions $K(D)$ are \emph{marked order polytopes}
+\cite{marked-order-polytopes}: fixed marked elements encode the interval
+endpoints. This connects the local calculations of this paper to a
+global approximation problem. For fixed integers $d,h$, can a
+deterministic algorithm, given an order-restriction DAG of degree at most
+$d$, directed paths of at most $h$ vertices, rational interval endpoints,
+and $0<\varepsilon<1$, compute
+\[
+(1-\varepsilon)V(D)\le\widehat V\le(1+\varepsilon)V(D)
+\]
+in time polynomial in the input bit length and $1/\varepsilon$, with
+the polynomial allowed to depend on $d,h$?
+Assume $V(D)>0$. This asks for a deterministic fully polynomial-time
+approximation scheme (FPTAS). Theorem~\ref{thm:local} supplies local
+enclosing intervals, but its enumeration bound is not polynomial in the
+inverse accuracy.
+
+A concrete first case is $h=2$, $d=3$, with every interval equal to
+$(0,1)$. Orient the edges of a bipartite graph from one side to the other.
+Reflecting the coordinates on the second side changes $X_a<X_b$ into
+$Y_a+Y_b<1$, preserving volume. Thus this case is also a volume problem
+for bipartite independent-set polytopes. Recent deterministic schemes
+approximate suitable truncations of these polytopes
+\cite{bencs-regts-volume}; they do not settle the full-interval question.
+
+\paragraph{The remaining gap to deterministic counting.}
+When every interval is $(0,1)$, $V(D)=e(P)/n!$ for the partial order $P$
+represented by $D$~\cite{stanley}. Without the degree and path-length
+restrictions, a deterministic approximation scheme for $e(P)$ remains
+open; see \cite[Sections~3.6 and~12.2]{chan-pak-survey} for the known
+entropy estimates and randomized schemes. Even a deterministic
+constant-factor approximation would imply an FPTAS, by applying it to
+disjoint copies and taking a root. This also holds for each fixed-$d,h$
+class; Appendix~\ref{app:counting-amplification} gives the short argument.
+An FPTAS for arbitrary $P$ would also resolve the supplied-partial-order
+question above: estimate both comparison branches and retain the one
+with the larger estimate (Appendix~\ref{app:counting-adversary}).
+Our adversary does not supply such a counting algorithm: it uses local
+probability information and makes additional restrictions whose total
+cost is controlled by the analysis. Can these local calculations be
+made sufficiently efficient at high accuracy to estimate global volume?
