@@ -56,20 +56,21 @@ $C=8$ since $k\ge64$.
 \subsection{Counting with the queried labels}\label{sec:movement-volume}
 
 Recall that $T_q$ is the number of total orders consistent with the first
-$q$ comparison answers. To lower-bound $T_q$, we first count orders of the queried labels
-represented by the adversary's tree, then insert the unqueried labels
-in all possible positions. These insertions may give orders that the
+$q$ comparison answers. To lower-bound $T_q$, we consider all total orders
+obtained by inserting the unqueried labels into orders of the queried labels
+represented by the adversary's tree. This can include orders that the
 tree itself excludes. For example, if $a<b$ lie in the same child subtree
 and an unqueried label $z$ is stored at the root, the tree keeps $z$
 outside that child block, while the transcript also permits $a<z<b$.
 
 Let $s$ be the number of labels that have appeared in queries.
 Every other label is still an isolated root coordinate on $(0,1)$.
-Moves before answering select queried labels, and every item moved in a
-repair is incident to an arc of the graph before that repair starts.
-All those arcs were created by comparisons. Normalization leaves an
-isolated root coordinate unchanged. Temporarily discard the unqueried
-labels. Their independent unit intervals contribute a factor of one to
+\texttt{Select} requests a move only for an item involved in the current
+query. \texttt{Repair} selects either the vertices of an $H$-vertex
+directed path or a vertex of degree $k$. In both cases, every selected
+item has participated in a recorded comparison. Normalization leaves an
+isolated root coordinate unchanged. For the counting argument, omit these
+unqueried labels. Their independent unit intervals contribute a factor of one to
 $Z$, so the product volume is the same for the remaining $s$ labels.
 
 We assign a weight to a child at the reduced dyadic anchor
@@ -85,8 +86,8 @@ The product of these weights over all labels is
 \begin{equation}\label{eq:path-weight-product}
 \mathcal W=\prod_x\prod_{j=1}^{d_x}w(c_{x,j}).
 \end{equation}
-A label stored at the root contributes one, so discarding the
-unqueried labels also leaves $\mathcal W$ unchanged.
+A label stored at the root contributes one, so $\mathcal W$ is unchanged
+if the product is taken over only the queried labels.
 
 \begin{lemma}[Orders consistent with the transcript]\label{lem:packing}
 After a completed recursive call,
