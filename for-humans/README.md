@@ -5,7 +5,9 @@ Nicholas Nash · 10 November 2026 · ORCID [0009-0003-0475-7852](https://orcid.o
 Section 1 states the main theorem and explains the derandomization
 problem. Section 2 reviews earlier adversaries. Section 3 defines
 order-restriction DAGs and their tree, presents Compare, then develops
-Select pseudocode and its local-selection lemma as the central algorithmic result. Coordinate
+Select pseudocode and its local-selection lemma as the central algorithmic
+result. Enclose is given as self-contained pseudocode, with its parameter
+choices and proofs deferred to the appendices. Coordinate
 restriction and refinement turn the selected densities into volume gains.
 Repair introduces ChooseAnchor and its separate guarantee, and maintains
 the graph bounds needed by local selection. The section

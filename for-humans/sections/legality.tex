@@ -1,9 +1,9 @@
 \subsection{Answering a comparison}\label{sec:comparison}\label{sec:legal}
 
 Algorithm~\ref{alg:compare} gives the comparison procedure. Its main
-choice is delegated to \texttt{Select}.
-
-The desired lower bound is already reached after
+choice is delegated to \texttt{Select}, which encapsulates the key
+algorithmic result of this paper. The desired lower bound is already
+reached after
 \begin{equation}\label{eq:comparison-horizon}
 Q(n)=n\ceil{\log n}
 \end{equation}
@@ -51,24 +51,20 @@ Append $\mathit{answer}$ to $\mathcal T$\;
 \subsubsection{Choosing an answer}\label{sec:selection}
 
 \texttt{Select} uses deterministic estimates of the fractions of $K(D)$
-retained by the two answers. The guarantee for this routine is the key
-algorithmic result, Lemma~\ref{lem:local-routines}.
+retained by the two answers. Lemma~\ref{lem:local-routines} states its
+guarantee.
 
-The amount of graph that the calculation must examine depends on both
-vertex degree and directed path length. Degree counts neighbors in
-either direction. We use one integer $k\ge64$
-to specify these bounds in Lemma~\ref{lem:local-routines}. Larger $k$
-allows more complicated DAGs and makes the retained fraction closer
-to one half.
+The size of the DAG neighborhood examined around each queried vertex
+depends on vertex degree (the sum of its in-degree and out-degree) and
+directed path length. We use one integer $k\ge64$ to specify these
+bounds in Lemma~\ref{lem:local-routines}. Larger $k$ allows higher degrees
+and longer paths, while the guaranteed retained fraction approaches
+one half.
 
-Algorithm~\ref{alg:select} uses a local calculation called
-\texttt{Enclose}$(D,T)$, where $T$ is the set of queried coordinates.
-It produces a finite list of intervals, one per queried coordinate in
-each entry; write these intervals as $I_\alpha,I_\beta$. For either answer, the fraction of entries whose intervals
-force that answer is a lower bound on its probability under a uniform
-feasible assignment. Algorithm~\ref{alg:finite-digits} gives this
-calculation; its parameters are fixed as in
-Appendix~\ref{app:certificates}.
+Algorithm~\ref{alg:select} gives the \texttt{Select} algorithm.
+It calls \texttt{Enclose}, given in Algorithm~\ref{alg:finite-digits}.
+Each entry in the returned list contains an interval $I_x$ for each
+queried coordinate $x$.
 
 \begin{algorithm}[H]
 \caption{\texttt{Select}$(D,\alpha,\beta)$: choose an answer or a position for refinement.}
@@ -120,6 +116,33 @@ In particular, an isolated coordinate with interval $(0,1)$ has density
 one, so Lemma~\ref{lem:local-routines} prevents \texttt{Select} from
 returning it for refinement. If both queried coordinates have this form,
 \texttt{Select} must answer the comparison.
+
+\begin{algorithm}[H]
+\caption{\texttt{Enclose}$(D,T)$: compute enclosing intervals for the queried coordinates.}
+\label{alg:finite-digits}
+\DontPrintSemicolon
+\KwIn{An order-restriction DAG $D$ and a set $T$ of one or two queried coordinates.}
+\KwData{Fixed neighborhood radius $\rho$, number of repetitions $t$, and power of two $S$ giving the number of update choices, chosen in Appendix~\ref{app:certificates}.}
+\KwOut{A list of interval families $(I_x)_{x\in T}$.}
+$R\gets$ vertices within distance $\rho$ of $T$, ignoring arc directions\;
+$F\gets$ vertices at distance strictly less than $\rho$ from $T$\;
+$\pi\gets$ a topological order of the DAG induced by $R$, breaking ties by label\;
+$\mathcal L\gets$ the empty list\;
+\ForEach{assignment $j_{z,s}\in\{0,\ldots,S-1\}$ for $z\in F$ and $1\le s\le t$}{
+  $A_z\gets\ell_z$, $B_z\gets r_z$ for every $z\in R$\;
+  \For{$s=1,\ldots,t$}{
+    \ForEach{$z\in F$ in the order $\pi$}{
+      \ForEach{$Y\in\{A,B\}$}{
+        $L\gets\max(\{\ell_z\}\cup\{Y_u:u\to z\})$\;
+        $U\gets\min(\{r_z\}\cup\{Y_u:z\to u\})$\;
+        $Y_z\gets\bigl(Y_z+(S-1-j_{z,s})L+j_{z,s}U\bigr)/S$\;
+      }
+    }
+  }
+  Append $([A_x,B_x])_{x\in T}$ to $\mathcal L$\;
+}
+\Return $\mathcal L$\;
+\end{algorithm}
 
 \subsubsection{Moving an item into a child}\label{sec:overview-refine}
 
