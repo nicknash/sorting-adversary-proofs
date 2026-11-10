@@ -2,13 +2,13 @@
   "date": "2026-11-10",
   "status": "not_submitted",
   "argument": "Count all transcript-compatible orders by freely inserting untouched labels after sampling the queried labels. The single weight distribution has total child mass 1/k. Dyadic resolution gives refinement rarity before weights enter the proof. Full sweeps contract and finite dependence identifies the queried endpoints with their local calculations.",
-  "local_pdf_sha256": "129974f3c3f6c62fb60c08606236c9c4508d5de8eefd51f3a52f2358066bb54a",
-  "prepared_zip_sha256": "e41438233ba5dc8540314123e7a97ecbeb22e00c42369ccdff4ca4a7a17b7a9c",
+  "local_pdf_sha256": "34e8ed0178cc89155558729b2531bd03ccb6c7483c01692e020f9283372f3628",
+  "prepared_zip_sha256": "e870689dd411c62b3128dc738f5dd83ba2e231c52eacdee1e6b79115362de787",
   "previous_hexagon_submission": "hexagon:2611.00196",
   "previous_submission_metadata": "submission.json",
   "formalization": "Related earlier integer-colour construction; this continuous presentation is not formally verified.",
   "exposition": "Section 3 gives Compare, Select, Enclose, Restrict, Normalize, RefineAt, and Repair pseudocode at their points of introduction. It states the local selection, restriction, refinement, and anchor guarantees before their proofs. The volume accounting distinguishes answers, moves requested by Select, degree repairs, and path repairs.",
-  "pages": 32,
+  "pages": 34,
   "source_chat": "https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af20322-5238-83eb-8c1a-60fbea8e1d71",
   "previous_argument_source_chat": "https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af1b5f8-a1d0-83ed-b93d-fe7efd94df67",
   "previous_argument_source_pdf_sha256": "577836ef3235bd8c452b8bdf0b5cbf3840c943c1a1837bed8c9f7ce3f41ab907",
@@ -43,5 +43,13 @@
       "characters": 10503
     }
   ],
-  "consequence_source_material": "Both complete recommendation messages were retrieved through the connected chat reader, with no truncated messages or older pages. Linked guide attachments were not downloaded. The derivations were checked against the existing manuscript and the cited primary papers, including Cardinal et al. and the deterministic multiple-selection subroutine."
+  "consequence_source_material": "Both complete recommendation messages were retrieved through the connected chat reader, with no truncated messages or older pages. Linked guide attachments were not downloaded. The derivations were checked against the existing manuscript and the cited primary papers, including Cardinal et al. and the deterministic multiple-selection subroutine.",
+  "open_questions_revision": {
+    "date": "2026-11-10",
+    "base_revision": "88e951961d49922266906239a4de8579d966a052",
+    "question": "Deterministic FPTAS for positive-volume order-restriction DAGs with fixed degree and directed-height bounds, including rational endpoint bit complexity; height two and degree three with unit intervals is a concrete first case.",
+    "geometry": "Identify closures as marked order polytopes and explain the volume-preserving connection to bipartite independent-set polytopes.",
+    "counting": "State the unresolved general deterministic approximation problem for linear extensions. Appendix H.3 proves constant-factor-to-FPTAS amplification by disjoint union; Appendix H.4 proves that an FPTAS would yield a near-optimal adversary for every supplied poset.",
+    "verification": "Primary literature checked; elementary reductions independently reviewed; PDF rebuilt and added pages visually inspected. No new formal verification of the underlying adversary is claimed."
+  }
 }
