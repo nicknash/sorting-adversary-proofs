@@ -149,20 +149,46 @@ $\mathcal L\gets$ the empty list\;
 
 \subsubsection{Moving an item into a child}\label{sec:overview-refine}
 
-The move chosen by \texttt{Select} has two parts: fix the item's position
-in its current node, then give it a fresh position in the corresponding
-child. The first part is an operation on an order-restriction DAG.
-For $c\in(\ell_x,r_x)$, \texttt{Restrict}$(D,x,c)$ substitutes $c$ for
-$X_x$ in the incident inequalities, deletes $x$, and normalizes the
-remaining intervals. Algorithm~\ref{alg:restrict} gives the procedure.
+Instead of answering the query, \texttt{Select} may return a pair $(x,c)$
+directing \texttt{Compare} to move item $x$ into the child anchored at $c$,
+creating that child if necessary. We now describe this move and its effect
+on feasible volume.
 
-Here normalization accounts for bounds implied by the remaining arcs.
-For an arc $y\to z$, the lower bound $\ell_y$ also applies to $X_z$,
-and the upper bound $r_z$ also applies to $X_y$. \texttt{Normalize}
-propagates the lower bounds in topological order and the upper bounds
-in reverse topological order. This makes the intervals canonical
-without changing $K(D)$ (Lemma~\ref{lem:normalization}).
+Algorithm~\ref{alg:restrict} fixes $X_x=c$ in the parent's order-restriction
+DAG. Its call to \texttt{Normalize} (Algorithm~\ref{alg:normalize}) makes
+the remaining intervals canonical without changing their feasible region
+(Lemma~\ref{lem:normalization}).
 
+\begin{algorithm}[H]
+\caption{\texttt{Restrict}$(D,x,c)$: fix and remove a coordinate.}
+\label{alg:restrict}
+\DontPrintSemicolon
+\KwIn{A canonical order-restriction DAG $D$ with $V(D)>0$, a vertex $x$, and $c\in(\ell_x,r_x)$.}
+\ForEach{arc $y\to x$}{
+  $r_y\gets\min(r_y,c)$\;
+}
+\ForEach{arc $x\to z$}{
+  $\ell_z\gets\max(\ell_z,c)$\;
+}
+Delete $x$ and its incident arcs\;
+\texttt{Normalize}$(D)$\;
+\Return $D$\;
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{\texttt{Normalize}$(D)$: propagate the interval bounds.}
+\label{alg:normalize}
+\DontPrintSemicolon
+\KwIn{An order-restriction DAG $D$.}
+\ForEach{vertex $x$ in topological order}{
+  $\ell_x\gets\max(\{\ell_x\}\cup\{\ell_y:y\to x\})$\;
+}
+\ForEach{vertex $x$ in reverse topological order}{
+  $r_x\gets\min(\{r_x\}\cup\{r_y:x\to y\})$\;
+}
+\end{algorithm}
+
+\Needspace{6\baselineskip}
 \begin{lemma}[Coordinate restriction]\label{lem:interior}
 Let $D$ be canonical with $V(D)>0$ and $c\in(\ell_x,r_x)$.
 Then \textnormal{\texttt{Restrict}}$(D,x,c)$ represents the section
@@ -239,7 +265,7 @@ within that block.}
 
 
 To measure the effect of the move on the whole tree, write
-$K_v=K(D_v)$, $V_v=V(D_v)$, and
+$K_v=K(D_v)$, $V_v=V(D_v)$, and define
 \begin{equation}\label{eq:Z}
 Z=\prod_v V_v.
 \end{equation}
@@ -249,8 +275,9 @@ $n$. The following identity accounts for both parts of the move.
 Here $f_x$ is the density at the parent before refinement.
 
 \begin{lemma}[Refinement identity]\label{lem:section-volume}
-Suppose every node region has positive volume. Refining $x$ at an interior
-anchor $c$ satisfies
+Suppose every node region has positive volume. Let $Z_{\rm before}$ and
+$Z_{\rm after}$ be the product volumes before and after refining $x$ at an
+interior anchor $c$. Then
 \begin{equation}\label{eq:refine}
 \frac{Z_{\rm after}}{Z_{\rm before}}=f_x(c).
 \end{equation}
@@ -263,9 +290,12 @@ We call the change
 \begin{equation}\label{eq:refinement-gain}
  g=\log\frac{Z_{\rm after}}{Z_{\rm before}}=\log f_x(c)
 \end{equation}
-the refinement's \emph{volume gain}. Thus a refinement requested by
+the refinement's \emph{volume gain}. A refinement requested by
 \texttt{Select} gains more than $k$ in $\log Z$, whereas an answer
 loses at most $-\log(1/2-1/(100k))=1+O(1/k)$.
+Thus an inconclusive call to \texttt{Select} restores volume as it moves
+an item. Since $Z\le1$, these increases must be offset by losses from
+answers and repairs.
 \label{sec:refinement-volume}
 
 \subsubsection{Keeping the in-node DAGs small}\label{sec:repairs}

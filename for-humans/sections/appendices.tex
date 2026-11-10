@@ -5,35 +5,6 @@ density bounds used to choose anchors and analyse probability certificates.
 
 \subsection{Normalization and restriction}
 
-\begin{algorithm}[H]
-\caption{\texttt{Normalize}$(D)$: propagate the interval bounds.}
-\label{alg:normalize}
-\DontPrintSemicolon
-\KwIn{An order-restriction DAG $D$.}
-\ForEach{vertex $x$ in topological order}{
-  $\ell_x\gets\max(\{\ell_x\}\cup\{\ell_y:y\to x\})$\;
-}
-\ForEach{vertex $x$ in reverse topological order}{
-  $r_x\gets\min(\{r_x\}\cup\{r_y:x\to y\})$\;
-}
-\end{algorithm}
-
-\begin{algorithm}[H]
-\caption{\texttt{Restrict}$(D,x,c)$: fix and remove a coordinate.}
-\label{alg:restrict}
-\DontPrintSemicolon
-\KwIn{A canonical order-restriction DAG $D$ with $V(D)>0$, a vertex $x$, and $c\in(\ell_x,r_x)$.}
-\ForEach{arc $y\to x$}{
-  $r_y\gets\min(r_y,c)$\;
-}
-\ForEach{arc $x\to z$}{
-  $\ell_z\gets\max(\ell_z,c)$\;
-}
-Delete $x$ and its incident arcs\;
-\texttt{Normalize}$(D)$\;
-\Return $D$\;
-\end{algorithm}
-
 \begin{lemma}[Normalization]\label{lem:normalization}
 \textnormal{\texttt{Normalize}} preserves $K(D)$. The resulting region
 has positive volume if and only if every interval has positive width;

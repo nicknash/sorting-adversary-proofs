@@ -14,11 +14,16 @@ bounds hold between calls.
 See Appendix~\ref{app:execution}.
 \end{proof}
 
-The volume guarantees then limit how often items can move. Each
-comparison reduces $\log Z$ by at most about one, and a move requested
-by \texttt{Select} increases it by more than $k$. The anchor bound
-\eqref{eq:tariff} also controls the gains from repairs. Since $Z$ never
-exceeds one, these gains cannot accumulate without enough comparisons.
+By Lemmas~\ref{lem:local-routines} and~\ref{lem:section-volume}, each
+answer loses at most $1+O(1/k)$ in $\log Z$, while a move requested by
+\texttt{Select} gains more than $k$. The anchor bound~\eqref{eq:tariff}
+limits each degree repair's loss to four and gives path repairs an
+average gain of at least $k/4$ per moved item, as
+Section~\ref{sec:rare-refinements} proves. Degree repairs occur at most
+once per $k$ comparisons on average, since each removes $k$ comparison
+arcs and each comparison inserts at most one. Because $\log Z$ starts at
+zero and never exceeds zero, the gains
+from the other moves require enough comparisons to offset them.
 
 \begin{lemma}[Refinement count]\label{lem:rare-refinements}
 After $q\le Q(n)$ completed comparison calls, the total number $P$ of refinements
