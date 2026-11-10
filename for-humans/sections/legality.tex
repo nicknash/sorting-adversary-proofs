@@ -106,10 +106,10 @@ bounds within a distance of the queried coordinates depending only on $k$.
 See Appendices~\ref{sec:oracle} and~\ref{app:execution}.
 \end{proof}
 
-In particular, an isolated coordinate with interval $(0,1)$ has density
-one, so Lemma~\ref{lem:local-routines} prevents \texttt{Select} from
-returning it for refinement. If both queried coordinates have this form,
-\texttt{Select} must answer the comparison.
+Keeping nearly half the volume at each answer is the geometric counterpart
+of keeping at least half the possible total orders.
+Section~\ref{sec:potential} relates the node volumes to the number of
+orders still possible, yielding the comparison bound.
 Whenever the local calculation cannot certify an answer, it supplies a
 refinement that increases the product of the node volumes by a factor
 greater than $2^k$ (Lemma~\ref{lem:section-volume}).
@@ -258,15 +258,17 @@ within that block.}
 \end{center}
 
 
-To measure the effect of the move on the whole tree, write
+When \texttt{Select} returns $(x,c)$, \texttt{RefineAt} moves $x$ into
+the child anchored at $c$. To measure the resulting change in volume
+across the tree, write
 $K_v=K(D_v)$, $V_v=V(D_v)$, and define
 \begin{equation}\label{eq:Z}
 Z=\prod_v V_v.
 \end{equation}
 Initially $Z=1$, and positive node volumes give $0<Z\le1$.
 Each item has one coordinate, so the product region always has dimension
-$n$. The following identity accounts for both parts of the move.
-Here $f_x$ is the density at the parent before refinement.
+$n$. The following identity gives the change in $Z$; here $f_x$ is the
+density at the parent before refinement.
 
 \begin{lemma}[Refinement identity]\label{lem:section-volume}
 Suppose every node region has positive volume. Let $Z_{\rm before}$ and
@@ -300,9 +302,10 @@ with fewer than
 \begin{equation}\label{eq:path-threshold}
 H=2^k
 \end{equation}
-vertices between comparisons. Inserting one arc can raise these bounds
-to $k$ and fewer than $2H=2^{k+1}$ vertices, still within the hypotheses
-of Lemma~\ref{lem:local-routines}.
+vertices between comparisons. After one arc is inserted, the degree is
+at most $k$ and every directed path has fewer than $2H=2^{k+1}$ vertices.
+Further insertions could exceed these bounds, so \texttt{Repair} restores
+the stricter bounds before the next comparison.
 
 A repair specifies which items must move. Its routine
 \texttt{ChooseAnchor}$(D,x)$ chooses an interior position for the
