@@ -27,19 +27,25 @@ G\le\log Z+a_\eta q\le a_\eta q.
 \begin{proof}[Proof of Lemma~\ref{lem:rare-refinements}]
 Let $D$ count degree repairs. Each removes $k$ arcs, and each call
 inserts at most one arc. Thus $D\le q/k$. By \eqref{eq:tariff}, each such
-move gains at least $-4$. A move after a failed comparison test gains
-more than $k$.
+move gains at least $-4$. A refinement requested by \texttt{Select} has
+$f_x(c)>2^k$ by Lemma~\ref{lem:local-routines}, so its gain
+$\log f_x(c)$ is greater than $k$, by \eqref{eq:refinement-gain}.
 
 In a path repair, refining $x_i$ at $c_i$ changes the arc to $x_{i+1}$
 into the bound $X_{x_{i+1}}>c_i$. The next anchor therefore satisfies
-$c_{i+1}>c_i$. These $H=2^k$ anchors are distinct. For reduced denominator
-$2^{m+1}$ there are $2^m$ anchors, so fewer than $H/2$ have $m<k-1$.
-The batch gains at least
+$c_{i+1}>c_i$. These $H=2^k$ anchors are distinct. The anchors with
+reduced denominator $2^{m+1}$ are $(2j+1)/2^{m+1}$ for $0\le j<2^m$.
+Thus only $\sum_{m=0}^{k-2}2^m=2^{k-1}-1<H/2$ possible anchors have
+$m<k-1$. At least $H/2$ of the selected anchors therefore have $m\ge k-1$.
+By \eqref{eq:tariff}, the total increase in $\log Z$ from the $H$
+refinements in this path repair is at least
 \[
 (1-1/k)\frac H2(k-1)-4H
 = H\left(\frac{k}{2}-5+\frac1{2k}\right)\ge\frac{kH}{4}.
 \]
-Every counted batch is complete. Summing the gains gives
+Every path repair in a completed call to \texttt{Compare} contributes
+all $H$ refinements to $P$. Combining their average gain of at least $k/4$
+per refinement with the bounds for \texttt{Select} and degree repairs gives
 \[
 \frac k4(P-D)-4D\le G\le a_\eta q,\qquad D\le q/k.
 \]
