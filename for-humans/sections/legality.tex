@@ -2,13 +2,7 @@
 
 Algorithm~\ref{alg:compare} gives the comparison procedure. Its main
 choice is delegated to \texttt{Select}, which encapsulates the key
-algorithmic result of this paper. The desired lower bound is already
-reached after
-\begin{equation}\label{eq:comparison-horizon}
-Q(n)=n\ceil{\log n}
-\end{equation}
-comparisons. For later queries, the adversary simply uses a fixed total
-order consistent with the transcript.
+algorithmic result of this paper.
 
 \begin{algorithm}[H]
 \caption{\texttt{Compare}$(A,B)$: answer a comparison query.}
@@ -17,7 +11,7 @@ order consistent with the transcript.
 \KwIn{Distinct item labels $A,B$ and the current adversary state.}
 \KwOut{An answer $A<B$ or $B<A$, with the state updated.}
 \If{fixed ranks have been chosen}{\Return their order of $A,B$\;}
-\If{$|\mathcal T|=Q(n)$}{
+\If{$|\mathcal T|=n\ceil{\log n}$}{
   Form the DAG of answers in $\mathcal T$ and choose a topological order, breaking ties by label\;
   Store its ranks and \Return their order of $A,B$\;
 }
