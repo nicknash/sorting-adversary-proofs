@@ -55,11 +55,12 @@ $C=8$ since $k\ge64$.
 
 \subsection{Counting with the queried labels}\label{sec:movement-volume}
 
-The state can represent fewer orders than the $T_q$ orders consistent
-with the transcript. For example, if
-$a<b$ lie in the same child block and $z$ is at the root, the state
-cannot place $z$ between $a$ and $b$. If the sole recorded relation
-among them is $a<b$, the transcript permits $a<z<b$ as well.
+To lower-bound $T_q$, we first count orders of the queried labels
+represented by the adversary's tree, then insert the unqueried labels
+in all possible positions. These insertions may give orders that the
+tree itself excludes. For example, if $a<b$ lie in the same child subtree
+and an unqueried label $z$ is stored at the root, the tree keeps $z$
+outside that child block, while the transcript also permits $a<z<b$.
 
 Let $s$ be the number of labels that have appeared in queries.
 Every other label is still an isolated root coordinate on $(0,1)$.
@@ -76,9 +77,14 @@ $c=(2i+1)/2^{m+1}$ by
 w(c)=\frac1{k^2}\left(\frac{1-1/k}{2}\right)^m.
 \end{equation}
 The sum over all possible anchors is $1/k$ because there are $2^m$
-anchors for each $m$. For each label, multiply the weights along the
-path to its storage node. Let $\mathcal W$ be the product over all
-labels. A label stored at the root contributes one, so discarding the
+anchors for each $m$. For each label $x$, let $d_x$ be the depth of the
+node storing it, and write $c_{x,1},\ldots,c_{x,d_x}$ for the child
+anchors on the path from the root to that node.
+The product of these weights over all labels is
+\begin{equation}\label{eq:path-weight-product}
+\mathcal W=\prod_x\prod_{j=1}^{d_x}w(c_{x,j}).
+\end{equation}
+A label stored at the root contributes one, so discarding the
 unqueried labels also leaves $\mathcal W$ unchanged.
 
 \begin{lemma}[Orders consistent with the transcript]\label{lem:packing}
