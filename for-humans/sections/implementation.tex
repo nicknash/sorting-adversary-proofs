@@ -13,17 +13,25 @@ why local information can suffice even when the DAG has a large
 connected component.
 
 \begin{proof}[Proof idea for Lemma~\ref{lem:local-routines}]
-Start one calculation at all lower interval endpoints, and another at
-all upper endpoints. Each coordinate's update uses only its stored
-bounds and its immediate neighbors. It maps the currently feasible
-interval onto one of equally sized subintervals, using the same choice
-in both calculations. The updates preserve the order between
-corresponding coordinates. Choosing subintervals uniformly also
-preserves the uniform distribution on feasible assignments. Thus an
-unknown uniform feasible assignment, updated with the same choices,
-stays between the two calculations. When their positions for $x$ are
-close, they locate $X_x$ within a short interval.
-Figure~\ref{fig:local-enclosure} illustrates this for the queried coordinates.
+Consider repeatedly passing through the vertices in topological order,
+changing one position at a time. With all other positions fixed, the permitted
+range at a vertex is determined by its stored interval and its
+neighbors' positions. Split this range into $S$ equal pieces, choose
+one, and move the position to the same relative point in that piece.
+For example, choosing the second quarter of $(0,1)$ sends a position
+$u$ to $(1+u)/4$.
+
+Run this procedure on two copies of the position vector, starting one
+at all lower interval endpoints and the other at all upper endpoints.
+At each step, use the same piece number in both copies, each within its
+own permitted range. Any feasible assignment updated with these same
+choices remains between the two copies, coordinate by coordinate.
+For the analysis, imagine starting this third assignment uniformly in
+$K(D)$ and choosing each piece uniformly. Conditional on the other
+positions, the coordinate being changed is uniform in its permitted
+range; choosing a piece uniformly keeps it so. Thus the third assignment
+remains uniform in $K(D)$, enclosed by the two copies as
+Figure~\ref{fig:local-enclosure} illustrates.
 
 \begin{center}
 \begin{minipage}{\linewidth}
@@ -63,22 +71,31 @@ Figure~\ref{fig:local-enclosure} illustrates this for the queried coordinates.
 \node at (2.4,-1.8) {The intervals certify $X_x<X_y$.};
 \end{scope}
 \end{tikzpicture}
-\captionof{figure}{One choice of updates, shown for two coordinates.
-The intervals join the lower and upper calculated positions; the dots
-show one enclosed feasible assignment. All three assignments use the
-same update choices. The final intervals determine the answer without
-knowing the positions of the dots.}
+\captionof{figure}{Updating two unconstrained coordinates using four
+pieces. All three copies choose the second piece for $x$ and the fourth
+for $y$. The blue interval endpoints are the positions in the lower
+and upper copies; the dots show one feasible assignment between them.
+The resulting disjoint intervals certify $X_x<X_y$.}
 \label{fig:local-enclosure}
 \end{minipage}
 \end{center}
 
-The fixed lower bounds at sources allow the two calculations to move
-closer, and this decrease propagates along directed paths. The graph
-bounds give a number of passes after which the queried positions are
-close for most update sequences. Crucially, within a pass in topological
-order, dependence on newly updated values follows directed paths.
-Their bounded length limits how far information can travel during these
-passes; bounded degree limits the number of vertices within that distance.
+To see where the gaps begin to shrink, consider a vertex $z$ with no
+incoming arcs. Both copies use the same fixed lower endpoint $\ell_z$.
+Choosing the first piece sends either position $u$ to
+$\ell_z+(u-\ell_z)/S$, dividing the gap between the copies by $S$.
+The proof tracks how reductions of this kind reach other vertices
+through their neighbors' positions. It bounds the number of passes
+needed to make the queried gaps small for all but a small fraction of
+choice sequences, using only the degree and path bounds and the desired
+accuracy.
+
+These passes can be computed locally. Within one pass, dependence on
+positions already changed follows directed paths. The longest directed
+path therefore bounds how far a pass can carry information. After a
+fixed number of passes, only a bounded neighborhood of the queried
+vertices can affect their positions. Bounded degree makes this a
+bounded number of vertices, even if the full DAG is large.
 
 \texttt{Enclose} enumerates all update choices in this neighborhood.
 Whenever the resulting intervals for $x$ and $y$ are disjoint, their
