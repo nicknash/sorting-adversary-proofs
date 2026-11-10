@@ -16,6 +16,12 @@ bounds hold between calls.
 See Appendix~\ref{app:execution}.
 \end{proof}
 
+Before the answer, only the two queried items can move. Once moved, an
+item is isolated with interval $(0,1)$ and has density one; the density
+requirement in Lemma~\ref{lem:local-routines} prevents \texttt{Select}
+from moving it again before the answer. The repair then moves at most
+$n$ items.
+
 By Lemmas~\ref{lem:local-routines} and~\ref{lem:section-volume}, each
 answer loses at most $1+O(1/k)$ in $\log Z$, while a move requested by
 \texttt{Select} gains more than $k$. The anchor bound~\eqref{eq:tariff}

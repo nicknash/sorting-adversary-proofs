@@ -1,11 +1,11 @@
 \section{The new optimal adversary}\label{sec:overview}\label{sec:algorithm}
 
-Kaplan, Zamir, and Zwick~\cite{kzz} keep a comparison between two items
-at a node as an ordered pair. However, in their adversary, an item can only belong to at most one pair.
-
-A key ingredient of our adversary is to simply relax this requirement, and allow DAGs of items to form at each node.
-The adversary then periodically simplifies these DAGs in order to bound the degree of nodes in these DAGs, as well as their path lengths.
-This in turn allows the adversary to answer comparisons using only small neighborhoods of nodes in these in-node DAGs.
+Kaplan, Zamir, and Zwick~\cite[Section~6]{kzz} suggest using continuous
+intervals and retaining more complex dependencies between items.
+We follow this direction by allowing DAGs of items at each tree node.
+The main tasks are to choose answers using bounded neighborhoods and
+to show that restoring the degree and path bounds requires few moves
+overall.
 
 \input{sections/order-dags}
 
@@ -137,4 +137,5 @@ $(X_a,X_b,X_c)=(1/3,1/2,7/8)$ give
 p<q<a<b<r<s<c.
 \]
 Other feasible choices give other orders. The \emph{transcript} $\mathcal T$ is the sequence of answers so far. Our invariant is
-that every represented order satisfies the transcript.
+that every represented order satisfies the transcript. The tree need not
+represent every order that satisfies it.

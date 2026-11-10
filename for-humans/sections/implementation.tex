@@ -1,114 +1,4 @@
-\section{Local computation and running time}\label{sec:runtime}\label{sec:parameter-selection}
-
-\paragraph{Why local information suffices.}
-The key to the adversary is estimating, from local information, the
-probability of $X_x<X_y$ under a uniform feasible assignment to an
-order-restriction DAG (defined in Section~\ref{sec:order-dags}). This is
-the fraction of feasible volume retained by that answer.
-Lemma~\ref{lem:local-routines} supplies the guarantee: \texttt{Select}
-either certifies an answer retaining nearly half the volume or finds a
-refinement with large volume gain. Although its proof is deferred to
-Appendices~\ref{sec:oracle}--\ref{app:execution}, we pause here to explain
-why local information can suffice even when the DAG has a large
-connected component.
-
-\begin{proof}[Proof idea for Lemma~\ref{lem:local-routines}]
-Consider repeatedly passing through the vertices in topological order,
-changing one position at a time. With all other positions fixed, the permitted
-range at a vertex is determined by its stored interval and its
-neighbors' positions. Split this range into $S$ equal pieces, choose
-one, and move the position to the same relative point in that piece.
-For example, choosing the second quarter of $(0,1)$ sends a position
-$u$ to $(1+u)/4$.
-
-Run this procedure on two copies of the position vector, starting one
-at all lower interval endpoints and the other at all upper endpoints.
-At each step, use the same piece number in both copies, each within its
-own permitted range. Any feasible assignment updated with these same
-choices remains between the two copies, coordinate by coordinate.
-For the analysis, imagine starting this third assignment uniformly in
-$K(D)$ and choosing each piece uniformly. Conditional on the other
-positions, the coordinate being changed is uniform in its permitted
-range; choosing a piece uniformly keeps it so. Thus the third assignment
-remains uniform in $K(D)$, enclosed by the two copies as
-Figure~\ref{fig:local-enclosure} illustrates.
-
-\begin{center}
-\begin{minipage}{\linewidth}
-\captionsetup{hypcap=false}
-\centering
-\begin{tikzpicture}[>=Latex,font=\small,
-  enclosure/.style={accent,very thick},
-  position/.style={circle,fill=ink,inner sep=1.7pt}]
-\begin{scope}
-\node at (2.4,1.1) {Before updates};
-\foreach \name/\row/\point in {x/.4/3.36,y/-.45/1.2}{
-  \node[left] at (-.15,\row) {$\name$};
-  \draw[enclosure] (0,\row)--(4.8,\row);
-  \draw[enclosure] (0,\row-.09)--(0,\row+.09);
-  \draw[enclosure] (4.8,\row-.09)--(4.8,\row+.09);
-  \node[position] at (\point,\row) {};
-}
-\draw[ink!45] (0,-1.05)--(4.8,-1.05);
-\node[below] at (0,-1.05) {$0$};
-\node[below] at (4.8,-1.05) {$1$};
-\end{scope}
-\draw[->,thick] (5.3,0)--(6.7,0);
-\node[align=center,font=\footnotesize] at (6,.5) {Shared\\updates};
-\begin{scope}[shift={(7.4,0)}]
-\node at (2.4,1.1) {After updates};
-\foreach \name/\row/\lo/\hi/\point in {x/.4/1.2/2.4/2.04,y/-.45/3.6/4.8/3.9}{
-  \node[left] at (-.15,\row) {$\name$};
-  \draw[ink!20] (0,\row)--(4.8,\row);
-  \draw[enclosure] (\lo,\row)--(\hi,\row);
-  \draw[enclosure] (\lo,\row-.09)--(\lo,\row+.09);
-  \draw[enclosure] (\hi,\row-.09)--(\hi,\row+.09);
-  \node[position] at (\point,\row) {};
-}
-\draw[ink!45] (0,-1.05)--(4.8,-1.05);
-\node[below] at (0,-1.05) {$0$};
-\node[below] at (4.8,-1.05) {$1$};
-\node at (2.4,-1.8) {The intervals certify $X_x<X_y$.};
-\end{scope}
-\end{tikzpicture}
-\captionof{figure}{Updating two unconstrained coordinates using four
-pieces. All three copies choose the second piece for $x$ and the fourth
-for $y$. The blue interval endpoints are the positions in the lower
-and upper copies; the dots show one feasible assignment between them.
-The resulting disjoint intervals certify $X_x<X_y$.}
-\label{fig:local-enclosure}
-\end{minipage}
-\end{center}
-
-To see where the gaps begin to shrink, consider a vertex $z$ with no
-incoming arcs. Both copies use the same fixed lower endpoint $\ell_z$.
-Choosing the first piece sends either position $u$ to
-$\ell_z+(u-\ell_z)/S$, dividing the gap between the copies by $S$.
-The proof tracks how reductions of this kind reach other vertices
-through their neighbors' positions. It bounds the number of passes
-needed to make the queried gaps small for all but a small fraction of
-choice sequences, using only the degree and path bounds and the desired
-accuracy.
-
-These passes can be computed locally. Within one pass, dependence on
-positions already changed follows directed paths. The longest directed
-path therefore bounds how far a pass can carry information. After a
-fixed number of passes, only a bounded neighborhood of the queried
-vertices can affect their positions. Bounded degree makes this a
-bounded number of vertices, even if the full DAG is large.
-
-\texttt{Enclose} enumerates all update choices in this neighborhood.
-Whenever the resulting intervals for $x$ and $y$ are disjoint, their
-order determines the answer for the enclosed assignment. Counting these
-entries gives certified lower bounds on the answer probabilities.
-If the intervals overlap too often to certify an answer, the two
-positions must often be nearly equal. Under the graph bounds, the
-density estimates force both stored coordinate intervals to be very
-short; their middle halves then have density greater than $2^k$.
-This supplies the refinement promised by the lemma.
-\end{proof}
-
-\paragraph{Polynomial running time.}
+\section{Running time}\label{sec:runtime}\label{sec:parameter-selection}
 
 The local routines inspect a bounded neighborhood. Their cost also depends
 on the precision of the interval endpoints. The following bound makes
@@ -126,17 +16,27 @@ $\Lambda+\log E_k$ such digits.
 See Theorem~\ref{thm:local} and Appendix~\ref{app:arithmetic}.
 \end{proof}
 
-Choose $k=k(n)\to\infty$ slowly enough that the enumeration bound
-$E_k$ in Lemma~\ref{lem:local-cost} satisfies $E_k\le n$.
-Appendix~\ref{app:arithmetic} gives a polynomial-time rule for this
-choice and verifies that the stored state and exact arithmetic have
-polynomial cost. This yields a fixed polynomial bound on bit operations
-per query, independent of the length of the interaction.
+A fixed program generates the parameters and $E_k$ for
+$k=64,128,\ldots$, writing each completed tuple in binary. On input
+size $n$, run this program for $n$ steps and choose the largest completed
+$k$ with $E_k\le n$. If none qualifies, answer from the fixed label
+order. The simulation writes at most $n$ bits, so parsing its output
+and selecting a tuple also take polynomial time.
+
+For every $k$ in this sequence, both its generation time and $E_k$ are finite.
+That tuple therefore qualifies for all sufficiently large $n$, proving
+$k(n)\to\infty$. These parameters give an asymptotic guarantee, with
+no claim of practical running time. Appendix~\ref{app:arithmetic}
+verifies that the stored state and exact arithmetic have polynomial
+cost. This yields a fixed polynomial bound on bit operations per query,
+independent of the length of the interaction.
 
 \begin{proof}[Proof of Theorem~\ref{thm:main}]
-The adversary is deterministic and polynomial-time. By
-Theorem~\ref{thm:fixed-stage} it is legal, and a correct sorter can stop
-only when $T_q=1$, which requires
+The adversary is deterministic and polynomial-time. The fixed-order
+fallback is legal, as is every qualifying stage by
+Theorem~\ref{thm:fixed-stage}. For sufficiently large $n$, a stage
+$k(n)$ qualifies, and a correct sorter can stop only when $T_q=1$,
+which requires
 \[
 q\ge\frac{\log(n!)}{1+\delta_{k(n)}}=(1-o(1))n\log n,
 \]

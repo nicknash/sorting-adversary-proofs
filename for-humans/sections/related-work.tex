@@ -16,9 +16,9 @@ polynomial-time algorithm for general partial orders~\cite[p.~390]{kahn-kim}.
 Kahn and Kim~\cite{kahn-kim} later gave a deterministic polynomial-time
 sorting algorithm using $O(\log e(P))$ comparisons. They also constructed
 a deterministic polynomial-time adversary forcing $\Omega(\log e(P))$
-comparisons. This history highlights the
-distinction between comparison complexity and the computation needed to
-choose comparisons. Our adversary faces the corresponding task of choosing
+comparisons. More recent work gives much faster algorithms for sorting
+from supplied comparisons~\cite{haeupler-sorting,rutschmann-sorting}.
+Our adversary faces the corresponding task of choosing
 answers efficiently while forcing asymptotically the full ITLB for ordinary
 sorting.
 
@@ -113,8 +113,8 @@ states correspond to consecutive ranges of children, so an item can
 narrow its range before entering a particular child. See Figure~\ref{fig:kzz-lattice}.
 
 A key idea of this adversary is that a comparison between two items need not immediately cause them
-to descend in the tree structure. Instead, pairs of items whose relative order are fixed can remain in the
-same node. We extend this idea to sufficiently structured DAGs in our adversary of Section \ref{sec:overview}.
+to descend in the tree structure. Instead, pairs of items whose relative order is fixed can remain in the
+same node.
 
 \begin{figure}[htbp]
 \centering

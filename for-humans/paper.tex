@@ -50,8 +50,8 @@ This paper describes an optimal \emph{deterministic}, polynomial-time adversary 
 ordinary sorting. For any correct sorting algorithm, the adversary forces that
 algorithm to make $(1-o(1))n\logtwo n$ comparisons. The best previously known
 deterministic polynomial-time adversary forced $\frac{37}{64}n\logtwo n$ comparisons.
-The adversary represents the evolving partial order by a hierarchical
-family of directed acyclic graphs. Bounds on vertex degrees and directed
+The adversary maintains a family of orders consistent with the answers so far,
+using a hierarchy of directed acyclic graphs. Bounds on vertex degrees and directed
 path lengths allow comparison answers to be chosen through deterministic
 calculations on small graph neighborhoods.
 \end{abstract}
