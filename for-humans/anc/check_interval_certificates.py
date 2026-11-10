@@ -157,6 +157,13 @@ def certify(boxes, threshold=None):
     return F(left, n), F(right, n), F(n-left-right, n)
 
 
+def accepted_comparison(boxes, eta, threshold=None):
+    left, right, _ = certify(boxes, threshold)
+    if max(left, right) < F(1,2)-eta:
+        return None
+    return 'left' if left >= right else 'right'
+
+
 def ranked(counter, rank):
     count = 0
     for value, multiplicity in sorted(counter.items()):
@@ -180,6 +187,77 @@ def central(boxes):
     right = sum(c for ((a, b),), c in boxes.items() if a >= v)
     assert left >= n//4 and right >= n//4
     return u, v, [F(left, n), F(middle, n), F(right, n)], lowers, uppers
+
+
+def certified_central(boxes):
+    u, v, counts, _, _ = central(boxes)
+    if u >= v or counts[1] < F(1,4):
+        return None
+    return u, v
+
+
+def shortest_fraction(left, right):
+    precision = 1
+    while True:
+        denominator = 2**precision
+        numerator = (left.numerator*denominator+left.denominator-1)//left.denominator
+        if numerator % 2 == 0:
+            numerator += 1
+        candidate = F(numerator, denominator)
+        if candidate <= right:
+            return candidate
+        precision += 1
+
+
+def anchor_from_certificate(boxes, low, high):
+    interval = certified_central(boxes)
+    branch = 'central' if interval is not None else 'middle_half'
+    if interval is None:
+        width = high-low
+        interval = low+width/4, high-width/4
+    return shortest_fraction(*interval), branch
+
+
+def check_moment_lemma():
+    # Each site's multiplier depends on the same fresh digit; the two sites
+    # need not be independent. Exact enumeration checks the resulting moments.
+    moment_checks = 0
+    for same_exception in (False, True):
+        states = Counter({(F(1),F(3,4)):1})
+        for sweep in range(1,5):
+            next_states = Counter()
+            for state, count in states.items():
+                for digit in range(8):
+                    multipliers = (F(1) if digit == 0 else F(1,2),
+                                   F(1) if digit == (0 if same_exception else 1) else F(1,2))
+                    next_states[tuple(a*max(state) for a in multipliers)] += count
+            states = next_states
+            for vertex in range(2):
+                moment = sum(count*state[vertex]**3 for state,count in states.items())/8**sweep
+                assert moment <= F(1,2**sweep)
+                moment_checks += 1
+    calibrations = []
+    for m, height in ((1,1),(2,1),(4,1),(1,2)):
+        radix = 1
+        while radix < 4*m*m:
+            radix *= 2
+        beta = 1-F(1,radix**height)
+        exponent, power = 1, beta
+        while power > F(1,4*m):
+            exponent += 1
+            power *= beta
+        assert power <= F(1,4*m) < power/beta
+        exceptional = F(m,radix)
+        assert exceptional+(1-exceptional)*power <= F(1,2*m)
+        alpha, delta, queries = F(1,16), F(1,8), 2
+        sweeps = 1
+        target = alpha*delta**exponent/queries
+        while F(1,2**sweeps) > target:
+            sweeps += 1
+        assert F(1,2**sweeps) <= target < F(1,2**(sweeps-1))
+        calibrations.append({'M':m,'height':height,'radix':radix,
+                             'moment_power':exponent,'sweeps':sweeps})
+    return moment_checks, calibrations
 
 
 def shared_full_run(bounds, arcs, targets, radius, radix, sweeps, digits, initial,
@@ -223,6 +301,8 @@ def run():
     assert mass([zero_one]*2, [(0,1)], 0, F(0), F(1,2)) == F(3,4)
     cases = [
         ('independent_pair', [zero_one]*2, [], [0,1], 2, 2, 4),
+        ('ordered_pair', [zero_one]*2, [(0,1)], [0,1], 2, 2, 4),
+        ('reverse_ordered_pair', [zero_one]*2, [(0,1)], [1,0], 2, 2, 4),
         ('fork_pair', [zero_one]*3, [(0,1),(0,2)], [1,2], 2, 2, 3),
         ('unequal_bounds', [(F(0),F(3,4)),(F(1,4),F(1))], [], [0,1], 2, 4, 2),
         ('truncated_height_two', [(F(0),F(3,4)),zero_one,zero_one,zero_one,(F(1,4),F(1))],
@@ -230,6 +310,7 @@ def run():
     ]
     reports = []
     probability_checks = 0
+    acceptance_checks = 0
     for name, bounds, arcs, targets, radius, radix, sweeps in cases:
         boxes, report = enclose(bounds, arcs, targets, radius, radix, sweeps)
         total_volume = volume(bounds, arcs)
@@ -238,6 +319,12 @@ def run():
         p, q, unresolved = certify(boxes)
         assert p <= true_left and q <= 1-true_left and p+q+unresolved == 1
         probability_checks += 2
+        accepted = accepted_comparison(boxes, F(1,64))
+        if accepted is not None:
+            assert (true_left if accepted == 'left' else 1-true_left) >= F(1,2)-F(1,64)
+        acceptance_checks += 1
+        if 'ordered_pair' in name:
+            assert (q == 0 and true_left == 1) or (p == 0 and true_left == 0)
         for coordinate, vertex in enumerate(targets):
             marginal = Counter()
             for entry, count in boxes.items():
@@ -251,7 +338,8 @@ def run():
             assert report['outside'] and set(report['retained'])-set(report['interior'])
             assert p > 0
         report.update(name=name, true_left=str(true_left),
-                      certified_left=str(p), certified_right=str(q), unresolved=str(unresolved))
+                      certified_left=str(p), certified_right=str(q), unresolved=str(unresolved),
+                      accepted_orientation=accepted)
         reports.append(report)
 
     # Actual full-graph boundary coordinates move, including under influence
@@ -292,6 +380,7 @@ def run():
         boxes, report = enclose(bounds, arcs, [vertex], 3, 2, sweeps)
         u, v, counts, lowers, uppers = central(boxes)
         assert counts[1] >= F(1,4), (name, counts)
+        assert certified_central(boxes) == (u,v)
         assert u < v
         actual = [mass(bounds, arcs, vertex, F(0),u),
                   mass(bounds, arcs, vertex, u,v),
@@ -309,14 +398,51 @@ def run():
     boxes, _ = enclose([zero_one]*2, [(0,1)], [0], 2, 2, 1)
     _, _, early_counts, _, _ = central(boxes)
     assert early_counts[1] < F(1,4)
+    assert certified_central(boxes) is None
+    fallback, branch = anchor_from_certificate(boxes, F(0), F(1))
+    assert branch == 'middle_half' and fallback == F(1,2)
+
+    # A failed comparison need not make the subsequent central certificate
+    # fail. Use a concentrated uniform example where its successful anchor
+    # has density exactly 1/width, independently of the digit calculation.
+    low, high = F(1,2), F(1,2)+F(1,2**20)
+    boxes, _ = enclose([(low,high)]*2, [], [0,1], 2, 2, 2)
+    assert accepted_comparison(boxes, F(1,64)) is None
+    marginal = Counter()
+    for entry,count in boxes.items():
+        marginal[(entry[0],)] += count
+    central_anchor, branch = anchor_from_certificate(marginal, low, high)
+    assert branch == 'central' and low < central_anchor < high
+    assert F(1,1)/(high-low) == 2**20
+    assert bits(central_anchor) <= max(bits(x) for entry in marginal for x in entry[0])
+
+    # Check the all-pair small-gap conclusion on a comparable pair directly:
+    # on 0<x<y<1, the gap has density 2(1-d), 0<d<1.
+    gap_checks = 0
+    grid = [F(i,8) for i in range(-8,9)]
+    for i,a in enumerate(grid):
+        for b in grid[i+1:]:
+            for sign in (-1,1):
+                left,right = (a,b) if sign == 1 else (-b,-a)
+                left,right = max(F(0),left),min(F(1),right)
+                actual = F(0) if left >= right else 2*(right-left)-(right*right-left*left)
+                assert actual <= 2*(b-a)
+                gap_checks += 1
+    moment_checks, calibrations = check_moment_lemma()
     return {'status':'passed', 'scope':__doc__.strip(),
             'independent_volume_identity_checks':8,
             'independent_probability_inequalities':probability_checks,
+            'accepted_answer_checks':acceptance_checks,
+            'comparable_gap_checks':gap_checks,
+            'correlated_multiplier_moment_checks':moment_checks,
+            'moment_parameter_calibrations':calibrations,
             'atomic_enclosure_checks':enclosure_checks,
             'moving_full_boundary_runs':moving_boundary_runs,
             'moving_omitted_vertex_runs':moving_outside_runs,
             'unsafe_unfrozen_boundary_detected':True,
             'insufficient_sweeps_rejected':True,
+            'central_failure_midpoint_fallback_checked':True,
+            'comparison_failure_with_central_success_checked':True,
             'repeated_endpoint_central_cases':repeated_endpoint_cases,
             'comparison_cases':reports, 'central_interval_cases':central_reports}
 

@@ -5,18 +5,19 @@ lets the adversary retain more comparisons involving each item before
 moving it into a child. Increasing $k$ lets the adversary force a comparison
 count closer to $n\log n$. The following bound quantifies this dependence.
 
+\Needspace{9\baselineskip}
 \begin{theorem}[Comparison bound]\label{thm:fixed-stage}
-For every power of two $k\ge64$, the adversary of
+For every sufficiently large integer $k$, the adversary of
 Algorithm~\ref{alg:compare}, with the remaining parameter choices in
 Table~\ref{tab:parameters}, is deterministic and legal, and every call
 terminates. Every correct sorter makes at least
-\begin{equation}\label{eq:exact-bound}
-\frac{n\log n-3n}{1+(2\log k+17)/k}
+\begin{equation}\label{eq:fixed-bound}
+\frac{\log(n!)-n}{1+O(\log k/k)}
 \end{equation}
 comparisons.
 \end{theorem}
 
-For this section, fix a power of two $k\ge64$.
+For this section, fix a sufficiently large integer $k$.
 Section~\ref{sec:runtime} chooses $k$ as a function of $n$ so that it grows
 without bound while the adversary's running time remains polynomial.
 
@@ -24,9 +25,7 @@ We will bound the number of total orders represented by any state.
 The bound combines the freedom within nodes with weights assigned to
 child choices. A single inequality relating refinement cost to volume
 change will then explain how each of the three refinement rules preserves
-enough orders. The main proof gives the denominator
-$1+O(\log k/k)$; Appendix~\ref{app:constants} verifies the explicit
-coefficient in \eqref{eq:exact-bound}.
+enough orders.
 
 \subsection{Volume changes}\label{sec:guarantees}
 
@@ -49,15 +48,14 @@ Choose the certificate tolerance to be
 \begin{equation}\label{eq:estimation-error}
 \eta=\frac1{100k}.
 \end{equation}
-By Lemma~\ref{lem:estimation}, each chosen answer retains at least
+By Lemma~\ref{lem:estimation} and the acceptance test in
+Algorithm~\ref{alg:compare}, each chosen answer retains at least
 $1/2-\eta$ of its node's volume. Its decrease in $\log Z$ is therefore
 at most
 \begin{equation}\label{eq:comparison-loss}
-a_\eta=-\log(1/2-\eta)\le1+\frac1{2k}.
+a_\eta=-\log(1/2-\eta)=1+O(1/k).
 \end{equation}
-For the inequality, use
-$2^{-1/(2k)}\le1-1/(4k)\le1-1/(50k)=1-2\eta$.
-An answer already determined by the stored constraints leaves $Z$ unchanged.
+A comparison between two child anchors leaves $Z$ unchanged.
 
 Refinement fixes an item's position in its parent and gives it a fresh
 unit coordinate in a child. Write
@@ -68,15 +66,15 @@ for the resulting change in $\log Z$. We call $g$ the refinement's
 \emph{volume gain}; it can be negative.
 
 The algorithm must preserve positive node volumes and the bounds needed
-by the probability routines. It must also return answers consistent with the earlier
-comparisons. The following proposition gives these guarantees.
+by the probability routines. It must also return answers consistent with
+the earlier comparisons. The following proposition gives these guarantees.
 
 \begin{proposition}[Consistency and termination]\label{prop:legality}
-With the parameter choices of Theorem~\ref{thm:fixed-stage}, every reached
-state has positive node volumes and represents only orders consistent with
-the transcript. Every comparison call terminates and performs at most $n$
-refinements. Every in-node DAG has degree at most $k$ and directed paths
-of fewer than $2H$ vertices throughout the interaction.
+During the recursive phase, every reached state has positive node volumes
+and represents only orders consistent with the transcript. Every call to
+Algorithm~\ref{alg:compare} terminates and performs at most $n$ refinements.
+Every in-node DAG has degree at most $k$ and directed paths of fewer than
+$2H$ vertices throughout this phase.
 \end{proposition}
 
 Section~\ref{sec:repairs} proves Proposition~\ref{prop:legality}.
@@ -91,14 +89,13 @@ child at anchor $c$, with the weights at each parent summing to at most
 $1/2$.
 
 For each item, multiply the child weights along the path from the root
-to its storage node. Let $Q$ be the product of these quantities over all
-items. An item stored at the root contributes one. Thus each edge weight
+to its storage node. Let $\mathcal W$ be their product over all items. An item stored at the root contributes one. Thus each edge weight
 appears once for every item in its subtree.
 
 \begin{lemma}[Number of represented orders]\label{lem:packing}
 If the state represents $N_{\rm ord}$ total orders, then
 \begin{equation}\label{eq:remaining-orders}
-N_{\rm ord}\ge n!\,2^{-n}ZQ.
+N_{\rm ord}\ge n!\,2^{-n}Z\mathcal W.
 \end{equation}
 \end{lemma}
 \begin{proof}
@@ -115,7 +112,7 @@ orders has probability $1/n!$.
 
 Consider the event that every label stops at its actual storage node
 and the coordinates satisfy all in-node constraints. The required paths
-have probability $Q$, and stopping at their endpoints contributes at least
+have probability $\mathcal W$, and stopping at their endpoints contributes at least
 $2^{-n}$. Conditional on these choices, the coordinates are independent
 and uniform, so the probability of satisfying the constraints is $Z$.
 Every order produced by this event is represented by the state. Its
@@ -130,7 +127,7 @@ Records only move downward. Their current paths therefore contain
 exactly the edge traversals made during refinement, counted once for
 each moved item. Consequently
 \begin{equation}\label{eq:total-child-cost}
--\log Q=\sum_{\text{refinements }r}\ell(c_r).
+-\log\mathcal W=\sum_{\text{refinements }r}\ell(c_r).
 \end{equation}
 \subsection{One bound for the cost of refinement}\label{sec:refinement-cost}
 
@@ -161,11 +158,11 @@ $a\ge1$ and $1\le b<k+1$, such that every refinement satisfies
 \begin{equation}\label{eq:affine-cost}
 g\ge-4,\qquad \ell(c)\le ag+b.
 \end{equation}
-If the refined coordinate is narrow, its gain also satisfies $g>k$.
+A refinement made after unsuccessful comparison certification has gain
+$g>k$.
 \end{lemma}
 
-Section~\ref{sec:refinement-guarantee} proves the lemma;
-Appendix~\ref{app:constants} gives explicit choices of $a$ and $b$.
+Section~\ref{sec:refinement-guarantee} proves the lemma.
 The additive term can be absorbed when a refinement has a large gain,
 or when a batch has a large total child cost. The path rule supplies
 the latter. Choose
@@ -183,14 +180,21 @@ already determined along the selected path.
 
 \subsection{The comparison bound}\label{sec:comparison-cost}
 
-\begin{proof}[Comparison bound from the refinement guarantee]
-Proposition~\ref{prop:legality} gives consistency and termination of every
-call. The procedures and their tie rules are deterministic.
-We first explain how each refinement rule accounts for the additive term
-in \eqref{eq:affine-cost}.
+\begin{proof}[Proof of Theorem~\ref{thm:fixed-stage}]
+Proposition~\ref{prop:legality} gives consistency and termination during
+the recursive phase. At the cutoff, at least one total order respects all
+recorded answers, so their directed graph is acyclic. Its chosen
+topological order extends these answers and makes every later answer
+consistent with them. All procedures and tie rules are deterministic.
 
-\emph{Narrow coordinates.}
-Since $g>k$, a narrow refinement satisfies
+If the sorter reaches the cutoff $Q(n)$ in \eqref{eq:comparison-horizon}, it has already
+made at least $n\log n$ comparisons, which suffices for the claimed bound.
+Otherwise it finishes after $q<Q(n)$ calls to the recursive procedure.
+We show how each refinement rule accounts for the additive term in
+\eqref{eq:affine-cost}.
+
+\emph{Unsuccessful comparison certification.}
+The resulting refinement has $g>k$, so
 \[
 \ell(c)\le ag+b\le(a+b/k)g.
 \]
@@ -215,12 +219,12 @@ The assumptions $a,b\ge1$ give
 \[
 \lambda-a=\frac{ab}{k+1-b}\ge\frac bk,
 \]
-so the same factor $\lambda$ also covers narrow refinements.
+so the same factor $\lambda$ also covers refinements made after
+unsuccessful comparison certification.
 
 \emph{Degree refinements.}
-Outside a path batch, count a refinement as a degree refinement whenever
-its vertex has degree $k$, including when its coordinate is also narrow.
-The bound $g\ge-4$ gives
+The degree rule refines a queried vertex of degree $k$. The bound
+$g\ge-4$ gives
 \begin{equation}\label{eq:degree-allowance}
 \ell(c)\le\lambda g+\sigma,
 \qquad \sigma=b+4(\lambda-a)=O(\log k).
@@ -253,10 +257,7 @@ made. At termination $N_{\rm ord}=1$, giving
 \[
 q\ge\frac{\log(n!)-n}{1+O(\log k/k)}.
 \]
-Appendix~\ref{app:constants} verifies that the explicit choices of $a,b$
-give $\lambda a_\eta+\sigma/k\le1+(2\log k+17)/k$.
-Together with $\log(n!)-n\ge n\log n-3n$, this proves
-Theorem~\ref{thm:fixed-stage}.
+This proves \eqref{eq:fixed-bound}.
 \end{proof}
 
 The next section proves the refinement and consistency guarantees used above.

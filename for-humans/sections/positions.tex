@@ -128,95 +128,108 @@ parameter choices.
 
 For two queried coordinates, let $p$ be the fraction of entries with
 $B_x<A_y$, and let $q$ be the fraction with $B_y<A_x$.
-The routine \texttt{Certify} returns $(p,q)$. For a threshold comparison,
-use the fixed interval $[c,c]$ for the threshold. A directed path that
-already orders two queried items gives the exact pair $(1,0)$ or $(0,1)$.
-
-Each disjoint pair of intervals certifies the same strict order for the
-enclosed positions. The enclosure guarantee therefore gives exact lower
-bounds on the two true probabilities. We next bound the fraction of
-entries whose intervals overlap, including when they touch at one endpoint.
-
-\begin{corollary}[A bound for small differences]\label{cor:gap}
-Let $X$ be uniform on a positive-volume node region, and suppose $x$ has
-at most $B$ other comparable coordinates and effective width $W$.
-Let $Y$ be a fixed number or $X_y$ for a coordinate $y$ incomparable with
-$x$. For every interval $I$ of length $a$,
-\begin{equation}\label{eq:gap}
-\Prb(X_x-Y\in I)\le\frac{(B+1)a}{W}.
-\end{equation}
-\end{corollary}
-\begin{proof}
-For $Y=X_y$, condition on $X_y$. Lemma~\ref{lem:fiber} bounds the
-conditional density of $x$ by $(B+1)/W$. Integrating over the translate
-$I+X_y$ and then averaging over $X_y$ proves the claim. For fixed $Y$,
-apply the unconditional density bound.
-\end{proof}
+The routine \texttt{Certify} always returns these two counts divided by
+$N$. For a threshold comparison, use the fixed interval $[c,c]$ for the
+threshold. The comparison rule accepts an answer when its certified
+fraction is at least $1/2-\eta$; otherwise it refines a queried free item.
 
 \begin{proof}[Proof of Lemma~\ref{lem:estimation}]
-Computing effective endpoints preserves the positive-volume feasible
-region by Lemma~\ref{lem:interior}. Use Theorem~\ref{thm:local} with
-\begin{equation}\label{eq:estimator-coupling-parameters}
-d=k,\qquad h=2H,\qquad r=2,\qquad
-\alpha=\frac\eta2,\qquad
-\delta=\frac{\eta}{8(B+1)R}.
-\end{equation}
-These same parameters will serve \texttt{CentralInterval} below.
 The two certification conditions are disjoint, so $p,q\ge0$ and
-$p+q\le1$. Enclosure gives
-$p\le\Prb(X_x<X_y)$ and $q\le\Prb(X_y<X_x)$.
-
-For an incomparable pair, choose a wide coordinate $x$.
-If the computed intervals overlap and both have width at most $\delta$,
-the enclosed positions differ by at most $2\delta$.
-Corollary~\ref{cor:gap} consequently bounds the unresolved fraction by
+$p+q\le1$. Whenever $B_x<A_y$, enclosure gives $X_x<X_y$; the reverse
+condition gives the reverse order. Consequently
 \[
-1-p-q\le\alpha+\Prb(|X_x-X_y|\le2\delta)
-\le\alpha+4(B+1)R\delta=\eta.
+p\le\Prb(X_x<X_y),\qquad q\le\Prb(X_y<X_x).
 \]
-For a threshold $c$, an unresolved interval contains $c$. If its width
-is at most $\delta$, its enclosed position is within $\delta$ of $c$.
-The unresolved fraction is at most
-\begin{equation}\label{eq:threshold-unresolved}
-\alpha+2(B+1)R\delta=\frac{3\eta}{4}.
-\end{equation}
-Both bounds imply the claimed $p+q\ge1-2\eta$.
-The counts and their denominators are exact integers, so the routine
-is deterministic.
+The same argument applies to a fixed threshold.
+These bounds hold for every list, including when neither fraction passes
+the acceptance test. The counts and their denominators are exact integers,
+so the routine is deterministic. The unit-width success guarantee follows
+from Lemma~\ref{lem:certificate-success}, proved below, since $w_*\le1$.
 \end{proof}
 
 \subsection{Certifying a central interval}
 
-For a wide coordinate $x$, \texttt{CentralInterval} runs
-Algorithm~\ref{alg:finite-digits} with $T=\{x\}$ and the parameters in
-\eqref{eq:estimator-coupling-parameters}. Write its intervals as
+For a free coordinate $x$, \texttt{CentralInterval} runs
+Algorithm~\ref{alg:finite-digits} with $T=\{x\}$. Write its intervals as
 $[A_i,B_i]$, $1\le i\le N$. The chosen $S$ is divisible by four, so
 $N/4$ is an integer. Sort the upper endpoints and take their $N/4$-th
 value as $u$. Sort the lower endpoints and take their $3N/4$-th value as
-$v$. Finally, count the intervals wholly contained in $[u,v]$.
-The following proof shows that at least $N/4$ intervals pass this test;
-the routine returns $[u,v]$ with these finite certificates.
+$v$. Count the intervals wholly contained in $[u,v]$. If $u\ge v$ or
+fewer than $N/4$ intervals pass this test, return \texttt{FAIL}.
+Otherwise return $[u,v]$.
 
 \begin{proof}[Proof of Lemma~\ref{lem:central-interval}]
 At least $N/4$ intervals end at or below $u$, and at least $N/4$ begin
-at or above $v$. Enclosure certifies the required left and right masses.
-It remains to bound the number of intervals contained in $[u,v]$.
+at or above $v$. On success, at least $N/4$ intervals also lie wholly
+inside $[u,v]$. Enclosure certifies mass at least $1/4$ in each of the
+three regions. The true distribution is continuous and supported on
+$(\ell_x,r_x)$, so these masses imply $\ell_x<u<v<r_x$.
+The endpoints are dyadic, and sorting and counting finite lists are
+deterministic.
+\end{proof}
 
-By \eqref{eq:threshold-unresolved}, at most a fraction
-$\tau=3\eta/4$ of the intervals contain any fixed real number.
-This bound applies in particular to $u$ and $v$.
+\subsection{When certification succeeds}
+
+The preceding certificates are valid whenever their finite tests pass.
+To prove that the tests succeed on sufficiently dispersed coordinates,
+we bound the fraction of entries whose intervals overlap. The following
+geometric estimate applies to every pair of distinct free coordinates.
+
+\begin{lemma}[A bound for small differences]\label{lem:gap}
+Let $X$ be uniform on a positive-volume node region, and suppose $x$ has
+at most $B$ other comparable coordinates and effective width $W$.
+Let $Y$ be a fixed number or $X_y$ for any distinct free coordinate $y$.
+For every interval $I$ of length $a$,
+\begin{equation}\label{eq:gap}
+\Prb(X_x-Y\in I)\le\frac{(B+1)a}{W}.
+\end{equation}
+\end{lemma}
+
+Appendix~\ref{app:geometry} proves this bound by applying a density
+estimate for linear projections to a convex region with at most $B+1$
+free coordinates.
+
+\begin{proof}[Proof of Lemma~\ref{lem:certificate-success}]
+Computing effective endpoints preserves the positive-volume feasible
+region by Lemma~\ref{lem:interior}. Calibrate both routines using
+Theorem~\ref{thm:local} with
+\begin{equation}\label{eq:estimator-coupling-parameters}
+d=k,\qquad h=2H,\qquad r=2,\qquad
+\alpha=\frac\eta2,\qquad
+\delta=\frac{\eta w_*}{8(B+1)}.
+\end{equation}
+These parameters are fixed for the interaction. They do not depend on
+the queried widths.
+
+Suppose one queried free coordinate $x$ has $W_x\ge w_*$.
+If the computed intervals overlap and both have width at most $\delta$,
+the enclosed positions differ by at most $2\delta$.
+Lemma~\ref{lem:gap} therefore bounds the unresolved fraction by
+\[
+1-p-q\le\alpha+\Prb(|X_x-X_y|\le2\delta)
+\le\alpha+\frac{4(B+1)\delta}{w_*}=\eta.
+\]
+Thus $\max(p,q)\ge(1-\eta)/2>1/2-\eta$, so comparison certification
+succeeds. For a threshold $c$, an unresolved interval contains $c$.
+If its width is at most $\delta$, its enclosed position is within
+$\delta$ of $c$, giving the stronger bound
+\begin{equation}\label{eq:threshold-unresolved}
+\alpha+\frac{2(B+1)\delta}{w_*}=\frac{3\eta}{4}.
+\end{equation}
+
+It remains to show that \texttt{CentralInterval} succeeds when
+$W_x\ge w_*$. By \eqref{eq:threshold-unresolved}, at most a fraction
+$\tau=3\eta/4$ of its intervals contain any fixed real number.
+This bound applies in particular to the selected endpoints $u$ and $v$.
 An interval extending below $u$ either ends strictly below $u$ or
 contains $u$. By the rank defining $u$, fewer than $N/4$ intervals end
 strictly below it. Thus at most $(1/4+\tau)N$ intervals extend below $u$.
 Similarly, at most $N/4$ intervals begin strictly above $v$, so at most
 $(1/4+\tau)N$ extend above $v$.
 
-It follows that at least $(1/2-2\tau)N\ge N/4$ intervals lie wholly
-inside $[u,v]$, since $\eta<1/32$. Enclosure gives mass at least $1/4$
-inside this interval. The true distribution is continuous and supported
-on $(\ell_x,r_x)$. The three positive masses therefore imply
-$\ell_x<u<v<r_x$. The endpoints are dyadic, and sorting and counting
-finite lists are deterministic.
+At least $(1/2-2\tau)N\ge N/4$ intervals therefore lie wholly inside
+$[u,v]$, since $\eta<1/32$. Enclosure gives this interval mass at least
+$1/4$. Continuity forces $u<v$, so both success tests pass.
 \end{proof}
 
 The next section chooses the parameters as a function of $n$ and bounds

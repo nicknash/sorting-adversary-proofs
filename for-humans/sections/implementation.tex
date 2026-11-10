@@ -1,119 +1,113 @@
 \section{A uniform polynomial-time implementation}\label{sec:runtime}
 
 For each fixed degree threshold $k$, the preceding sections give a
-finite deterministic algorithm. Its local calculations depend on $k$,
-while its interval endpoints depend on the comparison history. We first
-bound the size of the maintained state, then choose $k$ slowly
-enough that the local calculations also take polynomial time.
-Computation is measured on a fixed deterministic multitape Turing machine,
-with integers represented in binary.
+finite deterministic adversary. We now bound how long it maintains the
+recursive state and choose $k$ slowly enough that its local calculations
+take polynomial time. Computation is measured on a fixed deterministic
+multitape Turing machine, with integers represented in binary.
 
-\subsection{Bounding the state throughout the interaction}
+\subsection{A finite horizon for the recursive state}
 
-The certainty tests in Algorithm~\ref{alg:compare} recognize every
-comparison fixed by the represented orders (Lemma~\ref{lem:certainty}).
-Since those orders respect all earlier answers, a previously answered
-pair is recognized before any refinement begins. Such a call returns
-without changing the state. Every call that changes the state therefore
-compares a previously unanswered pair, so there are at most $\binom n2$
-such calls, however often the sorter repeats a comparison.
+Recall the horizon $Q(n)=n\ceil{\log n}$ from
+\eqref{eq:comparison-horizon}. The algorithm runs the recursive
+adversary for at most $Q(n)$ answers, recording this prefix of the
+transcript. If another query arrives, it forms the directed
+graph of those answers and chooses its lexicographically first topological
+ordering. It answers that query and every subsequent query from the
+resulting fixed ranks.
+
+Proposition~\ref{prop:legality} ensures that the prefix is consistent with
+a total order, so this graph is acyclic and the topological ordering
+exists. Every later answer remains consistent with the prefix.
+If the sorter reaches the horizon, it has already made at least
+$n\log n$ comparisons. If it stops earlier, the comparison bound for
+the recursive adversary applies.
 
 Lemma~\ref{lem:restoration} bounds the number of refinements in one call
-by $n$. Consequently their total number $P$, including those in a call
-still in progress, satisfies
+by $n$. Thus their total number $P$, including those in a call still
+in progress before the horizon, satisfies
 \begin{equation}\label{eq:refinement-runtime}
-P\le n\binom n2.
+P\le nQ(n)=O(n^2\log n).
 \end{equation}
-Each refinement creates at most one node in the adversary's tree, so
-that tree has at most $P+1$ nodes. The $n$ item records are distributed
-among these nodes, and each in-node DAG has degree at most $k$.
-The algorithm stores this tree, its records, and its in-node DAGs.
-
-We store an anchor as an exact dyadic fraction. An anchor of depth $m$
-has $m+1$ fractional binary digits. Comparisons between anchors use
-these exact values.
-
-For a wide item, Lemma~\ref{lem:median-search} bounds its anchor precision
-by a function of $k$ alone. We may use
-\[
-K_0(k)=\ceil{\log(16(B+1)R)}+2.
-\]
-For a narrow item, suppose the stored endpoints have at most $\Lambda$
-fractional digits. The midpoint of its effective interval has at most
-$\Lambda+1$ digits and lies in the central half. The chosen fraction has
-the fewest digits there, so it uses at most $\Lambda+1$ digits as well.
-Effective endpoints are maxima and minima of stored bounds, which add
-no digits. After $P$ refinements,
-\begin{equation}\label{eq:precision}
-\Lambda\le K_0(k)+P.
-\end{equation}
+The recursive tree has at most $P+1$ nodes and contains $n$ item records.
+The stored transcript has at most $Q(n)$ pairs. After switching to fixed
+ranks, the recursive state is no longer needed.
 
 \subsection{An explicit budget for the finite calculations}\label{sec:parameter-selection}
 
-Use the parameter choices in \eqref{eq:estimator-coupling-parameters}
-for the local enclosure theorem. Write $S_k$ for its number of digit choices, $t_k$ for
-the number of sweeps, and $b_k$ for the bound on retained vertices in
-\eqref{eq:local-size}. The number of digit sequences in any one calculation
-is at most
+Use the calibration in \eqref{eq:estimator-coupling-parameters} for the
+local enclosure theorem. Write $S_k$ for its number of digit choices,
+$t_k$ for the number of sweeps, and $b_k$ for the bound on retained
+vertices in \eqref{eq:local-size}. The number of digit sequences in one
+calculation is at most
 \begin{equation}\label{eq:enumeration-budget}
 E_k=S_k^{b_k t_k}.
 \end{equation}
-This explicit integer will determine which parameters we can afford.
 
-For powers of two $k=64,128,\ldots$, a fixed program writes the complete
-parameter tuple and $E_k$ in binary. On input size $n$, simulate this
-program for $n$ steps. Among the tuples it has completed, choose the
-largest $k$ satisfying
+For $k=64,128,\ldots$, a fixed program writes the complete parameter
+tuple and $E_k$ in binary. On input size $n$, simulate this program for
+$n$ steps. Among the tuples it has completed, choose the largest $k$ with
 \begin{equation}\label{eq:stage-gate}
 E_k\le n.
 \end{equation}
-Use these parameters for the entire interaction. If no tuple qualifies,
-answer all comparisons according to the fixed label order.
+Use these parameters for the entire recursive phase. If no tuple
+qualifies, answer all comparisons according to the fixed label order.
 
 The initialization takes polynomial time: the simulation writes at most
 $n$ bits, and its completed tuples can be parsed and compared within a
 polynomial bound. For every fixed $k$, the program finishes its tuple in
 some finite time $T(k)$. Once $n\ge\max\{T(k),E_k\}$, that tuple is
-available and meets the budget. Hence the chosen $k(n)$ tends to infinity.
+available and meets the budget. Hence the selected $k(n)$ tends to infinity.
 
-The budget controls both the number and the size of the computations.
+\subsection{Precision and work per call}
+
+Let $\Lambda$ be the largest fractional binary precision among the stored
+bounds and anchors. The finite calculation produces endpoints with at
+most $\Lambda+\log E_k$ digits. If central certification succeeds, either
+endpoint of the returned interval is an admissible anchor candidate.
+The shortest binary fraction in that interval uses no more digits.
+If certification fails, the midpoint of the effective interval is a
+candidate in its middle half and uses at most $\Lambda+1$ digits.
+Since $E_k\ge2$, either branch increases the stored precision by at most
+$\log E_k$. Maxima and minima of existing bounds add no precision.
+Starting from the bounds $0,1$, we obtain
+\begin{equation}\label{eq:precision}
+\Lambda\le P\log E_k=O(n^2\log^2 n).
+\end{equation}
+
 There are at most $n$ digit sequences per certificate calculation.
 Each sequence uses two endpoint calculations, each with at most
 $b_k t_k\le\log n$ updates. Each calculation adds at most
 $b_k t_k\log S_k=\log E_k\le\log n$ fractional bits.
 The frozen boundary requires no updates. Tallies have at most
-$\log n+1$ bits. A central-interval calculation stores at most $n$
-intervals, sorts their endpoints, and checks the three certificate counts.
+$\log n+1$ bits. Central certification sorts at most $n$ lower and
+upper endpoints and counts the intervals inside the proposed interval.
+All this arithmetic involves polynomially many bits. The shortest-fraction
+search examines at most the bit length of the candidate just described,
+so it also takes polynomial time.
 
-The constants in \eqref{eq:local-radius} also give
-$K_0(k)\le\log E_k$: here $M=B$, and the chosen number of sweeps exceeds
-$\ceil{\log(8(B+1)R/\eta)}$, which is larger than $K_0(k)$.
-Thus \eqref{eq:refinement-runtime} and \eqref{eq:precision} give
-$\Lambda=O(n^3)$. Every update uses exact arithmetic on polynomially many
-bits. The shortest-fraction search examines at most the fractional bit length
-of an available candidate: the midpoint in the narrow case, or an endpoint
-of the certified central interval in the wide case. Its integer arithmetic
-therefore also has polynomial bit cost.
-
-A comparison call makes at most $n$ refinements, each requiring at most
-one central-interval calculation, followed by at most one call to
-\texttt{Certify}.
-Routing queries, computing effective endpoints, and testing reachability
-use polynomial time in the stored state. Directed-path lengths are
-computed in reverse topological order; if $H>n$, no path can require
-refinement. All tie rules can be implemented by scanning labels in order.
-Thus each comparison is answered within one fixed polynomial number of
-bit operations, independent of the chosen parameters and of the length
-of the preceding interaction.
+A comparison call makes at most $n$ refinements and hence at most $n+1$
+calls to \texttt{Certify} and $n$ calls to \texttt{CentralInterval}.
+Routing queries and computing effective endpoints take polynomial time
+in the stored state. Directed-path lengths are computed in reverse
+topological order; if $H>n$, no path can require refinement. The
+lexicographic tie rules can be implemented by scanning labels in order.
+Recording the bounded transcript and computing its topological ordering
+also take polynomial time. After the horizon, each answer compares two
+stored ranks. Thus one fixed polynomial bounds the work per query,
+independently of the selected parameters and the length of the interaction.
 
 \begin{proof}[Proof of Theorem~\ref{thm:main}]
 Initialization and every comparison call are deterministic and take
-polynomial time. For all sufficiently large $n$, a parameter tuple
-qualifies. Theorem~\ref{thm:fixed-stage} gives legality and forces
+polynomial time. The recursive phase is legal by
+Proposition~\ref{prop:legality}, and the final fixed order respects its
+recorded answers. For all sufficiently large $n$, a parameter tuple
+qualifies. If the sorter reaches $Q(n)$ answers, it has already made at
+least $n\log n$ comparisons. Otherwise Theorem~\ref{thm:fixed-stage} gives
 \[
-q\ge\frac{n\log n-3n}{1+(2\log k(n)+17)/k(n)}
+q\ge\frac{\log(n!)-n}{1+O(\log k(n)/k(n))}
 =(1-o(1))n\log n,
 \]
-since $k(n)\to\infty$. The fixed-order rule for the remaining input sizes
-is also deterministic and legal.
+since $k(n)\to\infty$. The fixed-order rule used for the remaining input
+sizes is deterministic and legal as well.
 \end{proof}

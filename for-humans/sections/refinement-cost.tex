@@ -14,11 +14,16 @@ Consequently, \eqref{eq:anchor-cost} gives
 \[
 \ell(c)\le\frac{\gamma}{1-1/k}(g+4)+\log k+1.
 \]
-Choose any $a\ge\gamma/(1-1/k)$ and put $b=4a+\log k+1$.
-Because $g+4\ge0$, increasing the coefficient to $a$ preserves the
-inequality, including when $g$ is negative. We obtain $\ell(c)\le ag+b$.
-The estimate $\gamma=1+O(1/k)$ permits $a=1+O(1/k)$ and
-$b=O(\log k)$. Appendix~\ref{app:constants} supplies explicit choices
-satisfying $a\ge1$ and $1\le b<k+1$ for every permitted $k$.
-For a narrow coordinate, $g>k$ is precisely \eqref{eq:narrow-gain}.
+For $k\ge64$, the estimate
+$-\log(1-1/k)\le1/((k-1)\ln2)\le3/(2k)$ gives
+$\gamma/(1-1/k)\le1+3/k$. We may therefore choose
+\[
+a=1+\frac3k,\qquad b=4a+\log k+1.
+\]
+Because $g+4\ge0$, increasing its coefficient to $a$ preserves the
+inequality, including when $g$ is negative. This proves $\ell(c)\le ag+b$.
+The chosen coefficients satisfy $a\ge1$ and
+$1\le b\le\log k+6<k+1$, as well as the stated asymptotic bounds.
+If the refinement follows unsuccessful comparison certification,
+\eqref{eq:failure-gain} gives $g>k$.
 \end{proof}

@@ -49,60 +49,85 @@ them. Put $\beta=1-S^{-h}$. Consequently,
 \end{cases}
 \end{equation}
 
-\subsection{Following the dependencies through several sweeps}
+\subsection{Averaging powers of the widths}
+
+We must control a maximum over several earlier widths. Taking a power
+and bounding the maximum by a sum makes this possible when the expected
+contraction is strong enough. The following lemma also allows the set of
+vertices under consideration to shrink after each sweep.
+
+\begin{lemma}[Averaging contraction]\label{lem:moment-contraction}
+Let $V_0\supseteq\cdots\supseteq V_t$, and let nonnegative quantities
+$D_z(s)$ be determined by the first $s$ sweeps. Suppose $D_z(0)\le1$
+and, for $z\in V_s$, there are nonnegative multipliers $\kappa_z(s)$ with
+\[
+D_z(s)\le\kappa_z(s)\max_{u\in N(z)}D_u(s-1),
+\qquad N(z)\subseteq V_{s-1},\quad 1\le|N(z)|\le M.
+\]
+If, for an integer $p\ge1$, the conditional expectation of
+$\kappa_z(s)^p$ given all earlier sweeps is at most $1/(2M)$,
+then for $z\in V_s$ and every $\delta>0$,
+\begin{equation}\label{eq:local-interior-error}
+\E D_z(s)^p\le2^{-s},\qquad
+\Prb(D_z(s)>\delta)\le2^{-s}\delta^{-p}.
+\end{equation}
+\end{lemma}
+\begin{proof}
+The old widths are fixed when conditioning on the earlier sweeps.
+Since the maximum of their $p$-th powers is at most their sum,
+\[
+\E D_z(s)^p
+\le\frac1{2M}\sum_{u\in N(z)}\E D_u(s-1)^p
+\le\frac12\max_{u\in N(z)}\E D_u(s-1)^p.
+\]
+Induction gives the moment bound. The probability bound follows by
+Markov's inequality.
+\end{proof}
+
+\subsection{Choosing the parameters}
+
 Both $B_h(z)$ and the set consisting of $z$ and its directed-path
 predecessors have at most $M$ vertices. Choose
 \begin{equation}\label{eq:digit-alphabet}
 M=(d+1)^{h+1},\qquad
-S=\text{the least power of two at least }16M^3.
+S=\text{the least power of two at least }4M^2.
 \end{equation}
-The probability that $(z,s)$ is bad is at most
-$M/S\le1/(16M^2)$.
-
-For even $t$, iterating \eqref{eq:local-one-sweep} traces sequences
-$z_t=z,z_{t-1},\ldots,z_0$ with $z_{s-1}\in B_h(z_s)$. There are at most
-$M^t$ sequences. Retain radius $\rho=ht+1$ around the queried set and freeze its outer
-boundary. For a queried $z$, every $B_h(z_s)$ used at sweep $s\ge1$
-lies in the interior: its vertices are at distance at most
-$(t-s+1)h\le th<\rho$ from $z$. Thus every predecessor update used
-in the expansion is performed. The expansion reaches the initial widths
-before it reaches a frozen boundary.
-Since those initial widths are at most one,
-\begin{equation}\label{eq:local-contraction}
-\Delta_z(t)\le
-\max_{z_t=z,\;z_{s-1}\in B_h(z_s)}\prod_{s=1}^t\kappa_{z_s}(s).
+The bad event in \eqref{eq:local-one-sweep} involves only fresh digits
+from the current sweep. Its conditional probability is at most
+$M/S\le1/(4M)$. With $\beta=1-S^{-h}$, choose the smallest positive
+integer $p$ satisfying the rational test
+\begin{equation}\label{eq:moment-power}
+\beta^p\le\frac1{4M}.
 \end{equation}
-
-For a fixed sequence, the events that its pairs are bad use independent
-digits from different sweeps. The probability that at least $t/2$ pairs are bad is
-at most
+Consequently,
 \[
-2^t\left(\frac1{16M^2}\right)^{t/2}
-=\left(\frac1{2M}\right)^t.
+\E\bigl[\kappa_z(s)^p\mid\text{earlier sweeps}\bigr]
+\le\frac1{4M}+\beta^p\le\frac1{2M}.
 \]
-A union bound over the at most $M^t$ sequences gives probability at most
-$2^{-t}$ that any sequence has this many bad pairs. Otherwise every
-product in \eqref{eq:local-contraction} has at least $t/2$ factors at
-most $\beta$. Hence
-\begin{equation}\label{eq:local-interior-error}
-\Prb\bigl(\Delta_z(t)>\beta^{t/2}\bigr)\le2^{-t}.
-\end{equation}
+This estimate uses all directed-path predecessors in defining the bad
+event, so it also covers the predecessor choices made in the one-sweep
+expansion. No independence between vertices within a sweep is required.
 
-\subsection{Explicit accuracy and computation bounds}
-
-To leave width at most $\delta$ at every queried coordinate, except
-for at most a fraction $\alpha$ of digit sequences, choose
+Choose the smallest positive integer $t$ satisfying
 \begin{equation}\label{eq:local-radius}
-t=2\left(S^h\ceil{\log(1/\delta)}+
-                  \ceil{\log(r/\alpha)}\right),\qquad
-\rho=ht+1.
+2^{-t}\le\frac{\alpha\delta^p}{r},\qquad \rho=ht+1.
 \end{equation}
-The inequality $(1-v)^{-q}\ge1+qv$ gives
-$\beta^{S^h}\le1/2$. Thus $\beta^{t/2}\le\delta$ and
-$2^{-t}\le\alpha/r$. Equation~\eqref{eq:local-interior-error} and a
-union bound over the at most $r$ queried coordinates prove the width
-guarantee of Theorem~\ref{thm:local}. The probability here is exactly
-the fraction of entries in the enumerated list, counted with multiplicity.
+These choices are computable: $0<\beta<1$, and both tests compare rational
+numbers. Retain radius $\rho$ around the queried set $T$, freezing the
+outer boundary as in Algorithm~\ref{alg:finite-digits}.
+
+For $0\le s\le t$, let $V_s$ consist of the vertices at distance at most
+$h(t-s)$ from $T$. If $z\in V_s$ and $s\ge1$, then
+$B_h(z)\subseteq V_{s-1}$. Every vertex in these sets has distance at
+most $ht<\rho$ from $T$, so all the updates used by the one-sweep
+inequality occur in the interior. Lemma~\ref{lem:moment-contraction}
+therefore applies to $D_z(s)=\Delta_z(s)$ and $N(z)=B_h(z)$.
+At the queried vertices, which form $V_t=T$, it gives
+\[
+\Prb(\Delta_z(t)>\delta)\le2^{-t}\delta^{-p}\le\alpha/r.
+\]
+A union bound over at most $r$ queried coordinates proves the width
+guarantee of Theorem~\ref{thm:local}.
 
 Each radius-$\rho$ neighborhood has at most
 $1+d+\cdots+d^\rho\le(d+1)^{\rho+1}$ vertices. We may therefore use
@@ -110,7 +135,7 @@ $1+d+\cdots+d^\rho\le(d+1)^{\rho+1}$ vertices. We may therefore use
 b=r(d+1)^{\rho+1},\qquad E=S^{bt}
 \end{equation}
 as bounds on the retained vertices and enumerated digit assignments.
-All these choices are computable from $d,h,r,\delta,\alpha$ alone.
+All these choices depend only on $d,h,r,\delta,\alpha$.
 
 \subsection{Exact arithmetic}\label{sec:digit-arithmetic}
 

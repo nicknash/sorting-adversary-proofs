@@ -2,12 +2,47 @@
   "status": "passed",
   "scope": "Exact finite diagnostics for local enclosing intervals and their certificates.\n\nThese check small instances with rational arithmetic, including genuinely\ntruncated graphs. Independent polytope-volume enumeration checks the certified\nprobabilities. The small parameters used here do not replace the general\ncontraction proof or its much larger uniform choices.",
   "independent_volume_identity_checks": 8,
-  "independent_probability_inequalities": 97,
+  "independent_probability_inequalities": 141,
+  "accepted_answer_checks": 6,
+  "comparable_gap_checks": 272,
+  "correlated_multiplier_moment_checks": 16,
+  "moment_parameter_calibrations": [
+    {
+      "M": 1,
+      "height": 1,
+      "radix": 4,
+      "moment_power": 5,
+      "sweeps": 20
+    },
+    {
+      "M": 2,
+      "height": 1,
+      "radix": 16,
+      "moment_power": 33,
+      "sweeps": 104
+    },
+    {
+      "M": 4,
+      "height": 1,
+      "radix": 64,
+      "moment_power": 177,
+      "sweeps": 536
+    },
+    {
+      "M": 1,
+      "height": 2,
+      "radix": 4,
+      "moment_power": 22,
+      "sweeps": 71
+    }
+  ],
   "atomic_enclosure_checks": 12288,
   "moving_full_boundary_runs": 512,
   "moving_omitted_vertex_runs": 512,
   "unsafe_unfrozen_boundary_detected": true,
   "insufficient_sweeps_rejected": true,
+  "central_failure_midpoint_fallback_checked": true,
+  "comparison_failure_with_central_success_checked": true,
   "repeated_endpoint_central_cases": 2,
   "comparison_cases": [
     {
@@ -27,7 +62,48 @@
       "true_left": "1/2",
       "certified_left": "105/256",
       "certified_right": "105/256",
-      "unresolved": "23/128"
+      "unresolved": "23/128",
+      "accepted_orientation": null
+    },
+    {
+      "retained": [
+        0,
+        1
+      ],
+      "interior": [
+        0,
+        1
+      ],
+      "outside": [],
+      "digit_sequences": 256,
+      "distinct_entries": 256,
+      "precision_bound": 8,
+      "name": "ordered_pair",
+      "true_left": "1",
+      "certified_left": "17/32",
+      "certified_right": "0",
+      "unresolved": "15/32",
+      "accepted_orientation": "left"
+    },
+    {
+      "retained": [
+        0,
+        1
+      ],
+      "interior": [
+        0,
+        1
+      ],
+      "outside": [],
+      "digit_sequences": 256,
+      "distinct_entries": 256,
+      "precision_bound": 8,
+      "name": "reverse_ordered_pair",
+      "true_left": "0",
+      "certified_left": "0",
+      "certified_right": "17/32",
+      "unresolved": "15/32",
+      "accepted_orientation": "right"
     },
     {
       "retained": [
@@ -48,7 +124,8 @@
       "true_left": "1/2",
       "certified_left": "1/8",
       "certified_right": "1/8",
-      "unresolved": "3/4"
+      "unresolved": "3/4",
+      "accepted_orientation": null
     },
     {
       "retained": [
@@ -67,7 +144,8 @@
       "true_left": "7/9",
       "certified_left": "95/128",
       "certified_right": "45/256",
-      "unresolved": "21/256"
+      "unresolved": "21/256",
+      "accepted_orientation": "left"
     },
     {
       "retained": [
@@ -90,7 +168,8 @@
       "true_left": "6931/9347",
       "certified_left": "1/4",
       "certified_right": "0",
-      "unresolved": "3/4"
+      "unresolved": "3/4",
+      "accepted_orientation": null
     }
   ],
   "central_interval_cases": [

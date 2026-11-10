@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Exact diagnostics for local certainty, refinement sections, and volumes.
+"""Exact diagnostics for effective intervals, refinement sections, and volumes.
 
 Permutation/gap enumeration and an independent integer subset-polynomial
-recurrence supply exact reference volumes. These diagnose local certainty and
+recurrence supply exact reference volumes. These diagnose effective intervals and
 refinement without persistent tightening on small systems. They are reference
 calculations, not the current adversary's finite digit estimator. These finite
 checks do not prove the general statements or simulate all trajectories.
@@ -163,40 +163,14 @@ def substitute_incident_constraints(intervals, edges, x, position):
     return [tuple(bounds[y]) for y in kept], remaining_edges, kept
 
 
-def check_local_certainty_and_sections(name, intervals, edges, full_volume):
-    """Test the new criteria against exact volumes on one positive region."""
+def check_effective_intervals_and_sections(name, intervals, edges, full_volume):
+    """Test effective intervals and sections against independent exact volumes."""
     n = len(intervals)
     supports, _ = effective_data(intervals, edges)
     pred, succ = relations(n, edges)
     counts = Counter()
     assert subset_volume(supports, edges) == full_volume, (name, "effective_volume")
     counts["effective_region_volume_checks"] += 1
-
-    orientation_volumes = {}
-    for x in range(n):
-        for y in range(n):
-            if x == y:
-                continue
-            volume = subset_volume(intervals, [*edges, (x, y)])
-            orientation_volumes[x, y] = volume
-            if y in succ[x]:
-                assert volume == full_volume, (name, "forward_path", x, y)
-                counts["directed_path_orientation_checks"] += 1
-            elif y in pred[x]:
-                assert volume == 0, (name, "reverse_path", x, y)
-                counts["directed_path_orientation_checks"] += 1
-            else:
-                feasible = supports[x][0] < supports[y][1]
-                assert (volume > 0) == feasible, (name, "local_certainty", x, y)
-                counts["incomparable_orientation_checks"] += 1
-                counts["incomparable_infeasible_orientations"] += not feasible
-                counts["touching_effective_endpoint_checks"] += supports[x][0] == supports[y][1]
-            counts["ordered_pair_checks"] += 1
-        for y in range(x):
-            assert orientation_volumes[x, y] + orientation_volumes[y, x] == full_volume, (
-                name, "opposite_orientation_partition", x, y
-            )
-            counts["opposite_orientation_partition_checks"] += 1
 
     for x in range(n):
         ell, upper = supports[x]
@@ -278,7 +252,7 @@ def run_checks():
     reports = []
     positive_by_size = Counter()
     zero_by_size = Counter()
-    certainty_and_section_counts = Counter()
+    section_counts = Counter()
     for name, intervals, edges, expected, kind in systems:
         intervals = interval_fractions(intervals)
         calculated = interleaving_volume(intervals, edges)
@@ -290,15 +264,15 @@ def run_checks():
         n = len(intervals)
         (positive_by_size if calculated else zero_by_size)[n] += 1
         if calculated and n:
-            certainty_and_section_counts.update(
-                check_local_certainty_and_sections(name, intervals, edges, reference)
+            section_counts.update(
+                check_effective_intervals_and_sections(name, intervals, edges, reference)
             )
         reports.append({"name": name, "kind": kind, "vertices": n, "edges": len(edges),
                         "volume": str(calculated), "passed": True})
 
     return {
         "status": "passed",
-        "scope": "Small exact diagnostics of endpoint-interleaving volume, complete local certainty, raw-bound refinement sections and their effective endpoints. Not a proof of these properties for all states, a formal verification of locality or the asymptotic adversary, or a simulation of all adversary trajectories.",
+        "scope": "Small exact diagnostics of endpoint-interleaving volume, effective intervals, raw-bound refinement sections and their effective endpoints. Not a proof of these properties for all states, a formal verification of locality or the asymptotic adversary, or a simulation of all adversary trajectories.",
         "arithmetic": "Python integers and fractions.Fraction only",
         "seed": SEED,
         "volume_systems": len(systems),
@@ -308,7 +282,7 @@ def run_checks():
                            "independent previous integer subset-polynomial recurrence"],
         "positive_systems_by_size": dict(sorted(positive_by_size.items())),
         "zero_volume_systems_by_size": dict(sorted(zero_by_size.items())),
-        "local_certainty_and_sections": dict(sorted(certainty_and_section_counts.items())),
+        "effective_intervals_and_sections": dict(sorted(section_counts.items())),
         "section_anchor_fractions_of_effective_width": ["1/4", "1/2", "3/4"],
         "additional_explicit_cases": ["touching_incomparable_intervals", "remote_lower_endpoint", "remote_upper_endpoint"],
         "all_passed": True,
@@ -323,7 +297,7 @@ def main():
     report = run_checks()
     args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({"status": report["status"], "volume_systems": report["volume_systems"],
-                      "local_certainty_and_sections": report["local_certainty_and_sections"],
+                      "effective_intervals_and_sections": report["effective_intervals_and_sections"],
                       "report": str(args.output.resolve())}))
 
 

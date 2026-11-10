@@ -170,8 +170,8 @@ In Figure~\ref{fig:overview-state}, comparing $p$ with $q$ descends into
 the left child; comparing $p$ with $r$ uses the anchors $1/4$ and $3/4$;
 and comparing $a$ with $p$ compares $X_a$ with $1/4$ at the root.
 
-Two distinct anchors determine the answer immediately. In the other cases,
-compute the bounds implied by the in-node DAG. If there is an arc
+Two distinct anchors determine the answer immediately. The other cases
+use bounds implied by the in-node DAG. If there is an arc
 $y\to x$, every lower bound on $X_y$ is also a lower bound on $X_x$;
 upper bounds propagate in the reverse direction. Write $y\preceq x$ when
 $y=x$ or a directed path leads from $y$ to $x$. The resulting
@@ -185,38 +185,26 @@ lower endpoints in topological order, then upper endpoints in reverse
 order. We compute them when needed, keeping the record's bounds $a_x,b_x$
 as introduced by answers and refinements.
 
-For a free coordinate $X_x$ and an anchor $c$, the answer is determined
-if $c\le\ell_x$ or $c\ge r_x$. For two free coordinates, a directed path
-between them determines their order; so do effective intervals that are
-disjoint or meet only at an endpoint. Return this answer immediately.
-Lemma~\ref{lem:certainty} proves that these tests detect every comparison
-fixed by the represented orders, including every previously answered pair.
-
-For an undecided comparison, consider the uniform distribution on feasible
+For a query involving a free coordinate, consider the uniform distribution on feasible
 positions at this node. The subroutine
 \texttt{Certify} computes two nonnegative rational numbers $p_{AB},p_{BA}$
 that are lower bounds on the probabilities of $A<B$ and $B<A$.
-For a rational tolerance $0<\eta<1/32$, it guarantees
-$p_{AB}+p_{BA}\ge1-2\eta$. Choose the answer with the larger certified
-fraction, breaking a tie in favor of $A<B$. The chosen answer therefore
-has probability at least $1/2-\eta$.
+Fix a rational tolerance $0<\eta<1/32$. If the larger certified fraction
+is at least $1/2-\eta$, choose that answer, breaking a tie in favor of
+$A<B$. Otherwise, move a queried free item into a child and restart the
+query. We call this move a \emph{refinement}, denoted \texttt{Refine}$(x)$;
+Algorithm~\ref{alg:refine} in Section~\ref{sec:overview-refine} gives the
+operation. Section~\ref{sec:potential} shows why a failed certificate
+makes such a refinement affordable.
 For two free items, the events are $X_A<X_B$ and $X_B<X_A$; for a free
 item and an anchor, they compare its coordinate with the fixed anchor.
 An answer between two free items adds an arc to the in-node DAG;
 an answer involving an anchor adds an interval bound.
 
-Before calling \texttt{Certify}, we ensure that every queried free coordinate
-has effective width at least $1/R$, where $R\ge1$ is a fixed rational
-threshold. Call such a coordinate \emph{wide}, and a narrower one
-\emph{narrow}. A narrow queried item is moved into a child, and the query
-is routed again. This move is called a \emph{refinement}, denoted
-\texttt{Refine}$(x)$; Algorithm~\ref{alg:refine} in
-Section~\ref{sec:overview-refine} gives the operation.
-
 We also control the in-node DAGs using integers $k,H\ge2$.
-Throughout the interaction, each vertex has at most $k$ neighbors,
+During the recursive construction, each vertex has at most $k$ neighbors,
 counting both incoming and outgoing arcs, and each directed path has
-fewer than $2H$ vertices. Before certifying an undecided comparison, we first
+fewer than $2H$ vertices. Before calling \texttt{Certify}, we first
 remove any path of $H$ vertices by refining its entire list of items.
 If a queried free item has degree $k$, we refine that item too.
 Each of these steps restarts the query. When \texttt{Certify} is reached,
@@ -232,11 +220,23 @@ calculations in which enclosing intervals establish one of the two answers.
 \begin{lemma}[Certified comparison probabilities]\label{lem:estimation}
 Suppose a node admits a feasible assignment, and its in-node DAG has
 degree at most $k$ and directed paths of at most $2H$ vertices.
-For a pair with at least one wide coordinate, or a wide coordinate and
+For two distinct free coordinates, or a free coordinate and
 a dyadic threshold, \textnormal{\texttt{Certify}} deterministically returns
 nonnegative rational lower bounds on the probabilities of the two answers.
-Their sum is at least $1-2\eta$.
+If one queried free coordinate has effective interval $(0,1)$, their
+maximum is at least $1/2-\eta$.
 \end{lemma}
+
+The recursive construction is needed for at most
+\begin{equation}\label{eq:comparison-horizon}
+Q(n)=n\ceil{\log n}
+\end{equation}
+answers. Record these answers in a list $\mathcal T$, initially empty.
+If another query arrives after $Q(n)$ answers, choose a fixed total order
+consistent with $\mathcal T$ and use it for every subsequent answer.
+Section~\ref{sec:runtime} constructs this order by a deterministic
+topological sort. A sorter reaching this point has already made at least
+$n\log n$ comparisons.
 
 \begin{algorithm}[H]
 \caption{\texttt{Compare}$(A,B)$: answer a comparison query.}
@@ -244,17 +244,19 @@ Their sum is at least $1-2\eta$.
 \DontPrintSemicolon
 \KwIn{Distinct item labels $A,B$ and the current adversary state.}
 \KwOut{An answer $A<B$ or $B<A$, with the state updated.}
+\If{fixed ranks have been chosen}{\Return their order of $A,B$\;}
+\If{$|\mathcal T|=Q(n)$}{
+  Form the DAG of answers in $\mathcal T$ and choose a topological order, breaking ties by label\;
+  Store its ranks and \Return their order of $A,B$\;
+}
 \While{true}{
   $v\gets$ the root\;
   \While{$A$ and $B$ lie in the same child subtree of $v$}{
     $v\gets$ that child\;
   }
   \If{$A$ and $B$ lie in different child subtrees of $v$}{
-    \Return the left-to-right order of their child anchors\;
-  }
-  Compute effective intervals at $v$ using \eqref{eq:effective}\;
-  \If{effective intervals or a directed path in the in-node DAG at $v$ determine the answer}{
-    \Return the determined answer\;
+    $\mathit{answer}\gets$ the left-to-right order of their child anchors\;
+    \textbf{break}\;
   }
   \If{the in-node DAG at $v$ has a directed path on $H$ vertices}{
     $L\gets$ the list of labels on the selected path\;
@@ -265,21 +267,23 @@ Their sum is at least $1-2\eta$.
     \texttt{Refine}(the selected such item)\;
     \textbf{continue}\;
   }
-  \If{a queried free coordinate is narrow}{
-    \texttt{Refine}(the selected such item)\;
-    \textbf{continue}\;
-  }
   $(p_{AB},p_{BA})\gets$ \texttt{Certify}$(v,A,B,\eta)$\;
-  $\mathit{answer}\gets A<B$ if $p_{AB}\ge p_{BA}$, and $B<A$ otherwise\;
-  Store $\mathit{answer}$ as an arc in the in-node DAG at $v$ or as an interval bound\;
-  \Return $\mathit{answer}$\;
+  \If{$\max(p_{AB},p_{BA})\ge1/2-\eta$}{
+    $\mathit{answer}\gets A<B$ if $p_{AB}\ge p_{BA}$, and $B<A$ otherwise\;
+    Store $\mathit{answer}$ as an arc in the in-node DAG at $v$ or as an interval bound\;
+    \textbf{break}\;
+  }
+  \texttt{Refine}(the selected queried free item)\;
 }
+Append $\mathit{answer}$ to $\mathcal T$\;
+\Return $\mathit{answer}$\;
 \end{algorithm}
 
 Every restart refines at least one item. Its new coordinate in the child
 is isolated and has interval $(0,1)$. Further refinements cannot give
-that coordinate an incident arc or narrow its interval, so it cannot
-need refinement again during this call. Thus a call makes at most $n$
+that coordinate an incident arc or narrow its interval. Lemma~\ref{lem:estimation}
+then guarantees that a query involving it is certified, so it cannot
+be selected again during this call. Thus a call makes at most $n$
 refinements; Section~\ref{sec:repairs} gives the full proof.
 
 For deterministic selection, choose the smallest eligible item label and
@@ -292,14 +296,15 @@ Algorithm~\ref{alg:refine} gives \texttt{Refine}$(x)$, which moves $x$
 from its current node into a child. It computes $x$'s effective interval
 and calls \texttt{ChooseAnchor} to select a position $c$ inside it.
 
-For a narrow coordinate, we choose $c$ in the middle half of its effective
-interval. For a wide coordinate, the following routine supplies an interval
-with substantial probability inside and on both sides.
+We first try to find an interval with substantial probability inside and
+on both sides. If that calculation fails, we use the middle half of the
+item's effective interval.
 
+\Needspace{6\baselineskip}
 \begin{lemma}[A central interval]\label{lem:central-interval}
-Under the hypotheses of Lemma~\ref{lem:estimation}, for a wide coordinate
-$x$, \textnormal{\texttt{CentralInterval}} deterministically returns dyadic
-$u<v$ in $(\ell_x,r_x)$ such that
+Under the hypotheses of Lemma~\ref{lem:estimation},
+\textnormal{\texttt{CentralInterval}} deterministically returns either
+failure or dyadic $u<v$ in $(\ell_x,r_x)$ satisfying
 \[
 \Prb(X_x\le u)\ge\frac14,\qquad
 \Prb(u\le X_x\le v)\ge\frac14,\qquad

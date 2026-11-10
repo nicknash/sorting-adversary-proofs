@@ -3,7 +3,7 @@
   "scope": "Small exact diagnostics for finite digit updates and shortest anchors.\n\nThese check finite examples and algebraic identities, not the general locality\nproof or every adversary trajectory. No nonstandard dependencies are used.",
   "continuous_invariance_moment_checks": 72,
   "shortest_fraction_checks": 2016,
-  "narrow_anchor_checks": 2206,
+  "fallback_anchor_checks": 2206,
   "finite_chain_update_checks": 43706,
   "finite_chain": [
     {

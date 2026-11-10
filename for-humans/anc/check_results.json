@@ -1,40 +1,38 @@
 {
-  "purpose": "Finite exact-rational diagnostics of the affine refinement contract, AM-GM batch accounting, and the +17 comparison coefficient; not a proof of structural or geometric hypotheses, all parameter values, or the adversary.",
+  "purpose": "Finite exact-rational diagnostics of affine refinement costs, large gains after unsuccessful certification, AM-GM accounting, asymptotic coefficient growth, and the comparison cutoff; not a proof of the adversary or its geometric and structural hypotheses.",
   "range": {
     "first_j": 6,
     "last_j": 128,
     "count": 123
   },
   "all_checks_passed": true,
-  "checks_per_stage": 18,
-  "stage_checks": 2214,
+  "checks_per_stage": 16,
+  "stage_checks": 1968,
   "refinement_examples": {
     "counts": {
       "degree": 615,
-      "narrow": 615,
+      "failed_certification": 615,
       "path_batch": 369
     },
     "total": 1599,
     "negative_degree_gains": 246,
-    "narrow_anchor_depth_zero_or_one": 246,
+    "failure_anchor_depth_zero_or_one": 246,
     "scope": "Synthetic costs and gains satisfying the affine and AM-GM inequalities; not full adversary trajectories or claims of geometric realizability."
   },
-  "slack_identity_grid": {
-    "first_j": 0,
-    "last_j": 16,
-    "first_k": 8,
-    "last_k": 128,
-    "count": 2056,
-    "skipped": [
-      {
-        "j": 6,
-        "k": 11,
-        "reason": "zero denominator"
-      }
-    ],
-    "scope": "Identity only where its denominator is nonzero; this grid does not assert the comparison inequality when k is unrelated to 2**j."
+  "integer_parameter_grid": {
+    "first_k": 64,
+    "last_k": 4096,
+    "count": 4033,
+    "non_power_of_two_cases": 4026,
+    "scope": "Five exact coefficient conditions per integer-parameter case, using ceil(log2(k)) as a conservative rational bound; a finite check only."
   },
-  "total_checks": 5869,
+  "cutoff_grid": {
+    "first_n": 1,
+    "last_n": 256,
+    "count": 256,
+    "scope": "The cutoff is at least ceil(log2(n!)); this does not test the lifetime or correctness of an adversary trajectory."
+  },
+  "total_diagnostic_cases": 7856,
   "coefficient_table": [
     {
       "j": 6,
@@ -44,61 +42,51 @@
         "decimal": 1.0234375
       },
       "affine_cost_slope": {
-        "exact": "131/126",
-        "decimal": 1.0396825396825398
+        "exact": "67/64",
+        "decimal": 1.046875
       },
       "affine_cost_intercept": {
-        "exact": "703/63",
-        "decimal": 11.158730158730158
+        "exact": "179/16",
+        "decimal": 11.1875
       },
       "batch_gain_coefficient": {
-        "exact": "8515/6784",
-        "decimal": 1.2551591981132075
+        "exact": "4355/3444",
+        "decimal": 1.2645180023228804
       },
       "degree_refinement_allowance": {
-        "exact": "20387/1696",
-        "decimal": 12.02063679245283
+        "exact": "10382/861",
+        "decimal": 12.058072009291521
       },
-      "narrow_gain_coefficient_margin": {
-        "exact": "17575/427392",
-        "decimal": 0.041121499700509136
+      "failure_gain_coefficient_margin": {
+        "exact": "37769/881664",
+        "decimal": 0.04283831482288037
       },
       "rational_comparison_charge": {
-        "exact": "1261531/868352",
-        "decimal": 1.4527875792305425
+        "exact": "644851/440832",
+        "decimal": 1.462804424361208
       },
-      "displayed_comparison_charge": {
-        "exact": "93/64",
-        "decimal": 1.453125
-      },
-      "comparison_charge_slack": {
-        "exact": "293/868352",
-        "decimal": 0.00033742076945754716
+      "comparison_growth_envelope": {
+        "exact": "139/64",
+        "decimal": 2.171875
       },
       "coefficient_from_rational_charge": {
-        "exact": "868352/1261531",
-        "decimal": 0.6883318761092673
-      },
-      "coefficient_from_displayed_charge": {
-        "exact": "64/93",
-        "decimal": 0.6881720430107527
+        "exact": "440832/644851",
+        "decimal": 0.6836183862628731
       },
       "checks": {
-        "estimation_error_range": true,
-        "affine_coefficient_identity": true,
-        "affine_coefficient_positive": true,
-        "affine_coefficient_growth_bound": true,
+        "certificate_tolerance_range": true,
+        "affine_slope_identity": true,
+        "affine_slope_dominates_anchor_cost": true,
+        "affine_intercept_identity": true,
         "affine_intercept_growth_bound": true,
-        "path_budget_denominator_identity": true,
-        "path_budget_denominator_positive": true,
-        "batch_factor_identity": true,
-        "narrow_factor_covered": true,
-        "negative_gain_allowance_identity": true,
+        "batch_denominator_bounded_away_from_zero": true,
+        "failure_gain_factor_covered": true,
+        "negative_gain_allowance_boundary": true,
         "am_gm_batch_boundary": true,
-        "comparison_slack_identity": true,
-        "comparison_charge_upper_bound": true,
-        "comparison_residue_majorant": true,
-        "polynomial_majorant_doubling": true,
+        "remaining_volume_term_has_correct_sign": true,
+        "batch_coefficient_growth_bound": true,
+        "degree_allowance_growth_bound": true,
+        "comparison_coefficient_growth_bound": true,
         "child_weight_probability_mass": true,
         "anchor_depth_logarithm_majorant": true,
         "comparison_loss_rational_majorant": true
@@ -106,19 +94,19 @@
       "refinement_examples": {
         "counts": {
           "degree": 5,
-          "narrow": 5,
+          "failed_certification": 5,
           "path_batch": 3
         },
         "negative_degree_gains": 2,
-        "narrow_anchor_depth_zero_or_one": 2,
+        "failure_anchor_depth_zero_or_one": 2,
         "minimum_rational_slack": {
           "degree": {
             "exact": "0",
             "decimal": 0.0
           },
-          "narrow": {
-            "exact": "3408195/434176",
-            "decimal": 7.849800541715802
+          "failed_certification": {
+            "exact": "1862275/220416",
+            "decimal": 8.448910242450639
           },
           "path_batch": {
             "exact": "0",
@@ -135,61 +123,51 @@
         "decimal": 1.005859375
       },
       "affine_cost_slope": {
-        "exact": "103/102",
-        "decimal": 1.0098039215686274
+        "exact": "259/256",
+        "decimal": 1.01171875
       },
       "affine_cost_intercept": {
-        "exact": "665/51",
-        "decimal": 13.03921568627451
+        "exact": "835/64",
+        "decimal": 13.046875
       },
       "batch_gain_coefficient": {
-        "exact": "26471/24884",
-        "decimal": 1.063775920270053
+        "exact": "66563/62452",
+        "decimal": 1.065826554794082
       },
       "degree_refinement_allowance": {
-        "exact": "82460/6221",
-        "decimal": 13.255103681080213
+        "exact": "207080/15613",
+        "decimal": 13.263306219176327
       },
-      "narrow_gain_coefficient_margin": {
-        "exact": "246715/81221376",
-        "decimal": 0.003037562426915791
+      "failure_gain_coefficient_margin": {
+        "exact": "804105/255803392",
+        "decimal": 0.0031434493253318548
       },
       "rational_comparison_charge": {
-        "exact": "14239303/12740608",
-        "decimal": 1.11763135636855
+        "exact": "35803459/31975424",
+        "decimal": 1.1197180372025717
       },
-      "displayed_comparison_charge": {
-        "exact": "289/256",
-        "decimal": 1.12890625
-      },
-      "comparison_charge_slack": {
-        "exact": "143649/12740608",
-        "decimal": 0.011274893631449928
+      "comparison_growth_envelope": {
+        "exact": "341/256",
+        "decimal": 1.33203125
       },
       "coefficient_from_rational_charge": {
-        "exact": "12740608/14239303",
-        "decimal": 0.8947494129452825
-      },
-      "coefficient_from_displayed_charge": {
-        "exact": "256/289",
-        "decimal": 0.8858131487889274
+        "exact": "31975424/35803459",
+        "decimal": 0.8930819784758786
       },
       "checks": {
-        "estimation_error_range": true,
-        "affine_coefficient_identity": true,
-        "affine_coefficient_positive": true,
-        "affine_coefficient_growth_bound": true,
+        "certificate_tolerance_range": true,
+        "affine_slope_identity": true,
+        "affine_slope_dominates_anchor_cost": true,
+        "affine_intercept_identity": true,
         "affine_intercept_growth_bound": true,
-        "path_budget_denominator_identity": true,
-        "path_budget_denominator_positive": true,
-        "batch_factor_identity": true,
-        "narrow_factor_covered": true,
-        "negative_gain_allowance_identity": true,
+        "batch_denominator_bounded_away_from_zero": true,
+        "failure_gain_factor_covered": true,
+        "negative_gain_allowance_boundary": true,
         "am_gm_batch_boundary": true,
-        "comparison_slack_identity": true,
-        "comparison_charge_upper_bound": true,
-        "comparison_residue_majorant": true,
-        "polynomial_majorant_doubling": true,
+        "remaining_volume_term_has_correct_sign": true,
+        "batch_coefficient_growth_bound": true,
+        "degree_allowance_growth_bound": true,
+        "comparison_coefficient_growth_bound": true,
         "child_weight_probability_mass": true,
         "anchor_depth_logarithm_majorant": true,
         "comparison_loss_rational_majorant": true
@@ -197,19 +175,19 @@
       "refinement_examples": {
         "counts": {
           "degree": 5,
-          "narrow": 5,
+          "failed_certification": 5,
           "path_batch": 3
         },
         "negative_degree_gains": 2,
-        "narrow_anchor_depth_zero_or_one": 2,
+        "failure_anchor_depth_zero_or_one": 2,
         "minimum_rational_slack": {
           "degree": {
             "exact": "0",
             "decimal": 0.0
           },
-          "narrow": {
-            "exact": "37143911/6370304",
-            "decimal": 5.8307909638221345
+          "failed_certification": {
+            "exact": "101614083/15987712",
+            "decimal": 6.355761412264619
           },
           "path_batch": {
             "exact": "0",
@@ -226,61 +204,51 @@
         "decimal": 1.00146484375
       },
       "affine_cost_slope": {
-        "exact": "2051/2046",
-        "decimal": 1.0024437927663734
+        "exact": "1027/1024",
+        "decimal": 1.0029296875
       },
       "affine_cost_intercept": {
-        "exact": "15355/1023",
-        "decimal": 15.009775171065494
+        "exact": "3843/256",
+        "decimal": 15.01171875
       },
       "batch_gain_coefficient": {
-        "exact": "420455/413288",
-        "decimal": 1.0173414180910165
+        "exact": "80975/79556",
+        "decimal": 1.0178364925335612
       },
       "degree_refinement_allowance": {
-        "exact": "1556997/103322",
-        "decimal": 15.069365672364066
+        "exact": "299754/19889",
+        "decimal": 15.071345970134246
       },
-      "narrow_gain_coefficient_margin": {
-        "exact": "12968833/54117583872",
-        "decimal": 0.00023964175914937638
+      "failure_gain_coefficient_margin": {
+        "exact": "1287405/5213782016",
+        "decimal": 0.00024692344176439
       },
       "rational_comparison_charge": {
-        "exact": "873968271/846413824",
-        "decimal": 1.0325543442447367
+        "exact": "168315807/162930688",
+        "decimal": 1.0330515943073904
       },
-      "displayed_comparison_charge": {
-        "exact": "1061/1024",
-        "decimal": 1.0361328125
-      },
-      "comparison_charge_slack": {
-        "exact": "3028865/846413824",
-        "decimal": 0.003578468255263279
+      "comparison_growth_envelope": {
+        "exact": "1119/1024",
+        "decimal": 1.0927734375
       },
       "coefficient_from_rational_charge": {
-        "exact": "846413824/873968271",
-        "decimal": 0.9684720282024976
-      },
-      "coefficient_from_displayed_charge": {
-        "exact": "1024/1061",
-        "decimal": 0.9651272384542884
+        "exact": "162930688/168315807",
+        "decimal": 0.9680058629312219
       },
       "checks": {
-        "estimation_error_range": true,
-        "affine_coefficient_identity": true,
-        "affine_coefficient_positive": true,
-        "affine_coefficient_growth_bound": true,
+        "certificate_tolerance_range": true,
+        "affine_slope_identity": true,
+        "affine_slope_dominates_anchor_cost": true,
+        "affine_intercept_identity": true,
         "affine_intercept_growth_bound": true,
-        "path_budget_denominator_identity": true,
-        "path_budget_denominator_positive": true,
-        "batch_factor_identity": true,
-        "narrow_factor_covered": true,
-        "negative_gain_allowance_identity": true,
+        "batch_denominator_bounded_away_from_zero": true,
+        "failure_gain_factor_covered": true,
+        "negative_gain_allowance_boundary": true,
         "am_gm_batch_boundary": true,
-        "comparison_slack_identity": true,
-        "comparison_charge_upper_bound": true,
-        "comparison_residue_majorant": true,
-        "polynomial_majorant_doubling": true,
+        "remaining_volume_term_has_correct_sign": true,
+        "batch_coefficient_growth_bound": true,
+        "degree_allowance_growth_bound": true,
+        "comparison_coefficient_growth_bound": true,
         "child_weight_probability_mass": true,
         "anchor_depth_logarithm_majorant": true,
         "comparison_loss_rational_majorant": true
@@ -288,19 +256,19 @@
       "refinement_examples": {
         "counts": {
           "degree": 5,
-          "narrow": 5,
+          "failed_certification": 5,
           "path_batch": 3
         },
         "negative_degree_gains": 2,
-        "narrow_anchor_depth_zero_or_one": 2,
+        "failure_anchor_depth_zero_or_one": 2,
         "minimum_rational_slack": {
           "degree": {
             "exact": "0",
             "decimal": 0.0
           },
-          "narrow": {
-            "exact": "2225478247/423206912",
-            "decimal": 5.258605622679433
+          "failed_certification": {
+            "exact": "469693519/81465344",
+            "decimal": 5.765562335316475
           },
           "path_batch": {
             "exact": "0",
@@ -317,61 +285,51 @@
         "decimal": 1.0003662109375
       },
       "affine_cost_slope": {
-        "exact": "1639/1638",
-        "decimal": 1.0006105006105006
+        "exact": "4099/4096",
+        "decimal": 1.000732421875
       },
       "affine_cost_intercept": {
-        "exact": "13925/819",
-        "decimal": 17.002442002442002
+        "exact": "17411/1024",
+        "decimal": 17.0029296875
       },
       "batch_gain_coefficient": {
-        "exact": "6714983/6683036",
-        "decimal": 1.0047803124208818
+        "exact": "16793603/16711668",
+        "decimal": 1.0049028618806932
       },
       "degree_refinement_allowance": {
-        "exact": "28434850/1670759",
-        "decimal": 17.019121249683526
+        "exact": "71106524/4177917",
+        "decimal": 17.019611447522774
       },
-      "narrow_gain_coefficient_margin": {
-        "exact": "105509725/5604768239616",
-        "decimal": 1.8824993378714405e-05
+      "failure_gain_coefficient_margin": {
+        "exact": "338800649/17523453984768",
+        "decimal": 1.9334124955873277e-05
       },
       "rational_comparison_charge": {
-        "exact": "55243334519/54747430912",
-        "decimal": 1.0090580251664614
+        "exact": "138158841571/136901984256",
+        "decimal": 1.0091807092631304
       },
-      "displayed_comparison_charge": {
-        "exact": "4137/4096",
-        "decimal": 1.010009765625
-      },
-      "comparison_charge_slack": {
-        "exact": "52105345/54747430912",
-        "decimal": 0.000951740458538651
+      "comparison_growth_envelope": {
+        "exact": "4201/4096",
+        "decimal": 1.025634765625
       },
       "coefficient_from_rational_charge": {
-        "exact": "54747430912/55243334519",
-        "decimal": 0.9910232861336522
-      },
-      "coefficient_from_displayed_charge": {
-        "exact": "4096/4137",
-        "decimal": 0.9900894367899444
+        "exact": "136901984256/138158841571",
+        "decimal": 0.9909028093988896
       },
       "checks": {
-        "estimation_error_range": true,
-        "affine_coefficient_identity": true,
-        "affine_coefficient_positive": true,
-        "affine_coefficient_growth_bound": true,
+        "certificate_tolerance_range": true,
+        "affine_slope_identity": true,
+        "affine_slope_dominates_anchor_cost": true,
+        "affine_intercept_identity": true,
         "affine_intercept_growth_bound": true,
-        "path_budget_denominator_identity": true,
-        "path_budget_denominator_positive": true,
-        "batch_factor_identity": true,
-        "narrow_factor_covered": true,
-        "negative_gain_allowance_identity": true,
+        "batch_denominator_bounded_away_from_zero": true,
+        "failure_gain_factor_covered": true,
+        "negative_gain_allowance_boundary": true,
         "am_gm_batch_boundary": true,
-        "comparison_slack_identity": true,
-        "comparison_charge_upper_bound": true,
-        "comparison_residue_majorant": true,
-        "polynomial_majorant_doubling": true,
+        "remaining_volume_term_has_correct_sign": true,
+        "batch_coefficient_growth_bound": true,
+        "degree_allowance_growth_bound": true,
+        "comparison_coefficient_growth_bound": true,
         "child_weight_probability_mass": true,
         "anchor_depth_logarithm_majorant": true,
         "comparison_loss_rational_majorant": true
@@ -379,19 +337,19 @@
       "refinement_examples": {
         "counts": {
           "degree": 5,
-          "narrow": 5,
+          "failed_certification": 5,
           "path_batch": 3
         },
         "negative_degree_gains": 2,
-        "narrow_anchor_depth_zero_or_one": 2,
+        "failure_anchor_depth_zero_or_one": 2,
         "minimum_rational_slack": {
           "degree": {
             "exact": "0",
             "decimal": 0.0
           },
-          "narrow": {
-            "exact": "139069560423/27373715456",
-            "decimal": 5.080404983625179
+          "failed_certification": {
+            "exact": "382118600707/68450992128",
+            "decimal": 5.582367600932021
           },
           "path_batch": {
             "exact": "0",
@@ -408,61 +366,51 @@
         "decimal": 1.0000228881835938
       },
       "affine_cost_slope": {
-        "exact": "26215/26214",
-        "decimal": 1.0000381475547417
+        "exact": "65539/65536",
+        "decimal": 1.0000457763671875
       },
       "affine_cost_intercept": {
-        "exact": "275249/13107",
-        "decimal": 21.000152590218967
+        "exact": "344067/16384",
+        "decimal": 21.00018310546875
       },
       "batch_gain_coefficient": {
-        "exact": "49087213/49069612",
-        "decimal": 1.0003586945011915
+        "exact": "4295229443/4293656564",
+        "decimal": 1.000366326224875
       },
       "degree_refinement_allowance": {
-        "exact": "257633064/12267403",
-        "decimal": 21.001434778004764
+        "exact": "22543269840/1073414141",
+        "decimal": 21.0014653048995
       },
-      "narrow_gain_coefficient_margin": {
-        "exact": "1159624037/10537458147065856",
-        "decimal": 1.1004779528570618e-07
+      "failure_gain_coefficient_margin": {
+        "exact": "129656487945/1152569657664733184",
+        "decimal": 1.1249340730320988e-07
       },
       "rational_comparison_charge": {
-        "exact": "6436069334061/6431652184064",
-        "decimal": 1.000686783095632
+        "exact": "563168954941059/562778153156608",
+        "decimal": 1.0006944153433444
       },
-      "displayed_comparison_charge": {
-        "exact": "65585/65536",
-        "decimal": 1.0007476806640625
-      },
-      "comparison_charge_slack": {
-        "exact": "391671979/6431652184064",
-        "decimal": 6.0897568430467006e-05
+      "comparison_growth_envelope": {
+        "exact": "65661/65536",
+        "decimal": 1.0019073486328125
       },
       "coefficient_from_rational_charge": {
-        "exact": "6431652184064/6436069334061",
-        "decimal": 0.9993136882516751
-      },
-      "coefficient_from_displayed_charge": {
-        "exact": "65536/65585",
-        "decimal": 0.999252877944652
+        "exact": "562778153156608/563168954941059",
+        "decimal": 0.9993060665347011
       },
       "checks": {
-        "estimation_error_range": true,
-        "affine_coefficient_identity": true,
-        "affine_coefficient_positive": true,
-        "affine_coefficient_growth_bound": true,
+        "certificate_tolerance_range": true,
+        "affine_slope_identity": true,
+        "affine_slope_dominates_anchor_cost": true,
+        "affine_intercept_identity": true,
         "affine_intercept_growth_bound": true,
-        "path_budget_denominator_identity": true,
-        "path_budget_denominator_positive": true,
-        "batch_factor_identity": true,
-        "narrow_factor_covered": true,
-        "negative_gain_allowance_identity": true,
+        "batch_denominator_bounded_away_from_zero": true,
+        "failure_gain_factor_covered": true,
+        "negative_gain_allowance_boundary": true,
         "am_gm_batch_boundary": true,
-        "comparison_slack_identity": true,
-        "comparison_charge_upper_bound": true,
-        "comparison_residue_majorant": true,
-        "polynomial_majorant_doubling": true,
+        "remaining_volume_term_has_correct_sign": true,
+        "batch_coefficient_growth_bound": true,
+        "degree_allowance_growth_bound": true,
+        "comparison_coefficient_growth_bound": true,
         "child_weight_probability_mass": true,
         "anchor_depth_logarithm_majorant": true,
         "comparison_loss_rational_majorant": true
@@ -470,19 +418,19 @@
       "refinement_examples": {
         "counts": {
           "degree": 5,
-          "narrow": 5,
+          "failed_certification": 5,
           "path_batch": 3
         },
         "negative_degree_gains": 2,
-        "narrow_anchor_depth_zero_or_one": 2,
+        "failure_anchor_depth_zero_or_one": 2,
         "minimum_rational_slack": {
           "degree": {
             "exact": "0",
             "decimal": 0.0
           },
-          "narrow": {
-            "exact": "16102985761517/3215826092032",
-            "decimal": 5.007418094347859
+          "failed_certification": {
+            "exact": "1549770244096003/281389076578304",
+            "decimal": 5.50757073778853
           },
           "path_batch": {
             "exact": "0",
@@ -499,61 +447,51 @@
         "decimal": 1.0000014305114746
       },
       "affine_cost_slope": {
-        "exact": "419431/419430",
-        "decimal": 1.0000023841880648
+        "exact": "1048579/1048576",
+        "decimal": 1.0000028610229492
       },
       "affine_cost_intercept": {
-        "exact": "5242877/209715",
-        "decimal": 25.00000953675226
+        "exact": "6553603/262144",
+        "decimal": 25.000011444091797
       },
       "batch_gain_coefficient": {
-        "exact": "439805699687/439794165356",
-        "decimal": 1.0000262266576243
+        "exact": "1099515822083/1099486461940",
+        "decimal": 1.000026703505697
       },
       "degree_refinement_allowance": {
-        "exact": "2748725067806/109948541339",
-        "decimal": 25.000104906630497
+        "exact": "6871819747268/274871615485",
+        "decimal": 25.000106814022786
       },
-      "narrow_gain_coefficient_margin": {
-        "exact": "2913702678365/4835583374793561341952",
-        "decimal": 6.025545322107884e-10
+      "failure_gain_coefficient_margin": {
+        "exact": "46385687691273/75556134342832779427840",
+        "decimal": 6.139235165314294e-10
       },
       "rational_comparison_charge": {
-        "exact": "922361832316233559/922315213464666112",
-        "decimal": 1.0000505454652453
+        "exact": "2305907879386807843/2305790232630394880",
+        "decimal": 1.0000510223153642
       },
-      "displayed_comparison_charge": {
-        "exact": "1048633/1048576",
-        "decimal": 1.0000543594360352
-      },
-      "comparison_charge_slack": {
-        "exact": "3517683283137/922315213464666112",
-        "decimal": 3.813970789794158e-06
+      "comparison_growth_envelope": {
+        "exact": "1048721/1048576",
+        "decimal": 1.000138282775879
       },
       "coefficient_from_rational_charge": {
-        "exact": "922315213464666112/922361832316233559",
-        "decimal": 0.9999494570894696
-      },
-      "coefficient_from_displayed_charge": {
-        "exact": "1048576/1048633",
-        "decimal": 0.9999456435187525
+        "exact": "2305790232630394880/2305907879386807843",
+        "decimal": 0.9999489802877797
       },
       "checks": {
-        "estimation_error_range": true,
-        "affine_coefficient_identity": true,
-        "affine_coefficient_positive": true,
-        "affine_coefficient_growth_bound": true,
+        "certificate_tolerance_range": true,
+        "affine_slope_identity": true,
+        "affine_slope_dominates_anchor_cost": true,
+        "affine_intercept_identity": true,
         "affine_intercept_growth_bound": true,
-        "path_budget_denominator_identity": true,
-        "path_budget_denominator_positive": true,
-        "batch_factor_identity": true,
-        "narrow_factor_covered": true,
-        "negative_gain_allowance_identity": true,
+        "batch_denominator_bounded_away_from_zero": true,
+        "failure_gain_factor_covered": true,
+        "negative_gain_allowance_boundary": true,
         "am_gm_batch_boundary": true,
-        "comparison_slack_identity": true,
-        "comparison_charge_upper_bound": true,
-        "comparison_residue_majorant": true,
-        "polynomial_majorant_doubling": true,
+        "remaining_volume_term_has_correct_sign": true,
+        "batch_coefficient_growth_bound": true,
+        "degree_allowance_growth_bound": true,
+        "comparison_coefficient_growth_bound": true,
         "child_weight_probability_mass": true,
         "anchor_depth_logarithm_majorant": true,
         "comparison_loss_rational_majorant": true
@@ -561,19 +499,19 @@
       "refinement_examples": {
         "counts": {
           "degree": 5,
-          "narrow": 5,
+          "failed_certification": 5,
           "path_batch": 3
         },
         "negative_degree_gains": 2,
-        "narrow_anchor_depth_zero_or_one": 2,
+        "failure_anchor_depth_zero_or_one": 2,
         "minimum_rational_slack": {
           "degree": {
             "exact": "0",
             "decimal": 0.0
           },
-          "narrow": {
-            "exact": "2306085341445383783/461157606732333056",
-            "decimal": 5.000644698860819
+          "failed_certification": {
+            "exact": "6341679604090011651/1152895116315197440",
+            "decimal": 5.50065614325685
           },
           "path_batch": {
             "exact": "0",

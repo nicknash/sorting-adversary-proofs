@@ -855,3 +855,80 @@ the prepared source archive match the saved files. The title, abstract,
 disclosure, related work, and existing figures are unchanged. Sections 1
 and 3 change only for the new interfaces and roadmap. This revision has
 not replaced the Hexagon deposit.
+
+
+Certificate failure, a finite horizon, and moment contraction -- 10 November 2026
+-----------------------------------------------------------------------------
+Source: the latest completed assistant message in Simplify Paper Arguments,
+turn aecbce95-5afa-444b-ba80-8ab8534669ee,
+message 8bb9204a-0647-571c-a590-82c8a349b672, addressing baseline
+6a76f668c4d1593c6edcc732051dc491f0f1f597. The connected chat reader returned
+20,000 characters: all six technical proposals are present, while the final
+summary paragraph is truncated. The linked PDF and source archive were not
+downloaded. No earlier source PDF was treated as the new proposal.
+
+The comparison rule now attempts certification after the existing path and
+degree checks. It refines a queried free item only when neither fraction
+reaches 1/2-eta. ChooseAnchor always tries CentralInterval, falling back to
+the middle half of the effective interval on failure. The width scale
+w_* = 2^(-2kB) remains in calibration and proofs, with no operational width
+test. Failed comparison certification makes every queried free interval
+shorter than w_*. Its refinement gains more than k in both anchor branches,
+including the case where comparison certification fails but the subsequent
+central-interval certificate succeeds.
+
+A convex-projection density estimate bounds small differences for all pairs,
+including comparable coordinates. The old complete-certainty lemma and its
+path/interval tests are removed. The proof fixes coordinates incomparable
+with x; comparable y retains a section whose gap-support width approaches
+W_x at the appropriate effective endpoint. The coordinate-density and
+central log-concavity estimates retain their direct proofs.
+
+The recursive phase ends after Q(n)=n ceil(log2(n)) answers. A further query
+causes the algorithm to choose the lexicographically first topological order
+of the recorded answer DAG, which answers all later queries consistently.
+Reaching Q(n) already supplies n log2(n) comparisons. Before this cutoff,
+an item is refined at most once per call because it has a fresh isolated
+unit coordinate afterward. Thus P <= n Q(n), including an unfinished call.
+Both anchor branches increase stored precision by at most log2(E), giving
+Lambda <= P log2(E). This removes the repeated-query lifetime argument, the
+K_0 anchor-depth bound, and separate precision bounds for width classes.
+
+Appendix B now proves an averaging-contraction lemma for powers of widths.
+Conditioning on earlier sweeps bounds the expected multiplier power by
+1/(2M). Bounding a maximum by a sum gives E[D_z(s)^p] <= 2^(-s), followed
+by Markov's inequality. Fresh digits bound the bad event even though
+multipliers at different vertices in one sweep may be correlated. Shrinking
+interiors keep dependencies inside the frozen ring. Exact rational tests
+choose p and t. Route enumeration, half-bad-step counting, and its separate
+exponential inequality are removed.
+
+The fixed-stage theorem now states (log2(n!)-n)/(1+O(log(k)/k)) for all
+sufficiently large integers k. The main optimal asymptotic result is
+unchanged. The ancillary +17 coefficient, numerical optimization, and its
+appendix are removed. The implementation still enumerates powers of two
+for k as a convenient uniform parameter search. The tree-weight product is
+renamed W (calligraphic) to avoid collision with the comparison horizon Q.
+
+Independent mathematical reviews checked the all-pair geometry, both anchor
+branches after failed comparison certification, signed refinement costs,
+path batches, termination, the cutoff, conditional moments, and precision.
+All four current diagnostic scripts pass. The accounting script has 7,856
+exact cases, including 4,033 integer-k cases and 256 cutoff checks. Interval
+checks include 141 probability inequalities against independent volumes,
+272 comparable-pair gap inequalities, 16 correlated-multiplier moment
+checks, four rational parameter calibrations, and 12,288 atomic enclosure
+checks. Both failure/anchor-branch interactions are explicitly exercised.
+The moment, shortest-anchor, fallback-precision, finite-chain, effective-
+interval and section-volume diagnostics also pass. These finite checks do
+not formally verify every adversary trajectory. The earlier Lean
+formalization is unchanged.
+
+Both repository and desktop-editor compilation succeed. The final TeX log
+has no warnings, unresolved references, or overfull/underfull boxes. The PDF
+has 32 pages. Affected algorithm, anchor, proof, runtime, appendix, and
+parameter-table pages were visually reviewed. All 22 source-archive members
+match the saved files. Title, abstract, disclosure, Section 2, and every
+figure environment are unchanged. Sections 1 and 3 change only as needed
+for the new algorithm and roadmap. This revision has not replaced the
+Hexagon deposit.

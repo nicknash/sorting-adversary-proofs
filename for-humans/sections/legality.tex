@@ -68,40 +68,6 @@ $c<r_x\le r_y$. All other widths stay positive. The criterion just proved,
 applied to the remaining in-node DAG, shows that the section has positive volume.
 \end{proof}
 
-\begin{lemma}[Recognizing determined comparisons]\label{lem:certainty}
-Suppose every node region has positive volume. At the node reached by
-routing a query, the anchor, effective-interval,
-and directed-path tests in Algorithm~\ref{alg:compare} detect every
-comparison that holds in all represented orders.
-\end{lemma}
-\begin{proof}
-Distinct child anchors determine their subtrees' order. A free coordinate
-$X_x$ ranges over its entire effective interval by Lemma~\ref{lem:interior}.
-It can therefore lie on either side of an anchor $c$ exactly when
-$\ell_x<c<r_x$.
-
-Consider two free items $x,y$. A directed path fixes their order.
-If they are incomparable in the in-node DAG, we claim that
-\begin{equation}\label{eq:comparison-feasible}
-X_x<X_y\text{ is feasible}\quad\Longleftrightarrow\quad\ell_x<r_y.
-\end{equation}
-Necessity follows from $\ell_x<X_x<X_y<r_y$. For sufficiency,
-add the arc $x\to y$. This preserves acyclicity. It caps the effective
-upper endpoints of $x$ and its predecessors by $r_y$, and raises the
-effective lower endpoints of $y$ and its successors to $\ell_x$.
-These sets are disjoint, since a common vertex would give a path from
-$y$ to $x$. Every affected predecessor has lower endpoint at most
-$\ell_x<r_y$, and every affected successor has upper endpoint at least
-$r_y>\ell_x$. All effective widths remain positive, so
-Lemma~\ref{lem:interior} gives a feasible assignment with $X_x<X_y$.
-
-Applying \eqref{eq:comparison-feasible} in both directions shows that
-both answers are possible precisely when the effective intervals overlap.
-Each feasible local choice extends to a represented total order by choosing
-feasible assignments in the other nodes and avoiding ties. Hence an
-undecided local test always leaves both orders possible.
-\end{proof}
-
 \begin{lemma}[Refinement and child admission]\label{lem:admission}
 Suppose the node regions have positive volume and the order invariant holds.
 Refining $x$ at an interior anchor $c$ preserves both properties, including
@@ -239,44 +205,58 @@ $2H$ vertices, every coordinate comparable with $x$ lies within undirected
 distance $2H$ of $x$. Thus $B$ bounds the number of other coordinates
 comparable with $x$.
 
+Set the calibration width
+\begin{equation}\label{eq:width-threshold}
+w_*=2^{-2kB}.
+\end{equation}
+The finite calculations use this scale to guarantee success when a
+queried coordinate has a sufficiently large effective interval.
+
+\begin{lemma}[When certification succeeds]\label{lem:certificate-success}
+Suppose a node has positive feasible volume, its in-node DAG has degree
+at most $k$, and its directed paths have at most $2H$ vertices.
+If any free coordinate involved in a comparison has effective width at
+least $w_*$, comparison certification succeeds. If $W_x\ge w_*$, then
+\textnormal{\texttt{CentralInterval}}$(v,x)$ succeeds.
+\end{lemma}
+
+Section~\ref{sec:oracle} proves this lemma. In particular, failure of a
+central-interval certificate implies $W_x<w_*$. This is the information
+used to justify the anchor routine's fallback.
+
 \begin{lemma}[Anchor selection]\label{lem:anchor-density}
 Suppose a node's feasible region has positive volume, its interval
 endpoints are dyadic, and its in-node DAG has degree at most $k$ and
-directed paths of at most $2H$ vertices. For $R=2^{2kB}$,
+directed paths of at most $2H$ vertices. With calibration width \eqref{eq:width-threshold},
 \textnormal{\texttt{ChooseAnchor}} deterministically returns an anchor
 $c\in(\ell_x,r_x)$ at depth $m$ in the implicit anchor tree satisfying
 \begin{equation}\label{eq:tariff}
 \log f_x(c)\ge(1-1/k)m-4.
 \end{equation}
-If $x$ is narrow, then
-\begin{equation}\label{eq:narrow-gain}
+If $x$ is refined because comparison certification failed, then
+\begin{equation}\label{eq:failure-gain}
 \log f_x(c)>k.
 \end{equation}
 \end{lemma}
 
-Algorithm~\ref{alg:choose-anchor} first chooses a closed interval of central
-positions for $x$, then selects the shallowest anchor in that interval.
-For a narrow coordinate, we use the central half of its effective
-interval. For a wide coordinate, \texttt{CentralInterval} from
-Lemma~\ref{lem:central-interval} supplies an interval with at least a
-quarter of the probability on each side and at least a quarter inside.
-We will show that either choice gives the density bound required by
+Algorithm~\ref{alg:choose-anchor} first tries \texttt{CentralInterval}.
+On success, it uses the returned interval; on failure, it uses the middle
+half of the effective interval. It then selects the shallowest anchor in
+the chosen interval. Both choices give the density bound required by
 Lemma~\ref{lem:anchor-density}.
 
 \begin{algorithm}[H]
 \caption{\texttt{ChooseAnchor}$(x)$: choose a position for refinement.}
 \label{alg:choose-anchor}
 \DontPrintSemicolon
-\KwIn{A free item $x$ stored at node $v$, its effective interval $(\ell_x,r_x)$,
-and the fixed width threshold $R$.}
+\KwIn{A free item $x$ stored at node $v$ and its effective interval $(\ell_x,r_x)$.}
 \KwOut{A dyadic anchor $c\in(\ell_x,r_x)$.}
-$W_x\gets r_x-\ell_x$\;
-\uIf{$W_x<1/R$}{
-  $a\gets\ell_x+W_x/4$; $b\gets r_x-W_x/4$\;
+$J\gets$ \texttt{CentralInterval}$(v,x)$\;
+\If{$J$ is \textnormal{\texttt{FAIL}}}{
+  $W_x\gets r_x-\ell_x$\;
+  $J\gets[\ell_x+W_x/4,\ r_x-W_x/4]$\;
 }
-\Else{
-  $[a,b]\gets$ \texttt{CentralInterval}$(v,x)$\;
-}
+$[a,b]\gets J$\;
 $u\gets$ the root of the implicit anchor tree\;
 \While{true}{
   \uIf{$c(u)<a$}{$u\gets$ the right child of $u$\;}
@@ -318,16 +298,14 @@ f_x(t)&\le\frac{B+1}{W},\label{eq:fiber-upper}\\
 f_x(t)&\ge\frac{4^{-B}}{W}
 \qquad(\ell+W/4\le t\le r-W/4).\label{eq:fiber-lower}
 \end{align}
-Both bounds also hold for the conditional density after fixing coordinates
-incomparable with $x$, whenever the remaining region has positive volume.
 \end{lemma}
 
-The lower bound applies to every point of the central half. The upper
-bound limits the probability in a short interval; it will bound the depth
-of the anchor chosen for a wide item. Appendix~\ref{app:geometry} proves
-these bounds by comparing convex sections.
+The lower bound controls the fallback choice in the middle half of the
+effective interval. The upper bound will help bound the probability of
+an unresolved comparison. Appendix~\ref{app:geometry} proves both by
+comparing convex sections.
 
-For wide items we use another consequence of convexity. A density is
+For a certified central interval we use another consequence of convexity. A density is
 \emph{log-concave} if its positive support is convex and its logarithm
 is concave there. The uniform density on a convex feasible region is
 log-concave, and Pr\'ekopa's marginal theorem gives the same property to
@@ -345,14 +323,14 @@ f(c)\ge p\sup_t f(t).
 
 Appendix~\ref{app:geometry} proves the lemma directly from log-concavity.
 
-\subsubsection{Anchors for wide coordinates}
+\subsubsection{Anchors from a certified interval}
 
-\begin{lemma}[Wide anchors]\label{lem:median-search}
-For a wide item, Algorithm~\ref{alg:choose-anchor} returns an interior
-anchor $c$ of depth $m$ satisfying
+\begin{lemma}[Certified anchor choices]\label{lem:median-search}
+If \textnormal{\texttt{CentralInterval}} succeeds, the anchor $c$ selected
+by Algorithm~\ref{alg:choose-anchor} has depth $m$ and satisfies
 \[
-f_x(c)\ge2^{m-4},\qquad
-m\le\log\frac{4(B+1)}{W_x}.
+\log f_x(c)\ge m-4,\qquad
+\log f_x(c)\ge\log(1/W_x)-2.
 \]
 \end{lemma}
 \begin{proof}
@@ -368,53 +346,50 @@ interval contains $J$. Its interval has length $2^{-m}$, so
 \[
 2^{-m}f_x(c)\ge |J|\frac M4\ge\frac1{16}.
 \]
-This is the required density bound.
-
-The upper density bound \eqref{eq:fiber-upper} also gives
-\[
-\frac14\le\Prb(X_x\in J)
-\le\frac{B+1}{W_x}|J|\le\frac{B+1}{W_x}\,2^{-m}.
-\]
-Rearranging proves the depth bound.
+This proves the first bound. Since $f_x$ integrates to one over an
+interval of width $W_x$, its supremum satisfies $M\ge1/W_x$.
+The inequality $f_x(c)\ge M/4$ proves the second bound.
 \end{proof}
 
 \subsubsection{The anchor guarantee}\label{sec:anchor-guarantee}
 
-For a wide item, the preceding lemma gives $\log f_x(c)\ge m-4$.
-For a narrow item, the central density bound loses $2B$ in its logarithm.
-We choose
-\begin{equation}\label{eq:width-threshold}
-R=2^{2kB}.
-\end{equation}
-Then $W_x<1/R$ makes $\log(1/W_x)$ large enough to absorb this loss.
+The certified choice already gives the required bound. For the fallback,
+failure of the central-interval calculation implies $W_x<w_*$, so
+$\log(1/W_x)>2kB$. This pays for the loss of $2B$ in the lower density
+bound \eqref{eq:fiber-lower}.
 
 \begin{proof}[Proof of Lemma~\ref{lem:anchor-density}]
 The in-node DAG bounds imply that $x$ has at most $B$ other comparable
-coordinates, by \eqref{eq:comparable-bound}. For a wide item,
-Lemma~\ref{lem:median-search} gives the stronger lower bound $m-4$.
-For a narrow item, write $L=\log(1/W_x)$. The selected anchor is in the
+coordinates, by \eqref{eq:comparable-bound}. If central certification
+succeeds, Lemma~\ref{lem:median-search} gives the stronger lower bound
+$m-4$. Otherwise, Lemma~\ref{lem:certificate-success} gives
+$W_x<w_*$. Write $L=\log(1/W_x)>2kB$. The fallback anchor is in the
 central half of its effective interval, so \eqref{eq:fiber-lower}
 gives
 \[
 \log f_x(c)\ge L-2B.
 \]
 By Lemma~\ref{lem:shortest-anchor}, its node interval contains that central
-half. Hence $W_x/2\le2^{-m}$ and $m\le L+1$. Since $L>2kB$,
+half. Hence $W_x/2\le2^{-m}$ and $m\le L+1$, giving
 \[
 \log f_x(c)\ge L-2B>(1-1/k)L
 \ge(1-1/k)(m-1)>(1-1/k)m-4.
 \]
-This proves \eqref{eq:tariff}. The same density bound also gives
-$\log f_x(c)>2B(k-1)>k$, proving \eqref{eq:narrow-gain}.
+This proves \eqref{eq:tariff} in both branches.
+
+Now suppose comparison certification failed and the algorithm selected
+$x$ for refinement. Lemma~\ref{lem:certificate-success} implies
+$W_x<w_*$, regardless of the subsequent central-interval result.
+If central certification succeeds, Lemma~\ref{lem:median-search} gives
+\[
+\log f_x(c)\ge\log(1/W_x)-2>2kB-2>k.
+\]
+If it fails, the fallback bound above gives
+$\log f_x(c)\ge\log(1/W_x)-2B>2B(k-1)>k$.
+This proves \eqref{eq:failure-gain}.
 Both cases use a finite deterministic calculation to obtain the central
 interval, followed by the finite walk of Lemma~\ref{lem:shortest-anchor}.
 \end{proof}
-
-The rule also controls the number of bits in a narrow anchor. If the
-effective endpoints have at most $\Lambda$ fractional binary digits,
-their midpoint has at most $\Lambda+1$ and lies in the central half.
-The chosen anchor has the fewest digits in that interval, so it uses at
-most $\Lambda+1$ as well.
 
 \subsection{Bounds during a comparison call}\label{sec:repairs}
 
@@ -424,31 +399,40 @@ hold throughout the call, and that the loop makes only finitely many
 moves.
 
 \begin{lemma}[In-node DAG bounds and termination]\label{lem:restoration}
-Suppose every in-node DAG has degree at most $k$ and directed paths
-of fewer than $2H$ vertices at the start of a call. These bounds hold
-throughout the call. Each label is refined at most once, so the call
-makes at most $n$ refinements.
+Suppose every node region has positive volume and every in-node DAG has
+degree at most $k$ and directed paths of fewer than $2H$ vertices at the
+start of a call. These properties hold throughout the call. Each label
+is refined at most once, so the call makes at most $n$ refinements.
 \end{lemma}
 \begin{proof}
-A refinement deletes a vertex and its incident arcs from its parent
-and adds an isolated vertex to a child. It cannot increase any degree
-or extend any directed path. Immediately before a new answer is selected,
+A refinement uses an interior anchor by Lemma~\ref{lem:anchor-density}.
+It leaves a positive-volume parent section by Lemma~\ref{lem:interior}
+and gives the child a fresh unit coordinate. It deletes a vertex and its
+incident arcs from the parent and adds an isolated vertex to the child,
+so it cannot increase any degree or extend any directed path.
+
+A returned comparison certificate gives its chosen answer positive
+probability, so recording it preserves positive feasible volume.
+Its arc cannot create a directed cycle, which would make the region
+empty. Immediately before a new answer is selected,
 the current in-node DAG has no path on $H$ vertices and the queried free
 vertices have degree below $k$. Adding their comparison arc leaves degree
 at most $k$. Any new directed path consists of two old paths joined by
-this arc, so it has fewer than $2H$ vertices. The certainty tests have
-already excluded a directed path in either direction between the queried
-items, so the new arc cannot create a cycle. An answer involving an anchor
-adds only an interval bound.
+this arc, so it has fewer than $2H$ vertices. An answer involving an anchor
+adds only an interval bound. These observations prove positivity and
+the in-node DAG bounds by induction through the call.
 
 Once a label is refined, it has an isolated coordinate with interval
 $(0,1)$ in its child. Until the final answer, every subsequent state change
 is another refinement. These moves affect interval bounds only at
 neighbors of the vertex being removed, so they cannot narrow this isolated
-coordinate or give it an incident arc. It cannot lie on a selected path,
-have degree $k$, or be narrow. Thus it cannot be selected again, even
-if the query is rerouted to its new node. Every restart refines at least
-one label, giving the bound of $n$ refinements.
+coordinate or give it an incident arc. It cannot lie on a selected path
+or have degree $k$. Lemma~\ref{lem:estimation} guarantees that comparison
+certification succeeds whenever such a unit-interval coordinate is
+queried, so it cannot be selected after a failed certificate either.
+Thus no label is selected again, even if the query is rerouted to its new
+node. Every restart refines at least one label, giving the bound of $n$
+refinements.
 \end{proof}
 
 \begin{proof}[Proof of Proposition~\ref{prop:legality}]
@@ -460,10 +444,11 @@ anchor, and Lemma~\ref{lem:admission} preserves positive volume and the
 order invariant. This applies to every item of a selected path, including
 those whose incident arcs have already been removed by earlier moves.
 
-If the local tests determine the answer, it holds in every represented
-order. Otherwise, the preparation loop ends with wide queried free
-coordinates. Lemma~\ref{lem:estimation} applies to the current positive
-region; the selected answer retains at least $1/2-\eta>0$ of its volume.
+If the queried labels lie in different child subtrees, their anchors
+determine the answer in every represented order. Otherwise, a comparison
+certificate supplies a chosen answer retaining at least $1/2-\eta>0$
+of the current node's volume, by the acceptance test in
+Algorithm~\ref{alg:compare} and Lemma~\ref{lem:estimation}.
 Recording its arc or interval bound makes that answer true in every
 represented order and preserves every earlier constraint. This completes
 the induction.

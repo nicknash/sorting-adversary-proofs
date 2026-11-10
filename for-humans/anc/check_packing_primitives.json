@@ -1,6 +1,6 @@
 {
   "status": "passed",
-  "scope": "Small exact diagnostics of endpoint-interleaving volume, complete local certainty, raw-bound refinement sections and their effective endpoints. Not a proof of these properties for all states, a formal verification of locality or the asymptotic adversary, or a simulation of all adversary trajectories.",
+  "scope": "Small exact diagnostics of endpoint-interleaving volume, effective intervals, raw-bound refinement sections and their effective endpoints. Not a proof of these properties for all states, a formal verification of locality or the asymptotic adversary, or a simulation of all adversary trajectories.",
   "arithmetic": "Python integers and fractions.Fraction only",
   "seed": 1108,
   "volume_systems": 54,
@@ -23,17 +23,11 @@
     "4": 2,
     "5": 1
   },
-  "local_certainty_and_sections": {
-    "directed_path_orientation_checks": 160,
+  "effective_intervals_and_sections": {
     "effective_region_volume_checks": 48,
-    "incomparable_infeasible_orientations": 13,
-    "incomparable_orientation_checks": 210,
     "independent_section_volume_checks": 423,
-    "opposite_orientation_partition_checks": 185,
-    "ordered_pair_checks": 370,
     "raw_effective_section_volume_checks": 423,
-    "remaining_effective_interval_checks": 1110,
-    "touching_effective_endpoint_checks": 2
+    "remaining_effective_interval_checks": 1110
   },
   "section_anchor_fractions_of_effective_width": [
     "1/4",

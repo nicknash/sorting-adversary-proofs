@@ -1,9 +1,9 @@
 \section{Coordinate densities}\label{app:geometry}
 
-We prove the density bounds used to choose anchors and to turn coordinate
-approximation into probability approximation. The first bounds follow by
-fixing the incomparable coordinates and comparing sections of the remaining
-convex region. Let $V$ be the set of coordinates, let $N=|V|$, and let
+We prove the density bounds used to choose anchors and to bound the
+fraction of unresolved comparisons. The geometric argument applies to
+linear projections of convex regions. Let $V$ be the set of coordinates,
+let $N=|V|$, and let
 $K\subseteq\R^V$ be their feasible region.
 For a coordinate $x$ and a real number $t$, write
 \[
@@ -21,26 +21,28 @@ If some coordinates have already been fixed, we use the same
 definitions in the remaining free coordinates. In dimension zero, the
 volume of the singleton consisting of the empty assignment is one.
 
-\begin{proof}[Proof of Lemma~\ref{lem:fiber}]
-We may first fix any prescribed set of coordinates incomparable with $x$,
-at values leaving a positive-volume slice; write $f_x$ for its coordinate
-density. Fixing a coordinate turns its incident inequalities
-into interval bounds. These bounds propagate along directed paths, so
-fixing an incomparable coordinate leaves $x$'s effective endpoints
-unchanged. By Lemma~\ref{lem:interior}, its projection interval remains
-$(\ell,r)$. The same argument applies successively as more incomparable
-coordinates are fixed.
+\begin{lemma}[Density of a linear projection]\label{lem:projection-density}
+Let $C\subseteq\R^d$ be a bounded open convex region of positive volume,
+and let $\varphi$ be a nonzero linear functional with
+$\varphi(C)=(\ell,r)$ of width $W$. For $X$ uniform on $C$, the density
+$g$ of $\varphi(X)$ satisfies
+\[
+g(t)\le\frac dW,\qquad
+g(t)\ge\frac{4^{-(d-1)}}W
+\quad(\ell+W/4\le t\le r-W/4).
+\]
+\end{lemma}
+\begin{proof}
+An invertible linear change of coordinates makes $\varphi$ the first
+coordinate. Its constant Jacobian preserves uniformity on the transformed
+region, so it suffices to prove the bounds for a coordinate projection.
+Write $S(t)$ for the section volume at that coordinate's value $t$;
+then $g(t)=S(t)/\vol C$.
 
-Now fix all the remaining coordinates incomparable with $x$. For each
-choice leaving a nonempty slice, the remaining feasible region $C$ is
-open and convex, has dimension $d\le B+1$, and projects onto $(\ell,r)$
-in coordinate $x$. Write $S(t)$ for its section volume at $x=t$ and
-$g(t)=S(t)/\vol C$ for the resulting density.
-
-Choose points in $\overline C$ whose $x$-coordinates are $\ell$ and $r$.
+Choose points in $\overline C$ whose first coordinates are $\ell$ and $r$.
 Such points exist because $C$ is bounded. For $\ell<t<s<r$, join every
 point of the section at $t$ to the point at $r$. Since $C$ is open and
-convex, the image at $x=s$ lies in the section of $C$ there. Each of its
+convex, the image with first coordinate $s$ lies in the section of $C$ there. Each of its
 $d-1$ directions is scaled by $(r-s)/(r-t)$, so
 \begin{equation}\label{eq:push-upper}
 S(s)\ge\left(\frac{r-s}{r-t}\right)^{d-1}S(t)
@@ -58,7 +60,7 @@ Normalize these inequalities and integrate over $s$ on both sides of $t$:
 \int_t^r\left(\frac{r-s}{r-t}\right)^{d-1}ds\right)
 =\frac{Wg(t)}{d}.
 \]
-Thus $g(t)\le d/W\le(B+1)/W$.
+Thus $g(t)\le d/W$.
 
 For the lower bound, choose $t_0$ with $g(t_0)\ge1/W$, which exists
 because $g$ integrates to one over an interval of length $W$. For any
@@ -66,22 +68,57 @@ $s\in[\ell+W/4,r-W/4]$, the appropriate ratio in
 \eqref{eq:push-upper} or \eqref{eq:push-lower} is at least $1/4$.
 Consequently
 \[
-g(s)\ge4^{-(d-1)}g(t_0)\ge\frac{4^{-B}}{W}.
+g(s)\ge4^{-(d-1)}g(t_0)\ge\frac{4^{-(d-1)}}{W}.
 \]
 The case $s=t_0$ satisfies the same bound directly.
+\end{proof}
 
-Finally, average over the additional incomparable coordinates fixed in
-the second paragraph. If $\omega$ denotes their values, $C_\omega$ the
-remaining region, and $g_\omega$ its coordinate density, integration of
-each section gives the pointwise identity
+\begin{proof}[Proof of Lemma~\ref{lem:fiber}]
+Fix all coordinates incomparable with $x$, at values leaving a nonempty
+region. By the section formula in Lemma~\ref{lem:interior}, each such
+fixing leaves $x$'s effective interval unchanged. The remaining region
+$C$ is open and convex, has dimension $d\le B+1$, and still projects
+onto $(\ell,r)$ in coordinate $x$. Lemma~\ref{lem:projection-density}
+therefore gives both required bounds for the density of $x$ in $C$.
+
+Average over the fixed coordinates. If $\omega$ denotes their values,
+$C_\omega$ the remaining region, and $g_\omega$ its coordinate density,
+integration of each section gives the pointwise identity
 \[
 f_x(t)=
 \frac{\int \vol(C_\omega)g_\omega(t)\,d\omega}
      {\int \vol(C_\omega)\,d\omega}.
 \]
 Empty slices contribute zero. The bounds on $g_\omega$ are uniform in
-$\omega$, so they hold for $f_x$ at every $t$. This proves both the
-unconditional bounds and the bounds after the initial conditioning.
+$\omega$, so they also hold for $f_x$.
+\end{proof}
+
+\begin{proof}[Proof of Lemma~\ref{lem:gap}]
+For a fixed number $Y$, integrate the coordinate-density upper bound
+over $I+Y$. Now let $Y=X_y$ for any free coordinate $y\ne x$.
+As above, fix all coordinates incomparable with $x$. The remaining
+convex region $C$ has dimension $d\le B+1$, and $x$ retains its
+effective width $W$. We show that the projection $X_x-X_y$ has width
+at least $W$ in each such region.
+
+If $y$ is incomparable with $x$, it is now fixed, so the projection is
+a translate of $X_x$ and has width $W$. Otherwise $y$ remains free.
+Write $(\ell_z,r_z)$ for effective intervals in $C$; $x$'s endpoints
+are unchanged. If a directed path goes from $x$ to $y$, then $r_y\ge r_x$.
+Fixing $X_y=t\in(\ell_y,r_y)$ leaves $x$ the interval
+$(\ell_x,\min(r_x,t))$, by Lemma~\ref{lem:interior}. As $t$ approaches
+$r_y$, its width tends to $W$. On that section the difference
+$X_x-t$ varies over an interval of the same width. Thus the projection
+of the whole region $C$ has width at least $W$.
+If a directed path goes from $y$ to $x$, let $t$ approach $\ell_y$ instead.
+Here $\ell_y\le\ell_x$, and the remaining interval
+$(\max(\ell_x,t),r_x)$ again has width tending to $W$.
+
+Lemma~\ref{lem:projection-density} bounds the conditional density of the
+difference by $d/W\le(B+1)/W$. Integrating over $I$ and averaging over
+the fixed coordinates proves \eqref{eq:gap}. If both coordinates have
+at most $B$ comparable coordinates, exchanging $x$ and $y$ gives the
+same bound with $\max(W_x,W_y)$ in the denominator.
 \end{proof}
 
 The coordinate densities above are log-concave pointwise: the uniform

@@ -70,7 +70,7 @@ def run():
             assert bits(c) <= max(bits(left), bits(right)) + 1
             anchor_checks += 1
 
-    narrow_checks = 0
+    fallback_checks = 0
     for a in range(64):
         for b in range(a+1, 65):
             ell, upper = F(a, 64), F(b, 64)
@@ -79,12 +79,12 @@ def run():
             assert ell < c < upper
             assert bits(c) <= max(bits(ell), bits(upper))+1
             assert width/2 <= interval[1]-interval[0]
-            narrow_checks += 1
+            fallback_checks += 1
     for precision in range(3, 129):
         width = F(1, 2**precision)
         c, depth, _ = shortest(F(1, 2)-width/4, F(1, 2)+width/4)
         assert c == F(1, 2) and depth == 0
-        narrow_checks += 1
+        fallback_checks += 1
 
     # All finite computations for a two-item chain. Equal final states are
     # collected with their exact multiplicities, preserving all digit choices.
@@ -109,7 +109,7 @@ def run():
     assert any(state[0]==state[1] for state in states)
     return {'status':'passed','scope':__doc__.strip(),
             'continuous_invariance_moment_checks':invariant_checks,
-            'shortest_fraction_checks':anchor_checks,'narrow_anchor_checks':narrow_checks,
+            'shortest_fraction_checks':anchor_checks,'fallback_anchor_checks':fallback_checks,
             'finite_chain_update_checks':update_checks,
             'finite_chain':chain_reports,
             'note':'Small chain parameters are diagnostic examples, not the much larger certified locality parameters.'}
