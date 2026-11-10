@@ -109,7 +109,8 @@ See Appendices~\ref{sec:oracle} and~\ref{app:execution}.
 Keeping nearly half the volume at each answer is the geometric counterpart
 of keeping at least half the possible total orders.
 Section~\ref{sec:potential} relates the node volumes to the number of
-orders still possible, yielding the comparison bound.
+orders still possible. We use this count to prove that every correct
+sorter must make at least $(1-o(1))n\log n$ comparisons.
 Whenever the local calculation cannot certify an answer, it supplies a
 refinement that increases the product of the node volumes by a factor
 greater than $2^k$ (Lemma~\ref{lem:section-volume}).
