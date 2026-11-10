@@ -64,17 +64,19 @@ and an unqueried label $z$ is stored at the root, the tree keeps $z$
 outside that child block, while the transcript also permits $a<z<b$.
 
 Let $s$ be the number of labels that have appeared in queries.
-Every other label is still an isolated root coordinate on $(0,1)$.
-\texttt{Select} requests a move only for an item involved in the current
-query. \texttt{Repair} selects either the vertices of an $H$-vertex
-directed path or a vertex of degree $k$. In both cases, every selected
-item has participated in a recorded comparison. Normalization leaves an
-isolated root coordinate unchanged. For the counting argument, omit these
-unqueried labels. Their independent unit intervals contribute a factor of one to
-$Z$, so the product volume is the same for the remaining $s$ labels.
+For the counting argument, we can omit the other labels without changing
+the product volume $Z$. To see this, consider an unqueried item. Its
+vertex has no incident arcs, since every arc records a comparison.
+\texttt{Select} requests moves only for items in the current query.
+\texttt{Repair} selects only vertices incident to arcs. Thus the item
+stays at the root. Its interval remains $(0,1)$: no comparison involves
+it, and no bound can propagate to it along an arc. Its coordinate
+therefore contributes an independent factor of volume one. Omitting all
+such coordinates leaves the volume $Z$ for the $s$ queried labels.
 
-We assign a weight to a child at the reduced dyadic anchor
-$c=(2i+1)/2^{m+1}$ by
+To count orders of these $s$ labels, we use the sampling experiment in
+Lemma~\ref{lem:packing}. In that experiment, the probability of entering
+a child at the reduced dyadic anchor $c=(2i+1)/2^{m+1}$ is
 \begin{equation}\label{eq:child-weight}
 w(c)=\frac1{k^2}\left(\frac{1-1/k}{2}\right)^m.
 \end{equation}
@@ -97,17 +99,21 @@ T_q\ge n!(1-1/k)^s Z\mathcal W.
 The same inequality holds before the first call.
 \end{lemma}
 \begin{proof}
-For each of the $s$ labels independently, draw a position in the state
-tree. Start at the root. At each node, enter a child with probability
+For each of the $s$ labels independently, draw a position in the
+adversary's tree. Start at the root. At each node, enter a child with probability
 equal to its weight, or stop with the remaining probability and draw
 a uniform coordinate in $(0,1)$ there. The stopping probability is at
 least $1-1/k$. Order the resulting positions by the tree and its anchors.
 Ties have probability zero. Since the labels have the same distribution,
 each of their $s!$ relative orders has probability $1/s!$.
 
-The event that the labels follow their stored paths, stop at their
-storage nodes, and satisfy all node constraints has probability at least
-$(1-1/k)^s Z\mathcal W$. Its orders respect the transcript by
+The event that all labels follow their stored paths and stop at their
+storage nodes has probability at least $(1-1/k)^s\mathcal W$.
+Given these locations, their coordinates are independent and uniform,
+so they satisfy the node constraints with probability $Z$. Here we use
+the fact proved above that omitting the unqueried labels preserves $Z$.
+The resulting orders therefore have total probability at least
+$(1-1/k)^s Z\mathcal W$ and respect the transcript by
 Proposition~\ref{prop:legality}. Each such order extends to $n!/s!$ full
 orders by inserting the other labels, whose positions the transcript
 does not constrain. Multiplying gives the bound.
