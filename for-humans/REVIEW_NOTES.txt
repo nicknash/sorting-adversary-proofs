@@ -1027,3 +1027,21 @@ Section 2, and all six retained TikZ figures are unchanged. The obsolete
 anchor-tree figure is the only removed figure. Sections 1 and 3 change only
 for the revised representation, algorithm and roadmap. The current revision
 has not replaced the Hexagon deposit.
+
+10 November 2026: ITLB citation and Fredman background
+
+The Introduction now states ceil(log(n!)) = n log n - O(n) as the
+information-theoretic lower bound and cites Knuth, Volume 3, Section 5.3.1
+at its first statement. Author and publisher pages verify the second
+edition (Addison-Wesley, 1998) and the minimum-comparison-sorting section.
+Related Work adds Fredman's bound log|Gamma|+2n for a specified family of
+orders. The publisher record verifies the 1976 TCS paper and DOI; the
+local Kahn--Kim paper, page 390, verifies the theorem and the computational
+limitation. Page 391 verifies their polynomial-time sorting result.
+
+The algorithm, proofs, abstract and disclosure are unchanged. Both the
+desktop-editor compiler and repository build pass; the final TeX log has
+no warnings or unresolved references. The 32-page PDF was visually checked
+at the Introduction, new Related Work subsection and bibliography. All
+25 source-archive members match the saved files. The manuscript remains
+a local/GitHub revision, without replacing the existing Hexagon deposit.

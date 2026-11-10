@@ -1,5 +1,26 @@
 \section{Related Work}\label{sec:related}
 
+\subsection{Sorting with partial information}
+
+Fredman~\cite{fredman} studied how closely sorting can approach the
+information-theoretic lower bound when some orders have already been
+excluded. For any nonempty family $\Gamma$ of permutations of $n$ items,
+he showed that the unknown order can be identified using at most
+$\log|\Gamma|+2n$ comparisons. In particular, if the available information
+is a partial order $P$, this gives $\log e(P)+2n$ comparisons, where
+$e(P)$ counts its linear extensions. The comparison bound is within an
+additive $2n$ of the ITLB, but constructing the strategy requires
+enumerative information about the possible orders and does not give a
+polynomial-time algorithm for general partial orders~\cite[p.~390]{kahn-kim}.
+
+Kahn and Kim~\cite{kahn-kim} later gave a deterministic polynomial-time
+sorting algorithm using $O(\log e(P))$ comparisons, alongside the
+adversary discussed in the Introduction. This history highlights the
+distinction between comparison complexity and the computation needed to
+choose comparisons. Our adversary faces the corresponding task of choosing
+answers efficiently while forcing asymptotically the full ITLB for ordinary
+sorting.
+
 \subsection{Binary-tree adversaries}
 
 Atallah and Kosaraju~\cite{atallah} gave an efficient sorting adversary with

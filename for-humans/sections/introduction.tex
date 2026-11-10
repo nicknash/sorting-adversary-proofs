@@ -9,8 +9,12 @@ order. The adversary knows $n$ and sees the comparisons, but need not inspect
 the sorter that generates them. Throughout, $\log$ denotes $\log_2$, and
 $\ln$ the natural logarithm; we assume $n\ge2$.
 
-The classical sorting lower bound guarantees the existence of a hard input
-for every correct sorter. Here the problem is to produce hard answers by
+A binary comparison tree must distinguish all $n!$ total orders, giving
+the \emph{information-theoretic lower bound} (ITLB) of
+$\ceil{\log(n!)}=n\log n-O(n)$ comparisons in the worst
+case~\cite[Section~5.3.1]{knuth}.
+This bound guarantees the existence of a hard input for every correct
+sorter. Here the problem is to produce hard answers by
 one \emph{deterministic, polynomial-time} procedure. The polynomial bound
 applies to the adversary's computation; the comparison lower bound applies
 to the sorter. Without the time restriction, a deterministic optimal

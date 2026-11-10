@@ -38,9 +38,12 @@ use the middle half directly, while structural refinements first try a
 central-interval certificate. The same rarity lemma also improves the stored
 precision bound to `O(n log² n)`.
 
-The abstract, disclosure, Section 2, and all figures except the obsolete
-anchor-tree diagram are unchanged. Sections 1 and 3 receive the changes
-needed for the revised algorithm, representation, and roadmap.
+The abstract, disclosure, and all figures except the obsolete anchor-tree
+diagram are unchanged. Sections 1 and 3 receive the changes needed for the
+revised algorithm, representation, and roadmap. Section 1 now states the
+information-theoretic lower bound explicitly, citing Knuth. Section 2 adds
+Fredman's bound for sorting from a family of possible orders and its
+connection to Kahn and Kim's polynomial-time algorithm.
 
 - [Current paper](output/pdf/paper.pdf)
 - `paper.tex`: title, approved abstract, methodological disclosure, and section inputs
