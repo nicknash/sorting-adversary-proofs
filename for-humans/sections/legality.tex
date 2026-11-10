@@ -56,15 +56,15 @@ guarantee.
 
 The size of the DAG neighborhood examined around each queried vertex
 depends on vertex degree (the sum of its in-degree and out-degree) and
-directed path length. We use one integer $k\ge64$ to specify these
-bounds in Lemma~\ref{lem:local-routines}. Larger $k$ allows higher degrees
+the length of the longest directed path in the DAG. We use one integer
+$k$ to specify these bounds in Lemma~\ref{lem:local-routines}. Larger $k$ allows higher degrees
 and longer paths, while the guaranteed retained fraction approaches
 one half.
 
 Algorithm~\ref{alg:select} gives the \texttt{Select} algorithm.
 It calls \texttt{Enclose}, given in Algorithm~\ref{alg:finite-digits}.
-Each entry in the returned list contains an interval $I_x$ for each
-queried coordinate $x$.
+\texttt{Enclose} returns a list whose entries give one interval $I_x$
+for each queried coordinate $x$.
 
 \begin{algorithm}[H]
 \caption{\texttt{Select}$(D,\alpha,\beta)$: choose an answer or a position for refinement.}
@@ -97,7 +97,7 @@ The numerator is the volume of the section $X_x=c$, measured in the
 remaining $|V|-1$ coordinates.
 
 \begin{lemma}[Local selection]\label{lem:local-routines}
-Let $D$ be an order-restriction DAG with canonical dyadic intervals,
+Let $k\ge64$ be an integer and $D$ an order-restriction DAG with canonical dyadic intervals,
 $V(D)>0$, degree at most $k$, and directed paths of at most $2^{k+1}$
 vertices. Algorithm~\ref{alg:select} returns either
 \begin{enumerate}
