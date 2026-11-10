@@ -16,30 +16,36 @@ calls the graph at every node has degree below $k$ and path length
 below $H$. During a call we allow degree $k$ and paths of up to $2H$
 vertices.
 
-\begin{lemma}[Comparison and anchor selection]\label{lem:local-routines}
-Consider a node with positive feasible volume, degree at most $k$, and
-directed paths of at most $2H$ vertices.
+The following lemma supplies the choices used by both comparison and
+repair. Its hypotheses concern a single order-restriction DAG.
+
+\begin{lemma}[Local selection]\label{lem:local-routines}
+Let $D$ be an order-restriction DAG with canonical dyadic intervals,
+$V(D)>0$, degree at most $k$, and directed paths of at most $2H$ vertices.
 \begin{enumerate}
-\item For two distinct free coordinates, or a free coordinate and a
-dyadic threshold, \textnormal{\texttt{Select}} returns either an answer
-retaining at least $1/2-\eta$ of the volume or an interior dyadic anchor
-for a queried free coordinate with refinement gain $g>k$.
-\item Given any free coordinate, \textnormal{\texttt{ChooseAnchor}}
-returns an interior dyadic anchor.
+\item For a comparison $X_a<X_b$ with $a\ne b$, or between $X_a$ and
+a dyadic constant, \textnormal{\texttt{Select}} returns either an answer
+retaining at least $1/2-\eta$ of $V(D)$ or a queried coordinate $x$
+and a dyadic $c\in(\ell_x,r_x)$ with $\log f_x(c)>k$.
+\item Given a coordinate $x$, \textnormal{\texttt{ChooseAnchor}}$(D,x)$
+returns a dyadic $c\in(\ell_x,r_x)$.
 \end{enumerate}
-For either routine, write the returned anchor in reduced form
-$c=(2i+1)/2^{m+1}$. Its gain satisfies
+Every returned position $c=(2i+1)/2^{m+1}$ in reduced form satisfies
 \begin{equation}\label{eq:tariff}
-g\ge(1-1/k)m-4.
+\log f_x(c)\ge(1-1/k)m-4.
 \end{equation}
-The routines are deterministic. Each enumerates at most $E_k$ digit
+The routines are deterministic and use only the graph and interval bounds
+in a neighborhood of the queried coordinates whose radius depends on $k$.
+Each enumerates at most $E_k$ digit
 assignments for a computable budget $E_k$ depending only on $k$. If the
-stored bounds have at most $\Lambda$ fractional binary digits, each
-returned anchor has at most $\Lambda+\log E_k$ such digits.
+interval bounds have at most $\Lambda$ fractional binary digits, each
+returned position has at most $\Lambda+\log E_k$ such digits.
 \end{lemma}
 
-The finite calculation in Section~\ref{sec:oracle} implements these
-routines. Appendix~\ref{app:execution} proves the guarantees.
+Appendix~\ref{sec:oracle} constructs the local calculations, and
+Appendix~\ref{app:execution} proves the lemma. In the tree, the returned
+position becomes a child anchor. The refinement identity turns the
+bounds on $\log f_x(c)$ into bounds on the volume gain $g$.
 
 A comparison between two free items adds an arc. A comparison between a
 free item and an anchor tightens one interval bound. After recording the
@@ -78,9 +84,10 @@ the transcript, with ties broken by label.
     $\mathit{answer}\gets$ the left-to-right order of their child anchors\;
     \textbf{break}\;
   }
-  $r\gets$ \texttt{Select}$(v,A,B)$\;
+  $\alpha,\beta\gets$ the coordinates or child anchors representing $A,B$ at $v$\;
+  $r\gets$ \texttt{Select}$(D_v,\alpha,\beta)$\;
   \If{$r$ is an answer}{
-    $\mathit{answer}\gets r$\;
+    $\mathit{answer}\gets$ the corresponding order of $A,B$\;
     \textbf{break}\;
   }
   $(x,c)\gets r$\;
@@ -88,7 +95,7 @@ the transcript, with ties broken by label.
 }
 \If{at least one queried item is stored at $v$}{
   Store $\mathit{answer}$ as an arc in the graph at $v$ or as an interval bound\;
-  \texttt{Normalize}$(v)$\;
+  \texttt{Normalize}$(D_v)$\;
 }
 Append $\mathit{answer}$ to $\mathcal T$\;
 \texttt{Repair}$(v)$\;
@@ -103,13 +110,13 @@ Append $\mathit{answer}$ to $\mathcal T$\;
 \If{the graph at $v$ has a directed path on $H$ vertices}{
   $L\gets$ the selected path's list of labels, in path order\;
   \ForEach{$x\in L$ in path order}{
-    $c\gets$ \texttt{ChooseAnchor}$(x)$\;
+    $c\gets$ \texttt{ChooseAnchor}$(D_v,x)$\;
     \texttt{RefineAt}$(x,c)$\;
   }
 }
 \ElseIf{a vertex at $v$ has degree $k$}{
   $x\gets$ the selected such vertex\;
-  $c\gets$ \texttt{ChooseAnchor}$(x)$\;
+  $c\gets$ \texttt{ChooseAnchor}$(D_v,x)$\;
   \texttt{RefineAt}$(x,c)$\;
 }
 \end{algorithm}

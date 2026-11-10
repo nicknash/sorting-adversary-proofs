@@ -1,14 +1,15 @@
-\section{Computing comparison certificates}\label{sec:oracle}
+\section{Local calculations on order-restriction DAGs}\label{sec:oracle}
 
-Both selection routines use lists of intervals enclosing the queried
-positions. A pair of disjoint intervals certifies an order, and a list
+We construct the routines in Lemma~\ref{lem:local-routines} for a
+single order-restriction DAG. Both use lists of intervals enclosing the
+queried coordinates. A pair of disjoint intervals certifies an order, and a list
 of intervals can certify how much probability lies on each side of a
 candidate anchor interval.
 
 \subsection{A coordinate update with finitely many choices}
 
-Let $G$ be the node graph, with its stored canonical interval endpoints
-$\ell_z,r_z$. For a current assignment $Y$, the interval permitted at coordinate $z$ has endpoints
+Let $D$ be an order-restriction DAG with canonical interval endpoints
+$\ell_z,r_z$. Write $G$ for its underlying graph. For a current assignment $Y$, the interval permitted at coordinate $z$ has endpoints
 \[
 L_z=\max\bigl(\{\ell_z\}\cup\{Y_u:u\to z\}\bigr),\qquad
 U_z=\min\bigl(\{r_z\}\cup\{Y_u:z\to u\}\bigr).
@@ -63,7 +64,7 @@ to the list, including repeated entries.
 \caption{\texttt{Enclose}: compute a finite list of enclosing intervals.}
 \label{alg:finite-digits}
 \DontPrintSemicolon
-\KwIn{The retained node graph and its stored interval bounds, its interior vertices, a topological order, queried coordinates $T$, and integers $S,t$.}
+\KwIn{The retained subgraph of $D$ and its interval bounds, its interior vertices, a topological order, queried coordinates $T$, and integers $S,t$.}
 \KwOut{A list of enclosing intervals $([A_x,B_x])_{x\in T}$, one per digit assignment.}
 $\mathcal L\gets$ the empty list\;
 \ForEach{assignment of digits $j_{z,s}\in\{0,\ldots,S-1\}$ to the $b't$ interior visits}{
@@ -84,9 +85,9 @@ Let $d,h\ge1$ be integers and let $\delta,\alpha\in(0,1)$ be rational.
 There are computable parameters $S,t,\rho$ and a bound $E$, depending
 only on $d,h,\delta,\alpha$, with the following property.
 
-Suppose $G$ is a finite DAG with canonical dyadic interval bounds, degree at most
-$d$, directed paths of at most $h$ vertices, and a positive-volume
-feasible region $K\subseteq(0,1)^{V(G)}$. For any nonempty set $T$ of
+Suppose $D$ is an order-restriction DAG with canonical dyadic intervals,
+degree at most $d$, directed paths of at most $h$ vertices, and
+$V(D)>0$. Write $K=K(D)$. For any nonempty set $T$ of
 one or two coordinates, Algorithm~\ref{alg:finite-digits} returns a list
 satisfying two guarantees:
 \begin{enumerate}
@@ -141,10 +142,10 @@ with $B_y<A_x$. For a threshold use $[c,c]$ as its interval.
 Each count divided by $N$ is a lower bound on the corresponding
 probability because the enclosed positions obey the certified order.
 \texttt{Select} uses the answer with the larger bound if that bound is
-at least $1/2-\eta$. Otherwise it chooses a queried free coordinate
+at least $1/2-\eta$. Otherwise it chooses a queried coordinate
 and rounds in the middle half of its range.
 
-For a repair, \texttt{ChooseAnchor} uses a one-coordinate list. It tests
+The routine \texttt{ChooseAnchor} uses a one-coordinate list. It tests
 whether a proposed interval contains at least a quarter of the mass,
 with at least a quarter on either side. The test counts entries lying
 wholly in each of these three regions. On success it rounds within the
@@ -156,12 +157,12 @@ Appendix~\ref{app:execution} complete the proof of
 Lemma~\ref{lem:local-routines}.
 
 \begin{algorithm}[H]
-\caption{\texttt{ChooseAnchor}$(x)$: choose a position for refinement.}
+\caption{\texttt{ChooseAnchor}$(D,x)$: choose an interior position.}
 \label{alg:choose-anchor}
 \DontPrintSemicolon
-\KwIn{A free item $x$ at node $v$, with stored interval $(\ell_x,r_x)$.}
-\KwOut{A dyadic anchor $c\in(\ell_x,r_x)$.}
-$J\gets$ \texttt{CentralInterval}$(v,x)$\;
+\KwIn{A canonical order-restriction DAG $D$ and a coordinate $x$ with interval $(\ell_x,r_x)$.}
+\KwOut{A dyadic position $c\in(\ell_x,r_x)$.}
+$J\gets$ \texttt{CentralInterval}$(D,x)$\;
 \If{$J$ is \textnormal{\texttt{FAIL}}}{
   $W_x\gets r_x-\ell_x$\;
   $J\gets[\ell_x+W_x/4,\ r_x-W_x/4]$\;

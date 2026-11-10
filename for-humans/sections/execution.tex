@@ -23,61 +23,33 @@ Reduction of the fraction cannot increase its denominator, so
 $m+1\le r$ and $|J|<2h\le2^{-m}$.
 \end{proof}
 
-\begin{lemma}[Density in a central interval]\label{lem:central-density}
-Let $X$ be uniform on a positive-volume node region. Suppose
-$J=[u,v]\subset(\ell_x,r_x)$ satisfies
-\[
-\Prb(X_x\le u)\ge\tfrac14,\qquad
-\Prb(X_x\in J)\ge\tfrac14,\qquad
-\Prb(X_x\ge v)\ge\tfrac14.
-\]
-Then, for every $c\in J$,
-\[
-f_x(c)\ge\frac1{16|J|}.
-\]
-\end{lemma}
+
 
 
 \begin{proof}[Proof of Lemma~\ref{lem:local-routines}]
-The interval comparisons in Section~\ref{sec:oracle} certify lower
+The interval comparisons in Appendix~\ref{sec:oracle} certify lower
 probability bounds. If the larger bound is at least $1/2-\eta$,
 \texttt{Select} returns its answer, breaking a tie in favor of the
 first queried label. On failure it rounds in the middle half of a
-queried free coordinate's interval. For \texttt{ChooseAnchor}, a successful
+queried coordinate's interval. For \texttt{ChooseAnchor}, a successful
 central test supplies the interval to round. On failure it too rounds
 in the middle half.
 
 For a successful central test, Lemma~\ref{lem:central-density} gives
-$f_x(c)\ge 1/(16|J|)$. By Lemma~\ref{lem:rounding} and the refinement
-identity, $g=\log f_x(c)>m-4$. For either type of failed test,
+$f_x(c)\ge 1/(16|J|)$. By Lemma~\ref{lem:rounding}, $\log f_x(c)>m-4$. For either type of failed test,
 Lemma~\ref{lem:certificate-success} gives $W_x<w_*=2^{-2kB}$ for the
 selected coordinate. Write $L=\log(1/W_x)>2kB$. The density estimate
-\eqref{eq:fiber-lower} gives $g\ge L-2B>k$ throughout the middle half.
+\eqref{eq:fiber-lower} gives $\log f_x(c)\ge L-2B>k$ throughout the middle half.
 That interval has length $W_x/2$, so $m<L+1$ by
 Lemma~\ref{lem:rounding}. Thus
 \[
-g\ge L-2B>(1-1/k)L>(1-1/k)m-4.
+\log f_x(c)\ge L-2B>(1-1/k)L>(1-1/k)m-4.
 \]
 Both intervals used for rounding lie strictly inside the coordinate's
 range. The enumeration bound comes from Theorem~\ref{thm:local}.
 Appendix~\ref{app:arithmetic} bounds the precision of the rounded
 endpoints by $\Lambda+\log E_k$.
 \end{proof}
-
-\subsection{Record updates}
-
-\begin{algorithm}[H]
-\caption{\texttt{Normalize}$(v)$: propagate interval bounds through the in-node DAG.}
-\label{alg:normalize}
-\DontPrintSemicolon
-\KwIn{A node $v$ whose arcs or interval bounds have changed.}
-\ForEach{vertex $x$ in topological order}{
-  $\ell_x\gets\max(\{\ell_x\}\cup\{\ell_y:y\to x\})$\;
-}
-\ForEach{vertex $x$ in reverse topological order}{
-  $r_x\gets\min(\{r_x\}\cup\{r_y:x\to y\})$\;
-}
-\end{algorithm}
 
 \subsection{Consistency and termination}
 
@@ -96,7 +68,7 @@ Lemma~\ref{lem:interior}.
 
 If the queried labels lie in different child subtrees, their anchors
 determine the answer in every represented order. Otherwise, the
-answer guarantee in Lemma~\ref{lem:local-routines} ensure that the chosen answer retains at least
+answer guarantee in Lemma~\ref{lem:local-routines} ensures that the chosen answer retains at least
 $1/2-\eta>0$ of its node's volume. Recording its arc or interval bound
 therefore preserves positive volume and makes the answer true in every
 represented order. A new arc cannot create a cycle, since that would

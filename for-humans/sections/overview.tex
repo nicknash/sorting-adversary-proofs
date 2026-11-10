@@ -7,34 +7,25 @@ A key ingredient of our adversary is to simply relax this requirement, and allow
 The adversary then periodically simplifies these DAGs in order to bound the degree of nodes in these DAGs, as well as their path lengths.
 This in turn allows the adversary to answer comparisons using only small neighborhoods of nodes in these in-node DAGs.
 
-\subsection{The data structure}
+\input{sections/order-dags}
 
-The core data structure of our adversary is a rooted tree. Each node stores item records and
-a single directed acyclic graph (DAG), whose vertices are the items
-recorded at that node. Figure~\ref{fig:overview-state} shows an example.
+\subsection{A tree of order-restriction DAGs}
 
-Each item has a \textit{record} $(x,\ell_x,r_x)$ stored at exactly one node.
-The label $x$ identifies the key. Its position variable $X_x$ ranges
-over the open interval $(\ell_x,r_x)\subseteq(0,1)$.
-The bounds $\ell_x,r_x$ are fractions whose denominators are powers of two.
-We call such numbers \emph{dyadic rationals}.
-We call an item \emph{free} at its node while its position remains variable.
+The core data structure of our adversary is a rooted tree. Each node $v$
+stores an order-restriction DAG $D_v$, whose vertices are the items
+recorded there. Figure~\ref{fig:overview-state} shows an example.
 
-In the node's DAG, an arc $x\to y$ records a comparison answered $x<y$
-between two items stored there, imposing $X_x<X_y$ on their positions.
-Each answered comparison between free items contributes at most one arc.
+Each item has a record $(x,\ell_x,r_x)$ stored at exactly one node.
+The label $x$ identifies the key. The variable $X_x$ describes its
+position among the items and child anchors at that node. We call the
+item \emph{free} there while this position remains variable.
+The interval endpoints are \emph{dyadic rationals}, meaning that their
+denominators are powers of two. We keep the intervals canonical by
+calling \texttt{Normalize} after each change.
 
-A \emph{feasible assignment} at a node is a choice of real values for its
-position variables satisfying $\ell_x<X_x<r_x$ for every item $x$ and
-$X_x<X_y$ for every arc $x\to y$ in its graph.
-
-We keep each stored interval equal to the range of values its coordinate
-can take in feasible assignments. An arc $x\to y$ propagates lower bounds
-from $x$ to $y$ and upper bounds from $y$ to $x$. After changing a node,
-the routine \texttt{Normalize} makes one pass in topological order for the
-lower bounds and one in reverse order for the upper bounds.
-Algorithm~\ref{alg:normalize} gives the two passes. Appendix~\ref{app:geometry}
-proves that they preserve exactly the same feasible assignments.
+An arc $x\to y$ in $D_v$ records a comparison answered $x<y$ between
+items stored at $v$. A comparison between two free items contributes
+at most one arc.
 
 Initially the tree consists of just the root, containing all records
 with bounds $\ell_x=0$ and $r_x=1$. The position variables $X_x$ are
@@ -49,8 +40,8 @@ item with position below $c$ precedes every item in that child's subtree;
 an item with position above $c$ follows every item in it. Subtrees of
 different children are ordered by their anchors. All items of each child
 subtree therefore occur consecutively in the resulting total order.
-Within the child, position variables again range over $(0,1)$, and its
-in-node DAG and interval bounds describe the possible orders inside this block.
+The child's order-restriction DAG describes the possible orders within this block,
+using position variables in $(0,1)$.
 
 \begin{center}
 \begin{minipage}{\linewidth}
@@ -131,7 +122,7 @@ in-node DAG and interval bounds describe the possible orders inside this block.
 \end{scope}
 \end{tikzpicture}
 \captionof{figure}{A state of the adversary. Each large box is a tree node,
-containing an in-node DAG and one open interval for each of its items.}
+containing an order-restriction DAG, drawn as its arcs and allowed intervals.}
 \label{fig:overview-state}
 \end{minipage}
 \end{center}
@@ -151,16 +142,11 @@ that every represented order satisfies the transcript.
 
 \subsection{Moving an item into a child}\label{sec:overview-refine}
 
-The operation \texttt{RefineAt}$(x,c)$ fixes the position of $x$ at an
-interior point $c\in(\ell_x,r_x)$ in its current node.
-
-Fixing $X_x=c$ places $x$ in the child block anchored at $c$.
-The arcs incident to $x$ in the parent graph become interval bounds: $y\to x$ gives $X_y<c$,
-and $x\to z$ gives $X_z>c$. Remove $x$ and these arcs from the parent,
-and retain the new bounds on its neighbors.
-Insert $x$ into the child anchored at $c$, creating it if needed. In that
-child, $x$ receives a fresh position variable with interval $(0,1)$ and no incident arcs; the
-child's existing constraints remain unchanged.
+The operation \texttt{RefineAt}$(x,c)$ moves $x$ from its current node
+$v$ into the child anchored at $c\in(\ell_x,r_x)$. It first replaces
+$D_v$ by \texttt{Restrict}$(D_v,x,c)$. It then inserts $x$ into the
+child's order-restriction DAG as an isolated vertex with interval
+$(0,1)$, creating the child if needed.
 Figure~\ref{fig:overview-refine} illustrates reuse of an existing child.
 
 \begin{algorithm}[H]
@@ -170,20 +156,12 @@ Figure~\ref{fig:overview-refine} illustrates reuse of an existing child.
 \KwIn{A free item $x$, an interior anchor $c$, and the current adversary state.}
 \KwOut{The updated state, with $x$ stored in a child of its former node.}
 $v\gets$ the node storing $x$\;
-\ForEach{arc $y\to x$ in the graph at $v$}{
-  $r_y\gets\min(r_y,c)$\;
-}
-\ForEach{arc $x\to z$ in the graph at $v$}{
-  $\ell_z\gets\max(\ell_z,c)$\;
-}
-Remove $x$'s record from $v$ and its vertex and incident arcs from the graph at $v$\;
-\texttt{Normalize}$(v)$\;
+$D_v\gets$ \texttt{Restrict}$(D_v,x,c)$\;
 \If{$v$ has no child anchored at $c$}{
-  Create a child of $v$ at $c$, with no records and an empty graph\;
+  Create a child of $v$ at $c$, with an empty order-restriction DAG\;
 }
 $u\gets$ the child of $v$ anchored at $c$\;
-Insert a record $(x,0,1)$ at $u$\;
-Insert $x$ as an isolated vertex in the graph at $u$\;
+Insert $x$ into $D_u$ as an isolated vertex with record $(x,0,1)$\;
 \end{algorithm}
 
 \begin{center}
@@ -230,12 +208,8 @@ within that block.}
 \end{minipage}
 \end{center}
 
-At node $v$, the feasible assignments form the region
-\begin{equation}\label{eq:node-region}
-K_v=\{X:\ell_x<X_x<r_x\text{ for every free }x,
-       \quad X_x<X_y\text{ for every arc }x\to y\}.
-\end{equation}
-Write $V_v=\vol(K_v)$ and take the product over the adversary's tree:
+Write $K_v=K(D_v)$ and $V_v=V(D_v)$. Take the product of the
+volumes over the adversary's tree,
 \begin{equation}\label{eq:Z}
 Z=\prod_v V_v.
 \end{equation}
@@ -254,14 +228,9 @@ for the resulting change in $\log Z$. We call $g$ the refinement's
 
 \label{sec:refinement-volume}
 
-To evaluate this gain for an item $x$ stored at node $v$, let $S_x(c)$
-be the volume of the section of $K_v$ obtained by fixing $X_x=c$,
-measured in the remaining coordinates. Under the uniform
-distribution on $K_v$, the coordinate $X_x$ has density
-\[
-f_x(c)=\frac{S_x(c)}{V_v},\qquad
-\Prb(a<X_x<b)=\int_a^b f_x(t)\,dt.
-\]
+The restriction identity \eqref{eq:restriction-volume} now gives the
+change in this product. Here $f_x$ is the coordinate density in $D_v$
+before the move.
 
 \begin{lemma}[Refinement identity]\label{lem:section-volume}
 Suppose every node region has positive volume. Refining $x$ at an interior
@@ -271,18 +240,10 @@ anchor $c$ satisfies
 \end{equation}
 \end{lemma}
 \begin{proof}
-Let $u$ be the child at $c$, taking $V_u=1$ if it is newly created. The
-parent loses the coordinate $X_x$ and retains precisely the section of
-volume $S_x(c)$. The child gains a new coordinate $U_x\in(0,1)$, with no
-constraints involving its old coordinates. Its region becomes
-$K_u\times(0,1)$ and still has volume $V_u$. Therefore the affected
-factors in the product change as follows:
-\[
-V_vV_u\quad\longrightarrow\quad S_x(c)V_u.
-\]
-Their ratio is $S_x(c)/V_v=f_x(c)$. Normalizing the interval bounds
-preserves these regions. All other node factors stay unchanged.
-The dimension lost in the parent is restored by the new child coordinate.
+By \eqref{eq:restriction-volume}, restriction multiplies the parent
+volume by $f_x(c)$. Inserting the isolated vertex into the child replaces
+$K_u$ by $K_u\times(0,1)$, which has the same volume. The ratio of the
+products is therefore $f_x(c)$.
 \end{proof}
 
 Thus the refinement's volume gain is $g=\log f_x(c)$.

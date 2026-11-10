@@ -3,8 +3,9 @@
 Nicholas Nash · 10 November 2026 · ORCID [0009-0003-0475-7852](https://orcid.org/0009-0003-0475-7852)
 
 Section 1 states the main theorem and explains the derandomization
-problem. Section 2 reviews earlier adversaries. Section 3 describes the
-tree of item records and its comparison graphs, then gives the comparison,
+problem. Section 2 reviews earlier adversaries. Section 3 defines
+order-restriction DAGs, their canonical intervals, and coordinate
+restriction. It then assembles them into a tree and gives the comparison,
 repair, and refinement procedures. A failed comparison test supplies an
 interior anchor with large volume gain. A repair chooses its anchor
 separately and passes it to the same move operation.
@@ -15,13 +16,13 @@ with the answers. Unqueried labels can be inserted freely into each
 compatible order on queried labels, giving the prefix guarantee
 `log T_q >= log(n!) - (1 + O(log k/k))q`.
 
-Section 5 explains the finite sweeps and why the local endpoints agree
-exactly with the full-graph endpoints. Section 6 gives the finite horizon
-and chooses the parameters within a polynomial-time budget. Section 7
+Section 5 chooses the parameters within a polynomial-time budget. Section 6
 applies the prefix bound to partial-order production with vanishing
 relative error. A weak-order extension gives a supplied-poset guarantee
 of `(1-o(1))log e(P) - O(n log log n)` further comparisons.
-The appendices supply the quantitative estimates and corollary proofs.
+The appendices prove the independent DAG lemmas, construct the finite
+local calculations, and supply the quantitative estimates and corollary
+proofs. The tree-dependent child-admission argument remains in Section 3.
 
 The revision follows the mathematical and expository recommendations in
 [Simplify Paper Arguments](https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af20322-5238-83eb-8c1a-60fbea8e1d71).

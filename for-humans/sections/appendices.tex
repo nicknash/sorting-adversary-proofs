@@ -1,17 +1,40 @@
 \section{Canonical intervals and densities}\label{app:geometry}
 
-We first verify that normalization stores the full range of each
-coordinate without changing the feasible region. We then establish the
+We prove Lemma~\ref{lem:interior} for order-restriction DAGs. We then establish the
 density bounds used to choose anchors and analyse probability certificates.
 
-\begin{lemma}[Canonical intervals and sections]\label{lem:interior}
-Algorithm~\ref{alg:normalize} preserves the feasible region and its volume.
-After normalization, the region has positive volume if and only if all
-stored widths $r_x-\ell_x$ are positive. In that case $(\ell_x,r_x)$ is
-the projection of the region onto coordinate $x$, and fixing any
-$X_x=c\in(\ell_x,r_x)$ leaves a positive-volume section.
-\end{lemma}
-\begin{proof}
+\subsection{Normalization and restriction}
+
+\begin{algorithm}[H]
+\caption{\texttt{Normalize}$(D)$: propagate the interval bounds.}
+\label{alg:normalize}
+\DontPrintSemicolon
+\KwIn{An order-restriction DAG $D$.}
+\ForEach{vertex $x$ in topological order}{
+  $\ell_x\gets\max(\{\ell_x\}\cup\{\ell_y:y\to x\})$\;
+}
+\ForEach{vertex $x$ in reverse topological order}{
+  $r_x\gets\min(\{r_x\}\cup\{r_y:x\to y\})$\;
+}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{\texttt{Restrict}$(D,x,c)$: fix and remove a coordinate.}
+\label{alg:restrict}
+\DontPrintSemicolon
+\KwIn{A canonical order-restriction DAG $D$ with $V(D)>0$, a vertex $x$, and $c\in(\ell_x,r_x)$.}
+\ForEach{arc $y\to x$}{
+  $r_y\gets\min(r_y,c)$\;
+}
+\ForEach{arc $x\to z$}{
+  $\ell_z\gets\max(\ell_z,c)$\;
+}
+Delete $x$ and its incident arcs\;
+\texttt{Normalize}$(D)$\;
+\Return $D$\;
+\end{algorithm}
+
+\begin{proof}[Proof of Lemma~\ref{lem:interior}]
 Every propagated bound is already implied by an arc and an interval
 bound. A forward topological pass propagates every lower bound to all
 its successors; the reverse pass propagates every upper bound to all
@@ -29,9 +52,10 @@ increases this value, because $r_x>\ell_x$. Replacing the endpoints by
 $\ell_y,r_y$ cannot decrease it. Thus $X_x<X_y$, all interval bounds
 hold strictly, and a small open neighborhood is feasible.
 
-Now fix $X_x=c$ in the stored interval and delete its coordinate.
-Incident arcs impose the upper bound $c$ at its in-neighbors and the
-lower bound $c$ at its out-neighbors. Lower bounds propagate forward
+Now fix $X_x=c$ in the normalized interval and delete its coordinate.
+Every incident inequality becomes exactly the bound imposed by
+\texttt{Restrict}, while all other inequalities persist. This proves
+that the resulting region is the section at $c$. Lower bounds propagate forward
 and upper bounds backward. Any earlier lower bound that reached a
 successor through $x$ is superseded by $c>\ell_x$; any earlier upper
 bound that reached a predecessor through $x$ is superseded by $c<r_x$.
@@ -124,7 +148,8 @@ The case $s=t_0$ satisfies the same bound directly.
 \end{proof}
 
 \begin{lemma}[Coordinate density bounds]\label{lem:fiber}
-Suppose a node's feasible region has positive volume, and $x$ has at most
+Let $D$ be a canonical order-restriction DAG with $V(D)>0$, and suppose
+$x$ has at most
 $B$ other comparable coordinates and canonical interval $(\ell,r)$ of
 width $W$. Its density satisfies
 \begin{align}
@@ -154,7 +179,8 @@ $\omega$, so they also hold for $f_x$.
 \end{proof}
 
 \begin{lemma}[A bound for small differences]\label{lem:gap}
-Let $X$ be uniform on a positive-volume node region, and suppose $x$ has
+Let $X$ be uniform on $K(D)$ for a canonical order-restriction DAG
+$D$ with $V(D)>0$, and suppose $x$ has
 at most $B$ other comparable coordinates and canonical interval of width
 $W$. Let $Y$ be a fixed number or $X_y$ for any distinct free coordinate
 $y$. For every interval $I$ of length $a$,
@@ -224,6 +250,20 @@ $p f(s)\le f(c)$. Taking the supremum over both sides of $c$ proves the
 claim.
 \end{proof}
 
+\begin{lemma}[Density in a central interval]\label{lem:central-density}
+Let $X$ be uniform on $K(D)$ for an order-restriction DAG $D$ with
+$V(D)>0$. Suppose
+$J=[u,v]\subset(\ell_x,r_x)$ satisfies
+\[
+\Prb(X_x\le u)\ge\tfrac14,\qquad
+\Prb(X_x\in J)\ge\tfrac14,\qquad
+\Prb(X_x\ge v)\ge\tfrac14.
+\]
+Then, for every $c\in J$,
+\[
+f_x(c)\ge\frac1{16|J|}.
+\]
+\end{lemma}
 \begin{proof}[Proof of Lemma~\ref{lem:central-density}]
 Put $M=\sup_t f_x(t)$. The inside-mass condition gives $M|J|\ge1/4$.
 Every $c\in J$ has probability at least $1/4$ on each side, so

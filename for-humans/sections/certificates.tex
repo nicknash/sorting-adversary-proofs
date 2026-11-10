@@ -2,8 +2,8 @@
 
 We verify the central-interval routine and choose the finite calculation's
 parameters. The purpose of the calibration is to ensure that a failed
-certificate identifies a coordinate whose short interval makes a
-middle-half refinement profitable.
+certificate identifies a coordinate whose short interval gives a high density throughout its
+middle half.
 
 \subsection{The central-interval test}
 
@@ -29,7 +29,7 @@ queried coordinate. Define
 \begin{equation}\label{eq:comparable-bound}
 B=(k+1)^{2H+1}.
 \end{equation}
-In an node graph of degree at most $k$ and directed paths of at most
+In an order-restriction DAG of degree at most $k$ and directed paths of at most
 $2H$ vertices, every comparable coordinate lies within undirected distance
 $2H$. Thus $B$ bounds the number of other comparable coordinates.
 Set
@@ -40,11 +40,11 @@ This width calibrates the finite calculations. The algorithms test the
 computed certificates directly.
 
 \begin{lemma}[When certification succeeds]\label{lem:certificate-success}
-Suppose a node has positive feasible volume, its node graph has degree
-at most $k$, and its directed paths have at most $2H$ vertices.
-If any free coordinate involved in a comparison has interval width at
+Let $D$ be a canonical order-restriction DAG with dyadic interval bounds,
+$V(D)>0$, degree at most $k$, and directed paths of at most $2H$ vertices.
+If any coordinate involved in a comparison has interval width at
 least $w_*$, comparison certification succeeds. If $W_x\ge w_*$, then
-\textnormal{\texttt{CentralInterval}}$(v,x)$ succeeds.
+\textnormal{\texttt{CentralInterval}}$(D,x)$ succeeds.
 \end{lemma}
 
 \begin{proof}[Proof of Lemma~\ref{lem:certificate-success}]
@@ -58,7 +58,7 @@ d=k,\qquad h=2H,\qquad
 These parameters are fixed for the interaction. They do not depend on
 the queried widths.
 
-Suppose one queried free coordinate $x$ has $W_x\ge w_*$.
+Suppose one queried coordinate $x$ has $W_x\ge w_*$.
 If the computed intervals overlap and both have width at most $\delta$,
 the enclosed positions differ by at most $2\delta$.
 Lemma~\ref{lem:gap} therefore bounds the unresolved fraction by

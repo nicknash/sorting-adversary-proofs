@@ -76,7 +76,10 @@ estimate which answer retains more orders.
 \paragraph{Organization of this paper.}
 To motivate our adversary, we describe the earlier adversaries of Brodal et al. \cite{brodal}, and Kaplan et al \cite{kzz} in Section \ref{sec:related-work}.
 The core of our adversary is similar in spirit to these earlier adversaries, we describe this core in Section \ref{sec:overview}. We intend this to allow understanding the adversary operationally, with the technical details deferred.
-Next, Sections \ref{sec:potential} and \ref{sec:oracle} prove the key technical results relied upon in Section \ref{sec:overview}.
+Section~\ref{sec:potential} proves the comparison lower bound using the local
+guarantees stated in Section~\ref{sec:overview}. The appendices establish
+these guarantees for order-restriction DAGs and give their deterministic
+implementation.
 Section~\ref{sec:runtime} then spells out how to choose graph bounds as a function of $n$ to obtain polynomial running time.
 
 Lastly, Section~\ref{sec:consequences} states some immediate corollaries for sorting under partial information, as well as for efficient partial order production.
