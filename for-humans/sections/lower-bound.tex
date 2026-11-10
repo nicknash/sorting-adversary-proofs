@@ -92,7 +92,7 @@ A label stored at the root contributes one, so $\mathcal W$ is unchanged
 if the product is taken over only the queried labels.
 
 \begin{lemma}[Orders consistent with the transcript]\label{lem:packing}
-After a completed recursive call,
+After any of the first $Q(n)$ calls to \textnormal{\texttt{Compare}},
 \[
 T_q\ge n!(1-1/k)^s Z\mathcal W.
 \]
@@ -133,12 +133,12 @@ T_q\ge \bigl[s!(1-1/k)^s Z\mathcal W\bigr]\frac{n!}{s!}
 \subsection{The prefix bound}\label{sec:comparison-cost}
 
 \begin{proof}[Proof of Theorem~\ref{thm:fixed-stage}]
-In the recursive phase, legality and termination follow from
-Proposition~\ref{prop:legality}. After the horizon, the fixed ranks
-respect the recorded answers. For $q\ge Q(n)\ge\log(n!)$, the right
+For the first $Q(n)$ calls to \texttt{Compare}, legality and termination
+follow from Proposition~\ref{prop:legality}. Later calls use fixed ranks
+consistent with the recorded answers. For $q\ge Q(n)\ge\log(n!)$, the right
 side of \eqref{eq:prefix-orders} is nonpositive and $T_q\ge1$.
 
-For an earlier prefix put $d_k=-\log(1-1/k)$. Each refinement multiplies
+For $q<Q(n)$, put $d_k=-\log(1-1/k)$. Each refinement multiplies
 $\mathcal W$ by the weight of the child it enters. Its cost
 $\ell(c)=-\log w(c)$ satisfies
 \[

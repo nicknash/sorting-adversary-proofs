@@ -2,7 +2,8 @@
 
 The budget $E_k\le n$ bounds the number of digit assignments and their
 length. We verify that it also bounds their bit cost, and that the
-recursive state remains of polynomial size up to the comparison horizon.
+adversary's data structure remains of polynomial size during the first
+$Q(n)$ comparisons.
 Computation is measured on a fixed deterministic multitape Turing
 machine, with integers represented in binary.
 
@@ -61,10 +62,10 @@ chosen anchor, adding no precision.
 
 All initial endpoints are $0$ or $1$. After $P$ refinements, induction
 therefore gives $\Lambda\le P\log E_k$. By
-Lemma~\ref{lem:rare-refinements}, completed calls before the horizon
-account for $O(Q(n)/k)$ refinements. An unfinished call adds at most
-$n+2$ by Proposition~\ref{prop:legality}. Thus, throughout the recursive
-phase,
+Lemma~\ref{lem:rare-refinements}, the first $Q(n)$ completed calls to
+\texttt{Compare} account for $O(Q(n)/k)$ refinements. An unfinished call
+adds at most $n+2$ by Proposition~\ref{prop:legality}. Thus, during these
+first $Q(n)$ calls,
 \begin{equation}\label{eq:refinement-runtime}
 P=O\bigl(Q(n)/k+n\bigr),
 \end{equation}
@@ -77,7 +78,7 @@ $\log E_k$ digits.
 
 \subsection{Inventory and work per call}
 
-Each refinement creates at most one recursive-tree node. There are thus
+Each refinement creates at most one node in the adversary's tree. There are thus
 at most $P+1$ nodes, $n$ item records, and at most $P$ stored child anchors.
 An item belongs to exactly one node graph, so their total numbers of
 vertices and arcs are at most $n$ and $n^2$, respectively. The recorded
@@ -105,7 +106,7 @@ The remaining work is polynomial in the stored graph size. Topological
 passes normalize intervals and compute directed-path lengths. A finite
 graph search finds each retained neighborhood; it stops when either the
 prescribed radius or all available vertices have been reached. Routing
-uses the recursive tree, and deterministic choices can be made by scanning
+uses the adversary's tree, and deterministic choices can be made by scanning
 labels. At the horizon, topologically sorting the bounded transcript DAG
 produces the fixed ranks for all later answers. Thus the bit-operation
 bound has a fixed exponent, independent of $k$ and of the number of
