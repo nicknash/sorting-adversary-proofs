@@ -28,23 +28,16 @@ target, such that the adversary of Theorem~\ref{thm:main} forces every
 correct comparison algorithm producing an $n$-element partial order $R$
 to make at least
 \[
-(1-\varepsilon_n)I(R)-\varepsilon_n n
+(1-\varepsilon_n)I(R)
 \]
 comparisons. The adversary is initialized using only $n$ and works for
 every target $R$.
 \end{corollary}
 
-The proof counts represented orders after every completed comparison.
-At a successful production leaf, all these orders must respect the
-algorithm's chosen assignment, so at most $e(R)$ can remain. A small
-change to the counting experiment reduces its additive loss from $n$ to
-$o(n)$; the adversary itself is unchanged.
-
-Thus the adversary forces a $1-o(1)$ fraction of $I(R)$ whenever
-$I(R)=\Omega(n)$. Its leading term matches Cardinal et al.'s upper bound
-when $I(R)=\omega(n)$. For smaller information bounds, the task can require
-many more comparisons: producing a minimum has $I(R)=\log n$, while
-finding it requires $n-1$ comparisons.
+Its leading term matches Cardinal et al.'s upper bound when
+$I(R)=\omega(n)$. The information bound can be smaller than the task's
+comparison complexity. For example, producing a minimum has
+$I(R)=\log n$ and requires $n-1$ comparisons.
 
 \subsection{Sorting from supplied partial information}
 
@@ -74,10 +67,8 @@ chosen from the total size $n$, so the guarantee also covers small layers.
 
 The comparison bound approaches $\log e(P)$ when
 $\log e(P)=\omega(n\log\log n)$. Kahn and Kim's adversary already forces
-$\Omega(\log e(P))$ for every $P$; the improvement here is the coefficient
-approaching one in this regime. Appendix~\ref{sec:production-initialization}
-also gives a direct initialization using partial-order production, with
-an additive $o(n\log n)$ loss.
+$\Omega(\log e(P))$ for every $P$. The improvement here is the
+coefficient approaching one in this regime.
 
 \subsection{Preserving small amounts of remaining uncertainty}
 

@@ -46,7 +46,7 @@ another $\log E_k$ digits.
 
 Each refinement creates at most one recursive-tree node. There are thus
 at most $P+1$ nodes, $n$ item records, and at most $P$ stored child anchors.
-An item belongs to exactly one in-node DAG, so their total numbers of
+An item belongs to exactly one node graph, so their total numbers of
 vertices and arcs are at most $n$ and $n^2$, respectively. The recorded
 prefix contains at most $Q(n)$ comparisons. Labels, pointers, depths,
 and counters have polynomial length, as do all dyadic endpoints by
@@ -63,10 +63,10 @@ using the same bounded-precision integers. Standard binary arithmetic
 therefore gives a fixed polynomial bound for each operation.
 
 Before selecting an answer, a call makes at most two failure refinements
-and three calls to \texttt{Certify}. Failure refinements use the middle
+and three calls to \texttt{Select}. Failure refinements use the middle
 half directly. After recording the answer, the single structural repair
 makes at most $n$ refinements and hence at most $n$ calls to
-\texttt{CentralInterval}.
+\texttt{ChooseAnchor}.
 
 The remaining work is polynomial in the stored graph size. Topological
 passes normalize intervals and compute directed-path lengths. A finite

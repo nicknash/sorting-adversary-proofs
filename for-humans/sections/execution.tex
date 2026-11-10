@@ -1,121 +1,102 @@
-\section{Refinement and consistency}\label{app:execution}
+\section{Selection guarantees and state updates}\label{app:execution}
 
-\subsection{The refinement cost guarantee}\label{app:refinement-guarantees}\label{sec:refinement-guarantee}
+\subsection{Rounding an anchor}\label{sec:median-search}
+For a nondegenerate closed interval $J=[u,v]\subset(0,1)$, choose the
+largest power-of-two spacing $h$ no greater than its length. The routine
+\texttt{RoundUp} rounds $u$ up to a multiple of $h$:
+\begin{equation}\label{eq:round-up}
+h=2^{-r},\qquad h\le|J|<2h,\qquad
+c=h\ceil{u/h}.
+\end{equation}
 
-We prove Lemma~\ref{lem:refinement-cost}. The successful central choice
-was analysed in \eqref{eq:certified-anchor}; the remaining case chooses
-an anchor in the middle half of the coordinate's interval.
+\begin{lemma}[Rounding to a binary fraction]\label{lem:rounding}
+The value $c$ returned by \textnormal{\texttt{RoundUp}}$(J)$ belongs to $J$.
+Writing $c=(2i+1)/2^{m+1}$ in reduced form, it satisfies
+\begin{equation}\label{eq:rounding-length}
+|J|<2^{-m}.
+\end{equation}
+\end{lemma}
+\begin{proof}
+The rounded value obeys $u\le c<u+h\le v$, so $c\in J$.
+The choice of spacing gives $h\le|J|<2h$.
+Reduction of the fraction cannot increase its denominator, so
+$m+1\le r$ and $|J|<2h\le2^{-m}$.
+\end{proof}
 
-\begin{proof}[Proof of Lemma~\ref{lem:refinement-cost}]
-The in-node DAG bounds ensure that the number of other coordinates
-comparable with $x$ is at most $B$ from \eqref{eq:comparable-bound}.
-Suppose the routine uses the middle-half interval. Either comparison
-certification failed, or a structural refinement's call to
-\texttt{CentralInterval} failed. In both cases,
-Lemma~\ref{lem:certificate-success} gives $W_x<w_*=2^{-2kB}$.
-Write $L=\log(1/W_x)>2kB$. The coordinate-density bound
-\eqref{eq:fiber-lower} and the refinement identity give
+\begin{lemma}[Density in a central interval]\label{lem:central-density}
+Let $X$ be uniform on a positive-volume node region. Suppose
+$J=[u,v]\subset(\ell_x,r_x)$ satisfies
 \[
-g=\log f_x(c)\ge L-2B.
+\Prb(X_x\le u)\ge\tfrac14,\qquad
+\Prb(X_x\in J)\ge\tfrac14,\qquad
+\Prb(X_x\ge v)\ge\tfrac14.
 \]
-Since the rounded interval has length $W_x/2$,
-Lemma~\ref{lem:rounding} gives $m<L+1$. Consequently
+Then, for every $c\in J$,
+\[
+f_x(c)\ge\frac1{16|J|}.
+\]
+\end{lemma}
+
+
+\begin{proof}[Proof of Lemma~\ref{lem:local-routines}]
+The interval comparisons in Section~\ref{sec:oracle} certify lower
+probability bounds. If the larger bound is at least $1/2-\eta$,
+\texttt{Select} returns its answer, breaking a tie in favor of the
+first queried label. On failure it rounds in the middle half of a
+queried free coordinate's interval. For \texttt{ChooseAnchor}, a successful
+central test supplies the interval to round. On failure it too rounds
+in the middle half.
+
+For a successful central test, Lemma~\ref{lem:central-density} gives
+$f_x(c)\ge 1/(16|J|)$. By Lemma~\ref{lem:rounding} and the refinement
+identity, $g=\log f_x(c)>m-4$. For either type of failed test,
+Lemma~\ref{lem:certificate-success} gives $W_x<w_*=2^{-2kB}$ for the
+selected coordinate. Write $L=\log(1/W_x)>2kB$. The density estimate
+\eqref{eq:fiber-lower} gives $g\ge L-2B>k$ throughout the middle half.
+That interval has length $W_x/2$, so $m<L+1$ by
+Lemma~\ref{lem:rounding}. Thus
 \[
 g\ge L-2B>(1-1/k)L>(1-1/k)m-4.
 \]
-The central choice satisfies the same final bound, by
-\eqref{eq:certified-anchor}. Thus in every case
-\begin{equation}\label{eq:tariff}
-g\ge(1-1/k)m-4.
-\end{equation}
-In particular $g+4\ge0$.
-If the refinement follows failed comparison certification, it uses the
-middle half directly and has
-\begin{equation}\label{eq:failure-gain}
-g\ge L-2B>2B(k-1)>k.
-\end{equation}
-Both choices return an interior dyadic anchor and terminate.
-
-Combining \eqref{eq:tariff} with the child cost
-\eqref{eq:anchor-cost} gives
-\[
-\ell(c)\le\frac{\gamma}{1-1/k}(g+4)+\log k+1.
-\]
-For $k\ge64$, the estimate
-$-\log(1-1/k)\le1/((k-1)\ln2)\le3/(2k)$ gives
-$\gamma/(1-1/k)\le1+3/k$. Set
-\[
-a=1+\frac3k,\qquad b=4a+\log k+1.
-\]
-Because $g+4\ge0$, increasing its coefficient to $a$ preserves the
-inequality. Thus $\ell(c)\le ag+b$, including when $g$ is negative.
-The coefficients have $a=1+O(1/k)$ and $b=O(\log k)$, with
-$a\ge1$ and $1\le b\le\log k+6<k+1$. For $k\ge64$, they also
-satisfy $a\le3/2$ and $b\le k/4$, since $\log k+6\le k/4$.
+Both intervals used for rounding lie strictly inside the coordinate's
+range. The enumeration bound comes from Theorem~\ref{thm:local}.
+Appendix~\ref{app:arithmetic} bounds the precision of the rounded
+endpoints by $\Lambda+\log E_k$.
 \end{proof}
+
+\subsection{Record updates}
+
+\begin{algorithm}[H]
+\caption{\texttt{Normalize}$(v)$: propagate interval bounds through the in-node DAG.}
+\label{alg:normalize}
+\DontPrintSemicolon
+\KwIn{A node $v$ whose arcs or interval bounds have changed.}
+\ForEach{vertex $x$ in topological order}{
+  $\ell_x\gets\max(\{\ell_x\}\cup\{\ell_y:y\to x\})$\;
+}
+\ForEach{vertex $x$ in reverse topological order}{
+  $r_x\gets\min(\{r_x\}\cup\{r_y:x\to y\})$\;
+}
+\end{algorithm}
 
 \subsection{Consistency and termination}
 
-We first justify admission to an existing child, then verify consistency
-through an entire comparison call. Assignments with equal free
-coordinates, or with a free coordinate equal to an anchor, form a finite
-union of sets of volume zero. They are excluded when reading a total
-order from the state.
-
-\begin{proof}[Proof of Lemma~\ref{lem:admission}]
-Consider first an existing child at $c$, and denote its label set by $S$.
-Choose a feasible assignment in the parent section $X_x=c$, with the other
-free coordinates pairwise distinct and different from every child anchor.
-Such an assignment exists by Lemma~\ref{lem:interior}. Also choose feasible
-assignments in the other nodes.
-
-There is a positive distance from $c$ to every other child anchor and
-every free parent coordinate in this assignment. All incident inequalities at $x$ are strict. Thus, with
-everything else fixed, $x$ can be moved slightly to either side of $c$
-while keeping the old state feasible. The resulting two represented orders
-place $x$ immediately before or immediately after the entire block $S$.
-Both orders respect the transcript. For each $y\in S$, one has $x<y$ and
-the other has $y<x$; neither relation can therefore be implied by the
-transcript.
-
-Now take any order represented after the refinement. Deleting $x$ from the
-child leaves an assignment of its old coordinates and hence an old child
-order. Apply the preceding perturbation using this assignment's parent
-coordinates and old child coordinates. It gives two feasible old orders
-that agree with the new one on every label except $x$. The new order
-inserts $x$ somewhere into their child block. No
-answered comparison joins $x$ to a label in $S$, so this insertion violates
-none of them. Relative to every label outside $S\cup\{x\}$, the whole
-block occupies the old anchor position. The item $x$ is consequently on
-the same side of each outside label as in either of the two feasible old
-orders above. Comparisons between other labels are unchanged. The new
-order therefore respects the entire transcript.
-
-If there was no child at $c$, the same argument uses an empty block: the
-new singleton child places $x$ where its fixed parent coordinate stood.
-Finally, the remaining parent region is a positive-volume section, and
-the child receives an independent coordinate in $(0,1)$. All node regions
-remain positive.
-\end{proof}
-
-
 \begin{proof}[Proof of Proposition~\ref{prop:legality}]
 Initially every node has positive volume, every order is represented,
-and the strict in-node DAG bounds hold. We induct over completed calls
+and the strict node graph bounds hold. We induct over completed calls
 and, within each call, over its changes to the state.
 
 Before answering, a refinement deletes one vertex and adds an isolated
 vertex to a child, so the strict DAG bounds continue to hold. The anchor
 routine returns an interior position, as proved in
-Appendix~\ref{app:refinement-guarantees}. Lemma~\ref{lem:admission}
+Lemma~\ref{lem:local-routines}. Lemma~\ref{lem:admission}
 preserves positive node volumes and consistency with the transcript.
 Normalization preserves the represented region by
 Lemma~\ref{lem:interior}.
 
 If the queried labels lie in different child subtrees, their anchors
 determine the answer in every represented order. Otherwise, the
-acceptance test in Algorithm~\ref{alg:compare} and
-Lemma~\ref{lem:estimation} ensure that the chosen answer retains at least
+answer guarantee in Lemma~\ref{lem:local-routines} ensure that the chosen answer retains at least
 $1/2-\eta>0$ of its node's volume. Recording its arc or interval bound
 therefore preserves positive volume and makes the answer true in every
 represented order. A new arc cannot create a cycle, since that would

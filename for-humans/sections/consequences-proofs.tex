@@ -1,90 +1,22 @@
 \section{Proofs of the consequences}\label{app:consequences}
 
-We first strengthen the count of orders remaining after any comparison
-prefix. This gives the production corollary. We then use an ordered
-partition supplied by Cardinal et al. to handle initial partial
-information, and give an alternative initialization through production.
-
-\subsection{Orders remaining after a comparison prefix}
-
-Rescaling the weights used in the counting experiment of
-Section~\ref{sec:movement-volume} leaves the adversary and all refinement
-estimates unchanged. Reducing the chance of entering a child
-increases the chance of stopping at the required storage node. This
-reduces the loss incurred once per item, at an additional cost each time
-an item moves. Lemma~\ref{lem:rare-refinements} bounds how often that cost
-is incurred.
-
-\begin{lemma}[Orders remaining after any prefix]\label{lem:prefix-orders}
-For every sufficiently large fixed $k$, put
-$d_k=-\log(1-1/k)=O(1/k)$. There is a nonnegative
-$\delta_k=O(\log k/k)$ such that, after any $q$ completed calls in the
-recursive phase, the number $N_{\rm ord}$ of represented orders satisfies
-\begin{equation}\label{eq:prefix-orders}
-\log N_{\rm ord}\ge\log(n!)-nd_k-(1+\delta_k)q.
-\end{equation}
-The constants are independent of $n$ and of the comparison sequence.
-\end{lemma}
-\begin{proof}
-Use the same experiment as in Lemma~\ref{lem:packing}, with child weights
-\[
-\widetilde w(c)=\frac2k w(c).
-\]
-The total child weight is at most $1/k$, so the stopping probability at
-each node is at least $1-1/k$. Let $M$ be the number of refinements, and
-let $\widetilde{\mathcal W}$ be the product of these new weights along
-all item paths. The argument of Lemma~\ref{lem:packing} gives
-\[
-N_{\rm ord}\ge n!(1-1/k)^n Z\widetilde{\mathcal W},
-\qquad
--\log\widetilde{\mathcal W}
-=\sum_r\ell(c_r)+M\log(k/2).
-\]
-Summing the unchanged refinement estimate \eqref{eq:affine-cost} and
-using \eqref{eq:total-refinement-gain} yields
-\[
-\sum_r\ell(c_r)\le a\log Z+aa_\eta q+bM.
-\]
-Consequently
-\[
-\log N_{\rm ord}\ge
-\log(n!)-nd_k+(1-a)\log Z-aa_\eta q
--\bigl(b+\log(k/2)\bigr)M.
-\]
-Here $(1-a)\log Z\ge0$, $aa_\eta=1+O(1/k)$,
-$b=O(\log k)$, and $M=O(q/k)$ by
-Lemma~\ref{lem:rare-refinements}. These bounds prove
-\eqref{eq:prefix-orders} with a nonnegative $\delta_k=O(\log k/k)$.
-\end{proof}
-
 \subsection{Producing a target order}
 
 \begin{proof}[Proof of Corollary~\ref{cor:production}]
-For sufficiently large $n$, let $k=k(n)$ be the parameter selected in
-Section~\ref{sec:parameter-selection}. If the production algorithm reaches
-the horizon $Q(n)$, then it has made at least $n\log n\ge I(R)$ comparisons.
-Otherwise it finishes after $q<Q(n)$ completed calls. Its output assigns
-each key to one slot of $R$. Correctness requires that every total order
-consistent with its comparison transcript respect this assignment.
-Exactly $e(R)$ total orders respect the assignment, and all represented
-orders are consistent with the transcript. Thus $N_{\rm ord}\le e(R)$, and
-Lemma~\ref{lem:prefix-orders} gives
-\begin{equation}\label{eq:production-bound}
-q\ge\frac{I(R)-nd_{k(n)}}{1+\delta_{k(n)}}.
-\end{equation}
-Both $d_{k(n)}$ and $\delta_{k(n)}$ tend to zero. Taking
-$\varepsilon_n=\max\{d_{k(n)},\delta_{k(n)}\}$ and using
-$(1+\delta)^{-1}\ge1-\delta$ gives the stated bound. Set
-$\varepsilon_n=1$ for the finitely many smaller input sizes, making their
-bound nonpositive. These choices are independent of $R$. The adversary's
-legality and running time are those of Theorem~\ref{thm:main}.
+A successful output assigns each key to one slot of $R$. Every total
+order satisfying the transcript must respect this assignment, so
+$T_q\le e(R)$. Apply Theorem~\ref{thm:fixed-stage} with the parameter
+$k=k(n)$ selected in Section~\ref{sec:parameter-selection}. It gives
+$q\ge I(R)/(1+\delta_{k(n)})$. Take
+$\varepsilon_n=\delta_{k(n)}/(1+\delta_{k(n)})$ when a parameter
+qualifies and $\varepsilon_n=1$ otherwise. Since $k(n)\to\infty$,
+$\varepsilon_n\to0$, uniformly over targets.
 \end{proof}
 
 \subsection{A compatible partition into layers}
 
 The reduction for an initial partial order needs an ordered partition
-whose layers retain many permutations. We use the following consequence
-of Cardinal et al.'s construction.
+whose layers retain many permutations. Cardinal et al.'s construction gives such a partition.
 
 \begin{lemma}[Weak-order extension]\label{lem:weak-order-extension}
 Given a partial order $P$ on $n$ elements, one can deterministically
@@ -103,6 +35,7 @@ I(W)\le I(P)+2n\log\bigl(I(P)/n+1\bigr)+O(n).
 Since $I(P)\le\log(n!)\le n\log n$, the extra term is
 $O(n\log\log n)$. Substitute
 $I(W)-I(P)=\log e(P)-\log e(W)$.
+For two elements, take $W=P$.
 \end{proof}
 
 An arbitrary partition into antichains need not admit a compatible layer
@@ -125,63 +58,27 @@ At termination, each layer must have a unique possible order: two possible
 orders in one layer, combined with the same orders in the others, would
 give two global orders consistent with the full transcript.
 
-Let $q_i$ count comparisons within layer $i$. If its horizon is reached,
-$q_i\ge m_i\log m_i\ge\log(m_i!)$. Otherwise
-Lemma~\ref{lem:prefix-orders}, with $N_{\rm ord}=1$, gives
+Let $q_i$ count comparisons within layer $i$. Theorem~\ref{thm:fixed-stage}
+applies to the local transcript with $T_{q_i}=1$ and gives
 \[
-q_i\ge\frac{\log(m_i!)-m_i d_k}{1+\delta_k}.
+q_i\ge\frac{\log(m_i!)}{1+\delta_k}.
 \]
-This inequality also holds for a singleton and for a layer whose horizon
-was reached. Since $\sum_i m_i=n$ and $e(W)=\prod_i m_i!$, summing gives
+The inequality also holds for a singleton. Since $\sum_i m_i=n$ and
+$e(W)=\prod_i m_i!$, summing gives
 \begin{align*}
 q\ge\sum_i q_i
-&\ge\frac{\log e(W)-nd_k}{1+\delta_k}\\
-&\ge\frac{\log e(P)-C_0 n\log\log n-nd_k}{1+\delta_k}.
+&\ge\frac{\log e(W)}{1+\delta_k}\\
+&\ge\frac{\log e(P)-C_0 n\log\log n}{1+\delta_k}.
 \end{align*}
 As $k(n)\to\infty$, this implies the stated bound, uniformly over $P$.
 
 The common choice of $k(n)$ is essential to this estimate: each layer
-has the same $d_k$ and $\delta_k$, even when its size stays small.
+has the same $\delta_k$, even when its size stays small.
 It also preserves polynomial time in $n$. Each finite calculation
 enumerates at most $E_k\le n$ assignments. Across all layers, the horizons
 sum to at most $n\ceil{\log n}$, and the refinement and precision bounds
 of Section~\ref{sec:runtime} apply with the ambient size $n$.
-The construction of $W$ is polynomial-time as well. If the parameter
-selection produces no eligible tuple, use a fixed topological order of
-$P$; enlarging the absolute error constant covers these finitely many
-input sizes.
+The construction of $W$ is polynomial-time as well. For the finitely
+many sizes at which no tuple qualifies, use a fixed topological order of
+$P$.
 \end{proof}
-
-\subsection{Initialization by partial-order production}\label{sec:production-initialization}
-
-There is also a direct way to initialize from $P$, using a production
-algorithm as a black box. It gives the bound
-\[
-q\ge\log e(P)-r(n),\qquad r(n)=o(n\log n),
-\]
-with one function $r$ for all $n$-element initial orders.
-
-Run Cardinal et al.'s deterministic production algorithm on target $P$,
-answering its comparisons with our ordinary adversary on temporary keys.
-Its comparison phase uses the deterministic multiple-selection algorithm
-of Kaligosi et al.~\cite{multiple-selection}.
-The producer returns an assignment of those keys to the elements of $P$.
-Save the adversary's state. Translate each subsequent query through this
-assignment and continue the same adversary. Every order consistent with
-the initialization transcript respects the returned assignment, so all
-later answers are legal for $P$.
-
-The producer followed by any correct sorter for $P$ is a correct ordinary
-sorting algorithm. Write the ordinary adversary's guarantee as
-$\log(n!)-s(n)$, where $s(n)=o(n\log n)$. The production upper bound
-\cite[Theorem~4]{cardinal-production} gives
-$U(P)\le I(P)+u(n)$ with $u(n)=o(n\log n)$ independent of $P$:
-for each fixed $\delta>0$ its bound is at most
-$(1+\delta)I(P)+C_\delta n$, and $I(P)\le n\log n$.
-Subtracting the initialization comparisons gives
-\[
-q\ge\log(n!)-s(n)-U(P)
-\ge\log e(P)-s(n)-u(n).
-\]
-Both the initialization and every subsequent response take polynomial
-time. This construction needs no computation of $e(P)$.

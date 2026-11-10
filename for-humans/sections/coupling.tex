@@ -1,16 +1,13 @@
 \section{Why the enclosing intervals become narrow}\label{app:coupling}
 
-The enclosure part of Theorem~\ref{thm:local} was proved in
-Section~\ref{sec:oracle}. Here we bound the fraction of digit sequences
-that leave a wide interval at a queried coordinate. We compare the lower
-and upper calculations with each other. Their initial widths are at
-most one, and their boundary values stay fixed.
-For the analysis, choose each interior digit independently and uniformly;
-each enumerated sequence then has probability $1/N$.
+We analyse lower and upper calculations on the full graph, with a
+fresh independent uniform digit at every vertex in every sweep. By
+Section~\ref{sec:finite-dependence}, the queried endpoints have the
+same distribution as those in the finite local list.
 
 \subsection{The decrease after one sweep}
 Write $\Delta_z=B_z-A_z$. Superscripts old and new refer to the start
-of a sweep and the value after a coordinate's update. For an interior
+of a sweep and the value after a coordinate's update. For a
 vertex $z$, the shared digit $j_z$ gives
 \begin{equation}\label{eq:local-coupling}
 \Delta_z^{\rm new}\le
@@ -20,8 +17,7 @@ vertex $z$, the shared digit $j_z$ gives
 \end{equation}
 with an empty maximum equal to zero. The stored interval bounds in the two calculations are identical.
 
-Let $B_h(z)$ be the vertices at undirected distance at most $h$ from $z$,
-and suppose they are all interior vertices. Put
+Let $B_h(z)$ be the vertices at undirected distance at most $h$ from $z$. Put
 $D=\max_{u\in B_h(z)}\Delta_u^{\rm old}$ and
 $a_u=(S-1-j_u)/S$. At $z$, \eqref{eq:local-coupling} gives
 \[
@@ -48,41 +44,6 @@ them. Put $\beta=1-S^{-h}$. Consequently,
 \beta,&\text{otherwise}.
 \end{cases}
 \end{equation}
-
-\subsection{Averaging powers of the widths}
-
-We must control a maximum over several earlier widths. Taking a power
-and bounding the maximum by a sum makes this possible when the expected
-contraction is strong enough. The following lemma also allows the set of
-vertices under consideration to shrink after each sweep.
-
-\begin{lemma}[Averaging contraction]\label{lem:moment-contraction}
-Let $V_0\supseteq\cdots\supseteq V_t$, and let nonnegative quantities
-$D_z(s)$ be determined by the first $s$ sweeps. Suppose $D_z(0)\le1$
-and, for $z\in V_s$, there are nonnegative multipliers $\kappa_z(s)$ with
-\[
-D_z(s)\le\kappa_z(s)\max_{u\in N(z)}D_u(s-1),
-\qquad N(z)\subseteq V_{s-1},\quad 1\le|N(z)|\le M.
-\]
-If, for an integer $p\ge1$, the conditional expectation of
-$\kappa_z(s)^p$ given all earlier sweeps is at most $1/(2M)$,
-then for $z\in V_s$ and every $\delta>0$,
-\begin{equation}\label{eq:local-interior-error}
-\E D_z(s)^p\le2^{-s},\qquad
-\Prb(D_z(s)>\delta)\le2^{-s}\delta^{-p}.
-\end{equation}
-\end{lemma}
-\begin{proof}
-The old widths are fixed when conditioning on the earlier sweeps.
-Since the maximum of their $p$-th powers is at most their sum,
-\[
-\E D_z(s)^p
-\le\frac1{2M}\sum_{u\in N(z)}\E D_u(s-1)^p
-\le\frac12\max_{u\in N(z)}\E D_u(s-1)^p.
-\]
-Induction gives the moment bound. The probability bound follows by
-Markov's inequality.
-\end{proof}
 
 \subsection{Choosing the parameters}
 
@@ -117,18 +78,19 @@ These choices are computable: $0<\beta<1$, and both tests compare rational
 numbers. Retain radius $\rho$ around the queried set $T$, freezing the
 outer boundary as in Algorithm~\ref{alg:finite-digits}.
 
-For $0\le s\le t$, let $V_s$ consist of the vertices at distance at most
-$h(t-s)$ from $T$. If $z\in V_s$ and $s\ge1$, then
-$B_h(z)\subseteq V_{s-1}$. Every vertex in these sets has distance at
-most $ht<\rho$ from $T$, so all the updates used by the one-sweep
-inequality occur in the interior. Lemma~\ref{lem:moment-contraction}
-therefore applies to $D_z(s)=\Delta_z(s)$ and $N(z)=B_h(z)$.
-At the queried vertices, which form $V_t=T$, it gives
+The widths before sweep $s$ are fixed when we condition on earlier
+sweeps. Raising \eqref{eq:local-one-sweep} to the power $p$, bounding
+the maximum by a sum, and taking expectations gives
 \[
-\Prb(\Delta_z(t)>\delta)\le2^{-t}\delta^{-p}\le\alpha/r.
+\E\Delta_z(s)^p
+\le\frac1{2M}\sum_{u\in B_h(z)}\E\Delta_u(s-1)^p.
 \]
-A union bound over at most $r$ queried coordinates proves the width
-guarantee of Theorem~\ref{thm:local}.
+All initial widths are at most one and $|B_h(z)|\le M$. Induction
+gives $\E\Delta_z(s)^p\le2^{-s}$ for every vertex. At sweep $t$,
+Markov's inequality gives
+$\Prb(\Delta_z(t)>\delta)\le2^{-t}\delta^{-p}\le\alpha/r$.
+A union bound over the at most $r$ queried positions proves the width
+guarantee.
 
 Each radius-$\rho$ neighborhood has at most
 $1+d+\cdots+d^\rho\le(d+1)^{\rho+1}$ vertices. We may therefore use

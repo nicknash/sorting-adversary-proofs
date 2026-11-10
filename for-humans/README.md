@@ -2,66 +2,30 @@
 
 Nicholas Nash · 10 November 2026 · ORCID [0009-0003-0475-7852](https://orcid.org/0009-0003-0475-7852)
 
-The current manuscript presents the unit-interval adversary with finite
-coordinate updates on bounded neighborhoods. Section 1 introduces the
-derandomization problem, and Section 2 reviews the earlier adversaries.
-Section 3 gives the tree of item records and in-node DAGs, the comparison
-procedure, and the operations that refine items and propagate bounds.
+Section 1 states the main theorem and explains the derandomization
+problem. Section 2 reviews earlier adversaries. Section 3 describes the
+tree of item records and its comparison graphs, then gives the comparison,
+repair, and refinement procedures. A failed comparison test supplies an
+interior anchor with large volume gain. A repair chooses its anchor
+separately and passes it to the same move operation.
 
-The adversary selects and records an answer, then performs at most one
-structural repair. A newly inserted arc can create a long path or raise
-an endpoint's degree; removing that arc as part of the repair restores
-both graph bounds. Before the answer, only the queried items can be
-refined, at most once each. A full call makes at most `n+2` refinements.
+Section 4 proves that refinements are rare by counting the binary
+denominators in a path repair. It then counts the total orders consistent
+with the answers. Unqueried labels can be inserted freely into each
+compatible order on queried labels, giving the prefix guarantee
+`log T_q >= log(n!) - (1 + O(log k/k))q`.
 
-Section 4 explains the volume gained by refinement, counts the orders
-represented by a state, and proves that refinements are rare: there are
-only `O(q/k)` moves after `q` completed calls. This gives the optimal
-comparison bound without separate charging coefficients. Section 5 chooses
-anchors by rounding to a binary grid, proves the one-arc repair property,
-and explains why answer selection stops after at most two moves.
+Section 5 explains the finite sweeps and why the local endpoints agree
+exactly with the full-graph endpoints. Section 6 gives the finite horizon
+and chooses the parameters within a polynomial-time budget. Section 7
+applies the prefix bound to partial-order production with vanishing
+relative error. A weak-order extension gives a supplied-poset guarantee
+of `(1-o(1))log e(P) - O(n log log n)` further comparisons.
+The appendices supply the quantitative estimates and corollary proofs.
 
-Section 6 explains the finite updates, their preservation of the uniform
-distribution, and the enclosing intervals that certify comparisons.
-Section 7 combines a finite horizon, a clocked parameter search, and the
-budget `E_k <= n` to obtain uniform polynomial time. The appendices give
-the normalization and density proofs, local contraction, certificate
-calibration, refinement and consistency details, and arithmetic bounds.
-
-Section 8 states two corollaries: partial-order production with a
-vanishing relative error and an additive `o(n)` loss, and sorting from
-supplied partial information with a vanishing relative error and an
-additive `O(n log log n)` loss. Appendix G proves them. Rescaling the
-counting weights reduces the once-per-item loss without changing the
-adversary. A compatible weak-order extension supplies the stronger
-initial-poset guarantee; a second construction initializes the adversary
-by running a partial-order producer against it and then continuing from
-the saved state, with an additive `o(n log n)` loss.
-
-These additions incorporate
-[Completed Codex Guide](https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af2e3ac-2854-83ed-8a06-6625e70d1318)
-and [Corollary Guide Writing](https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af2e39a-0fac-83eb-8a0f-4a120e37ce4b).
-They retain the additive losses and leave a uniform relative guarantee
-for all initial partial orders as an open question. Related work includes
-the recent explicit-DAG sorting results and distinguishes the oracle and
-geometric models.
-
-The core construction follows the proposal in
-[Simplify Paper Arguments](https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af20322-5238-83eb-8c1a-60fbea8e1d71),
-based on commit `d0da5c2`. It removes the implicit anchor tree, shortest-anchor
-search, mixed comparison-failure/central-success branch, and the lambda/sigma
-accounting. Stored intervals now give each coordinate's full feasible range;
-normalization preserves the region exactly. Failed comparison certificates
-use the middle half directly, while structural refinements first try a
-central-interval certificate. The same rarity lemma also improves the stored
-precision bound to `O(n log² n)`.
-
-The abstract, disclosure, and all figures except the obsolete anchor-tree
-diagram are unchanged. Sections 1 and 3 receive the changes needed for the
-revised algorithm, representation, and roadmap. Section 1 now states the
-information-theoretic lower bound explicitly, citing Knuth. Section 2 adds
-Fredman's bound for sorting from a family of possible orders and its
-connection to Kahn and Kim's polynomial-time algorithm.
+The revision follows the mathematical and expository recommendations in
+[Simplify Paper Arguments](https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af20322-5238-83eb-8c1a-60fbea8e1d71).
+The retained KZZ lattice figure illustrates the intermediate child ranges.
 
 - [Current paper](output/pdf/paper.pdf)
 - `paper.tex`: title, approved abstract, methodological disclosure, and section inputs
@@ -86,8 +50,9 @@ Lean files, and the precompiled PDF.
 The exact-rational diagnostics check the charging inequalities, continuous
 moments of the finite digit update, binary-grid rounding, middle-half
 precision, and interval certificates against small-instance probabilities.
-The accounting checks also cover the rescaled child weights and their
-additional cost for mixtures with signed refinement gains.
+The accounting checks cover rarity, the stopping charge for queried labels,
+and free insertion of untouched labels. Exact endpoint calculations check
+locality with frozen boundaries and different topological tie orders.
 A separate exhaustive diagnostic checks repair after one inserted arc on
 DAGs with at most five vertices, including every eligible repair choice.
 Small examples retain every digit sequence with its multiplicity. Independent volume

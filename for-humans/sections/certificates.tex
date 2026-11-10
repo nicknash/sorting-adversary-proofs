@@ -14,7 +14,6 @@ coordinate is interior, so $N/4$ is an integer. Return \texttt{FAIL} if
 $u\ge v$ or fewer than $N/4$ list intervals lie wholly in $[u,v]$.
 Otherwise return $[u,v]$.
 
-\begin{proof}[Proof of Lemma~\ref{lem:central-interval}]
 At least $N/4$ intervals end at or below $u$, and at least $N/4$ begin
 at or above $v$. On success, at least $N/4$ intervals also lie wholly
 inside $[u,v]$. Enclosure certifies mass at least $1/4$ in each of the
@@ -22,7 +21,6 @@ three regions. The true distribution is continuous and supported on
 $(\ell_x,r_x)$, so these masses imply $\ell_x<u<v<r_x$.
 The endpoints are dyadic, and sorting and counting finite lists are
 deterministic.
-\end{proof}
 
 \subsection{The width at which certificates succeed}
 
@@ -31,7 +29,7 @@ queried coordinate. Define
 \begin{equation}\label{eq:comparable-bound}
 B=(k+1)^{2H+1}.
 \end{equation}
-In an in-node DAG of degree at most $k$ and directed paths of at most
+In an node graph of degree at most $k$ and directed paths of at most
 $2H$ vertices, every comparable coordinate lies within undirected distance
 $2H$. Thus $B$ bounds the number of other comparable coordinates.
 Set
@@ -42,7 +40,7 @@ This width calibrates the finite calculations. The algorithms test the
 computed certificates directly.
 
 \begin{lemma}[When certification succeeds]\label{lem:certificate-success}
-Suppose a node has positive feasible volume, its in-node DAG has degree
+Suppose a node has positive feasible volume, its node graph has degree
 at most $k$, and its directed paths have at most $2H$ vertices.
 If any free coordinate involved in a comparison has interval width at
 least $w_*$, comparison certification succeeds. If $W_x\ge w_*$, then

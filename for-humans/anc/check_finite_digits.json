@@ -2,6 +2,7 @@
   "status": "passed",
   "scope": "Small exact diagnostics for finite digit updates and rounded anchors.\n\nThese check finite examples and algebraic identities, not the general locality\nproof or every adversary trajectory. No nonstandard dependencies are used.",
   "continuous_invariance_moment_checks": 72,
+  "full_local_endpoint_cases": 1152,
   "rounding_checks": 1953,
   "fallback_anchor_checks": 2206,
   "nonminimal_anchor_example_checked": true,

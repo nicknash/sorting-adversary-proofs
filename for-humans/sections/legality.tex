@@ -1,111 +1,121 @@
-\section{Choosing anchors and repairing nodes}\label{sec:legal}
+\subsection{Answering a comparison}\label{sec:comparison}\label{sec:repairs}\label{sec:legal}
 
-We complete the refinement rule by specifying how to choose an anchor.
-We then explain why one structural repair after each answer restores the
-in-node DAG bounds, and why selecting an answer requires at most two moves.
+To compare $A$ and $B$, descend from the root while one child subtree
+contains both items. At the node where the descent stops, represent
+each item by its free coordinate if stored there, or by the anchor of
+its child subtree. Two distinct anchors determine the answer directly.
+Otherwise, the following routines either settle the comparison or
+supply an anchor for a refinement.
 
-\subsection{Choosing an anchor}\label{sec:median-search}\label{sec:anchor-contract}
-
-An anchor should lie where fixing the coordinate retains a substantial
-section of the feasible region. A short binary representation also keeps
-its child-choice cost small. We obtain both properties by choosing an
-interval and rounding one of its endpoints.
-
-For a nondegenerate closed interval $J=[u,v]\subset(0,1)$, choose the
-largest power-of-two spacing $h$ no greater than its length. The routine
-\texttt{RoundUp} rounds $u$ up to a multiple of $h$:
-\begin{equation}\label{eq:round-up}
-h=2^{-r},\qquad h\le|J|<2h,\qquad
-c=h\ceil{u/h}.
+Choose an integer $k\ge64$ and put
+\begin{equation}\label{eq:path-threshold}
+H=2^k,\qquad \eta=\frac1{100k}.
 \end{equation}
+Degree counts all neighbors, and path length counts vertices. Between
+calls the graph at every node has degree below $k$ and path length
+below $H$. During a call we allow degree $k$ and paths of up to $2H$
+vertices.
 
-\begin{lemma}[Rounding to a binary fraction]\label{lem:rounding}
-The value $c$ returned by \textnormal{\texttt{RoundUp}}$(J)$ belongs to $J$.
-Writing $c=(2i+1)/2^{m+1}$ in reduced form, it satisfies
-\begin{equation}\label{eq:rounding-length}
-|J|<2^{-m}.
+\begin{lemma}[Comparison and anchor selection]\label{lem:local-routines}
+Consider a node with positive feasible volume, degree at most $k$, and
+directed paths of at most $2H$ vertices.
+\begin{enumerate}
+\item For two distinct free coordinates, or a free coordinate and a
+dyadic threshold, \textnormal{\texttt{Select}} returns either an answer
+retaining at least $1/2-\eta$ of the volume or an interior dyadic anchor
+for a queried free coordinate with refinement gain $g>k$.
+\item Given any free coordinate, \textnormal{\texttt{ChooseAnchor}}
+returns an interior dyadic anchor.
+\end{enumerate}
+For either routine, write the returned anchor in reduced form
+$c=(2i+1)/2^{m+1}$. Its gain satisfies
+\begin{equation}\label{eq:tariff}
+g\ge(1-1/k)m-4.
 \end{equation}
+The routines are deterministic. Each enumerates at most $E_k$ digit
+assignments for a computable budget $E_k$ depending only on $k$. If the
+stored bounds have at most $\Lambda$ fractional binary digits, each
+returned anchor has at most $\Lambda+\log E_k$ such digits.
 \end{lemma}
-\begin{proof}
-The rounded value obeys $u\le c<u+h\le v$, so $c\in J$.
-The choice of spacing gives $h\le|J|<2h$.
-Reduction of the fraction cannot increase its denominator, so
-$m+1\le r$ and $|J|<2h\le2^{-m}$.
-\end{proof}
 
-The reason for refinement determines the interval used by
-Algorithm~\ref{alg:choose-anchor}. After failed comparison certification,
-it uses the middle half of the coordinate's interval directly.
-For a structural repair it first asks \texttt{CentralInterval} for an
-interval with substantial probability on both sides and inside; if this
-calculation fails, it also uses the middle half.
+The finite calculation in Section~\ref{sec:oracle} implements these
+routines. Appendix~\ref{app:execution} proves the guarantees.
+
+A comparison between two free items adds an arc. A comparison between a
+free item and an anchor tightens one interval bound. After recording the
+answer, repair its node if there is a path on $H$ vertices or a vertex
+of degree $k$. Give the path priority. Choose the lexicographically first
+eligible path and refine every item on it in path order, including those
+whose arcs have already been removed. For a degree repair, refine the
+smallest eligible label. Each repair anchor comes from
+\texttt{ChooseAnchor}. Use the smallest eligible label for a refinement
+returned by \texttt{Select}.
+
+The adversary keeps the recursive state for at most
+\begin{equation}\label{eq:comparison-horizon}
+Q(n)=n\ceil{\log n}
+\end{equation}
+answers. On the next query it chooses fixed ranks by topologically sorting
+the transcript, with ties broken by label.
 
 \begin{algorithm}[H]
-\caption{\texttt{ChooseAnchor}$(x,\mathit{reason})$: choose a position for refinement.}
-\label{alg:choose-anchor}
+\caption{\texttt{Compare}$(A,B)$: answer a comparison query.}
+\label{alg:overview-compare}\label{alg:compare}
 \DontPrintSemicolon
-\KwIn{A free item $x$ at node $v$, with stored interval $(\ell_x,r_x)$; $\mathit{reason}\in\{\mathrm{failure},\mathrm{repair}\}$.}
-\KwOut{A dyadic anchor $c\in(\ell_x,r_x)$.}
-$J\gets$ \texttt{FAIL}\;
-\If{$\mathit{reason}=\mathrm{repair}$}{
-  $J\gets$ \texttt{CentralInterval}$(v,x)$\;
+\KwIn{Distinct item labels $A,B$ and the current adversary state.}
+\KwOut{An answer $A<B$ or $B<A$, with the state updated.}
+\If{fixed ranks have been chosen}{\Return their order of $A,B$\;}
+\If{$|\mathcal T|=Q(n)$}{
+  Form the DAG of answers in $\mathcal T$ and choose a topological order, breaking ties by label\;
+  Store its ranks and \Return their order of $A,B$\;
 }
-\If{$J$ is \textnormal{\texttt{FAIL}}}{
-  $W_x\gets r_x-\ell_x$\;
-  $J\gets[\ell_x+W_x/4,\ r_x-W_x/4]$\;
+\While{true}{
+  $v\gets$ the root\;
+  \While{$A$ and $B$ lie in the same child subtree of $v$}{
+    $v\gets$ that child\;
+  }
+  \If{$A$ and $B$ lie in different child subtrees of $v$}{
+    $\mathit{answer}\gets$ the left-to-right order of their child anchors\;
+    \textbf{break}\;
+  }
+  $r\gets$ \texttt{Select}$(v,A,B)$\;
+  \If{$r$ is an answer}{
+    $\mathit{answer}\gets r$\;
+    \textbf{break}\;
+  }
+  $(x,c)\gets r$\;
+  \texttt{RefineAt}$(x,c)$\;
 }
-\Return \texttt{RoundUp}$(J)$\;
+\If{at least one queried item is stored at $v$}{
+  Store $\mathit{answer}$ as an arc in the graph at $v$ or as an interval bound\;
+  \texttt{Normalize}$(v)$\;
+}
+Append $\mathit{answer}$ to $\mathcal T$\;
+\texttt{Repair}$(v)$\;
+\Return $\mathit{answer}$\;
 \end{algorithm}
 
-The successful central choice explains the relation between interval
-length and volume gain. We use the following geometric fact, proved in
-Appendix~\ref{app:geometry}.
-
-\begin{lemma}[Density in a central interval]\label{lem:central-density}
-Let $X$ be uniform on a positive-volume node region. Suppose
-$J=[u,v]\subset(\ell_x,r_x)$ satisfies
-\[
-\Prb(X_x\le u)\ge\tfrac14,\qquad
-\Prb(X_x\in J)\ge\tfrac14,\qquad
-\Prb(X_x\ge v)\ge\tfrac14.
-\]
-Then, for every $c\in J$,
-\[
-f_x(c)\ge\frac1{16|J|}.
-\]
-\end{lemma}
-
-When \texttt{CentralInterval} succeeds, its guarantee supplies these
-three mass bounds. Lemma~\ref{lem:rounding} and the refinement identity
-therefore give
-\begin{equation}\label{eq:certified-anchor}
-g=\log f_x(c)\ge\log(1/|J|)-4>m-4.
-\end{equation}
-Thus a longer binary representation is accompanied by a larger volume
-gain. Appendix~\ref{app:refinement-guarantees} proves the corresponding
-bound for the middle-half choice and deduces the affine cost guarantee
-of Lemma~\ref{lem:refinement-cost}.
-
-\subsection{One repair after each answer}\label{sec:repairs}
-
-An interior anchor allows an item to move without contradicting earlier
-answers, even when its destination child already contains items.
-We state this property here; Appendix~\ref{app:execution} proves it by
-examining the orders represented before and after the move.
-
-\begin{lemma}[Refinement and child admission]\label{lem:admission}
-Suppose every node has positive volume and every represented total order
-respects the transcript. Refining an item at an interior anchor preserves
-both properties, including when its destination child already exists.
-\end{lemma}
-
-Between calls, the adversary maintains degree below $k$ and directed
-paths with fewer than $H$ vertices. The important feature of
-Algorithm~\ref{alg:repair} is that every new violation involves the arc
-just inserted.
+\begin{algorithm}[H]
+\caption{\texttt{Repair}$(v)$: restore the graph bounds after an answer.}
+\label{alg:repair}
+\DontPrintSemicolon
+\KwIn{The node $v$ at which the answer was determined.}
+\If{the graph at $v$ has a directed path on $H$ vertices}{
+  $L\gets$ the selected path's list of labels, in path order\;
+  \ForEach{$x\in L$ in path order}{
+    $c\gets$ \texttt{ChooseAnchor}$(x)$\;
+    \texttt{RefineAt}$(x,c)$\;
+  }
+}
+\ElseIf{a vertex at $v$ has degree $k$}{
+  $x\gets$ the selected such vertex\;
+  $c\gets$ \texttt{ChooseAnchor}$(x)$\;
+  \texttt{RefineAt}$(x,c)$\;
+}
+\end{algorithm}
 
 \begin{lemma}[One-arc repair]\label{lem:restoration}
-Suppose all in-node DAGs have degree below $k$ and directed paths with
+Suppose all node graphs have degree below $k$ and directed paths with
 fewer than $H$ vertices before an answer is recorded. Recording the
 answer and executing \textnormal{\texttt{Repair}} restores these bounds.
 During this operation, degrees are at most $k$ and directed paths have
@@ -127,17 +137,19 @@ valid DAG. Each child receives only isolated vertices, so its bounds
 remain valid too. If neither violation occurs, no repair is needed.
 \end{proof}
 
-Before the answer is recorded, only the queried labels can move. Once
-one has been refined, its fresh coordinate is isolated with interval
-$(0,1)$. Further refinements leave it isolated and leave this interval
-unchanged. Refining it again at that stage would have volume gain zero,
-by the refinement identity. Lemma~\ref{lem:refinement-cost}, however,
-requires gain greater than $k$ after failed comparison certification.
-Thus each queried label moves at most once before an answer, giving at
-most two refinements and three comparison-certificate calculations.
 
-After the answer, a queried label may move again in the structural
-repair. The repair refines either one vertex or a whole path of at most
-$n$ vertices. Hence a full call makes at most $n+2$ refinements.
-Appendix~\ref{app:execution} combines these observations with the
-consistency argument to prove Proposition~\ref{prop:legality}.
+Before recording the answer, only queried labels can move. After moving,
+a label has an isolated coordinate on $(0,1)$. Further refinements
+preserve this interval and leave it isolated. Its density is one, so
+refining it again would have gain zero, contradicting the failure
+guarantee in Lemma~\ref{lem:local-routines}. The loop thus makes at most
+two refinements and three calls to \texttt{Select}. After the answer,
+the repair makes at most $n$ further moves.
+
+\begin{proposition}[Consistency and termination]\label{prop:legality}
+Throughout the recursive phase the state has positive feasible volume,
+and every represented order satisfies the transcript. Each call
+terminates with at most $n+2$ refinements. The strict degree and path
+bounds hold between calls.
+\end{proposition}
+Appendix~\ref{app:execution} gives the induction over the state updates.

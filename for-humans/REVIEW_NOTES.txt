@@ -1110,3 +1110,33 @@ work, theorem transition, Section 8, Appendix G and bibliography were
 visually reviewed. The PDF is 38 pages, with main text ending on page 23;
 all 27 archive members match saved sources. No Hexagon replacement was
 submitted; the related earlier Lean development is unchanged.
+
+10 November 2026: Transcript count and finite dependence
+
+Source turn a9e18443-8791-4ff5-b1c7-0fbbda532d60, message
+03c0c585-f8ba-5904-b62b-eb04d81b7dde, in Simplify Paper Arguments.
+The reader truncated the closing note at 20,000 characters. All seven
+numbered recommendations were visible. The linked PDF and source archive
+were not downloaded. Implementation starts from e1f8873.
+
+The single prefix theorem counts transcript-compatible orders. Unqueried
+labels retain isolated unit coordinates. Restricting the sampling to
+queried labels reduces the stopping loss to at most 2q times
+-log(1-1/k); inserting the remaining labels recovers the factorial
+factor. Rarity follows from the number of coarse dyadic anchors, before
+the counting weights enter. The same theorem yields both ordinary
+sorting and partial-order production bounds without an additive loss.
+
+Full sweeps contract by a direct moment induction. Tracing dependencies
+shows exact agreement of the local and full endpoints at queried
+positions, with a frozen boundary at radius ht+1. The new selection
+interface gives useful outcomes for both success and failure.
+The construction precedes the counting argument. Per follow-up, the
+KZZ lattice diagram stays in Related Work, the detailed routing example
+is cut, and all six pseudocode blocks are retained.
+
+All five finite diagnostics pass. The revised tests cover 1,152 exact
+local/full endpoint cases, 4,149 accounting parameter cases, 15
+untouched-label insertion cases, and 256 horizons. Both TeX compilers
+pass and the repository log has no warnings or overfull/underfull boxes.
+The 30-page PDF and all 27 source archive entries were checked.

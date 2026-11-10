@@ -19,10 +19,6 @@ resulting fixed ranks.
 Proposition~\ref{prop:legality} ensures that the prefix is consistent with
 a total order, so this graph is acyclic and the topological ordering
 exists. Every later answer remains consistent with the prefix.
-If the sorter reaches the horizon, it has already made at least
-$n\log n$ comparisons. If it stops earlier, the comparison bound for
-the recursive adversary applies.
-
 Lemma~\ref{lem:rare-refinements} bounds the number of refinements after
 $q$ completed calls by $O(q/k)$. An unfinished call adds at most $n+2$:
 two while selecting an answer and at most $n$ in the structural repair.
@@ -83,27 +79,13 @@ the finite horizon, these bounds give one fixed polynomial for the work
 per query, independent of the selected parameters and the length of the
 interaction. After the horizon, each answer compares two stored ranks.
 
-\begin{theorem}\label{thm:main}
-There is a deterministic legal adversary, initialized using only $n$, that
-performs a fixed polynomial number of bit operations per comparison and
-forces every correct comparison sorter to make
-\[
-(1-o(1))n\log n
-\]
-comparisons.
-\end{theorem}
-
 \begin{proof}[Proof of Theorem~\ref{thm:main}]
 Initialization and every comparison call are deterministic and take
 polynomial time. The recursive phase is legal by
 Proposition~\ref{prop:legality}, and the final fixed order respects its
-recorded answers. For all sufficiently large $n$, a parameter tuple
-qualifies. If the sorter reaches $Q(n)$ answers, it has already made at
-least $n\log n$ comparisons. Otherwise Theorem~\ref{thm:fixed-stage} gives
+recorded answers. For all sufficiently large $n$, a parameter tuple qualifies.
+When a correct sorter stops, $T_q=1$. Theorem~\ref{thm:fixed-stage} then gives
 \[
-q\ge\frac{\log(n!)-n}{1+O(\log k(n)/k(n))}
-=(1-o(1))n\log n,
+q\ge\frac{\log(n!)}{1+\delta_{k(n)}}=(1-o(1))n\log n.
 \]
-since $k(n)\to\infty$. The fixed-order rule used for the remaining input
-sizes is deterministic and legal as well.
 \end{proof}

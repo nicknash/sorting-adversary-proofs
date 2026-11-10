@@ -1,354 +1,136 @@
-\section{Why the adversary forces many comparisons}\label{sec:potential}
+\section{Counting the orders that remain}\label{sec:potential}
 
-Recall from Algorithm~\ref{alg:compare} that a larger degree threshold $k$
-lets the adversary retain more comparisons involving each item before
-moving it into a child. Increasing $k$ lets the adversary force a comparison
-count closer to $n\log n$. The following bound quantifies this dependence.
+\subsection{Refinements are rare}\label{sec:rare-refinements}\label{sec:guarantees}
 
-\Needspace{9\baselineskip}
-\begin{theorem}[Comparison bound]\label{thm:fixed-stage}
-For every sufficiently large integer $k$, the adversary of
-Algorithm~\ref{alg:compare}, with the remaining parameter choices in
-Table~\ref{tab:parameters}, is deterministic and legal, and every call
-terminates. Every correct sorter makes at least
-\begin{equation}\label{eq:fixed-bound}
-\frac{\log(n!)-n}{1+O(\log k/k)}
-\end{equation}
-comparisons.
-\end{theorem}
-
-For this section, fix a sufficiently large integer $k$.
-Section~\ref{sec:runtime} chooses $k$ as a function of $n$ so that it grows
-without bound while the adversary's running time remains polynomial.
-
-We will bound the number of total orders represented by any state.
-The bound combines the freedom within nodes with weights assigned to
-child choices. We then show that refinements are rare: after $q$ completed calls, there
-have been only $O(q/k)$ moves. This makes their total contribution to the
-comparison bound small.
-
-\subsection{Volume changes}\label{sec:guarantees}
-
-We first measure the freedom left within the individual nodes. At a node
-$v$, the feasible assignments form the region
-\begin{equation}\label{eq:node-region}
-K_v=\{X:\ell_x<X_x<r_x\text{ for every free }x,
-       \quad X_x<X_y\text{ for every in-node arc }x\to y\}.
-\end{equation}
-Write $V_v=\vol(K_v)$ and take the product over the adversary's tree:
-\begin{equation}\label{eq:Z}
-Z=\prod_v V_v.
-\end{equation}
-Each item has a position variable at exactly one node, so the product
-region has dimension $n$. A node with no free items contributes volume
-one. Initially $Z=1$; whenever every node has positive volume,
-$0<Z\le1$.
-
-Choose the certificate tolerance to be
-\begin{equation}\label{eq:estimation-error}
-\eta=\frac1{100k}.
-\end{equation}
-By Lemma~\ref{lem:estimation} and the acceptance test in
-Algorithm~\ref{alg:compare}, each chosen answer retains at least
-$1/2-\eta$ of its node's volume. Its decrease in $\log Z$ is therefore
-at most
+Recording an answer between two anchors leaves $Z$ unchanged.
+Every other answer retains at least $1/2-\eta$ of its node's volume, so
+its loss in $\log Z$ is at most
 \begin{equation}\label{eq:comparison-loss}
 a_\eta=-\log(1/2-\eta)=1+O(1/k).
 \end{equation}
-A comparison between two child anchors leaves $Z$ unchanged.
-
-Refinement fixes an item's position in its parent and gives it a fresh
-unit coordinate in a child. Write
-\begin{equation}\label{eq:refinement-gain}
-g=\log\frac{Z_{\rm after}}{Z_{\rm before}}
+Let $G$ be the sum of the refinement gains through $q$ completed calls.
+Since $Z$ starts at one and never exceeds one,
+\begin{equation}\label{eq:total-refinement-gain}
+G\le\log Z+a_\eta q\le a_\eta q.
 \end{equation}
-for the resulting change in $\log Z$. We call $g$ the refinement's
-\emph{volume gain}; it can be negative.
-
-\label{sec:refinement-volume}
-
-To evaluate this gain for an item $x$ stored at node $v$, let $S_x(c)$
-be the volume of the section of $K_v$ obtained by fixing $X_x=c$,
-measured in the remaining coordinates. Under the uniform
-distribution on $K_v$, the coordinate $X_x$ has density
-\[
-f_x(c)=\frac{S_x(c)}{V_v},\qquad
-\Prb(a<X_x<b)=\int_a^b f_x(t)\,dt.
-\]
-
-\begin{lemma}[Refinement identity]\label{lem:section-volume}
-Suppose every node region has positive volume. Refining $x$ at an interior
-anchor $c$ satisfies
-\begin{equation}\label{eq:refine}
-\frac{Z_{\rm after}}{Z_{\rm before}}=f_x(c).
-\end{equation}
-\end{lemma}
-\begin{proof}
-Let $u$ be the child at $c$, taking $V_u=1$ if it is newly created. The
-parent loses the coordinate $X_x$ and retains precisely the section of
-volume $S_x(c)$. The child gains a new coordinate $U_x\in(0,1)$, with no
-constraints involving its old coordinates. Its region becomes
-$K_u\times(0,1)$ and still has volume $V_u$. Therefore the affected
-factors in the product change as follows:
-\[
-V_vV_u\quad\longrightarrow\quad S_x(c)V_u.
-\]
-Their ratio is $S_x(c)/V_v=f_x(c)$. Normalizing the interval bounds
-preserves these regions. All other node factors stay unchanged.
-The dimension lost in the parent is restored by the new child coordinate.
-\end{proof}
-
-Thus the refinement's volume gain is $g=\log f_x(c)$.
-
-For example, the parent region $0<X_A<X_B<1$ has area $1/2$. Fixing
-$X_A=1/4$ leaves the interval $X_B\in(1/4,1)$ of length $3/4$. The new
-child coordinate $U_A\in(0,1)$ turns this into a rectangle of area $3/4$,
-so refinement multiplies $Z$ by $3/2$; see Figure~\ref{fig:section-volume}.
-Both regions represent the order $A<B$. Replacing the fixed parent
-coordinate by a fresh child coordinate gives the larger area.
-
-\begin{figure}[tb]
-\centering
-\begin{tikzpicture}[x=3.25cm,y=3.25cm,>=Latex,font=\small]
-\begin{scope}
-\node at (.5,1.38) {Before refinement};
-\fill[pale] (0,0)--(0,1)--(1,1)--cycle;
-\draw[ink!55] (0,0)--(1,1)--(0,1);
-\draw[->] (0,0)--(1.12,0) node[right] {$X_A$};
-\draw[->] (0,0)--(0,1.12) node[above] {$X_B$};
-\draw[dashed,ink!60] (.25,0)--(.25,.25);
-\draw[accent,very thick] (.25,.25)--(.25,1);
-\node[below] at (.25,0) {$\frac14$};
-\node[below left] at (0,0) {$0$};
-\node[below] at (1,0) {$1$};
-\node[left] at (0,1) {$1$};
-\node at (.55,.83) {area $\frac12$};
-\end{scope}
-\draw[->,thick] (1.2,.53)--(1.63,.53);
-\node[above] at (1.415,.56) {refine $A$};
-\begin{scope}[shift={(1.9,0)}]
-\node at (.5,1.38) {After refinement};
-\fill[pale] (0,.25) rectangle (1,1);
-\draw[ink!55] (0,.25)--(1,.25)--(1,1)--(0,1);
-\draw[->] (0,0)--(1.12,0) node[right] {$U_A$};
-\draw[->] (0,0)--(0,1.12) node[above] {$X_B$};
-\node[below left] at (0,0) {$0$};
-\node[left] at (0,.25) {$\frac14$};
-\node[below] at (1,0) {$1$};
-\node[left] at (0,1) {$1$};
-\node at (.5,.65) {area $\frac34$};
-\end{scope}
-\end{tikzpicture}
-\caption{The highlighted section of the triangle has length $3/4$.
-Replacing the fixed parent coordinate by a fresh unit coordinate in the
-child gives the rectangle on the right. Its area is $3/2$ times the
-original area.}
-\label{fig:section-volume}
-\end{figure}
-
-The algorithm must preserve positive node volumes and the bounds needed
-by the probability routines. It must also return answers consistent with
-the earlier comparisons. The following proposition gives these guarantees.
-
-\begin{proposition}[Consistency and termination]\label{prop:legality}
-During the recursive phase, every reached state has positive node volumes
-and represents only orders consistent with the transcript. Each in-node
-DAG has degree at most $k$ and directed paths of fewer than $2H$ vertices.
-Between completed calls, the stronger bounds hold: every degree is less
-than $k$ and every directed path has fewer than $H$ vertices.
-A call performs at most two refinements before recording its answer and
-at most $n+2$ refinements in total, and always terminates.
-\end{proposition}
-
-Section~\ref{sec:repairs} explains the repair and progress arguments;
-Appendix~\ref{app:execution} proves the full execution guarantee.
-
-\subsection{Counting the orders represented by a state}\label{sec:movement-volume}\label{sec:accounting}
-
-The product $Z$ measures freedom within individual nodes. For example,
-two items stored alone in separate children can each retain the full
-interval $(0,1)$, giving $Z=1$, even though the child anchors fix their order.
-To account for this restriction, assign a positive weight $w(c)$ to each
-child at anchor $c$, with the weights at each parent summing to at most
-$1/2$.
-
-For each item, multiply the child weights along the path from the root
-to its storage node. Let $\mathcal W$ be their product over all items. An item stored at the root contributes one. Thus each edge weight
-appears once for every item in its subtree.
-
-\begin{lemma}[Number of represented orders]\label{lem:packing}
-If the state represents $N_{\rm ord}$ total orders, then
-\begin{equation}\label{eq:remaining-orders}
-N_{\rm ord}\ge n!\,2^{-n}Z\mathcal W.
-\end{equation}
-\end{lemma}
-\begin{proof}
-On the fixed state tree, start at the root and enter each existing child
-$c$ with probability $w(c)$. With the remaining probability, stop and
-choose a uniform coordinate in $(0,1)$ at the current node. The stopping
-probability is at least $1/2$, and the finite tree ensures termination.
-
-Draw one such position independently for every label. The state tree
-orders these positions by comparing free coordinates and child anchors,
-then ordering positions within a child recursively. Ties have probability
-zero. All labels have the same distribution, so each of the $n!$ relative
-orders has probability $1/n!$.
-
-Consider the event that every label stops at its actual storage node
-and the coordinates satisfy all in-node constraints. The required paths
-have probability $\mathcal W$, and stopping at their endpoints contributes at least
-$2^{-n}$. Conditional on these choices, the coordinates are independent
-and uniform, so the probability of satisfying the constraints is $Z$.
-Every order produced by this event is represented by the state. Its
-probability is therefore at most $N_{\rm ord}/n!$, proving the lemma.
-\end{proof}
-
-Define the cost of choosing a child by
-\begin{equation}\label{eq:child-cost}
-\ell(c)=-\log w(c).
-\end{equation}
-Records only move downward. Their current paths therefore contain
-exactly the edge traversals made during refinement, counted once for
-each moved item. Consequently
-\begin{equation}\label{eq:total-child-cost}
--\log\mathcal W=\sum_{\text{refinements }r}\ell(c_r).
-\end{equation}
-\subsection{One bound for the cost of refinement}\label{sec:refinement-cost}
-
-We now choose the child weights so that their costs can be compared
-with the volume changes caused by refinement. Write a dyadic anchor in
-reduced form as
-\begin{equation}\label{eq:dyadic}
-c=\frac{2i+1}{2^{m+1}},\qquad m\ge0,\quad 0\le i<2^m,
-\end{equation}
-where $i,m$ are integers, and assign it weight
-\begin{equation}\label{eq:child-weight}
-w(c)=\frac1{2k}\left(\frac{1-1/k}{2}\right)^m.
-\end{equation}
-There are $2^m$ anchors with a given exponent $m+1$, so their total weight is
-\[
-\sum_c w(c)=\frac1{2k}\sum_{m\ge0}(1-1/k)^m=\frac12.
-\]
-In particular, the existing children at any node satisfy the weight
-condition of Lemma~\ref{lem:packing}. The cost is
-\begin{equation}\label{eq:anchor-cost}
-\ell(c)=\gamma m+\log k+1,
-\qquad \gamma=1-\log(1-1/k).
-\end{equation}
-
-The anchor routine will provide the following guarantee. It says that
-choosing a child costs approximately the volume gained by fixing the
-parent coordinate, with an additive term of order $\log k$.
-
-\begin{lemma}[Cost and volume change of a refinement]\label{lem:refinement-cost}
-There are coefficients $a\ge1$ and $b\ge0$, with
-$a=1+O(1/k)$ and $b=O(\log k)$, such that every refinement satisfies
-\begin{equation}\label{eq:affine-cost}
-\ell(c)\le ag+b.
-\end{equation}
-A refinement made after unsuccessful comparison certification has gain
-$g>k$.
-\end{lemma}
-
-Appendix~\ref{app:refinement-guarantees} proves the lemma. We will use it
-to show that the additive term $b$ is incurred only rarely. Choose
-\begin{equation}\label{eq:path-threshold}
-H=2^k.
-\end{equation}
-
-\subsection{Refinements are rare}\label{sec:rare-refinements}
 
 \begin{lemma}[Refinement count]\label{lem:rare-refinements}
-After $q$ completed calls in the recursive phase, the total number $P$
-of refinements is $O(q/k)$.
+After $q$ completed recursive calls, the total number $P$ of refinements
+is at most $Cq/k$ for an absolute constant $C$.
 \end{lemma}
 \begin{proof}
-Let $D$ count degree repairs. Each deletes $k$ in-node arcs, while each
-answer inserts at most one arc and each inserted arc is deleted at most
-once. Hence $D\le q/k$.
+Let $D$ count degree repairs. Each removes $k$ arcs, and each call
+inserts at most one arc. Thus $D\le q/k$. By \eqref{eq:tariff}, each such
+move gains at least $-4$. A move after a failed comparison test gains
+more than $k$.
 
-The other refinements contribute large volume gains. A move after failed
-comparison certification has gain greater than $k$. For a path batch,
-write its labels in path order as $x_1,\ldots,x_H$ and their chosen
-anchors as $c_1,\ldots,c_H$. Refining $x_i$ turns its arc to $x_{i+1}$
-into the bound $X_{x_{i+1}}>c_i$. The next interior anchor therefore
-satisfies $c_{i+1}>c_i$. The anchors are distinct, and their weights sum
-to at most $1/2$. By the arithmetic--geometric mean inequality,
+In a path repair, refining $x_i$ at $c_i$ changes the arc to $x_{i+1}$
+into the bound $X_{x_{i+1}}>c_i$. The next anchor therefore satisfies
+$c_{i+1}>c_i$. These $H=2^k$ anchors are distinct. For reduced denominator
+$2^{m+1}$ there are $2^m$ anchors, so fewer than $H/2$ have $m<k-1$.
+The batch gains at least
 \[
-\prod_{i=1}^H w(c_i)\le\left(\frac1{2H}\right)^H,
-\qquad
-\sum_{i=1}^H\ell(c_i)\ge H\log(2H)=H(k+1).
+(1-1/k)\frac H2(k-1)-4H
+= H\left(\frac{k}{2}-5+\frac1{2k}\right)\ge\frac{kH}{4}.
 \]
-Together with \eqref{eq:affine-cost}, this gives
+Every counted batch is complete. Summing the gains gives
 \[
-\sum_{i=1}^H g_i\ge H\frac{k+1-b}{a}\ge\frac{kH}{2}
+\frac k4(P-D)-4D\le G\le a_\eta q,\qquad D\le q/k.
 \]
-for $k\ge64$, using the coefficient bounds proved in
-Appendix~\ref{app:refinement-guarantees}. Each completed call finishes its entire
-selected path batch, so all $P-D$ moves outside degree repairs contribute
-at least $k/2$ per move on average.
-
-Degree repairs may have negative gain. Since $\ell(c)\ge0$,
-\eqref{eq:affine-cost} gives $g\ge-b/a$ for every move. Thus the total
-refinement gain $G=\sum_r g_r$ satisfies
-\[
-G\ge\frac k2(P-D)-\frac baD.
-\]
-Comparisons each decrease $\log Z$ by at most $a_\eta$, and initially
-$Z=1$. Therefore
-\begin{equation}\label{eq:total-refinement-gain}
-\sum_r g_r\le\log Z+a_\eta q\le a_\eta q.
-\end{equation}
-Combining these inequalities gives
-\[
-\frac k2(P-D)\le a_\eta q+\frac baD.
-\]
-Now $D\le q/k$, $a_\eta=O(1)$, and $b/a=O(\log k)$, so
-$P=O(q/k)$.
+Rearranging proves the claim, for example with
+$C=8$ since $k\ge64$.
 \end{proof}
 
-\subsection{The comparison bound}\label{sec:comparison-cost}
+\subsection{Counting with the queried labels}\label{sec:movement-volume}
 
-\begin{proof}[Proof of Theorem~\ref{thm:fixed-stage}]
-Proposition~\ref{prop:legality} gives consistency and termination during
-the recursive phase. At the cutoff, at least one total order respects all
-recorded answers, so their directed graph is acyclic. Its chosen
-topological order extends these answers and makes every later answer
-consistent with them. All procedures and tie rules are deterministic.
+Write $T_q$ for the number of total orders consistent with the first
+$q$ answers. The state can represent fewer orders. For example, if
+$a<b$ lie in the same child block and $z$ is at the root, the state
+cannot place $z$ between $a$ and $b$. If the sole recorded relation
+among them is $a<b$, the transcript permits $a<z<b$ as well.
 
-If the sorter reaches the cutoff $Q(n)$ in \eqref{eq:comparison-horizon}, it has already
-made at least $n\log n$ comparisons, which suffices for the claimed bound.
-Otherwise it finishes after $q<Q(n)$ calls to the recursive procedure.
-By Lemma~\ref{lem:rare-refinements}, these completed calls perform
-$P=O(q/k)$ refinements. Summing \eqref{eq:affine-cost} and using
-\eqref{eq:total-refinement-gain} gives
-\[
-\sum_r\ell(c_r)\le a\sum_r g_r+bP
-\le a\log Z+aa_\eta q+bP.
-\]
-Combining this with the remaining-order bound \eqref{eq:remaining-orders}
-and \eqref{eq:total-child-cost} yields
-\begin{equation}\label{eq:comparison-total}
-\log N_{\rm ord}\ge\log(n!)-n+(1-a)\log Z-aa_\eta q-bP.
+Let $s$ be the number of labels that have appeared in queries.
+Every other label is still an isolated root coordinate on $(0,1)$.
+Moves before answering select queried labels, and every item moved in a
+repair is incident to an arc of the graph before that repair starts.
+All those arcs were created by comparisons. Normalization leaves an
+isolated root coordinate unchanged. Temporarily discard the unqueried
+labels. Their independent unit intervals contribute a factor of one to
+$Z$, so the product volume is the same for the remaining $s$ labels.
+
+We assign a weight to a child at the reduced dyadic anchor
+$c=(2i+1)/2^{m+1}$ by
+\begin{equation}\label{eq:child-weight}
+w(c)=\frac1{k^2}\left(\frac{1-1/k}{2}\right)^m.
 \end{equation}
-The term $(1-a)\log Z$ is nonnegative. Also,
+The sum over all possible anchors is $1/k$ because there are $2^m$
+anchors for each $m$. For each label, multiply the weights along the
+path to its storage node. Let $\mathcal W$ be the product over all
+labels. A label stored at the root contributes one, so discarding the
+unqueried labels also leaves $\mathcal W$ unchanged.
+
+\begin{lemma}[Orders consistent with the transcript]\label{lem:packing}
+After a completed recursive call,
 \[
-aa_\eta=1+O(1/k),\qquad
-bP=O\left(\frac{q\log k}{k}\right).
+T_q\ge n!(1-1/k)^s Z\mathcal W.
 \]
-Consequently
-\[
-\log N_{\rm ord}\ge\log(n!)-n-
-\left(1+O(\log k/k)\right)q.
-\]
-Thus many orders remain until nearly $\log(n!)$ comparisons have been
-made. At termination $N_{\rm ord}=1$, giving
-\[
-q\ge\frac{\log(n!)-n}{1+O(\log k/k)}.
-\]
-This proves \eqref{eq:fixed-bound}.
+The same inequality holds before the first call.
+\end{lemma}
+\begin{proof}
+For each of the $s$ labels independently, draw a position in the state
+tree. Start at the root. At each node, enter a child with probability
+equal to its weight, or stop with the remaining probability and draw
+a uniform coordinate in $(0,1)$ there. The stopping probability is at
+least $1-1/k$. Order the resulting positions by the tree and its anchors.
+Ties have probability zero. Since the labels have the same distribution,
+each of their $s!$ relative orders has probability $1/s!$.
+
+The event that the labels follow their stored paths, stop at their
+storage nodes, and satisfy all node constraints has probability at least
+$(1-1/k)^s Z\mathcal W$. Its orders respect the transcript by
+Proposition~\ref{prop:legality}. Each such order extends to $n!/s!$ full
+orders by inserting the other labels, whose positions the transcript
+does not constrain. Multiplying gives the bound.
 \end{proof}
 
-The next section gives the rounding rule and explains why one repair
-restores the in-node DAG bounds. Appendix~\ref{app:execution} supplies
-the full refinement and consistency proofs.
+\subsection{The prefix bound}\label{sec:comparison-cost}
+
+\begin{theorem}[Comparison prefixes]\label{thm:fixed-stage}
+For every integer $k\ge64$, the adversary with parameter $k$ is
+deterministic and legal. There is a nonnegative
+$\delta_k=O(\log k/k)$, independent of $n$ and the query sequence,
+such that after any $q$ answers
+\begin{equation}\label{eq:prefix-orders}
+\log T_q\ge\log(n!)-(1+\delta_k)q.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+In the recursive phase, legality and termination follow from
+Proposition~\ref{prop:legality}. After the horizon, the fixed ranks
+respect the recorded answers. For $q\ge Q(n)\ge\log(n!)$, the right
+side of \eqref{eq:prefix-orders} is nonpositive and $T_q\ge1$.
+
+For an earlier prefix put $d_k=-\log(1-1/k)$. Each refinement multiplies
+$\mathcal W$ by the weight of the child it enters. Its cost
+$\ell(c)=-\log w(c)$ satisfies
+\[
+\ell(c)=(1+d_k)m+2\log k\le ag+b,\qquad
+a=\frac{1+d_k}{1-1/k},\quad b=4a+2\log k
+\]
+by \eqref{eq:tariff}. Thus $a\ge1$, $a=1+O(1/k)$ and $b=O(\log k)$.
+Taking logarithms in Lemma~\ref{lem:packing}, then using
+\eqref{eq:total-refinement-gain}, gives
+\begin{align*}
+\log T_q
+&\ge \log(n!)-s d_k+\log Z-\sum_r\ell(c_r)\\
+&\ge \log(n!)-s d_k+(1-a)\log Z-aa_\eta q-bP.
+\end{align*}
+Here $s\le2q$, $(1-a)\log Z\ge0$, and $P\le Cq/k$ by
+Lemma~\ref{lem:rare-refinements}. We can therefore take
+$\delta_k=aa_\eta-1+2d_k+Cb/k$.
+\end{proof}
+
+When a correct sorter stops, $T_q=1$. The theorem forces at least
+$\log(n!)/(1+\delta_k)$ comparisons. The same prefix bound applies when
+an algorithm can stop with several orders still possible.

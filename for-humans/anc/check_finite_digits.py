@@ -8,6 +8,7 @@ from collections import Counter
 from fractions import Fraction as F
 from math import comb
 from pathlib import Path
+from random import Random
 import json
 
 
@@ -31,6 +32,57 @@ def bits(x):
     d = x.denominator
     assert d & (d - 1) == 0
     return d.bit_length() - 1
+
+
+def locality_checks():
+    """Compare both endpoints with frozen boundaries and different tie orders."""
+    random = Random(731)
+    cases = 0
+    for height in (2, 3, 4):
+        size = 4 * height * 3 + 5
+        layers = [z % height for z in range(size)]
+        pred = [set() for _ in range(size)]
+        succ = [set() for _ in range(size)]
+        for x in range(size - 1):
+            u, v = sorted((x, x + 1), key=layers.__getitem__)
+            succ[u].add(v)
+            pred[v].add(u)
+        full_order = sorted(range(size), key=lambda z: (layers[z], z))
+
+        def sweep(values, order, digits, radix):
+            for z in order:
+                low = max([left[z], *(values[u] for u in pred[z])])
+                high = min([right[z], *(values[u] for u in succ[z])])
+                values[z] = update(values[z], low, high, digits[z], radix)
+
+        for sweeps in (1, 2, 3):
+            for queried in ((size // 2,), (size // 3, 2 * size // 3)):
+                for radix in (2, 4):
+                    for _ in range(32):
+                        # Canonical endpoints increase along every arc.
+                        left = [F(3 * layers[z] + random.randrange(3), 32)
+                                for z in range(size)]
+                        right = [left[z] + F(1, 2) for z in range(size)]
+                        radius = height * sweeps + 1
+                        distance = [min(abs(z - x) for x in queried) for z in range(size)]
+                        retained = {z for z in range(size) if distance[z] <= radius}
+                        assert any(d == radius for d in distance)
+                        assert len(retained) < size
+                        local_order = sorted((z for z in retained if distance[z] < radius),
+                                             key=lambda z: (layers[z], -z))
+                        full_low, full_high = left.copy(), right.copy()
+                        local_low = {z: left[z] for z in retained}
+                        local_high = {z: right[z] for z in retained}
+                        for _ in range(sweeps):
+                            digits = [random.randrange(radix) for _ in range(size)]
+                            sweep(full_low, full_order, digits, radix)
+                            sweep(full_high, full_order, digits, radix)
+                            sweep(local_low, local_order, digits, radix)
+                            sweep(local_high, local_order, digits, radix)
+                        assert all((full_low[z], full_high[z]) == (local_low[z], local_high[z])
+                                   for z in queried)
+                        cases += 1
+    return cases
 
 
 def run():
@@ -112,6 +164,7 @@ def run():
     assert any(state[0]==state[1] for state in states)
     return {'status':'passed','scope':__doc__.strip(),
             'continuous_invariance_moment_checks':invariant_checks,
+            'full_local_endpoint_cases':locality_checks(),
             'rounding_checks':anchor_checks,'fallback_anchor_checks':fallback_checks,
             'nonminimal_anchor_example_checked':True,
             'finite_chain_update_checks':update_checks,

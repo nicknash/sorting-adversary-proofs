@@ -1,14 +1,13 @@
 \section{Computing comparison certificates}\label{sec:oracle}
 
-We implement \texttt{Certify} and \texttt{CentralInterval} by computing
-finite lists of enclosing intervals for the queried positions. Disjoint
-intervals certify a comparison. Counts of intervals lying to the left,
-inside, and to the right of a proposed central interval certify its three
-probability bounds.
+Both selection routines use lists of intervals enclosing the queried
+positions. A pair of disjoint intervals certifies an order, and a list
+of intervals can certify how much probability lies on each side of a
+candidate anchor interval.
 
 \subsection{A coordinate update with finitely many choices}
 
-Let $G$ be the in-node DAG, with its stored canonical interval endpoints
+Let $G$ be the node graph, with its stored canonical interval endpoints
 $\ell_z,r_z$. For a current assignment $Y$, the interval permitted at coordinate $z$ has endpoints
 \[
 L_z=\max\bigl(\{\ell_z\}\cup\{Y_u:u\to z\}\bigr),\qquad
@@ -34,10 +33,14 @@ For a fixed digit, this is uniform on the corresponding one of the $S$
 equal subintervals. Averaging over the digits makes $r'$ uniform on
 $(0,1)$ again.
 
+For $S=2$, the two updates are $r\mapsto r/2$ and
+$r\mapsto(r+1)/2$. Each sends a uniform coordinate to one half of
+its interval. With no neighbors, enumerating the two digits in each
+of two sweeps gives the four quarter intervals.
+
 \subsection{Enclosing intervals from two calculations}
 
-Fix a topological order of the full graph $G$, and let $T$ be the set of
-queried coordinates. Retain every vertex within undirected distance
+Let $T$ be the set of queried coordinates. Retain every vertex within undirected distance
 $\rho$ of $T$, together with all arcs between retained vertices. Retain
 their stored interval endpoints. Vertices at distance
 exactly $\rho$ form the boundary; those at smaller distance form the
@@ -46,8 +49,7 @@ interior.
 Run two calculations using the same digits. The lower calculation starts
 at $A_z=\ell_z$, and the upper calculation starts at $B_z=r_z$.
 Keep the boundary values fixed throughout both calculations. A
-\emph{sweep} updates each interior coordinate once, in the restriction of
-the full topological order. All neighbors of an updated vertex are retained.
+\emph{sweep} updates each interior coordinate once in topological order. All neighbors of an updated vertex are retained.
 
 Enumerate every assignment of digits to $t$ sweeps. If there are $b'$
 interior vertices, this gives
@@ -61,7 +63,7 @@ to the list, including repeated entries.
 \caption{\texttt{Enclose}: compute a finite list of enclosing intervals.}
 \label{alg:finite-digits}
 \DontPrintSemicolon
-\KwIn{The retained in-node DAG and its stored interval bounds, its interior vertices, the restricted full topological order, queried coordinates $T$, and integers $S,t$.}
+\KwIn{The retained node graph and its stored interval bounds, its interior vertices, a topological order, queried coordinates $T$, and integers $S,t$.}
 \KwOut{A list of enclosing intervals $([A_x,B_x])_{x\in T}$, one per digit assignment.}
 $\mathcal L\gets$ the empty list\;
 \ForEach{assignment of digits $j_{z,s}\in\{0,\ldots,S-1\}$ to the $b't$ interior visits}{
@@ -77,11 +79,6 @@ $\mathcal L\gets$ the empty list\;
 \Return $\mathcal L$\;
 \end{algorithm}
 
-The intervals have an exact probabilistic interpretation. A
-\emph{coupling} is a joint distribution with specified marginal
-distributions; here it joins a uniformly selected list entry to a
-uniform feasible assignment.
-
 \begin{theorem}[Local enclosing intervals]\label{thm:local}
 Let $d,h\ge1$ be integers and let $\delta,\alpha\in(0,1)$ be rational.
 There are computable parameters $S,t,\rho$ and a bound $E$, depending
@@ -93,8 +90,8 @@ feasible region $K\subseteq(0,1)^{V(G)}$. For any nonempty set $T$ of
 one or two coordinates, Algorithm~\ref{alg:finite-digits} returns a list
 satisfying two guarantees:
 \begin{enumerate}
-\item A uniformly selected entry can be coupled with $X$ uniform on $K$
-so that $A_x\le X_x\le B_x$ for every $x\in T$.
+\item A uniformly selected entry and a uniform feasible assignment $X$ can
+be drawn jointly so that $A_x\le X_x\le B_x$ for every $x\in T$.
 \item At most a fraction $\alpha$ of its entries have
 $\max_{x\in T}(B_x-A_x)>\delta$.
 \end{enumerate}
@@ -115,49 +112,59 @@ between its fixed interval endpoints, even as it changes during the full
 calculation. The full assignment remains uniform, and every interior
 digit sequence has probability $1/N$. This proves the first guarantee.
 
-To make most intervals narrow, we use the degree and path-length bounds.
-Following dependencies on newly updated predecessors reaches a source
-within $h$ vertices, where the lower endpoint is fixed. Most digit choices
-therefore reduce the interval widths. Bounded degree limits the number
-of dependencies to consider across successive sweeps.
-Appendix~\ref{app:coupling} proves the width bound and gives explicit
-parameter choices. Appendix~\ref{app:arithmetic} proves the precision
-bound.
+\subsection{How far a sweep can reach}\label{sec:finite-dependence}
 
-\subsection{Certifying comparison answers}
+For the width estimate, consider lower and upper sweeps that update the
+full graph. In either calculation, the update of a coordinate uses the
+new values of its predecessors, the old values of its successors, and
+its own old value. The resulting values are independent of the choice
+of topological order because these dependencies specify every update.
 
-For two queried coordinates, let $p$ be the fraction of entries with
-$B_x<A_y$, and let $q$ be the fraction with $B_y<A_x$.
-The routine \texttt{Certify} always returns these two counts divided by
-$N$. For a threshold comparison, use the fixed interval $[c,c]$ for the
-threshold. The comparison rule accepts an answer when its certified
-fraction is at least $1/2-\eta$; otherwise it refines a queried free item.
+To trace a dependency backwards through one sweep, follow new values
+along incoming arcs. This follows a directed path with at most $h-1$
+arcs. Moving from that path to an old value crosses at most one more
+arc. A value after $t$ sweeps thus depends only on digits, bounds and
+initial values within distance $ht$. With $\rho=ht+1$, every update
+in this dependency calculation is in the retained interior. Its initial
+values, stored bounds, and digits are the same in the local and full
+calculations. Consequently the queried endpoints agree exactly for
+every assignment of the digits, with arbitrary digits outside the
+retained region.
 
-\begin{proof}[Proof of Lemma~\ref{lem:estimation}]
-The two certification conditions are disjoint, so $p,q\ge0$ and
-$p+q\le1$. Whenever $B_x<A_y$, enclosure gives $X_x<X_y$; the reverse
-condition gives the reverse order. Consequently
-\[
-p\le\Prb(X_x<X_y),\qquad q\le\Prb(X_y<X_x).
-\]
-The same argument applies to a fixed threshold.
-These bounds hold for every list, including when neither fraction passes
-the acceptance test. The counts and their denominators are exact integers,
-so the routine is deterministic.
-\end{proof}
+Appendix~\ref{app:coupling} bounds the widths on the full graph.
+Exact agreement transfers that estimate to the local lists.
 
-\subsection{Certifying a central interval}
+\subsection{From intervals to answers and anchors}
 
-For a free coordinate $x$, \texttt{CentralInterval} uses the one-coordinate
-list. It chooses a candidate interval $[u,v]$ from the sorted endpoints
-and checks how many list intervals lie to its left, wholly inside it,
-and to its right. It returns $[u,v]$ only when each count is at least
-$N/4$ and $u<v$; otherwise it returns \texttt{FAIL}. Enclosure then
-certifies the three probability bounds in
-Lemma~\ref{lem:central-interval}. Appendix~\ref{app:certificates} gives
-the endpoint selection and proves its success guarantee.
+For two queried positions, count the entries with $B_x<A_y$ and those
+with $B_y<A_x$. For a threshold use $[c,c]$ as its interval.
+Each count divided by $N$ is a lower bound on the corresponding
+probability because the enclosed positions obey the certified order.
+\texttt{Select} uses the answer with the larger bound if that bound is
+at least $1/2-\eta$. Otherwise it chooses a queried free coordinate
+and rounds in the middle half of its range.
 
-Thus both routines decide by exact finite counts. The same appendix
-chooses their parameters and shows why a failed test permits a
-profitable refinement. The next section uses the resulting enumeration
-budget to obtain a uniform polynomial running time.
+For a repair, \texttt{ChooseAnchor} uses a one-coordinate list. It tests
+whether a proposed interval contains at least a quarter of the mass,
+with at least a quarter on either side. The test counts entries lying
+wholly in each of these three regions. On success it rounds within the
+tested interval. On failure it rounds in the middle half of the
+coordinate's range. Appendix~\ref{app:certificates} gives the endpoint
+selection and shows that a failed test identifies a short coordinate
+interval. The gain and precision estimates in
+Appendix~\ref{app:execution} complete the proof of
+Lemma~\ref{lem:local-routines}.
+
+\begin{algorithm}[H]
+\caption{\texttt{ChooseAnchor}$(x)$: choose a position for refinement.}
+\label{alg:choose-anchor}
+\DontPrintSemicolon
+\KwIn{A free item $x$ at node $v$, with stored interval $(\ell_x,r_x)$.}
+\KwOut{A dyadic anchor $c\in(\ell_x,r_x)$.}
+$J\gets$ \texttt{CentralInterval}$(v,x)$\;
+\If{$J$ is \textnormal{\texttt{FAIL}}}{
+  $W_x\gets r_x-\ell_x$\;
+  $J\gets[\ell_x+W_x/4,\ r_x-W_x/4]$\;
+}
+\Return \texttt{RoundUp}$(J)$\;
+\end{algorithm}

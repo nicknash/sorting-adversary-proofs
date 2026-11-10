@@ -1,7 +1,7 @@
 \section{Introduction}\label{sec:classical}
 
 We consider comparison sorting of $n$ distinct labelled keys.\footnote{Throughout,
-$\log$ denotes $\log_2$, and $\ln$ the natural logarithm; we assume $n\ge2$.} A sorter
+$\log$ denotes $\log_2$, and $\ln$ the natural logarithm. We assume $n\ge2$.} A sorter
 chooses each pair using the answers to its earlier comparisons and must be
 correct for every strict total order on the labels. A sorting adversary
 supplies those answers as the comparisons arrive. It is \emph{legal} if
@@ -21,6 +21,17 @@ to the sorter. Without the time restriction, a deterministic optimal
 adversary is immediate. With randomness, polynomial-time adversaries achieve
 the optimal asymptotic bound in expectation and with high probability.
 
+Kaplan, Zamir, and Zwick~\cite[Section~7]{kzz-min} ask whether an efficient
+deterministic adversary can force $(1-\varepsilon)n\log n$ comparisons
+for every $\varepsilon>0$ and all sufficiently large $n$.
+The following theorem answers their question.
+
+\begin{theorem}\label{thm:main}
+There is a deterministic legal adversary, initialized using only $n$, that
+uses polynomially many bit operations per query and forces every correct
+sorter to make at least $(1-o(1))n\log n$ comparisons.
+\end{theorem}
+
 \paragraph{Without the time restriction.}
 Keep all total orders consistent with the answers so far. Each comparison
 partitions them into two classes; answer so as to retain a larger class.
@@ -38,10 +49,7 @@ $\Omega(\log e(P))$ comparisons, where $e(P)$ is the number of linear
 extensions of $P$. Their method uses graph entropy and
 convex optimization via the ellipsoid method. For ordinary sorting, the
 initial partial order has no relations, so $e(P)=n!$ and their guarantee
-is $\Omega(n\log n)$. Thus deterministic polynomial-time adversaries are
-available even for arbitrary initial partial information. The remaining
-question for ordinary sorting is whether such an adversary can force
-$(1-o(1))n\log n$ comparisons.
+is $\Omega(n\log n)$ comparisons.
 
 \paragraph{With randomness.}
 An efficient adversary can simply choose a uniformly random permutation
@@ -79,100 +87,25 @@ $\vol(K(P))=e(P)/n!$~\cite{stanley}. The two possible answers to a comparison
 cut this region into two parts, and their volumes are proportional to their
 counts of allowed orders.
 
-Dyer, Frieze, and Kannan~\cite{dfk} give a randomized polynomial-time
-algorithm for relative volume approximation and explicitly note its
-application to linear extensions. To use it here, first check whether the
-queried relation is already forced by $P$. If so, return it directly.
-Otherwise both directions are feasible and give positive-volume regions.
-Estimate their volumes and choose the larger estimate. When both estimates
-have relative error at most $\varepsilon$, the chosen part retains at least
-$(1-\varepsilon)/2$ of the current volume. The counting argument then forces
-\[
-q\ge\frac{\log(n!)}{1-\log(1-\varepsilon)}
-=(1-O(\varepsilon))\log(n!)
-\]
-comparisons. Taking $\varepsilon=1/\ceil{\log(n+1)}$ gives $n\log n-O(n)$.
+Dyer, Frieze, and Kannan~\cite{dfk} approximate these volumes in
+randomized polynomial time, so randomness also lets the adversary
+estimate which answer retains more orders. The challenge is to
+obtain the asymptotic bound with a deterministic calculation.
 
-For a high-probability guarantee, allow
-$Q=2n\ceil{\log(n+1)}$ queries before fixing a consistent order.
-Amplify each volume estimate to failure probability at most $n^{-4}$.
-Each call uses fresh randomness, so this bound holds conditional on the
-preceding history. A union bound over at most $2Q$ estimates gives total
-failure probability $O(\log n/n^3)$, even for adaptive queries. These
-accuracy requirements preserve polynomial time. Every run remains legal,
-including when an estimate fails, because only feasible answers are offered.
+Our adversary retains comparisons in graphs at the nodes of a tree
+(Section~\ref{sec:overview}). Finite calculations on small neighborhoods
+either certify an answer or identify an item whose position can be fixed
+with a large volume gain (Section~\ref{sec:oracle}). Moving that item
+into a child limits the graph size. Section~\ref{sec:potential} uses
+the volume gains to bound the number of moves, then counts all orders
+consistent with the answers. Section~\ref{sec:runtime} chooses the
+graph bounds as a function of $n$ to obtain polynomial running time.
 
-The issue is therefore \emph{derandomization}: obtain the optimal
-asymptotic comparison bound with a single deterministic response rule whose
-work per comparison is polynomial in $n$. Kaplan, Zamir, and
-Zwick~\cite[Section~7]{kzz-min} ask whether an efficient adversary can
-attain this bound. We answer the following question in the affirmative
-(Theorem~\ref{thm:main}):
-\begin{quote}
-\itshape
-For every $\varepsilon>0$, is there a deterministic polynomial-time sorting
-adversary that forces any correct sorting algorithm to perform at least
-$(1-\varepsilon)n\log n$ comparisons, for all sufficiently large $n$?
-\end{quote}
-
-Section~\ref{sec:consequences} gives two further consequences. The same
-adversary forces nearly the information bound for arranging keys into a
-prescribed partial order, with a vanishing relative error and an additive
-$o(n)$ loss. A reduction also handles supplied initial relations: for an
-initial partial order $P$, it forces
+Section~\ref{sec:consequences} applies the same prefix bound to
+arranging keys into a prescribed partial order, with a vanishing
+relative loss from the information bound. For sorting from supplied
+initial relations $P$, a reduction forces
 $(1-o(1))\log e(P)-O(n\log\log n)$ further comparisons.
-
-Section~\ref{sec:related} reviews the earlier adversaries.
-Section~\ref{sec:overview} gives our data structure and comparison procedure.
-Items are stored at nodes of a rooted tree, with a directed acyclic graph
-recording comparisons within each node. Interval bounds and the graph's
-inequalities define a region of real positions representing the possible
-orders there. The adversary computes lower bounds on the fraction of this
-region's volume retained by each answer. Three technical ingredients make
-this possible.
-
-\emph{Certifying comparisons with enclosing intervals.}
-The stored interval bounds include the inequalities implied by the graph.
-We perform finite computations on a bounded neighborhood. Each computation returns
-intervals enclosing uniformly distributed feasible positions. Disjoint
-intervals establish a comparison, so counting these cases gives certified
-lower bounds on the probabilities of the two answers. Degree and
-path-length bounds ensure that almost all returned intervals are short;
-an unsuccessful certificate then implies that the queried positions are
-confined to very short intervals. This identifies an item to refine
-(Section~\ref{sec:oracle}).
-
-\emph{Choosing positions with large remaining volume.}
-Moving an item into a child fixes its position in the parent. We round
-to a binary fraction inside an interval chosen to ensure a large volume
-gain. For a structural repair, an interval with substantial probability
-inside and on both sides supplies the anchor: log-concavity gives a useful
-density bound throughout that interval. A failed certificate instead
-justifies using the middle half of the item's allowed interval
-(Section~\ref{sec:median-search}).
-
-\emph{Showing that refinements are rare.}
-Section~\ref{sec:potential} relates the volume gained by moving an item
-to the cost of choosing its child. Failed comparison certificates give
-large gains, as do complete batches of items moved from a directed path.
-High-degree moves are limited by the number of arcs inserted. Together,
-these facts show that only $O(q/k)$ refinements occur during $q$
-comparisons, where $k$ is the degree threshold. Their total overhead is
-therefore small. A counting experiment combines node volumes and child
-choices to bound the number of orders still represented by the state.
-
-Finally, Section~\ref{sec:runtime} lets the degree and
-path-length bounds grow slowly with $n$, keeping the computation polynomial
-as the comparison coefficient approaches one. After $n\ceil{\log n}$
-answers, the adversary can choose a fixed order consistent with its
-answers and use that order thereafter. This bounds the lifetime of the
-recursive construction.
-
-The appendices supply the interval and density facts
-(Appendix~\ref{app:geometry}), quantitative certificate estimates
-(Appendices~\ref{app:coupling} and~\ref{app:certificates}), refinement and
-consistency proofs (Appendix~\ref{app:execution}), and arithmetic details
-and parameter choices (Appendices~\ref{app:arithmetic} and~\ref{app:parameters}).
-Appendix~\ref{app:consequences} proves the two corollaries.
+Appendix~\ref{app:consequences} proves both consequences.
 The manuscript source is available
 online.\footnote{\url{https://github.com/nicknash/sorting-adversary-proofs/tree/main/for-humans}}

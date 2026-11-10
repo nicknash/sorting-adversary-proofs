@@ -1,58 +1,43 @@
 \section{The new optimal adversary}\label{sec:overview}\label{sec:algorithm}
 
-We describe the data structure maintained by our adversary and how it is
-updated in response to comparison queries from the sorting algorithm.
-
-Kaplan, Zamir, and Zwick~\cite{kzz} retain disjoint ordered pairs within a
-node. Our adversary maintains a rooted tree with a DAG at each node, so
-several retained comparisons can involve the same item. For example, it
-can keep $a<b$ and $a<c$ together while leaving the order of $b$ and $c$
-undecided. This lets it represent richer partial orders before moving
-items further down the tree.
-
-The computational challenge is to use these richer orders without having
-to approximately count the linear extensions of an entire DAG. We
-periodically simplify a node's DAG by removing vertices and moving their
-items into child nodes, creating children when needed. Constraints at the
-parent preserve the comparisons involving the moved items, while their
-order within a child can remain unresolved. These simplifications allow
-comparison answers to be chosen by deterministic calculations on small
-neighborhoods in that node's DAG. The analysis must show that the resulting loss
-of possible orders is small enough to retain the optimal comparison bound.
+Kaplan, Zamir, and Zwick~\cite{kzz} keep a comparison between two items
+at a node as an ordered pair. We allow comparisons to share items.
+For example, one node can retain $a<b$ and $a<c$ while leaving the order
+of $b$ and $c$ open. The adversary bounds the degree and path length of
+each node's graph so it can answer comparisons using small neighborhoods.
 
 \subsection{The data structure}
 
 Our data structure is a rooted tree. Each node stores item records and
 a single directed acyclic graph (DAG), whose vertices are the items
-recorded at that node. We call this its \emph{in-node DAG}. Figure~\ref{fig:overview-state} shows an example.
+recorded at that node. Figure~\ref{fig:overview-state} shows an example.
 
-Each item has a record $(x,X_x,\ell_x,r_x)$ stored at exactly one node.
-The label $x$ identifies its key, and $X_x$ is a symbolic variable for
-its position among the items at that node. The fields $\ell_x,r_x$ restrict
-this variable to the open interval $(\ell_x,r_x)\subseteq(0,1)$.
-The bounds $\ell_x,r_x$ are fractions whose denominators are powers of two;
-we call such numbers \emph{dyadic rationals}.
+Each item has a record $(x,\ell_x,r_x)$ stored at exactly one node.
+The label $x$ identifies the key. Its position variable $X_x$ ranges
+over the open interval $(\ell_x,r_x)\subseteq(0,1)$.
+The bounds $\ell_x,r_x$ are fractions whose denominators are powers of two.
+We call such numbers \emph{dyadic rationals}.
 We call an item \emph{free} at its node while its position remains variable.
 
-In an in-node DAG, an arc $x\to y$ records a comparison answered $x<y$
+In the node's DAG, an arc $x\to y$ records a comparison answered $x<y$
 between two items stored there, imposing $X_x<X_y$ on their positions.
 Each answered comparison between free items contributes at most one arc.
 
 A \emph{feasible assignment} at a node is a choice of real values for its
 position variables satisfying $\ell_x<X_x<r_x$ for every item $x$ and
-$X_x<X_y$ for every arc $x\to y$ in its in-node DAG.
+$X_x<X_y$ for every arc $x\to y$ in its graph.
 
 We keep each stored interval equal to the range of values its coordinate
 can take in feasible assignments. An arc $x\to y$ propagates lower bounds
 from $x$ to $y$ and upper bounds from $y$ to $x$. After changing a node,
 the routine \texttt{Normalize} makes one pass in topological order for the
 lower bounds and one in reverse order for the upper bounds.
-Algorithm~\ref{alg:normalize} gives the two passes; Appendix~\ref{app:geometry}
+Algorithm~\ref{alg:normalize} gives the two passes. Appendix~\ref{app:geometry}
 proves that they preserve exactly the same feasible assignments.
 
 Initially the tree consists of just the root, containing all records
 with bounds $\ell_x=0$ and $r_x=1$. The position variables $X_x$ are
-unassigned, and the root's in-node DAG has no arcs.
+unassigned, and the root's graph has no arcs.
 Thus every assignment in $(0,1)^n$ is feasible, and every total order
 can be obtained by assigning distinct positions.
 
@@ -160,171 +145,16 @@ $(X_a,X_b,X_c)=(1/3,1/2,7/8)$ give
 \[
 p<q<a<b<r<s<c.
 \]
-Other feasible choices give other orders. Every order represented this way
-must respect all previous answers to the sorter. We call the sequence of
-these answers the \emph{transcript}.
-
-\subsection{Answering a comparison}\label{sec:comparison}
-
-Algorithm~\ref{alg:compare} shows the algorithm the adversary uses to answer
-a comparison by the sorter.
-
-To compare $A$ and $B$, start at the root and descend into a child whenever
-its subtree contains both items. Stop when at least one item is stored at
-the current node, or when the items lie in different child subtrees.
-At this node, use an item's free coordinate if it is stored here, and the
-corresponding child anchor otherwise.
-In Figure~\ref{fig:overview-state}, comparing $p$ with $q$ descends into
-the left child; comparing $p$ with $r$ uses the anchors $1/4$ and $3/4$;
-and comparing $a$ with $p$ compares $X_a$ with $1/4$ at the root.
-
-Two distinct anchors determine the answer immediately.
-
-For a query involving a free coordinate, consider the uniform distribution on feasible
-positions at this node. The subroutine
-\texttt{Certify} computes two nonnegative rational numbers $p_{AB},p_{BA}$
-that are lower bounds on the probabilities of $A<B$ and $B<A$.
-Fix a rational tolerance $0<\eta<1/32$. If the larger certified fraction
-is at least $1/2-\eta$, choose that answer, breaking a tie in favor of
-$A<B$. Otherwise, move a queried free item into a child and restart the
-query. We call this move a \emph{refinement}, denoted \texttt{Refine}$(x,\mathit{reason})$;
-Algorithm~\ref{alg:refine} in Section~\ref{sec:overview-refine} gives the
-operation. Section~\ref{sec:potential} shows why a failed certificate
-makes such a refinement affordable.
-For two free items, the events are $X_A<X_B$ and $X_B<X_A$; for a free
-item and an anchor, they compare its coordinate with the fixed anchor.
-An answer between two free items adds an arc to the in-node DAG;
-an answer involving an anchor adds an interval bound.
-
-After recording an answer, we repair its node if the new arc has made
-the in-node DAG too large. Fix integers $k,H\ge2$. Between completed
-calls, every vertex has fewer than $k$ neighbors and every directed
-path has fewer than $H$ vertices. Degree counts both incoming and
-outgoing neighbors, and path length counts vertices.
-If a path of $H$ vertices has appeared, refine all its items in path
-order. Otherwise, if a vertex has reached degree $k$, refine that vertex.
-Algorithm~\ref{alg:repair} gives this operation. One such repair restores
-both bounds: any new violation must involve the arc just inserted, and
-the repair removes that arc. Section~\ref{sec:repairs} proves this claim.
-
-The following lemma supplies the guarantee needed by the comparison rule.
-Section~\ref{sec:oracle} implements \texttt{Certify} by counting finite
-calculations in which enclosing intervals establish one of the two answers.
-
-\begin{lemma}[Certified comparison probabilities]\label{lem:estimation}
-Suppose a node admits a feasible assignment, and its in-node DAG has
-degree at most $k$ and directed paths of at most $2H$ vertices.
-For two distinct free coordinates, or a free coordinate and
-a dyadic threshold, \textnormal{\texttt{Certify}} deterministically returns
-nonnegative rational lower bounds on the probabilities of the two answers.
-\end{lemma}
-
-The recursive construction is needed for at most
-\begin{equation}\label{eq:comparison-horizon}
-Q(n)=n\ceil{\log n}
-\end{equation}
-answers. Record these answers in a list $\mathcal T$, initially empty.
-If another query arrives after $Q(n)$ answers, choose a fixed total order
-consistent with $\mathcal T$ and use it for every subsequent answer.
-Section~\ref{sec:runtime} constructs this order by a deterministic
-topological sort. A sorter reaching this point has already made at least
-$n\log n$ comparisons.
-
-\begin{algorithm}[H]
-\caption{\texttt{Compare}$(A,B)$: answer a comparison query.}
-\label{alg:overview-compare}\label{alg:compare}
-\DontPrintSemicolon
-\KwIn{Distinct item labels $A,B$ and the current adversary state.}
-\KwOut{An answer $A<B$ or $B<A$, with the state updated.}
-\If{fixed ranks have been chosen}{\Return their order of $A,B$\;}
-\If{$|\mathcal T|=Q(n)$}{
-  Form the DAG of answers in $\mathcal T$ and choose a topological order, breaking ties by label\;
-  Store its ranks and \Return their order of $A,B$\;
-}
-\While{true}{
-  $v\gets$ the root\;
-  \While{$A$ and $B$ lie in the same child subtree of $v$}{
-    $v\gets$ that child\;
-  }
-  \If{$A$ and $B$ lie in different child subtrees of $v$}{
-    $\mathit{answer}\gets$ the left-to-right order of their child anchors\;
-    \textbf{break}\;
-  }
-  $(p_{AB},p_{BA})\gets$ \texttt{Certify}$(v,A,B,\eta)$\;
-  \If{$\max(p_{AB},p_{BA})\ge1/2-\eta$}{
-    $\mathit{answer}\gets A<B$ if $p_{AB}\ge p_{BA}$, and $B<A$ otherwise\;
-    \textbf{break}\;
-  }
-  $x\gets$ the selected queried free item\;
-  \texttt{Refine}$(x,\mathrm{failure})$\;
-}
-\If{at least one queried item is stored at $v$}{
-  Store $\mathit{answer}$ as an arc in the in-node DAG at $v$ or as an interval bound\;
-  \texttt{Normalize}$(v)$\;
-}
-Append $\mathit{answer}$ to $\mathcal T$\;
-\texttt{Repair}$(v)$\;
-\Return $\mathit{answer}$\;
-\end{algorithm}
-
-Before recording the answer, only the two queried items can move.
-Section~\ref{sec:repairs} shows that each moves at most once in this
-part of the call. Thus the loop makes at most two refinements and three
-comparison-certificate calculations. A queried item may move again in
-the subsequent repair; the whole call makes at most $n+2$ refinements.
-
-For deterministic selection, choose the smallest eligible item label and
-the lexicographically first eligible directed path. Complete the entire
-selected path batch, even if earlier refinements have already removed
-its arcs.
-
-\begin{algorithm}[H]
-\caption{\texttt{Repair}$(v)$: restore the in-node DAG bounds after an answer.}
-\label{alg:repair}
-\DontPrintSemicolon
-\KwIn{The node $v$ at which the answer was determined.}
-\If{the in-node DAG at $v$ has a directed path on $H$ vertices}{
-  $L\gets$ the selected path's list of labels, in path order\;
-  \ForEach{$x\in L$ in path order}{\texttt{Refine}$(x,\mathrm{repair})$\;}
-}
-\ElseIf{a vertex at $v$ has degree $k$}{
-  $x\gets$ the selected such vertex\;
-  \texttt{Refine}$(x,\mathrm{repair})$\;
-}
-\end{algorithm}
+Other feasible choices give other orders. The \emph{transcript} is the sequence of answers so far. Our invariant is
+that every represented order satisfies the transcript.
 
 \subsection{Moving an item into a child}\label{sec:overview-refine}
 
-Algorithm~\ref{alg:refine} gives \texttt{Refine}$(x,\mathit{reason})$,
-which moves $x$ from its current node into a child. The argument
-$\mathit{reason}$ records whether the move follows a failed comparison
-certificate or is part of a structural repair.
-
-After a failed comparison certificate, choose an anchor in the middle
-half of $(\ell_x,r_x)$. For a structural repair, first try to find an
-interval with substantial probability inside and on both sides. If that
-calculation fails, use the middle half instead. In either case, a simple
-rounding rule selects a dyadic position in the chosen interval;
-Algorithm~\ref{alg:choose-anchor} in Section~\ref{sec:median-search}
-gives the rule.
-
-\Needspace{6\baselineskip}
-\begin{lemma}[A central interval]\label{lem:central-interval}
-Under the hypotheses of Lemma~\ref{lem:estimation},
-\textnormal{\texttt{CentralInterval}} deterministically returns either
-failure or dyadic $u<v$ in $(\ell_x,r_x)$ satisfying
-\[
-\Prb(X_x\le u)\ge\frac14,\qquad
-\Prb(u\le X_x\le v)\ge\frac14,\qquad
-\Prb(X_x\ge v)\ge\frac14.
-\]
-\end{lemma}
-
-Section~\ref{sec:oracle} implements this routine using the same enclosing
-intervals as \texttt{Certify}.
+The operation \texttt{RefineAt}$(x,c)$ fixes the position of $x$ at an
+interior point $c\in(\ell_x,r_x)$ in its current node.
 
 Fixing $X_x=c$ places $x$ in the child block anchored at $c$.
-The arcs incident to $x$ in that in-node DAG become interval bounds: $y\to x$ gives $X_y<c$,
+The arcs incident to $x$ in the parent graph become interval bounds: $y\to x$ gives $X_y<c$,
 and $x\to z$ gives $X_z>c$. Remove $x$ and these arcs from the parent,
 and retain the new bounds on its neighbors.
 Insert $x$ into the child anchored at $c$, creating it if needed. In that
@@ -333,44 +163,26 @@ child's existing constraints remain unchanged.
 Figure~\ref{fig:overview-refine} illustrates reuse of an existing child.
 
 \begin{algorithm}[H]
-\caption{\texttt{Refine}$(x,\mathit{reason})$: move an item into a child.}
+\caption{\texttt{RefineAt}$(x,c)$: move an item into a child.}
 \label{alg:refine}
 \DontPrintSemicolon
-\KwIn{A free item $x$, the reason for its move, and the current adversary state.}
+\KwIn{A free item $x$, an interior anchor $c$, and the current adversary state.}
 \KwOut{The updated state, with $x$ stored in a child of its former node.}
 $v\gets$ the node storing $x$\;
-$c\gets$ \texttt{ChooseAnchor}$(x,\mathit{reason})$\;
-\ForEach{arc $y\to x$ in the in-node DAG at $v$}{
+\ForEach{arc $y\to x$ in the graph at $v$}{
   $r_y\gets\min(r_y,c)$\;
 }
-\ForEach{arc $x\to z$ in the in-node DAG at $v$}{
+\ForEach{arc $x\to z$ in the graph at $v$}{
   $\ell_z\gets\max(\ell_z,c)$\;
 }
-Remove $x$'s record from $v$ and its vertex and incident arcs from the in-node DAG at $v$\;
+Remove $x$'s record from $v$ and its vertex and incident arcs from the graph at $v$\;
 \texttt{Normalize}$(v)$\;
 \If{$v$ has no child anchored at $c$}{
-  Create a child of $v$ at $c$, with no records and an empty in-node DAG\;
+  Create a child of $v$ at $c$, with no records and an empty graph\;
 }
 $u\gets$ the child of $v$ anchored at $c$\;
-Insert a record $(x,X_x,0,1)$ at $u$, with a fresh, unassigned position variable $X_x$\;
-Insert $x$ as an isolated vertex in the in-node DAG at $u$\;
-\end{algorithm}
-
-The propagation routine used above keeps the stored intervals up to date.
-For example, tightening $r_y$ also tightens the upper bound of every
-predecessor of $y$. The two passes below perform all such propagations.
-
-\begin{algorithm}[H]
-\caption{\texttt{Normalize}$(v)$: propagate interval bounds through the in-node DAG.}
-\label{alg:normalize}
-\DontPrintSemicolon
-\KwIn{A node $v$ whose arcs or interval bounds have changed.}
-\ForEach{vertex $x$ in topological order}{
-  $\ell_x\gets\max(\{\ell_x\}\cup\{\ell_y:y\to x\})$\;
-}
-\ForEach{vertex $x$ in reverse topological order}{
-  $r_x\gets\min(\{r_x\}\cup\{r_y:x\to y\})$\;
-}
+Insert a record $(x,0,1)$ at $u$\;
+Insert $x$ as an isolated vertex in the graph at $u$\;
 \end{algorithm}
 
 \begin{center}
@@ -417,19 +229,131 @@ within that block.}
 \end{minipage}
 \end{center}
 
-Thus the parent fixes where the child block occurs, while the order of
-$x$ within that block stays open. Lemma~\ref{lem:admission} proves that
-this operation preserves all answered comparisons.
+At node $v$, the feasible assignments form the region
+\begin{equation}\label{eq:node-region}
+K_v=\{X:\ell_x<X_x<r_x\text{ for every free }x,
+       \quad X_x<X_y\text{ for every arc }x\to y\}.
+\end{equation}
+Write $V_v=\vol(K_v)$ and take the product over the adversary's tree:
+\begin{equation}\label{eq:Z}
+Z=\prod_v V_v.
+\end{equation}
+Each item has a position variable at exactly one node, so the product
+region has dimension $n$. A node with no free items contributes volume
+one. Initially $Z=1$; whenever every node has positive volume,
+$0<Z\le1$.
 
-Refinement can impose additional order relations. For example, suppose
-the root contains $A,B,C$ with only $A<B$ recorded. Refining $A$ at $1/2$
-restricts $B$ to $(1/2,1)$. Refining $C$ into the same child then leaves
-both $A<C<B$ and $C<A<B$ possible, while fixing the additional relation
-$C<B$. Section~\ref{sec:potential}
-shows that we can afford this loss of possible orders while retaining the
-optimal asymptotic comparison bound.
+Refinement fixes an item's position in its parent and gives it a fresh
+unit coordinate in a child. Write
+\begin{equation}\label{eq:refinement-gain}
+g=\log\frac{Z_{\rm after}}{Z_{\rm before}}
+\end{equation}
+for the resulting change in $\log Z$. We call $g$ the refinement's
+\emph{volume gain}; it can be negative.
 
-Table~\ref{tab:parameters} collects the thresholds used by
-Algorithms~\ref{alg:compare}--\ref{alg:normalize} above.
-In the next section, we explain why the adversary forces any correct
-sorter to perform many comparisons.
+\label{sec:refinement-volume}
+
+To evaluate this gain for an item $x$ stored at node $v$, let $S_x(c)$
+be the volume of the section of $K_v$ obtained by fixing $X_x=c$,
+measured in the remaining coordinates. Under the uniform
+distribution on $K_v$, the coordinate $X_x$ has density
+\[
+f_x(c)=\frac{S_x(c)}{V_v},\qquad
+\Prb(a<X_x<b)=\int_a^b f_x(t)\,dt.
+\]
+
+\begin{lemma}[Refinement identity]\label{lem:section-volume}
+Suppose every node region has positive volume. Refining $x$ at an interior
+anchor $c$ satisfies
+\begin{equation}\label{eq:refine}
+\frac{Z_{\rm after}}{Z_{\rm before}}=f_x(c).
+\end{equation}
+\end{lemma}
+\begin{proof}
+Let $u$ be the child at $c$, taking $V_u=1$ if it is newly created. The
+parent loses the coordinate $X_x$ and retains precisely the section of
+volume $S_x(c)$. The child gains a new coordinate $U_x\in(0,1)$, with no
+constraints involving its old coordinates. Its region becomes
+$K_u\times(0,1)$ and still has volume $V_u$. Therefore the affected
+factors in the product change as follows:
+\[
+V_vV_u\quad\longrightarrow\quad S_x(c)V_u.
+\]
+Their ratio is $S_x(c)/V_v=f_x(c)$. Normalizing the interval bounds
+preserves these regions. All other node factors stay unchanged.
+The dimension lost in the parent is restored by the new child coordinate.
+\end{proof}
+
+Thus the refinement's volume gain is $g=\log f_x(c)$.
+
+For example, the parent region $0<X_A<X_B<1$ has area $1/2$. Fixing
+$X_A=1/4$ leaves the interval $X_B\in(1/4,1)$ of length $3/4$. The new
+child coordinate $U_A\in(0,1)$ turns this into a rectangle of area $3/4$,
+so refinement multiplies $Z$ by $3/2$; see Figure~\ref{fig:section-volume}.
+Both regions represent the order $A<B$. Replacing the fixed parent
+coordinate by a fresh child coordinate gives the larger area.
+
+\begin{figure}[tb]
+\centering
+\begin{tikzpicture}[x=3.25cm,y=3.25cm,>=Latex,font=\small]
+\begin{scope}
+\node at (.5,1.38) {Before refinement};
+\fill[pale] (0,0)--(0,1)--(1,1)--cycle;
+\draw[ink!55] (0,0)--(1,1)--(0,1);
+\draw[->] (0,0)--(1.12,0) node[right] {$X_A$};
+\draw[->] (0,0)--(0,1.12) node[above] {$X_B$};
+\draw[dashed,ink!60] (.25,0)--(.25,.25);
+\draw[accent,very thick] (.25,.25)--(.25,1);
+\node[below] at (.25,0) {$\frac14$};
+\node[below left] at (0,0) {$0$};
+\node[below] at (1,0) {$1$};
+\node[left] at (0,1) {$1$};
+\node at (.55,.83) {area $\frac12$};
+\end{scope}
+\draw[->,thick] (1.2,.53)--(1.63,.53);
+\node[above] at (1.415,.56) {refine $A$};
+\begin{scope}[shift={(1.9,0)}]
+\node at (.5,1.38) {After refinement};
+\fill[pale] (0,.25) rectangle (1,1);
+\draw[ink!55] (0,.25)--(1,.25)--(1,1)--(0,1);
+\draw[->] (0,0)--(1.12,0) node[right] {$U_A$};
+\draw[->] (0,0)--(0,1.12) node[above] {$X_B$};
+\node[below left] at (0,0) {$0$};
+\node[left] at (0,.25) {$\frac14$};
+\node[below] at (1,0) {$1$};
+\node[left] at (0,1) {$1$};
+\node at (.5,.65) {area $\frac34$};
+\end{scope}
+\end{tikzpicture}
+\caption{The highlighted section of the triangle has length $3/4$.
+Replacing the fixed parent coordinate by a fresh unit coordinate in the
+child gives the rectangle on the right. Its area is $3/2$ times the
+original area.}
+\label{fig:section-volume}
+\end{figure}
+
+
+\begin{lemma}[Refinement and child admission]\label{lem:admission}
+Suppose the state represents only orders consistent with the transcript
+and every node has positive feasible volume. An interior refinement
+preserves both properties.
+\end{lemma}
+\begin{proof}
+Take feasible positions representing any order after the move. Remove
+the fresh coordinate of $x$ from the child and restore $X_x=c$ in the
+parent. The parent positions satisfy the old inequalities by construction.
+Keeping the other coordinates fixed, we can perturb $X_x$ slightly to
+either side of $c$, since its inequalities are strict. These two old
+orders place $x$ immediately before and immediately after the child
+block. Both respect the transcript, so it contains no comparison between
+$x$ and an item in the block. In the new order, $x$ can occur anywhere
+inside that block, with its order relative to all outside items preserved.
+For a new child the block was empty, and the same argument places $x$
+at its former parent position. Positivity follows from
+Lemma~\ref{lem:interior} and the refinement identity.
+\end{proof}
+
+A refinement can change which orders the state represents. For instance,
+a move into an existing child allows interleavings inside that child
+that were previously excluded. The invariant concerns consistency with
+the transcript.
