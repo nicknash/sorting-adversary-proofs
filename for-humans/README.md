@@ -24,6 +24,12 @@ within a polynomial-time budget. Section 6 applies the prefix bound to
 partial-order production with vanishing relative error. A weak-order
 extension gives a supplied-poset guarantee of
 `(1-o(1))log e(P) - O(n log log n)` further comparisons.
+The open questions also ask for deterministic relative-volume approximation
+of marked order polytopes with bounded degree and directed height, starting
+with height-two, degree-three posets. The connection to approximate counting
+of linear extensions is explained, with short appendix proofs of
+constant-factor amplification and the implication from an FPTAS to an
+adversary for every supplied partial order.
 The appendices prove the independent DAG lemmas and tree-dependent
 consistency guarantees, construct the finite local calculations, and
 supply the quantitative estimates and corollary proofs.
