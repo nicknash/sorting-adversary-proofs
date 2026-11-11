@@ -55,8 +55,11 @@ in this path repair is therefore at least
 \]
 Every path repair in a completed call to \texttt{Compare} contributes
 all $H$ refinements to $P$, the total number of refinements after $q$
-completed calls. Combining their average gain of at least $k/4$
-per refinement with the bounds for \texttt{Select} and degree repairs gives
+completed calls. Path repairs contribute at least $k/4$ per refinement
+on average. Refinements requested by \texttt{Select} gain more than $k$
+(Lemma~\ref{lem:local-routines} and \eqref{eq:refinement-gain}), and
+each of the $D$ degree repairs gains at least $-4$ by \eqref{eq:tariff}.
+Summing these contributions and applying \eqref{eq:total-refinement-gain} gives
 \[
 \frac k4(P-D)-4D\le G\le a_\eta q,\qquad D\le q/k.
 \]
