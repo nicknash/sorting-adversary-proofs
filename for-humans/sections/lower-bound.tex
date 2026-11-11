@@ -42,8 +42,16 @@ $\log Z$, and each of these $H/2$ refinements contributes at least
 $(1-1/k)(k-1)$ in addition. The total increase from the $H$ refinements
 in this path repair is therefore at least
 \[
-(1-1/k)\frac H2(k-1)-4H
-= H\left(\frac{k}{2}-5+\frac1{2k}\right)\ge\frac{kH}{4}.
+\begin{aligned}
+&\underbrace{(1-1/k)\frac H2(k-1)}_{
+  \substack{\text{extra gain from }H/2\text{ anchors}\\
+            \text{with }m\ge k-1}}
++\underbrace{(-4H)}_{
+  \substack{-4\text{ from all }H\text{ anchors,}\\
+            \text{including those with }m<k-1}}
+\\[1ex]
+&\qquad=H\left(\frac{k}{2}-5+\frac1{2k}\right)\ge\frac{kH}{4}.
+\end{aligned}
 \]
 Every path repair in a completed call to \texttt{Compare} contributes
 all $H$ refinements to $P$. Combining their average gain of at least $k/4$
