@@ -45,11 +45,9 @@ Append $\mathit{answer}$ to $\mathcal T$\;
 \subsubsection{Choosing an answer}\label{sec:selection}
 
 \texttt{Select} uses deterministic estimates of the fractions of $K(D)$
-retained by the two answers. Lemma~\ref{lem:local-routines} states its
-guarantee.
-
-The size of the DAG neighborhood examined around each queried vertex
-depends on vertex degree (the sum of its in-degree and out-degree) and
+retained by the two answers. It obtains these estimates by examining
+bounded neighborhoods of the queried vertices in the DAG. The size of
+each neighborhood depends on vertex degree (the sum of its in-degree and out-degree) and
 the length of the longest directed path in the DAG. We use one integer
 $k$ to specify these bounds in Lemma~\ref{lem:local-routines}. Larger $k$ allows higher degrees
 and longer paths, while the guaranteed retained fraction approaches
