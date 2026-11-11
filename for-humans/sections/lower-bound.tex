@@ -37,8 +37,10 @@ $c_{i+1}>c_i$. Thus these $H=2^k$ anchors are distinct. The anchors with
 reduced denominator $2^{m+1}$ are $(2j+1)/2^{m+1}$ for $0\le j<2^m$.
 Thus only $\sum_{m=0}^{k-2}2^m=2^{k-1}-1<H/2$ possible anchors have
 $m<k-1$. At least $H/2$ of the selected anchors therefore have $m\ge k-1$.
-By \eqref{eq:tariff}, the total increase in $\log Z$ from the $H$
-refinements in this path repair is at least
+By \eqref{eq:tariff}, every refinement contributes at least $-4$ to
+$\log Z$, and each of these $H/2$ refinements contributes at least
+$(1-1/k)(k-1)$ in addition. The total increase from the $H$ refinements
+in this path repair is therefore at least
 \[
 (1-1/k)\frac H2(k-1)-4H
 = H\left(\frac{k}{2}-5+\frac1{2k}\right)\ge\frac{kH}{4}.
