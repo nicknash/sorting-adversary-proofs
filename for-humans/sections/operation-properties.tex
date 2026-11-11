@@ -16,14 +16,16 @@ bounds hold between calls.
 See Appendix~\ref{app:execution}.
 \end{proof}
 
-Within a call to \texttt{Compare}, only the two queried items can move
-before the comparison is answered. Once moved, an
+To obtain the $n+2$ bound, consider one call to \texttt{Compare}.
+Before it answers its query, only the two queried items can move. Once moved, an
 item is isolated with interval $(0,1)$, so its density is one.
 \texttt{Select} requires density greater than $2^k$ to move it again
 (Lemma~\ref{lem:local-routines}), which prevents another move before the
 answer. \texttt{Repair} then moves at most
 $n$ items.
 
+We next show that refinements are rare over a sequence of comparisons,
+by tracking increases and decreases in $\log Z$.
 By Lemmas~\ref{lem:local-routines} and~\ref{lem:section-volume}, each
 answer loses at most $1+O(1/k)$ in $\log Z$, while a move requested by
 \texttt{Select} gains more than $k$. The anchor bound~\eqref{eq:tariff}
