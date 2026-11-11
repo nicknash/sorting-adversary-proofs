@@ -129,10 +129,12 @@ When every interval is $(0,1)$, $V(D)=e(P)/n!$ for the partial order $P$
 represented by $D$~\cite{stanley}. For general $P$, a deterministic
 approximation scheme for $e(P)$ remains open
 \cite[Sections~3.6 and~12.2]{chan-pak-survey}. Even a deterministic
-constant-factor approximation would imply an FPTAS, by applying it to
-disjoint copies and taking a root. Taking disjoint copies preserves the
-degree and path-length bounds, so the same argument applies for each
-fixed $d,h$ (Appendix~\ref{app:counting-amplification}).
+constant-factor approximation would imply an FPTAS. Apply it to the
+disjoint union of copies of the partial order $P$, divide by the number
+of ways to interleave the copies, and take a root. The corresponding DAG
+is a disjoint union of copies of $D$, so the degree and path-length bounds
+are preserved. Thus the same argument applies for each fixed $d,h$
+(Appendix~\ref{app:counting-amplification}).
 An FPTAS for arbitrary $P$ would also resolve the supplied-partial-order
 question above: estimate both comparison branches and retain the one
 with the larger estimate (Appendix~\ref{app:counting-adversary}).
