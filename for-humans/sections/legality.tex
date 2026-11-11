@@ -449,7 +449,7 @@ the refinement's \emph{volume gain}. Lemma~\ref{lem:local-routines}
 guarantees that a refinement requested by
 \texttt{Select} gains more than $k$ in $\log Z$, whereas an answer
 loses at most $-\log(1/2-1/(100k))=1+O(1/k)$.
-Thus an inconclusive call to \texttt{Select} restores volume as it moves
+Thus an inconclusive call to \texttt{Select} actually restores volume as it moves
 an item. Since $Z\le1$, these increases must be offset by losses from
 answers and repairs.
 \label{sec:refinement-volume}
