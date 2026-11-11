@@ -62,7 +62,7 @@ for each queried coordinate $x$.
 \caption{\texttt{Select}$(D,\alpha,\beta)$: choose an answer or a position for refinement.}
 \label{alg:select}
 \DontPrintSemicolon
-\KwIn{A canonical order-restriction DAG $D$; distinct coordinates $\alpha,\beta$, or one coordinate and one dyadic constant.}
+\KwIn{A canonical order-restriction DAG $D$ and a query between two distinct coordinates or between a coordinate and a dyadic constant.}
 \KwOut{An answer $\alpha<\beta$ or $\beta<\alpha$, or a pair $(x,c)$.}
 $T\gets$ the queried coordinates\;
 $\mathcal L\gets$ \texttt{Enclose}$(D,T)$\;
@@ -91,9 +91,9 @@ remaining $|V|-1$ coordinates.
 \begin{lemma}[Local selection]\label{lem:local-routines}
 Let $k\ge64$ be an integer and $D$ an order-restriction DAG with canonical dyadic intervals,
 $V(D)>0$, degree at most $k$, and directed paths of at most $2^{k+1}$
-vertices. Algorithm~\ref{alg:select} returns either
+vertices. Algorithm~\ref{alg:select} returns one of the following:
 \begin{enumerate}
-\item An answer retaining at least $1/2-1/(100k)$ of $V(D)$; or
+\item An answer retaining at least $1/2-1/(100k)$ of $V(D)$.
 \item A queried coordinate $x$ and a dyadic $c\in(\ell_x,r_x)$ with
 $f_x(c)>2^k$.
 \end{enumerate}
@@ -121,13 +121,12 @@ choices remains between the two copies, coordinate by coordinate.
 For the analysis, imagine starting this third assignment uniformly in
 $K(D)$ and choosing each piece uniformly. Conditional on the other
 positions, the coordinate being changed is uniform in its permitted
-range; choosing a piece uniformly keeps it so. Thus the third assignment
+range. Choosing each equal piece with equal probability preserves this
+conditional distribution. Thus the third assignment
 remains uniform in $K(D)$, enclosed by the two copies as
 Figure~\ref{fig:local-enclosure} illustrates.
 This use of enclosing copies is related to sampling algorithms for
-linear extensions~\cite[Section~4.2]{talvitie-counting}; here we enumerate
-finitely many choices in a bounded neighborhood to obtain deterministic
-probability bounds.
+linear extensions~\cite[Section~4.2]{talvitie-counting}.
 
 \begin{center}
 \begin{minipage}{\linewidth}
@@ -169,8 +168,8 @@ probability bounds.
 \end{tikzpicture}
 \captionof{figure}{Updating two unconstrained coordinates using four
 pieces. All three copies choose the second piece for $x$ and the fourth
-for $y$. The blue interval endpoints are the positions in the lower
-and upper copies; the dots show one feasible assignment between them.
+for $y$. The blue interval endpoints show the two enclosing positions
+for each coordinate. The dots show one feasible assignment between them.
 The resulting disjoint intervals certify $X_x<X_y$.}
 \label{fig:local-enclosure}
 \end{minipage}
@@ -199,8 +198,8 @@ order determines the answer for the enclosed assignment. Counting these
 entries gives certified lower bounds on the answer probabilities.
 If the intervals overlap too often to certify an answer, the two
 positions must often be nearly equal. Under the graph bounds, the
-density estimates force both stored coordinate intervals to be very
-short; their middle halves then have density greater than $2^k$.
+density estimates imply that both stored intervals are short enough to
+guarantee density greater than $2^k$ throughout their middle halves.
 This supplies the refinement promised by the lemma.
 \end{proof}
 
@@ -344,14 +343,14 @@ Insert $x$ into $D_u$ as an isolated vertex with record $(x,0,1)$\;
 \draw[thick,ink!55] (0,-.15)--(0,-1);
 \draw[group] (-1.8,-2) rectangle (1.8,-1);
 \node at (0,-1.3) {Same child at $c$};
-\node at (0,-1.7) {$x,z$ free; no arc};
+\node at (0,-1.7) {$x,z$ free (no arc)};
 \end{scope}
 \end{tikzpicture}
 \captionof{figure}{The two arc inequalities become bounds on the remaining parent
 coordinates. The new coordinate of $x$ orders it within the child, where
-both $x<z$ and $z<x$ remain possible. The anchor $c$ locates the child
-block among the parent items; the child's constraints determine the orders
-within that block.}
+both $x<z$ and $z<x$ remain possible. The anchor $c$ determines where
+the child block lies among the parent items. The child's constraints
+determine the possible orders within that block.}
 \label{fig:overview-refine}
 \end{minipage}
 \end{center}
@@ -359,9 +358,9 @@ within that block.}
 
 At an interior anchor, the old constraints allow $x$ immediately before
 or after the existing child block. Both placements satisfy the transcript,
-so no earlier answer compares $x$ with an item in that block. It is
-therefore safe to let $x$ enter the block; the full argument is in
-Appendix~\ref{app:execution}. This move can allow orders previously
+so no earlier answer compares $x$ with an item in that block. Thus $x$
+can enter the child without contradicting any earlier answer
+(Appendix~\ref{app:execution}). This move can allow orders previously
 excluded by the tree, while preserving every answer in the transcript.
 
 When \texttt{Select} returns $(x,c)$, \texttt{RefineAt} moves $x$ into
@@ -375,8 +374,8 @@ Initially $Z=1$, and positive node volumes give $0<Z\le1$.
 Each item has one coordinate, so the product region always has dimension
 $n$. This volume is not by itself the fraction of total orders consistent
 with the transcript, as we will see in Section~\ref{sec:potential}.
-The following identity gives the change in $Z$; here $f_x$ is the
-density at the parent before refinement.
+The following identity expresses the change in $Z$ using the density
+$f_x$ of $X_x$ at the parent before refinement.
 
 \begin{samepage}
 \begin{lemma}[Refinement identity]\label{lem:section-volume}
@@ -396,8 +395,8 @@ See Appendix~\ref{app:execution}.
 Figure~\ref{fig:section-volume} provides an example of the refinement operation.
 The parent region $0<X_A<X_B<1$ has area $1/2$. Fixing
 $X_A=1/4$ leaves the interval $X_B\in(1/4,1)$ of length $3/4$. The new
-child coordinate $U_A\in(0,1)$ turns this into a rectangle of area $3/4$,
-so refinement multiplies $Z$ by $3/2$.
+child coordinate $U_A\in(0,1)$ turns this interval into a rectangle of
+area $3/4$. Refinement therefore multiplies $Z$ by $3/2$.
 Both regions represent the order $A<B$. Replacing the fixed parent
 coordinate by a fresh child coordinate gives the larger area.
 
@@ -446,7 +445,8 @@ We call the change
 \begin{equation}\label{eq:refinement-gain}
  g=\log\frac{Z_{\rm after}}{Z_{\rm before}}=\log f_x(c)
 \end{equation}
-the refinement's \emph{volume gain}. A refinement requested by
+the refinement's \emph{volume gain}. Lemma~\ref{lem:local-routines}
+guarantees that a refinement requested by
 \texttt{Select} gains more than $k$ in $\log Z$, whereas an answer
 loses at most $-\log(1/2-1/(100k))=1+O(1/k)$.
 Thus an inconclusive call to \texttt{Select} restores volume as it moves
@@ -515,6 +515,6 @@ See Appendices~\ref{sec:oracle} and~\ref{app:execution}.
 \end{proof}
 
 Since $m\ge0$, each repair move loses at most four in $\log Z$.
-For a path repair, the dependence on $m$ gives a stronger bound on
-the combined gain; Section~\ref{sec:rare-refinements} uses it to limit
-the total number of moves.
+For a path repair, the dependence on $m$ yields a stronger lower bound
+on the total change in $\log Z$. Section~\ref{sec:rare-refinements} uses
+this bound to limit the number of refinements.

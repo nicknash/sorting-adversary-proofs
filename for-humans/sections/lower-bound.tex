@@ -116,9 +116,9 @@ $s!$ relative orders has probability $1/s!$.
 The product $\mathcal W$ is the probability that all $s$ labels reach
 the nodes where the adversary stores them. Once there, they all stop
 with probability at least $(1-1/k)^s$. Conditional on these choices,
-their independently uniform coordinates satisfy the node constraints
-with probability $Z$; here we use the fact that omitting unqueried labels
-does not change $Z$.
+the independently uniform coordinates satisfy all node constraints with
+probability equal to the product of the node volumes. Omitting unqueried
+labels leaves that product equal to $Z$.
 
 Multiplying these three factors gives probability at least
 $(1-1/k)^s Z\mathcal W$ of obtaining an order consistent with the
