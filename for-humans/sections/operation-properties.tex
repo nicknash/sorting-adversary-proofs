@@ -29,9 +29,13 @@ by tracking increases and decreases in $\log Z$.
 By Lemmas~\ref{lem:local-routines} and~\ref{lem:section-volume}, each
 answer loses at most $1+O(1/k)$ in $\log Z$, while a move requested by
 \texttt{Select} gains more than $k$. The anchor bound~\eqref{eq:tariff}
-limits each degree repair's loss to four and gives path repairs an
-average gain of at least $k/4$ per moved item, as
-Section~\ref{sec:rare-refinements} proves. Degree repairs occur at most
+limits each degree repair's loss to four. A path repair performs
+$H=2^k$ refinements at once, but their anchors must be distinct.
+The same anchor bound therefore makes the whole repair profitable,
+with a total increase of at least $kH/4$ in $\log Z$, as
+Section~\ref{sec:rare-refinements} proves.
+
+Degree repairs occur at most
 once per $k$ comparisons on average, since each removes $k$ comparison
 arcs and each comparison inserts at most one. Because $\log Z$ starts at
 zero and never exceeds zero, the gains
