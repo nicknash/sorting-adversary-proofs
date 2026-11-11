@@ -136,7 +136,7 @@ T_q\ge \bigl[s!(1-1/k)^s Z\mathcal W\bigr]\frac{n!}{s!}
 \]
 \end{proof}
 
-\subsection{The prefix bound}\label{sec:comparison-cost}
+\subsection{Bounding the number of remaining orders}\label{sec:comparison-cost}
 
 \begin{proof}[Proof of Theorem~\ref{thm:fixed-stage}]
 For the first $Q(n)$ calls to \texttt{Compare}, legality and termination
@@ -164,5 +164,5 @@ Lemma~\ref{lem:rare-refinements}. We can therefore take
 $\delta_k=aa_\eta-1+2d_k+Cb/k$.
 \end{proof}
 
-The same prefix bound applies when an algorithm can stop with several
-orders still possible.
+The bound on $T_q$ also applies to tasks where the algorithm may stop
+with several total orders still possible (Section~\ref{sec:consequences}).
