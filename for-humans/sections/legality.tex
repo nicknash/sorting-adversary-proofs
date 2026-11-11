@@ -88,6 +88,11 @@ f_x(c)=\frac{\vol_{|V|-1}\bigl(K(D)\cap\{X_x=c\}\bigr)}{V(D)}.
 The numerator is the volume of the section $X_x=c$, measured in the
 remaining $|V|-1$ coordinates.
 
+The lemma expresses the key idea: either we answer while retaining nearly
+half the feasible volume, mirroring the ideal adversary, or we identify a
+refinement that greatly increases the product of the node volumes
+(Lemma~\ref{lem:section-volume}).
+
 \begin{lemma}[Local selection]\label{lem:local-routines}
 Let $k\ge64$ be an integer and $D$ an order-restriction DAG with canonical dyadic intervals,
 $V(D)>0$, degree at most $k$, and directed paths of at most $2^{k+1}$
@@ -197,9 +202,6 @@ of keeping at least half the possible total orders.
 Section~\ref{sec:potential} relates the node volumes to the number of
 orders still possible. We use this count to prove that every correct
 sorter must make at least $(1-o(1))n\log n$ comparisons.
-Whenever the local calculation cannot certify an answer, it supplies a
-refinement that increases the product of the node volumes by a factor
-greater than $2^k$ (Lemma~\ref{lem:section-volume}).
 
 \begin{algorithm}[H]
 \caption{\texttt{Enclose}$(D,T)$: compute enclosing intervals for the queried coordinates.}
