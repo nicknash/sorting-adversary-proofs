@@ -138,3 +138,87 @@ q\ge\frac{\log e(P)}{1-\log(1-1/n)}
 \]
 The approximation calls use polynomial time, and every chosen answer
 is legal. This proves the claimed implication uniformly over $P$.
+
+\subsection{Sampling linear extensions}\label{app:exact-sampling}
+
+\begin{proof}[Proof of Corollary~\ref{cor:exact-sampling}]
+Give every vertex the interval $(0,1)$, and choose $S,p$ as in
+\eqref{eq:digit-alphabet}--\eqref{eq:moment-power}. We use coupling from
+the past~\cite{propp-wilson}, stopping when all coordinate orders are
+certified, as in Huber's sampler~\cite{huber-sampling}.
+
+Fix a topological order. For each negative integer $s$, let $F_s$ be a
+full sweep of \eqref{eq:digit-update}, using independent uniform digits
+at every vertex. Retain each digit once generated. For a horizon $t$,
+apply $F_{-t},\ldots,F_{-1}$ in that order to the all-zero and all-one
+vectors, obtaining $A(t),B(t)$. A larger horizon prepends older sweeps
+and replays the entire history, without changing any previously used
+digit.
+
+Each sweep is increasing and preserves the closed feasible region.
+Consequently,
+\[
+A(t)\le A(t+1)\le B(t+1)\le B(t).
+\]
+Appendix~\ref{app:coupling} gives
+$\E(B_x(t)-A_x(t))^p\le2^{-t}$ for every coordinate $x$.
+Together with nesting, this implies that both vectors converge almost
+surely to a common limit $Z$. To identify its law, take $U$ uniformly
+distributed on $K(D)$, independently of the digit history. Applying the
+same $t$ sweeps to $U$ gives a uniform point $Y(t)$, since each sweep
+preserves the uniform law after averaging its digits
+(Appendix~\ref{sec:oracle}). Monotonicity gives
+$A(t)\le Y(t)\le B(t)$, so $Y(t)\to Z$ almost surely. Thus $Z$ is
+uniform on $K(D)$; it is used only in the proof.
+
+Start with $t_0=\ceil{\log(n+1)}$ and double the horizon until the
+intervals $[A_x(t),B_x(t)]$ are pairwise disjoint. Sort their lower
+endpoints and check that each upper endpoint is strictly below the next
+lower endpoint. At termination, return this order. It equals the order
+of $Z$, which is a uniform linear extension: every compatible
+permutation occupies a simplex of volume $1/n!$. Since $Z$ has distinct
+coordinates almost surely and the widths vanish, the algorithm
+terminates almost surely. The stopping rule therefore introduces no
+bias.
+
+For the running time, the sorted coordinates of $Z$ have the
+order-statistic distribution of $n$ independent uniform points on
+$(0,1)$. Indeed, conditioning those points on their relative permutation
+being a linear extension leaves their sorted values unchanged. A union
+bound gives
+\[
+\Prb\bigl(\min_{x\ne y}|Z_x-Z_y|\le2\delta\bigr)
+\le2n(n-1)\delta.
+\]
+If every width is at most $\delta$ and every coordinate gap exceeds
+$2\delta$, the enclosing intervals are disjoint. Markov's inequality
+and a union bound therefore give
+\[
+\Prb(\text{failure at horizon }t)
+\le n2^{-t}\delta^{-p}+2n(n-1)\delta.
+\]
+Taking $\delta=2^{-t/(p+1)}$ yields
+\begin{equation}\label{eq:exact-sampling-tail}
+\Prb(\text{failure at horizon }t)
+\le(2n^2-n)2^{-t/(p+1)}.
+\end{equation}
+Summing this tail over doubled horizons shows that the final horizon
+$T$ satisfies $\E T=O_{d,h}(\log n)$ and
+$\E T^2=O_{d,h}(\log^2 n)$.
+
+A topological order and incoming and outgoing adjacency lists take
+$O_{d,h}(n)$ operations to prepare. Each stage uses $O_{d,h}(nt)$
+arithmetic operations, including the $O(n\log n)$ comparisons needed
+to sort the intervals, since $t\ge t_0\ge\log n$. Summing over doubled
+horizons gives $O_{d,h}(nT)$ operations. Each digit uses exactly
+$\log S$ fair bits, and retaining the history uses only $nT\log S$
+bits in total. This proves both expected bounds.
+
+All computed endpoints are exact dyadic rationals. After $t$ sweeps they
+have at most $ht\log S$ fractional bits: within one sweep a new value
+can depend on earlier updates only along a predecessor path of at most
+$h$ vertices, and each update adds at most $\log S$ bits. Thus the
+expected bit cost of the arithmetic is $O_{d,h}(n\log^2 n)$ in a
+random-access model, by summing $O_{d,h}(nt^2)$ over the stages and
+using the bound on $\E T^2$.
+\end{proof}

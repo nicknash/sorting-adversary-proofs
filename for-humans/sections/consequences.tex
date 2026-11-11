@@ -76,6 +76,24 @@ $\log e(P)=\omega(n\log\log n)$. Kahn and Kim's adversary already forces
 $\Omega(\log e(P))$ for every $P$. The improvement here is the
 coefficient approaching one in this regime.
 
+\subsection{Sampling linear extensions}
+
+Huber~\cite{huber-sampling} gives a near-linear expected-time exact
+sampler for height-two posets of bounded degree. Our contraction
+estimate also gives a sampler for any fixed degree and directed-height
+bounds.
+
+\begin{corollary}[Exact sampling]\label{cor:exact-sampling}
+Fix integers $d,h\ge1$. Given adjacency lists of an $n$-vertex DAG of
+degree at most $d$ and with directed paths of at most $h$ vertices, one
+can sample a linear extension exactly uniformly using
+$O_{d,h}(n\log n)$ arithmetic operations and fair random bits in
+expectation.
+\end{corollary}
+\begin{proof}
+See Appendix~\ref{app:exact-sampling}.
+\end{proof}
+
 \subsection{Open questions}
 
 Can a deterministic polynomial-time adversary force
