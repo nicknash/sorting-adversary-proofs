@@ -1,12 +1,12 @@
 {
   "date": "2026-11-11",
-  "status": "not_submitted",
+  "status": "submitted_for_moderation",
   "argument": "Count all transcript-compatible orders by freely inserting untouched labels after sampling the queried labels. The single weight distribution has total child mass 1/k. Dyadic resolution gives refinement rarity before weights enter the proof. Full sweeps contract and finite dependence identifies the queried endpoints with their local calculations.",
   "local_pdf_sha256": "60e596e6b5d1465cef9f13a6761f4d96731735011a734d8da1e24e22f2395807",
   "prepared_zip_sha256": "a74899883c8802e64545fca2bed380b4f78ef16d8dd45ada0e63bc3cb035ae2c",
   "previous_hexagon_submission": "hexagon:2611.00196",
   "previous_submission_metadata": "submission.json",
-  "formalization": "Related earlier integer-colour construction; this continuous presentation is not formally verified.",
+  "formalization": "Lean formalization at https://github.com/nicknash/sorting-adversary-proofs, linked in the manuscript and submission provenance.",
   "exposition": "Section 3 gives Compare, Select, Enclose, Restrict, Normalize, RefineAt, and Repair pseudocode at their points of introduction. It states the local selection, restriction, refinement, and anchor guarantees before their proofs. The volume accounting distinguishes answers, moves requested by Select, degree repairs, and path repairs.",
   "pages": 36,
   "source_chat": "https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af20322-5238-83eb-8c1a-60fbea8e1d71",
@@ -60,5 +60,7 @@
     "proof": "Finite-digit monotone coupling from the past, retaining the random history and stopping when the enclosing intervals certify every coordinate order. The existing contraction bound gives the expected arithmetic and random-bit bounds; the sharper arithmetic bit cost is explicitly qualified by a random-access model.",
     "prior_work": "Credits Huber\u2019s height-two sampler and Propp\u2013Wilson coupling from the past.",
     "verification": "Proof independently reviewed; PDF rebuilt without warnings and changed pages visually inspected."
-  }
+  },
+  "latest_submission_metadata": "submission-2026-11-11.json",
+  "latest_submission_url": "https://hexagonmath.org/submit/94c0e2ab-ae61-4658-b7e0-67d08a72bb62"
 }
