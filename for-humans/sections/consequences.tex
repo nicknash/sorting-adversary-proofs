@@ -25,15 +25,14 @@ Cardinal et al.~\cite{cardinal-production} give a deterministic
 polynomial-time algorithm using $I(R)+o(I(R))+O(n)$ comparisons.
 
 \begin{corollary}[Partial-order production]\label{cor:production}
-There is a nonnegative sequence $\varepsilon_n\to0$, independent of the
-target, such that the adversary of Theorem~\ref{thm:main} forces every
+The adversary of Theorem~\ref{thm:main} forces every
 correct comparison algorithm producing an $n$-element partial order $R$
 to make at least
 \[
-(1-\varepsilon_n)I(R)
+(1-o(1))I(R)
 \]
-comparisons. The adversary is initialized using only $n$ and works for
-every target $R$.
+comparisons. The $o(1)$ term depends only on $n$. The adversary is
+initialized using only $n$ and works for every target $R$.
 \end{corollary}
 \begin{proof}
 See Appendix~\ref{app:consequences}.

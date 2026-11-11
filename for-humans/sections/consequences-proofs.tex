@@ -5,12 +5,14 @@
 \begin{proof}[Proof of Corollary~\ref{cor:production}]
 A successful output assigns each key to one slot of $R$. Every total
 order satisfying the transcript must respect this assignment, so
-$T_q\le e(R)$. Apply Theorem~\ref{thm:fixed-stage} with the parameter
-$k=k(n)$ selected in Section~\ref{sec:parameter-selection}. It gives
-$q\ge I(R)/(1+\delta_{k(n)})$. Take
-$\varepsilon_n=\delta_{k(n)}/(1+\delta_{k(n)})$ when a parameter
-qualifies and $\varepsilon_n=1$ otherwise. Since $k(n)\to\infty$,
-$\varepsilon_n\to0$, uniformly over targets.
+$T_q\le e(R)$. For all sufficiently large $n$, apply
+Theorem~\ref{thm:fixed-stage} with the parameter $k=k(n)$ selected in
+Section~\ref{sec:parameter-selection}. It gives
+\[
+q\ge\frac{I(R)}{1+\delta_{k(n)}}=(1-o(1))I(R),
+\]
+since $k(n)\to\infty$ and $\delta_k=O(\log k/k)$. The $o(1)$ term
+depends only on $n$, so the bound is uniform over all targets $R$.
 \end{proof}
 
 \subsection{A compatible partition into layers}
