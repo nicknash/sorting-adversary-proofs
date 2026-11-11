@@ -17,12 +17,23 @@
 \setlength{\parskip}{2pt plus 1pt}
 \setlength{\emergencystretch}{1.5em}
 \setlist{nosep,leftmargin=1.7em,topsep=4pt}
-\pagestyle{fancy}
-\fancyhf{}
-\fancyhead[L]{\small An Optimal Deterministic Adversary for Sorting}
-\fancyhead[R]{\small\color{ink}Nicholas Nash}
-\fancyfoot[C]{\thepage}
-\renewcommand{\headrulewidth}{0.3pt}
+\fancypagestyle{maintext}{%
+  \fancyhf{}
+  \fancyhead[L]{\small An Optimal Deterministic Adversary for Sorting}
+  \fancyhead[R]{\small\color{ink}Nicholas Nash}
+  \fancyfoot[C]{\thepage}
+  \renewcommand{\headrulewidth}{0.3pt}
+}
+\newcommand{\appendixnotice}{%
+  {\small\color{red!70!black}This page contains raw, but Lean verified, AI generated results}%
+}
+\fancypagestyle{appendixpages}{%
+  \fancyhf{}
+  \fancyhead[C]{\appendixnotice}
+  \fancyfoot[C]{\appendixnotice\\[3pt]\thepage}
+  \renewcommand{\headrulewidth}{0.3pt}
+}
+\pagestyle{maintext}
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{lemma}[theorem]{Lemma}
 \newtheorem{proposition}[theorem]{Proposition}
@@ -71,6 +82,7 @@ A Lean formalization is available
 \input{sections/implementation}
 \input{sections/consequences}
 \clearpage
+\pagestyle{appendixpages}
 \begin{center}
 \setlength{\fboxsep}{12pt}
 \setlength{\fboxrule}{1pt}
@@ -96,5 +108,6 @@ The main sorting result has been formalized in
 \input{sections/parameters}
 \input{sections/consequences-proofs}
 \clearpage
+\pagestyle{maintext}
 \input{sections/references}
 \end{document}
