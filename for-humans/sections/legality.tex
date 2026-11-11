@@ -105,11 +105,12 @@ See Appendices~\ref{sec:oracle} and~\ref{app:execution}.
 \end{proof}
 
 \begin{proof}[Proof idea for Lemma~\ref{lem:local-routines}]
-Consider repeatedly passing through the vertices in topological order,
-changing one position at a time. With all other positions fixed, the permitted
-range at a vertex is determined by its stored interval and its
-neighbors' positions. Split this range into $S$ equal pieces, choose
-one, and move the position to the same relative point in that piece.
+We sketch the enclosing-interval construction behind \texttt{Select}'s
+probability estimates. Pass through the vertices in topological order,
+changing one position at a time. Its permitted range is determined by
+the stored interval and the neighbors' positions. Split this range into
+$S$ equal pieces, choose one, and move the position to the same relative
+point in that piece.
 For example, choosing the second quarter of $(0,1)$ sends a position
 $u$ to $(1+u)/4$.
 
@@ -118,16 +119,13 @@ at all lower interval endpoints and the other at all upper endpoints.
 At each step, use the same piece number in both copies, each within its
 own permitted range.
 
-We now relate these two copies to the probability estimates used by
-\texttt{Select}. For this proof, consider an additional position vector
-$X$, initially uniform in $K(D)$. At each update, choose a piece number
+For the proof, also consider a position vector $X$, initially uniform
+in $K(D)$. At each update, choose a piece number
 independently and uniformly, and use it in all three vectors.
 The update preserves coordinatewise order, so $X$ stays between the two
-endpoint copies. Conditional on the other positions, the coordinate of
-$X$ being changed is uniform in its permitted range. Choosing each equal
-piece with equal probability preserves this conditional distribution.
-Thus $X$ remains uniform in $K(D)$, enclosed by the two endpoint copies
-after every update (Figure~\ref{fig:local-enclosure}).
+endpoint copies (Figure~\ref{fig:local-enclosure}). It also preserves
+the uniform distribution on $K(D)$: conditional on the other positions,
+it sends a uniform position into a uniformly chosen equal piece.
 This use of enclosing copies is related to sampling algorithms for
 linear extensions~\cite[Section~4.2]{talvitie-counting}.
 
@@ -178,32 +176,20 @@ The resulting disjoint intervals certify $X_x<X_y$.}
 \end{minipage}
 \end{center}
 
-To see where the gaps begin to shrink, consider a vertex $z$ with no
-incoming arcs. Both copies use the same fixed lower endpoint $\ell_z$.
-Choosing the first piece sends either position $u$ to
-$\ell_z+(u-\ell_z)/S$, dividing the gap between the copies by $S$.
-The proof tracks how reductions of this kind reach other vertices
-through their neighbors' positions. It bounds the number of passes
-needed to make the queried gaps small for all but a small fraction of
-choice sequences, using only the degree and path bounds and the desired
-accuracy.
+Disjoint enclosing intervals determine the queried order, so narrow
+intervals make the probability estimates useful. At a vertex with no
+incoming arcs, choosing the first piece moves both endpoint copies
+towards their common lower bound and reduces their separation.
+The proof tracks how this shrinking passes through neighboring vertices.
+The degree and path bounds control how many passes are needed to make
+the queried intervals narrow for most choice sequences.
 
-These passes can be computed locally. Within one pass, dependence on
-positions already changed follows directed paths. The longest directed
-path therefore bounds how far a pass can carry information. After a
-fixed number of passes, only a bounded neighborhood of the queried
-vertices can affect their positions. Bounded degree makes this a
-bounded number of vertices, even if the full DAG is large.
-
-\texttt{Enclose} enumerates all update choices in this neighborhood.
-Whenever the resulting intervals for $x$ and $y$ are disjoint, their
-order determines the answer for the enclosed assignment. Counting these
-entries gives certified lower bounds on the answer probabilities.
-If the intervals overlap too often to certify an answer, the two
-positions must often be nearly equal. Under the graph bounds, the
-density estimates imply that both stored intervals are short enough to
-guarantee density greater than $2^k$ throughout their middle halves.
-This supplies the refinement promised by the lemma.
+Within one pass, dependence on newly updated positions follows directed
+paths. After a bounded number of passes, only a bounded neighborhood can
+affect a queried interval. \texttt{Enclose} enumerates the update choices
+there, and \texttt{Select} counts the entries that certify each comparison
+answer. The density argument for the refinement alternative is left to
+the full proof.
 \end{proof}
 
 Keeping nearly half the volume at each answer is the geometric counterpart
