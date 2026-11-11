@@ -16,7 +16,7 @@ bounds hold between calls.
 See Appendix~\ref{app:execution}.
 \end{proof}
 
-To obtain the $n+2$ bound, consider one call to \texttt{Compare}.
+To see Proposition~\ref{prop:legality}'s $n+2$ bound, consider one call to \texttt{Compare}.
 Before it answers its query, only the two queried items can move. Once moved, an
 item is isolated with interval $(0,1)$, so its density is one.
 \texttt{Select} requires density greater than $2^k$ to move it again
