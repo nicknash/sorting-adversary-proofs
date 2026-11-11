@@ -142,6 +142,8 @@ is legal. This proves the claimed implication uniformly over $P$.
 \subsection{Sampling linear extensions}\label{app:exact-sampling}
 
 \begin{proof}[Proof of Corollary~\ref{cor:exact-sampling}]
+All asymptotic constants in this proof may depend on the fixed parameters
+$d,h$.
 Give every vertex the interval $(0,1)$, and choose $S,p$ as in
 \eqref{eq:digit-alphabet}--\eqref{eq:moment-power}. We use coupling from
 the past~\cite{propp-wilson}, stopping when all coordinate orders are
@@ -203,14 +205,14 @@ Taking $\delta=2^{-t/(p+1)}$ yields
 \le(2n^2-n)2^{-t/(p+1)}.
 \end{equation}
 Summing this tail over doubled horizons shows that the final horizon
-$T$ satisfies $\E T=O_{d,h}(\log n)$ and
-$\E T^2=O_{d,h}(\log^2 n)$.
+$T$ satisfies $\E T=O(\log n)$ and
+$\E T^2=O(\log^2 n)$.
 
 A topological order and incoming and outgoing adjacency lists take
-$O_{d,h}(n)$ operations to prepare. Each stage uses $O_{d,h}(nt)$
+$O(n)$ operations to prepare. Each stage uses $O(nt)$
 arithmetic operations, including the $O(n\log n)$ comparisons needed
 to sort the intervals, since $t\ge t_0\ge\log n$. Summing over doubled
-horizons gives $O_{d,h}(nT)$ operations. Each digit uses exactly
+horizons gives $O(nT)$ operations. Each digit uses exactly
 $\log S$ fair bits, and retaining the history uses only $nT\log S$
 bits in total. This proves both expected bounds.
 
@@ -218,7 +220,7 @@ All computed endpoints are exact dyadic rationals. After $t$ sweeps they
 have at most $ht\log S$ fractional bits: within one sweep a new value
 can depend on earlier updates only along a predecessor path of at most
 $h$ vertices, and each update adds at most $\log S$ bits. Thus the
-expected bit cost of the arithmetic is $O_{d,h}(n\log^2 n)$ in a
-random-access model, by summing $O_{d,h}(nt^2)$ over the stages and
+expected bit cost of the arithmetic is $O(n\log^2 n)$ in a
+random-access model, by summing $O(nt^2)$ over the stages and
 using the bound on $\E T^2$.
 \end{proof}
