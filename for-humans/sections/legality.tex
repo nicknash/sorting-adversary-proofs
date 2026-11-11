@@ -383,6 +383,16 @@ See Appendix~\ref{app:execution}.
 \end{samepage}
 
 \begin{samepage}
+Fixing $X_x=c$ leaves a cross-section of the parent's feasible region
+with volume $V(D)f_x(c)$. The item $x$ then leaves the parent and receives
+a fresh coordinate in the child. This coordinate ranges independently
+over $(0,1)$, contributing a factor of one to the child's volume.
+All other node volumes are unchanged, so the product volume is
+multiplied by $f_x(c)$.
+
+\end{samepage}
+
+\begin{samepage}
 Figure~\ref{fig:section-volume} provides an example of the refinement operation.
 The parent region $0<X_A<X_B<1$ has area $1/2$. Fixing
 $X_A=1/4$ leaves the interval $X_B\in(1/4,1)$ of length $3/4$. The new
