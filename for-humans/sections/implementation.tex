@@ -1,11 +1,14 @@
 \section{Running time}\label{sec:runtime}\label{sec:parameter-selection}
 
-The local routines inspect a bounded neighborhood. Their cost also depends
-on the precision of the interval endpoints. The following bound makes
-both dependencies explicit.
+\texttt{Select} and \texttt{ChooseAnchor} inspect neighborhoods in an
+order-restriction DAG whose sizes depend only on $k$. Their cost also
+depends on the precision of the interval endpoints. The following lemma
+bounds the number of digit assignments they enumerate and the precision
+of the anchors they return.
 
-\begin{lemma}[Cost of the local routines]\label{lem:local-cost}
-For the routines in Lemmas~\ref{lem:local-routines}
+\begin{lemma}[Cost of \texttt{Select} and \texttt{ChooseAnchor}]\label{lem:local-cost}
+For \textnormal{\texttt{Select}} and \textnormal{\texttt{ChooseAnchor}}
+under the assumptions of Lemmas~\ref{lem:local-routines}
 and~\ref{lem:anchor-selection}, there is a computable
 budget $E_k$, depending only on $k$, such that each call enumerates at
 most $E_k$ digit assignments. If the stored interval bounds have at most
@@ -27,9 +30,11 @@ For every $k$ in this sequence, both its generation time and $E_k$ are finite.
 That tuple therefore qualifies for all sufficiently large $n$, proving
 $k(n)\to\infty$. These parameters give an asymptotic guarantee, with
 no claim of practical running time. Appendix~\ref{app:arithmetic}
-verifies that the stored state and exact arithmetic have polynomial
-cost. This yields a fixed polynomial bound on bit operations per query,
-independent of the length of the interaction.
+shows that the interval endpoints require polynomially many bits, and
+that tree traversal and updates to the in-node DAGs take polynomial time.
+Each comparison calls \texttt{Select} at most three times and
+\texttt{ChooseAnchor} at most $n$ times, giving a fixed polynomial bound
+on bit operations per query, independent of the length of the interaction.
 
 \begin{proof}[Proof of Theorem~\ref{thm:main}]
 The adversary is deterministic and polynomial-time. The fixed-order
