@@ -225,9 +225,12 @@ For $q\ge Q(n)\ge\log(n!)$, its right-hand side is nonpositive and
 $T_q\ge1$, so the bound holds for all $q$.
 \end{proof}
 
-The largest remaining error comes from the $O(\log k)$ additive cost
-per refinement. Lemma~\ref{lem:rare-refinements} limits the number of
-refinements to $O(q/k)$, so this cost totals $O(q\log k/k)$.
+Intuitively, the proof of Theorem~\ref{thm:fixed-stage} shows that the
+volume gains almost pay for the losses in sampling weight. The remaining
+$O(\log k)$ cost per refinement totals only $O(q\log k/k)$, because
+Lemma~\ref{lem:rare-refinements} limits the number of refinements to
+$O(q/k)$. This gives the error term $\delta_k=O(\log k/k)$ in the
+theorem's bound on the number of remaining orders.
 
 The bound on $T_q$ also applies to tasks where the algorithm may stop
 with several total orders still possible (Section~\ref{sec:consequences}).
