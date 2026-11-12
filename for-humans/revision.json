@@ -1,14 +1,14 @@
 {
-  "date": "2026-11-10",
-  "status": "not_submitted",
+  "date": "2026-11-11",
+  "status": "submitted_for_moderation",
   "argument": "Count all transcript-compatible orders by freely inserting untouched labels after sampling the queried labels. The single weight distribution has total child mass 1/k. Dyadic resolution gives refinement rarity before weights enter the proof. Full sweeps contract and finite dependence identifies the queried endpoints with their local calculations.",
-  "local_pdf_sha256": "3fbb0ce35f85b95659f6b5874b436400e46aed1a3489cd0d3f383bfbbdb364b6",
-  "prepared_zip_sha256": "623c999ad979fa2a07e92b723bffd258de5a864b8918a6b773513b0eec186f24",
+  "local_pdf_sha256": "60e596e6b5d1465cef9f13a6761f4d96731735011a734d8da1e24e22f2395807",
+  "prepared_zip_sha256": "a74899883c8802e64545fca2bed380b4f78ef16d8dd45ada0e63bc3cb035ae2c",
   "previous_hexagon_submission": "hexagon:2611.00196",
   "previous_submission_metadata": "submission.json",
   "formalization": "The continuous construction is formalized under SortingAdversary/Continuous: unconditional leading-one sorting, transcript-prefix counting, target-independent production, and a concrete stored implementation with polynomial primitive work and binary charges in the explicit arithmetic model. The supplied-information layer reduction retains the external weak-order construction and entropy theorem as explicit inputs. See docs/continuous-adversary-formalization.md for the exact verification boundary.",
   "exposition": "Section 3 gives Compare, Select, Enclose, Restrict, Normalize, RefineAt, and Repair pseudocode at their points of introduction. It states the local selection, restriction, refinement, and anchor guarantees before their proofs. The volume accounting distinguishes answers, moves requested by Select, degree repairs, and path repairs.",
-  "pages": 34,
+  "pages": 36,
   "source_chat": "https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af20322-5238-83eb-8c1a-60fbea8e1d71",
   "previous_argument_source_chat": "https://chatgpt.com/g/g-p-6a045ae0f48c8191895c83cae6fb3a8b-adversaries/c/6af1b5f8-a1d0-83ed-b93d-fe7efd94df67",
   "previous_argument_source_pdf_sha256": "577836ef3235bd8c452b8bdf0b5cbf3840c943c1a1837bed8c9f7ce3f41ab907",
@@ -21,11 +21,12 @@
   "base_revision": "e1f8873cfa015aaa62471373e42dfc52887e67cf",
   "source_chat_message": "03c0c585-f8ba-5904-b62b-eb04d81b7dde",
   "implementation_change": "Select returns either a certified answer or a queried label and an interior anchor. ChooseAnchor selects anchors for repairs. RefineAt applies the specified move. Enclose uses a topological order of the retained graph, with its boundary frozen.",
-  "editorial_revision": "After pulling the latest manuscript, replace the introductory reference to the unnamed local selection lemma with a description of recording comparisons in DAGs and using calculations on small neighborhoods to choose answers.",
+  "editorial_revision": "Add the requested red AI and Lean notice to the header and footer of every appendix page, restoring the normal style for references.",
   "consequences": {
     "production": "One target-independent adversary forces (1-epsilon_n) I(R) comparisons, epsilon_n -> 0, where I(R)=log(n!)-log e(R).",
     "prefix_count": "For each fixed stage k, log T_q >= log(n!) - (1+O(log k/k))q for every completed comparison prefix. T_q counts all orders consistent with the transcript.",
-    "initial_partial_order": "Compatible weak-order extension and independent layer adversaries at the common ambient parameter k(n) force (1-o(1))log e(P)-O(n log log n) comparisons."
+    "initial_partial_order": "Compatible weak-order extension and independent layer adversaries at the common ambient parameter k(n) force (1-o(1))log e(P)-O(n log log n) comparisons.",
+    "exact_sampling": "For fixed degree d and directed-height bound h, an adjacency-list DAG admits exact uniform linear-extension sampling in O(n log n) expected arithmetic operations and fair random bits."
   },
   "consequence_sources": [
     {
@@ -52,6 +53,16 @@
     "counting": "State the unresolved general deterministic approximation problem for linear extensions. Appendix H.3 proves constant-factor-to-FPTAS amplification by disjoint union; Appendix H.4 proves that an FPTAS would yield a near-optimal adversary for every supplied poset.",
     "verification": "Primary literature checked; elementary reductions independently reviewed; PDF rebuilt and added pages visually inspected. No new formal verification of the underlying adversary is claimed."
   },
+  "sampling_revision": {
+    "date": "2026-11-11",
+    "base_revision": "0c2755b968968c4225e1f2959565bd7f81549a99",
+    "placement": "Brief Corollary 6.3, with proof in Appendix H.5.",
+    "proof": "Finite-digit monotone coupling from the past, retaining the random history and stopping when the enclosing intervals certify every coordinate order. The existing contraction bound gives the expected arithmetic and random-bit bounds; the sharper arithmetic bit cost is explicitly qualified by a random-access model.",
+    "prior_work": "Credits Huber\u2019s height-two sampler and Propp\u2013Wilson coupling from the past.",
+    "verification": "Proof independently reviewed; PDF rebuilt without warnings and changed pages visually inspected."
+  },
+  "latest_submission_metadata": "submission-2026-11-11.json",
+  "latest_submission_url": "https://hexagonmath.org/submit/94c0e2ab-ae61-4658-b7e0-67d08a72bb62",
   "formalization_sync": {
     "date": "2026-11-10",
     "paper_commit": "42a7f75b8e03238dbc101501e21dc844138c07d3",

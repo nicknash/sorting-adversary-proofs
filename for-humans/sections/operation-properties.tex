@@ -16,22 +16,31 @@ bounds hold between calls.
 See Appendix~\ref{app:execution}.
 \end{proof}
 
-Before the answer, only the two queried items can move. Once moved, an
-item is isolated with interval $(0,1)$ and has density one; the density
-requirement in Lemma~\ref{lem:local-routines} prevents \texttt{Select}
-from moving it again before the answer. The repair then moves at most
+To see Proposition~\ref{prop:legality}'s $n+2$ bound, consider one call to \texttt{Compare}.
+Before it answers its query, only the two queried items can move. Once moved, an
+item is isolated with interval $(0,1)$, so its density is one.
+\texttt{Select} requires density greater than $2^k$ to move it again
+(Lemma~\ref{lem:local-routines}), which prevents another move before the
+answer. \texttt{Repair} then moves at most
 $n$ items.
 
+We next sketch why refinements are rare over a sequence of comparisons,
+by tracking increases and decreases in $\log Z$.
 By Lemmas~\ref{lem:local-routines} and~\ref{lem:section-volume}, each
 answer loses at most $1+O(1/k)$ in $\log Z$, while a move requested by
 \texttt{Select} gains more than $k$. The anchor bound~\eqref{eq:tariff}
-limits each degree repair's loss to four and gives path repairs an
-average gain of at least $k/4$ per moved item, as
-Section~\ref{sec:rare-refinements} proves. Degree repairs occur at most
+limits each degree repair's loss to four. A path repair performs
+$H=2^k$ refinements at once, but their anchors must be distinct.
+The same anchor bound therefore makes the whole repair profitable,
+with a total increase of at least $kH/4$ in $\log Z$, as
+Section~\ref{sec:rare-refinements} proves.
+
+Degree repairs occur at most
 once per $k$ comparisons on average, since each removes $k$ comparison
 arcs and each comparison inserts at most one. Because $\log Z$ starts at
 zero and never exceeds zero, the gains
 from the other moves require enough comparisons to offset them.
+We thus obtain the following lemma.
 
 \begin{lemma}[Refinement count]\label{lem:rare-refinements}
 After $q\le Q(n)$ completed comparison calls, the total number $P$ of refinements
@@ -45,7 +54,7 @@ Finally, the refinement count and the anchor bound allow us to count
 the total orders consistent with the transcript. Let $T_q$ be their
 number after $q$ answers.
 
-\begin{theorem}[Comparison prefixes]\label{thm:fixed-stage}
+\begin{theorem}[Orders remaining after comparisons]\label{thm:fixed-stage}
 For every integer $k\ge64$, the adversary with parameter $k$ is
 deterministic and legal. There is a nonnegative
 $\delta_k=O(\log k/k)$, independent of $n$ and the query sequence,

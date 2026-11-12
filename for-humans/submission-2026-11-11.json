@@ -1,0 +1,43 @@
+{
+  "identifier": "hexagon:2611.00196",
+  "revision_of": "hexagon:2611.00196v1",
+  "status": "submitted_for_moderation",
+  "submission_id": "94c0e2ab-ae61-4658-b7e0-67d08a72bb62",
+  "submitted_at_utc": "2026-11-11T14:03:00Z",
+  "submitted_at_precision": "minute, as displayed on the receipt",
+  "receipt_url": "https://hexagonmath.org/submit/94c0e2ab-ae61-4658-b7e0-67d08a72bb62",
+  "title": "An Optimal Deterministic Adversary for Sorting",
+  "contributor": "Nicholas Nash",
+  "orcid": "0009-0003-0475-7852",
+  "license": "CC-BY-4.0",
+  "primary_subject": "cs.DS",
+  "msc2020": [
+    "68P10"
+  ],
+  "text_provenance": "primarily_ai_generated",
+  "human_understanding": "some_parts_but_not_all",
+  "model": "GPT 6 Astra",
+  "provenance_statement": "The adversary and its analysis are due to AI (GPT 6 Astra). The human author shaped the exposition and abstractions, and reviewed the paper except for the appendices. Some parts, but not all, have been checked and understood by a human. A Lean formalization is available at https://github.com/nicknash/sorting-adversary-proofs .",
+  "author_comments": "Substantially revised and expanded exposition, with explicit algorithms, intuitive explanations of the main proofs, and further consequences. 36 pages. Source and Lean formalization: https://github.com/nicknash/sorting-adversary-proofs .",
+  "formalization_url": "https://github.com/nicknash/sorting-adversary-proofs",
+  "formalization_link_placement": [
+    "provenance_statement",
+    "author_comments",
+    "manuscript"
+  ],
+  "formalization_link_note": "The structured formalization field offers Mathlib, Palomar, Prove2.me, and Tau Ceti, but does not accept GitHub repositories.",
+  "paper_source_commit": "2ec7104a45467107570ce652e966889382c7e0a1",
+  "uploaded_zip_sha256": "a74899883c8802e64545fca2bed380b4f78ef16d8dd45ada0e63bc3cb035ae2c",
+  "hexagon_source_package_sha256": "f0005e4d1d8b630237daea60ea7795198ebb0c8f340ed6c64293f5e643f46655",
+  "hexagon_source_package_hash_note": "Receipt hash for Hexagon's submitted package, distinct from the preserved upload ZIP hash.",
+  "local_pdf_sha256": "60e596e6b5d1465cef9f13a6761f4d96731735011a734d8da1e24e22f2395807",
+  "preview_pdf_sha256": "1b01681537d8aa1183af58738f9209843401c3443a9bb03e2791df38cb13bb6b",
+  "pages": 36,
+  "preview_compilation": "successful",
+  "preview_verification": "Latest abstract, proof commentary, and all 30 appendix header/footer notices verified. Extracted text differs from the local PDF only in two mathematical glyph extraction orders.",
+  "automated_screening": "Displayed as finished before final compilation; the completed receipt lists the package as ready for moderator review.",
+  "submitted_pdf_compilation": "successful",
+  "publication": "awaiting moderator approval",
+  "version": 2,
+  "submitted_pdf_url": "https://hexagonmath.org/api/files/compiled%3A2611.00196v2?inline=1"
+}

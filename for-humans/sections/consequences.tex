@@ -1,7 +1,9 @@
 \section{Consequences and further questions}\label{sec:consequences}
 
-The counting argument also applies when the algorithm starts or finishes
-with a partial order. The two settings have different information bounds:
+The bound on the number of total orders consistent with the answers
+(Theorem~\ref{thm:fixed-stage}) also yields comparison lower bounds when
+the algorithm starts or finishes with a partial order.
+The two settings have different information bounds:
 initial relations reduce what remains to be learned, whereas a target
 partial order specifies what the algorithm must establish.
 
@@ -10,8 +12,9 @@ partial order specifies what the algorithm must establish.
 Let $R$ be a partial order on $n$ slots. In \emph{partial-order production},
 the input consists of $n$ keys with no known relations. The algorithm must
 assign one key to each slot so that the key in slot $u$ is smaller than
-the key in slot $v$ whenever $u<_R v$. Sorting is the case where $R$ is
-a chain; a slot required to precede every other slot asks for the minimum.
+the key in slot $v$ whenever $u<_R v$. Sorting corresponds to a chain.
+Finding the minimum corresponds to one slot preceding all the others,
+with no other required relations.
 
 A fixed assignment is valid for exactly $e(R)$ total orders of the keys.
 The information-theoretic lower bound is therefore
@@ -22,15 +25,13 @@ Cardinal et al.~\cite{cardinal-production} give a deterministic
 polynomial-time algorithm using $I(R)+o(I(R))+O(n)$ comparisons.
 
 \begin{corollary}[Partial-order production]\label{cor:production}
-There is a nonnegative sequence $\varepsilon_n\to0$, independent of the
-target, such that the adversary of Theorem~\ref{thm:main} forces every
+The adversary of Theorem~\ref{thm:main} forces every
 correct comparison algorithm producing an $n$-element partial order $R$
 to make at least
 \[
-(1-\varepsilon_n)I(R)
+(1-o(1))I(R)
 \]
-comparisons. The adversary is initialized using only $n$ and works for
-every target $R$.
+comparisons. The $o(1)$ term depends only on $n$.
 \end{corollary}
 \begin{proof}
 See Appendix~\ref{app:consequences}.
@@ -75,14 +76,32 @@ $\log e(P)=\omega(n\log\log n)$. Kahn and Kim's adversary already forces
 $\Omega(\log e(P))$ for every $P$. The improvement here is the
 coefficient approaching one in this regime.
 
+\subsection{Sampling linear extensions}
+
+Huber~\cite{huber-sampling} gives a near-linear expected-time exact
+sampler for height-two posets of bounded degree. Our contraction
+estimate also gives a sampler for any fixed degree and directed-height
+bounds.
+
+\begin{corollary}[Exact sampling]\label{cor:exact-sampling}
+Fix integers $d,h\ge1$. Given adjacency lists of an $n$-vertex DAG of
+degree at most $d$ and with directed paths of at most $h$ vertices, one
+can sample a linear extension exactly uniformly using
+$O(n\log n)$ arithmetic operations and fair random bits in
+expectation.
+\end{corollary}
+\begin{proof}
+See Appendix~\ref{app:exact-sampling}.
+\end{proof}
+
 \subsection{Open questions}
 
 Can a deterministic polynomial-time adversary force
 $(1-o(1))\log e(P)$ further comparisons for every supplied partial order
 $P$? The additive loss in Corollary~\ref{cor:initial-poset} can overwhelm
-the information that remains. Two disjoint chains of length $n/2$ have
-$\log e(P)=\Theta(n)$; a chain on $n-1$ items and one unrelated item have
-$e(P)=n$.
+the information that remains. For two disjoint chains of length $n/2$,
+$\log e(P)=\Theta(n)$. For a chain on $n-1$ items and one unrelated item,
+$\log e(P)=\log n$.
 
 Reducing the additive loss to $O(n)$ would already extend the useful
 range. Cardinal et al.~\cite[Section~4]{cardinal-production} exhibit
@@ -119,18 +138,21 @@ $(0,1)$. Orient the edges of a bipartite graph from one side to the other.
 Reflecting the coordinates on the second side changes $X_a<X_b$ into
 $Y_a+Y_b<1$, preserving volume. Thus this case is also a volume problem
 for bipartite independent-set polytopes. Recent deterministic schemes
-approximate suitable truncations of these polytopes
-\cite{bencs-regts-volume}; they do not settle the full-interval question.
+give approximation guarantees for suitable truncations of these polytopes
+\cite{bencs-regts-volume}. Whether corresponding guarantees hold for the
+full interval $(0,1)$ is the question posed here.
 
 \paragraph{The remaining gap to deterministic counting.}
 When every interval is $(0,1)$, $V(D)=e(P)/n!$ for the partial order $P$
-represented by $D$~\cite{stanley}. Without the degree and path-length
-restrictions, a deterministic approximation scheme for $e(P)$ remains
-open; see \cite[Sections~3.6 and~12.2]{chan-pak-survey} for the known
-entropy estimates and randomized schemes. Even a deterministic
-constant-factor approximation would imply an FPTAS, by applying it to
-disjoint copies and taking a root. This also holds for each fixed-$d,h$
-class; Appendix~\ref{app:counting-amplification} gives the short argument.
+represented by $D$~\cite{stanley}. For general $P$, a deterministic
+approximation scheme for $e(P)$ remains open
+\cite[Sections~3.6 and~12.2]{chan-pak-survey}. Even a deterministic
+constant-factor approximation would imply an FPTAS. Apply it to the
+disjoint union of copies of the partial order $P$, divide by the number
+of ways to interleave the copies, and take a root. The corresponding DAG
+is a disjoint union of copies of $D$, so the degree and path-length bounds
+are preserved. Thus the same argument applies for each fixed $d,h$
+(Appendix~\ref{app:counting-amplification}).
 An FPTAS for arbitrary $P$ would also resolve the supplied-partial-order
 question above: estimate both comparison branches and retain the one
 with the larger estimate (Appendix~\ref{app:counting-adversary}).

@@ -40,8 +40,8 @@ The adversary must simply keep all total orders consistent with the answers so f
 partitions them into two classes. The adversary answers so as to retain a larger class.
 After $q$ comparisons, at least $n!/2^q$ orders remain, forcing
 $q\ge\log(n!)$. This rule is deterministic, but enumerating its classes
-may require factorial work. A consistent total order is a \emph{linear
-extension} of the partial order given by the answered comparisons; counting
+may require factorial work. The total orders consistent with the answers
+are the \emph{linear extensions} of the resulting partial order. Counting
 these extensions exactly is $\#\mathrm P$-complete~\cite{brightwell}.
 
 \paragraph{Deterministic adversaries in polynomial-time}

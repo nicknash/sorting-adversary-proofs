@@ -45,11 +45,9 @@ Append $\mathit{answer}$ to $\mathcal T$\;
 \subsubsection{Choosing an answer}\label{sec:selection}
 
 \texttt{Select} uses deterministic estimates of the fractions of $K(D)$
-retained by the two answers. Lemma~\ref{lem:local-routines} states its
-guarantee.
-
-The size of the DAG neighborhood examined around each queried vertex
-depends on vertex degree (the sum of its in-degree and out-degree) and
+retained by the two answers. It obtains these estimates by examining
+bounded neighborhoods of the queried vertices in the DAG. The size of
+each neighborhood depends on vertex degree (the sum of its in-degree and out-degree) and
 the length of the longest directed path in the DAG. We use one integer
 $k$ to specify these bounds in Lemma~\ref{lem:local-routines}. Larger $k$ allows higher degrees
 and longer paths, while the guaranteed retained fraction approaches
@@ -64,7 +62,7 @@ for each queried coordinate $x$.
 \caption{\texttt{Select}$(D,\alpha,\beta)$: choose an answer or a position for refinement.}
 \label{alg:select}
 \DontPrintSemicolon
-\KwIn{A canonical order-restriction DAG $D$; distinct coordinates $\alpha,\beta$, or one coordinate and one dyadic constant.}
+\KwIn{A canonical order-restriction DAG $D$ and a query between two distinct coordinates or between a coordinate and a dyadic constant.}
 \KwOut{An answer $\alpha<\beta$ or $\beta<\alpha$, or a pair $(x,c)$.}
 $T\gets$ the queried coordinates\;
 $\mathcal L\gets$ \texttt{Enclose}$(D,T)$\;
@@ -90,12 +88,17 @@ f_x(c)=\frac{\vol_{|V|-1}\bigl(K(D)\cap\{X_x=c\}\bigr)}{V(D)}.
 The numerator is the volume of the section $X_x=c$, measured in the
 remaining $|V|-1$ coordinates.
 
+The following lemma expresses the key idea: either we answer while retaining nearly
+half the feasible volume, mirroring the ideal adversary, or we identify a
+refinement that greatly increases the product of the node volumes
+(Lemma~\ref{lem:section-volume}).
+
 \begin{lemma}[Local selection]\label{lem:local-routines}
 Let $k\ge64$ be an integer and $D$ an order-restriction DAG with canonical dyadic intervals,
 $V(D)>0$, degree at most $k$, and directed paths of at most $2^{k+1}$
-vertices. Algorithm~\ref{alg:select} returns either
+vertices. Algorithm~\ref{alg:select} returns one of the following:
 \begin{enumerate}
-\item An answer retaining at least $1/2-1/(100k)$ of $V(D)$; or
+\item An answer retaining at least $1/2-1/(100k)$ of $V(D)$.
 \item A queried coordinate $x$ and a dyadic $c\in(\ell_x,r_x)$ with
 $f_x(c)>2^k$.
 \end{enumerate}
@@ -107,29 +110,29 @@ See Appendices~\ref{sec:oracle} and~\ref{app:execution}.
 \end{proof}
 
 \begin{proof}[Proof idea for Lemma~\ref{lem:local-routines}]
-Consider repeatedly passing through the vertices in topological order,
-changing one position at a time. With all other positions fixed, the permitted
-range at a vertex is determined by its stored interval and its
-neighbors' positions. Split this range into $S$ equal pieces, choose
-one, and move the position to the same relative point in that piece.
+We sketch the enclosing-interval construction behind \texttt{Select}'s
+probability estimates. Pass through the vertices in topological order,
+changing one position at a time. Its permitted range is determined by
+the stored interval and the neighbors' positions. Split this range into
+$S$ equal pieces, choose one, and move the position to the same relative
+point in that piece.
 For example, choosing the second quarter of $(0,1)$ sends a position
 $u$ to $(1+u)/4$.
 
 Run this procedure on two copies of the position vector, starting one
 at all lower interval endpoints and the other at all upper endpoints.
 At each step, use the same piece number in both copies, each within its
-own permitted range. Any feasible assignment updated with these same
-choices remains between the two copies, coordinate by coordinate.
-For the analysis, imagine starting this third assignment uniformly in
-$K(D)$ and choosing each piece uniformly. Conditional on the other
-positions, the coordinate being changed is uniform in its permitted
-range; choosing a piece uniformly keeps it so. Thus the third assignment
-remains uniform in $K(D)$, enclosed by the two copies as
-Figure~\ref{fig:local-enclosure} illustrates.
+own permitted range.
+
+For the proof, also consider a position vector $X$, initially uniform
+in $K(D)$. At each update, choose a piece number
+independently and uniformly, and use it in all three vectors.
+The update preserves coordinatewise order, so $X$ stays between the two
+endpoint copies (Figure~\ref{fig:local-enclosure}). It also preserves
+the uniform distribution on $K(D)$: conditional on the other positions,
+it sends a uniform position into a uniformly chosen equal piece.
 This use of enclosing copies is related to sampling algorithms for
-linear extensions~\cite[Section~4.2]{talvitie-counting}; here we enumerate
-finitely many choices in a bounded neighborhood to obtain deterministic
-probability bounds.
+linear extensions~\cite[Section~4.2]{talvitie-counting}.
 
 \begin{center}
 \begin{minipage}{\linewidth}
@@ -171,39 +174,27 @@ probability bounds.
 \end{tikzpicture}
 \captionof{figure}{Updating two unconstrained coordinates using four
 pieces. All three copies choose the second piece for $x$ and the fourth
-for $y$. The blue interval endpoints are the positions in the lower
-and upper copies; the dots show one feasible assignment between them.
+for $y$. The blue interval endpoints show the two enclosing positions
+for each coordinate. The dots show one feasible assignment between them.
 The resulting disjoint intervals certify $X_x<X_y$.}
 \label{fig:local-enclosure}
 \end{minipage}
 \end{center}
 
-To see where the gaps begin to shrink, consider a vertex $z$ with no
-incoming arcs. Both copies use the same fixed lower endpoint $\ell_z$.
-Choosing the first piece sends either position $u$ to
-$\ell_z+(u-\ell_z)/S$, dividing the gap between the copies by $S$.
-The proof tracks how reductions of this kind reach other vertices
-through their neighbors' positions. It bounds the number of passes
-needed to make the queried gaps small for all but a small fraction of
-choice sequences, using only the degree and path bounds and the desired
-accuracy.
+Disjoint enclosing intervals determine the queried order, so narrow
+intervals make the probability estimates useful. At a vertex with no
+incoming arcs, choosing the first piece moves both endpoint copies
+towards their common lower bound and reduces their separation.
+The proof tracks how this shrinking passes through neighboring vertices.
+The degree and path bounds control how many passes are needed to make
+the queried intervals narrow for most choice sequences.
 
-These passes can be computed locally. Within one pass, dependence on
-positions already changed follows directed paths. The longest directed
-path therefore bounds how far a pass can carry information. After a
-fixed number of passes, only a bounded neighborhood of the queried
-vertices can affect their positions. Bounded degree makes this a
-bounded number of vertices, even if the full DAG is large.
-
-\texttt{Enclose} enumerates all update choices in this neighborhood.
-Whenever the resulting intervals for $x$ and $y$ are disjoint, their
-order determines the answer for the enclosed assignment. Counting these
-entries gives certified lower bounds on the answer probabilities.
-If the intervals overlap too often to certify an answer, the two
-positions must often be nearly equal. Under the graph bounds, the
-density estimates force both stored coordinate intervals to be very
-short; their middle halves then have density greater than $2^k$.
-This supplies the refinement promised by the lemma.
+Within one pass, dependence on newly updated positions follows directed
+paths. After a bounded number of passes, only a bounded neighborhood can
+affect a queried interval. \texttt{Enclose} enumerates the update choices
+there, and \texttt{Select} counts the entries that certify each comparison
+answer. The density argument for the refinement alternative is left to
+the full proof.
 \end{proof}
 
 Keeping nearly half the volume at each answer is the geometric counterpart
@@ -211,9 +202,6 @@ of keeping at least half the possible total orders.
 Section~\ref{sec:potential} relates the node volumes to the number of
 orders still possible. We use this count to prove that every correct
 sorter must make at least $(1-o(1))n\log n$ comparisons.
-Whenever the local calculation cannot certify an answer, it supplies a
-refinement that increases the product of the node volumes by a factor
-greater than $2^k$ (Lemma~\ref{lem:section-volume}).
 
 \begin{algorithm}[H]
 \caption{\texttt{Enclose}$(D,T)$: compute enclosing intervals for the queried coordinates.}
@@ -346,14 +334,14 @@ Insert $x$ into $D_u$ as an isolated vertex with record $(x,0,1)$\;
 \draw[thick,ink!55] (0,-.15)--(0,-1);
 \draw[group] (-1.8,-2) rectangle (1.8,-1);
 \node at (0,-1.3) {Same child at $c$};
-\node at (0,-1.7) {$x,z$ free; no arc};
+\node at (0,-1.7) {$x,z$ free (no arc)};
 \end{scope}
 \end{tikzpicture}
 \captionof{figure}{The two arc inequalities become bounds on the remaining parent
 coordinates. The new coordinate of $x$ orders it within the child, where
-both $x<z$ and $z<x$ remain possible. The anchor $c$ locates the child
-block among the parent items; the child's constraints determine the orders
-within that block.}
+both $x<z$ and $z<x$ remain possible. The anchor $c$ determines where
+the child block lies among the parent items. The child's constraints
+determine the possible orders within that block.}
 \label{fig:overview-refine}
 \end{minipage}
 \end{center}
@@ -361,9 +349,9 @@ within that block.}
 
 At an interior anchor, the old constraints allow $x$ immediately before
 or after the existing child block. Both placements satisfy the transcript,
-so no earlier answer compares $x$ with an item in that block. It is
-therefore safe to let $x$ enter the block; the full argument is in
-Appendix~\ref{app:execution}. This move can allow orders previously
+so no earlier answer compares $x$ with an item in that block. Thus $x$
+can enter the child without contradicting any earlier answer
+(Appendix~\ref{app:execution}). This move can allow orders previously
 excluded by the tree, while preserving every answer in the transcript.
 
 When \texttt{Select} returns $(x,c)$, \texttt{RefineAt} moves $x$ into
@@ -376,9 +364,9 @@ Z=\prod_v V_v.
 Initially $Z=1$, and positive node volumes give $0<Z\le1$.
 Each item has one coordinate, so the product region always has dimension
 $n$. This volume is not by itself the fraction of total orders consistent
-with the transcript; Section~\ref{sec:potential} supplies the counting
-argument. The following identity gives the change in $Z$; here $f_x$ is the
-density at the parent before refinement.
+with the transcript, as we will see in Section~\ref{sec:potential}.
+The following identity expresses the change in $Z$ using the density
+$f_x$ of $X_x$ at the parent before refinement.
 
 \begin{samepage}
 \begin{lemma}[Refinement identity]\label{lem:section-volume}
@@ -395,10 +383,21 @@ See Appendix~\ref{app:execution}.
 \end{samepage}
 
 \begin{samepage}
-For example, the parent region $0<X_A<X_B<1$ has area $1/2$. Fixing
+Fixing $X_x=c$ leaves a cross-section of the parent's feasible region
+with volume $V(D)f_x(c)$. The item $x$ then leaves the parent and receives
+a fresh coordinate in the child. This coordinate ranges independently
+over $(0,1)$, contributing a factor of one to the child's volume.
+All other node volumes are unchanged, so the product volume is
+multiplied by $f_x(c)$.
+
+\end{samepage}
+
+\begin{samepage}
+Figure~\ref{fig:section-volume} provides an example of the refinement operation.
+The parent region $0<X_A<X_B<1$ has area $1/2$. Fixing
 $X_A=1/4$ leaves the interval $X_B\in(1/4,1)$ of length $3/4$. The new
-child coordinate $U_A\in(0,1)$ turns this into a rectangle of area $3/4$,
-so refinement multiplies $Z$ by $3/2$; see Figure~\ref{fig:section-volume}.
+child coordinate $U_A\in(0,1)$ turns this interval into a rectangle of
+area $3/4$. Refinement therefore multiplies $Z$ by $3/2$.
 Both regions represent the order $A<B$. Replacing the fixed parent
 coordinate by a fresh child coordinate gives the larger area.
 
@@ -447,10 +446,11 @@ We call the change
 \begin{equation}\label{eq:refinement-gain}
  g=\log\frac{Z_{\rm after}}{Z_{\rm before}}=\log f_x(c)
 \end{equation}
-the refinement's \emph{volume gain}. A refinement requested by
+the refinement's \emph{volume gain}. Lemma~\ref{lem:local-routines}
+guarantees that a refinement requested by
 \texttt{Select} gains more than $k$ in $\log Z$, whereas an answer
 loses at most $-\log(1/2-1/(100k))=1+O(1/k)$.
-Thus an inconclusive call to \texttt{Select} restores volume as it moves
+Thus an inconclusive call to \texttt{Select} actually restores volume as it moves
 an item. Since $Z\le1$, these increases must be offset by losses from
 answers and repairs.
 \label{sec:refinement-volume}
@@ -516,6 +516,6 @@ See Appendices~\ref{sec:oracle} and~\ref{app:execution}.
 \end{proof}
 
 Since $m\ge0$, each repair move loses at most four in $\log Z$.
-For a path repair, the dependence on $m$ gives a stronger bound on
-the combined gain; Section~\ref{sec:rare-refinements} uses it to limit
-the total number of moves.
+For a path repair, the dependence on $m$ yields a stronger lower bound
+on the total change in $\log Z$. Section~\ref{sec:rare-refinements} uses
+this bound to limit the number of refinements.

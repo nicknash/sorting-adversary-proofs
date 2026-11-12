@@ -33,25 +33,46 @@ $\log f_x(c)$ is greater than $k$, by \eqref{eq:refinement-gain}.
 
 In a path repair, refining $x_i$ at $c_i$ changes the arc to $x_{i+1}$
 into the bound $X_{x_{i+1}}>c_i$. The next anchor therefore satisfies
-$c_{i+1}>c_i$. These $H=2^k$ anchors are distinct. The anchors with
+$c_{i+1}>c_i$. Thus these $H=2^k$ anchors are distinct. The anchors with
 reduced denominator $2^{m+1}$ are $(2j+1)/2^{m+1}$ for $0\le j<2^m$.
 Thus only $\sum_{m=0}^{k-2}2^m=2^{k-1}-1<H/2$ possible anchors have
 $m<k-1$. At least $H/2$ of the selected anchors therefore have $m\ge k-1$.
-By \eqref{eq:tariff}, the total increase in $\log Z$ from the $H$
-refinements in this path repair is at least
+By \eqref{eq:tariff}, every refinement contributes at least $-4$ to
+$\log Z$, and each of these $H/2$ refinements contributes at least
+$(1-1/k)(k-1)$ in addition. The total increase from the $H$ refinements
+in this path repair is therefore at least
 \[
-(1-1/k)\frac H2(k-1)-4H
-= H\left(\frac{k}{2}-5+\frac1{2k}\right)\ge\frac{kH}{4}.
+\begin{aligned}
+&\underbrace{(1-1/k)\frac H2(k-1)}_{
+  \substack{\text{extra gain from }H/2\text{ anchors}\\
+            \text{with }m\ge k-1}}
++\underbrace{(-4H)}_{
+  \substack{-4\text{ from all }H\text{ anchors,}\\
+            \text{including those with }m<k-1}}
+\\[1ex]
+&\qquad=H\left(\frac{k}{2}-5+\frac1{2k}\right)\ge\frac{kH}{4}.
+\end{aligned}
 \]
 Every path repair in a completed call to \texttt{Compare} contributes
-all $H$ refinements to $P$. Combining their average gain of at least $k/4$
-per refinement with the bounds for \texttt{Select} and degree repairs gives
+all $H$ refinements to $P$, the total number of refinements after $q$
+completed calls. Path repairs contribute at least $k/4$ per refinement
+on average. Refinements requested by \texttt{Select} gain more than $k$
+(Lemma~\ref{lem:local-routines} and \eqref{eq:refinement-gain}), and
+each of the $D$ degree repairs gains at least $-4$ by \eqref{eq:tariff}.
+Summing these contributions and applying \eqref{eq:total-refinement-gain} gives
 \[
 \frac k4(P-D)-4D\le G\le a_\eta q,\qquad D\le q/k.
 \]
 Rearranging proves the claim, for example with
 $C=8$ since $k\ge64$.
 \end{proof}
+
+The proof of Lemma~\ref{lem:rare-refinements} tells us that long paths
+help pay for their own removal: their distinct anchors force
+a large volume gain. Since $Z\le1$, these gains must be offset by losses
+from comparisons and degree repairs. Both losses are bounded in terms
+of the number of comparisons, so frequent simplification requires many
+comparisons.
 
 \subsection{Counting with the queried labels}\label{sec:movement-volume}
 
@@ -116,9 +137,9 @@ $s!$ relative orders has probability $1/s!$.
 The product $\mathcal W$ is the probability that all $s$ labels reach
 the nodes where the adversary stores them. Once there, they all stop
 with probability at least $(1-1/k)^s$. Conditional on these choices,
-their independently uniform coordinates satisfy the node constraints
-with probability $Z$; here we use the fact that omitting unqueried labels
-does not change $Z$.
+the independently uniform coordinates satisfy all node constraints with
+probability equal to the product of the node volumes. Omitting unqueried
+labels leaves that product equal to $Z$.
 
 Multiplying these three factors gives probability at least
 $(1-1/k)^s Z\mathcal W$ of obtaining an order consistent with the
@@ -136,33 +157,80 @@ T_q\ge \bigl[s!(1-1/k)^s Z\mathcal W\bigr]\frac{n!}{s!}
 \]
 \end{proof}
 
-\subsection{The prefix bound}\label{sec:comparison-cost}
+\subsection{Bounding the number of remaining orders}\label{sec:comparison-cost}
+
+Each refinement multiplies the product volume $Z$ by $f_x(c)$ and the
+sampling weight $\mathcal W$ by $w(c)$. The anchor guarantee relates
+these two changes: the volume gain almost pays for the loss in sampling
+weight. This is the cancellation behind Theorem~\ref{thm:fixed-stage}.
 
 \begin{proof}[Proof of Theorem~\ref{thm:fixed-stage}]
 For the first $Q(n)$ calls to \texttt{Compare}, legality and termination
 follow from Proposition~\ref{prop:legality}. Later calls use fixed ranks
-consistent with the recorded answers. For $q\ge Q(n)\ge\log(n!)$, the right
-side of \eqref{eq:prefix-orders} is nonpositive and $T_q\ge1$.
+consistent with the recorded answers. All choices are deterministic.
+We first prove the bound for $q<Q(n)$.
 
-For $q<Q(n)$, put $d_k=-\log(1-1/k)$. Each refinement multiplies
-$\mathcal W$ by the weight of the child it enters. Its cost
-$\ell(c)=-\log w(c)$ satisfies
+Let $s$ be the number of queried labels and put
+$d_k=-\log(1-1/k)=O(1/k)$. Taking logarithms in
+Lemma~\ref{lem:packing} gives
 \[
-\ell(c)=(1+d_k)m+2\log k\le ag+b,\qquad
-a=\frac{1+d_k}{1-1/k},\quad b=4a+2\log k
+\log T_q\ge\log(n!)-s d_k+\log Z+\log\mathcal W.
 \]
-by \eqref{eq:tariff}. Thus $a\ge1$, $a=1+O(1/k)$ and $b=O(\log k)$.
-Taking logarithms in Lemma~\ref{lem:packing}, then using
-\eqref{eq:total-refinement-gain}, gives
+Since $s\le2q$, the term $s d_k$ costs only $O(q/k)$.
+It remains to control the loss $-\log\mathcal W$.
+
+A refinement through anchor $c$ contributes $\ell(c)=-\log w(c)$ to
+this loss. For $c=(2i+1)/2^{m+1}$ in reduced form,
+\eqref{eq:child-weight} gives
+\[
+\ell(c)=2\log k+(1+d_k)m.
+\]
+\begin{samepage}
+If $g=\log f_x(c)$ is the refinement's volume gain, the anchor
+guarantee~\eqref{eq:tariff} implies $m\le(g+4)/(1-1/k)$. Hence
+\[
+\ell(c)\le 2\log k+\frac{1+d_k}{1-1/k}(g+4)=ag+b,
+\]
+where $a=(1+d_k)/(1-1/k)$ and $b=4a+2\log k$.
+Thus $a\ge1$, $a=1+O(1/k)$, and $b=O(\log k)$.
+
+\end{samepage}
+
+Let $P$ be the number of refinements and $G$ their total volume gain.
+Summing over their anchors $c_r$ gives
+\[
+-\log\mathcal W=\sum_r\ell(c_r)\le aG+bP.
+\]
+The volume accounting bound~\eqref{eq:total-refinement-gain} gives
+$G\le\log Z+a_\eta q$. Substituting both inequalities into the counting
+bound yields
 \begin{align*}
 \log T_q
-&\ge \log(n!)-s d_k+\log Z-\sum_r\ell(c_r)\\
+&\ge \log(n!)-s d_k+\log Z-aG-bP\\
 &\ge \log(n!)-s d_k+(1-a)\log Z-aa_\eta q-bP.
 \end{align*}
-Here $s\le2q$, $(1-a)\log Z\ge0$, and $P\le Cq/k$ by
-Lemma~\ref{lem:rare-refinements}. We can therefore take
-$\delta_k=aa_\eta-1+2d_k+Cb/k$.
+The volume terms have combined into $(1-a)\log Z$, which is nonnegative
+because $a\ge1$ and $Z\le1$. Discarding this term, using $s\le2q$, and
+applying $P\le Cq/k$ from Lemma~\ref{lem:rare-refinements}, we obtain
+\[
+\log T_q\ge\log(n!)-\left(aa_\eta+2d_k+\frac{Cb}{k}\right)q.
+\]
+Since $a_\eta=1+O(1/k)$ by \eqref{eq:comparison-loss}, we may take
+\[
+\delta_k=aa_\eta-1+2d_k+\frac{Cb}{k}
+        =O\!\left(\frac{\log k}{k}\right).
+\]
+This proves \eqref{eq:prefix-orders} for $q<Q(n)$.
+For $q\ge Q(n)\ge\log(n!)$, its right-hand side is nonpositive and
+$T_q\ge1$, so the bound holds for all $q$.
 \end{proof}
 
-The same prefix bound applies when an algorithm can stop with several
-orders still possible.
+Intuitively, the proof of Theorem~\ref{thm:fixed-stage} shows that the
+volume gains almost pay for the losses in sampling weight. The remaining
+$O(\log k)$ cost per refinement totals only $O(q\log k/k)$, because
+Lemma~\ref{lem:rare-refinements} limits the number of refinements to
+$O(q/k)$. This gives the error term $\delta_k=O(\log k/k)$ in the
+theorem's bound on the number of remaining orders.
+
+The bound on $T_q$ also applies to tasks where the algorithm may stop
+with several total orders still possible (Section~\ref{sec:consequences}).

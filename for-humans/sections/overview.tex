@@ -34,9 +34,9 @@ can be obtained by assigning distinct positions.
 
 Each child is attached to a fixed position $c\in(0,1)$ in its parent,
 called its \emph{anchor}. A node has at most one child at each anchor.
-For any feasible assignment at the parent, an
-item with position below $c$ precedes every item in that child's subtree;
-an item with position above $c$ follows every item in it. Subtrees of
+For any feasible assignment at the parent, an item whose position is
+below $c$ precedes the entire child subtree, and an item whose position
+is above $c$ follows it. Subtrees of
 different children are ordered by their anchors. All items of each child
 subtree therefore occur consecutively in the resulting total order.
 The child's order-restriction DAG describes the possible orders within this block,
