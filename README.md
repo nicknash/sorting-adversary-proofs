@@ -1,6 +1,6 @@
 # Sorting adversaries in Lean
 
-**[Read the human-friendly paper (PDF)](for-humans/output/pdf/paper.pdf)**
+**[Read the human-friendly paper (PDF)](for-humans/output/pdf/paper.pdf)** · [Hexagon Math](https://hexagonmath.org/2611.00196v2)
 
 The paper's continuous adversary is formalized in Lean 4 under
 [SortingAdversary/Continuous](SortingAdversary/Continuous).
