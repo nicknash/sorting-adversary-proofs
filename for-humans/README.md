@@ -73,9 +73,14 @@ These are finite diagnostics. The general density, locality, and comparison
 arguments are proved in the manuscript. Earlier finite-mesh diagnostics
 remain in `anc/` as historical material, outside the current check target
 and submission archive.
-The related Lean
-development in this repository concerns the earlier integer-colour
-construction; it does not formally verify this unit-interval proof.
+The continuous construction is now formalized under
+[`SortingAdversary/Continuous/`](../SortingAdversary/Continuous/), including
+the unconditional leading-one sorting theorem, the comparison-prefix count,
+and the target-independent production bound. The
+[theorem map](../docs/continuous-adversary-formalization.md) records exact
+coverage and the external weak-order theorem used by the supplied-poset
+consequence. The earlier integer-colour development remains available under
+`SortingAdversary/Optimal/`.
 
 The version submitted to Hexagon as **hexagon:2611.00196**, under CC BY 4.0
 on 7 November 2026, is preserved in
