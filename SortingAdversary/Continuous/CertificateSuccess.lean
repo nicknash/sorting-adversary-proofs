@@ -79,27 +79,37 @@ theorem enclose_valid (D : System (Fin n) ℚ) (S : ℕ) (schedule : List (Fin n
   obtain ⟨digits, _, rfl⟩ := List.mem_map.mp hI
   exact fullSteps_mono D S (assignedSteps S schedule digits) hw x
 
-theorem comparison_mass (D : System (Fin n) ℚ) (S : ℕ) (hS : 0 < S)
-    (hloop : ∀ x, D.edge x x = false) (hV : 0 < volume (region D.toReal))
-    (hD : Normalized D.toReal) (schedule : List (Fin n))
+/-- Every pointwise enclosure test bounds the corresponding event under the
+original feasible-region law. Both exact and outward-rounded lists provide it. -/
+def BoundsEvents (D : System (Fin n) ℚ) (L : List (Fin n → ℚ × ℚ)) : Prop :=
+  ∀ (cert : (Fin n → ℚ × ℚ) → Bool) (E : Set (Fin n → ℝ)), MeasurableSet E →
+    (∀ I, cert I = true → ∀ X : Fin n → ℝ,
+      (∀ x, ((I x).1 : ℝ) ≤ X x ∧ X x ≤ ((I x).2 : ℝ)) → X ∈ E) →
+    (L.countP cert : ℝ) / L.length ≤ (uniformMeasure D.toReal).real E
+
+def pairEntries (L : List (Fin n → ℚ × ℚ)) (x y : Fin n) :=
+  L.map fun I => (I x, I y)
+
+def thresholdEntries (L : List (Fin n → ℚ × ℚ)) (x : Fin n) (c : ℚ) :=
+  L.map fun I => (I x, (c, c))
+
+theorem comparison_mass_of_list (D : System (Fin n) ℚ) (hV : 0 < volume (region D.toReal))
+    (hD : Normalized D.toReal) (L : List (Fin n → ℚ × ℚ)) (hpos : 0 < L.length)
+    (bounds : BoundsEvents D L)
     (Q : Finset (Fin n)) (x y : Fin n) (hx : x ∈ Q) (hy : y ∈ Q) (hne : x ≠ y)
     (B : ℕ) (hB : ComparableDensity.comparableCount D.toReal x ≤ B)
     (hw : D.lower x < D.upper x) (δ α : ℚ) (hδ : 0 ≤ δ)
-    (hbad : ((enclose D S schedule).countP (badWidth Q δ) : ℚ) /
-      (enclose D S schedule).length ≤ α) :
+    (hbad : (L.countP (badWidth Q δ) : ℚ) /
+      L.length ≤ α) :
     1 - (α + 4 * (B + 1 : ℚ) * δ / (D.upper x - D.lower x)) ≤
-      lowerFraction (comparisonList D S schedule x y) +
-      upperFraction (comparisonList D S schedule x y) := by
-  let L := enclose D S schedule
-  have hN : (0 : ℝ) < L.length := by
-    dsimp only [L]
-    rw [enclose_length]
-    positivity
+      lowerFraction (pairEntries L x y) +
+      upperFraction (pairEntries L x y) := by
+  have hN : (0 : ℝ) < L.length := by exact_mod_cast hpos
   have hδR : (0 : ℝ) ≤ δ := by exact_mod_cast hδ
   have hwR : D.toReal.lower x < D.toReal.upper x := by
     change (D.lower x : ℝ) < D.upper x
     exact_mod_cast hw
-  have hnear := EnclosureCoupling.enclosure_probability_real D S hS hloop hV schedule
+  have hnear := bounds
     (narrowUnresolved Q δ x y) {X | X x - X y ∈ Icc (-(2 * (δ : ℝ))) (2 * (δ : ℝ))}
     (measurableSet_Icc.preimage ((measurable_pi_apply x).sub (measurable_pi_apply y)))
     (narrowUnresolved_sound Q δ x y hx hy)
@@ -120,13 +130,13 @@ theorem comparison_mass (D : System (Fin n) ℚ) (S : ℕ) (hS : 0 < S)
   rw [div_self hN.ne', add_div, add_div, add_div] at hc
   have hb : (L.countP (badWidth Q δ) : ℝ) / L.length ≤ (α : ℝ) := by
     have hb' := (Rat.cast_le (K := ℝ)).2 hbad
-    simpa only [Rat.cast_div, Rat.cast_natCast, L] using hb'
+    simpa only [Rat.cast_div, Rat.cast_natCast] using hb'
   have hreal : (1 : ℝ) - ((α : ℝ) +
       ((4 * (B + 1 : ℚ) * δ / (D.upper x - D.lower x) : ℚ) : ℝ)) ≤
       (L.countP (fun I => separated (I x, I y)) : ℝ) / L.length +
       (L.countP (fun I => reverseSeparated (I x, I y)) : ℝ) / L.length := by linarith
-  simpa only [lowerFraction, upperFraction, comparisonList, List.countP_map,
-    List.length_map, Function.comp_def, L] using (show
+  simpa only [lowerFraction, upperFraction, pairEntries, List.countP_map,
+    List.length_map, Function.comp_def] using (show
       (1 : ℚ) - (α + 4 * (B + 1 : ℚ) * δ / (D.upper x - D.lower x)) ≤
         (L.countP (fun I => separated (I x, I y)) : ℚ) / L.length +
         (L.countP (fun I => reverseSeparated (I x, I y)) : ℚ) / L.length by
@@ -134,27 +144,39 @@ theorem comparison_mass (D : System (Fin n) ℚ) (S : ℕ) (hS : 0 < S)
         push_cast at hreal ⊢
         exact hreal)
 
-theorem crossing_fraction (D : System (Fin n) ℚ) (S : ℕ) (hS : 0 < S)
+theorem comparison_mass (D : System (Fin n) ℚ) (S : ℕ) (hS : 0 < S)
     (hloop : ∀ x, D.edge x x = false) (hV : 0 < volume (region D.toReal))
     (hD : Normalized D.toReal) (schedule : List (Fin n))
-    (Q : Finset (Fin n)) (x : Fin n) (hx : x ∈ Q)
+    (Q : Finset (Fin n)) (x y : Fin n) (hx : x ∈ Q) (hy : y ∈ Q) (hne : x ≠ y)
     (B : ℕ) (hB : ComparableDensity.comparableCount D.toReal x ≤ B)
     (hw : D.lower x < D.upper x) (δ α : ℚ) (hδ : 0 ≤ δ)
     (hbad : ((enclose D S schedule).countP (badWidth Q δ) : ℚ) /
-      (enclose D S schedule).length ≤ α) (c : ℚ) :
-    (crossingCount ((enclose D S schedule).map (fun I => I x)) c : ℚ) /
-      (enclose D S schedule).length ≤
+      (enclose D S schedule).length ≤ α) :
+    1 - (α + 4 * (B + 1 : ℚ) * δ / (D.upper x - D.lower x)) ≤
+      lowerFraction (comparisonList D S schedule x y) +
+      upperFraction (comparisonList D S schedule x y) := by
+  exact comparison_mass_of_list D hV hD (enclose D S schedule)
+    (by rw [enclose_length]; exact pow_pos hS _)
+    (EnclosureCoupling.enclosure_probability_real D S hS hloop hV schedule)
+    Q x y hx hy hne B hB hw δ α hδ hbad
+
+theorem crossing_fraction_of_list (D : System (Fin n) ℚ) (hV : 0 < volume (region D.toReal))
+    (hD : Normalized D.toReal) (L : List (Fin n → ℚ × ℚ)) (hpos : 0 < L.length)
+    (bounds : BoundsEvents D L)
+    (Q : Finset (Fin n)) (x : Fin n) (hx : x ∈ Q)
+    (B : ℕ) (hB : ComparableDensity.comparableCount D.toReal x ≤ B)
+    (hw : D.lower x < D.upper x) (δ α : ℚ) (hδ : 0 ≤ δ)
+    (hbad : (L.countP (badWidth Q δ) : ℚ) /
+      L.length ≤ α) (c : ℚ) :
+    (crossingCount (L.map (fun I => I x)) c : ℚ) /
+      L.length ≤
         α + 2 * (B + 1 : ℚ) * δ / (D.upper x - D.lower x) := by
-  let L := enclose D S schedule
-  have hN : (0 : ℝ) < L.length := by
-    dsimp only [L]
-    rw [enclose_length]
-    positivity
+  have hN : (0 : ℝ) < L.length := by exact_mod_cast hpos
   have hδR : (0 : ℝ) ≤ δ := by exact_mod_cast hδ
   have hwR : D.toReal.lower x < D.toReal.upper x := by
     change (D.lower x : ℝ) < D.upper x
     exact_mod_cast hw
-  have hnear := EnclosureCoupling.enclosure_probability_real D S hS hloop hV schedule
+  have hnear := bounds
     (narrowCrossing Q δ x c) {X | X x - (c : ℝ) ∈ Icc (-(δ : ℝ)) (δ : ℝ)}
     (measurableSet_Icc.preimage (show Measurable (fun X : Fin n → ℝ => X x - (c : ℝ)) from
       (measurable_pi_apply x).sub measurable_const))
@@ -174,15 +196,31 @@ theorem crossing_fraction (D : System (Fin n) ℚ) (S : ℕ) (hS : 0 < S)
   rw [add_div] at hc
   have hb : (L.countP (badWidth Q δ) : ℝ) / L.length ≤ (α : ℝ) := by
     have hb' := (Rat.cast_le (K := ℝ)).2 hbad
-    simpa only [Rat.cast_div, Rat.cast_natCast, L] using hb'
+    simpa only [Rat.cast_div, Rat.cast_natCast] using hb'
   have hreal : (L.countP (fun I => decide ((I x).1 ≤ c ∧ c ≤ (I x).2)) : ℝ) / L.length ≤
       (α : ℝ) + ((2 * (B + 1 : ℚ) * δ / (D.upper x - D.lower x) : ℚ) : ℝ) := by linarith
-  simpa only [crossingCount, List.countP_map, Function.comp_def, L] using (show
+  simpa only [crossingCount, List.countP_map, Function.comp_def] using (show
     (L.countP (fun I => decide ((I x).1 ≤ c ∧ c ≤ (I x).2)) : ℚ) / L.length ≤
       α + 2 * (B + 1 : ℚ) * δ / (D.upper x - D.lower x) by
         apply (Rat.cast_le (K := ℝ)).mp
         push_cast at hreal ⊢
         exact hreal)
+
+theorem crossing_fraction (D : System (Fin n) ℚ) (S : ℕ) (hS : 0 < S)
+    (hloop : ∀ x, D.edge x x = false) (hV : 0 < volume (region D.toReal))
+    (hD : Normalized D.toReal) (schedule : List (Fin n))
+    (Q : Finset (Fin n)) (x : Fin n) (hx : x ∈ Q)
+    (B : ℕ) (hB : ComparableDensity.comparableCount D.toReal x ≤ B)
+    (hw : D.lower x < D.upper x) (δ α : ℚ) (hδ : 0 ≤ δ)
+    (hbad : ((enclose D S schedule).countP (badWidth Q δ) : ℚ) /
+      (enclose D S schedule).length ≤ α) (c : ℚ) :
+    (crossingCount ((enclose D S schedule).map (fun I => I x)) c : ℚ) /
+      (enclose D S schedule).length ≤
+        α + 2 * (B + 1 : ℚ) * δ / (D.upper x - D.lower x) := by
+  exact crossing_fraction_of_list D hV hD (enclose D S schedule)
+    (by rw [enclose_length]; exact pow_pos hS _)
+    (EnclosureCoupling.enclosure_probability_real D S hS hloop hV schedule)
+    Q x hx B hB hw δ α hδ hbad c
 
 def error (k : ℕ) : ℚ := 1 / (100 * (k : ℚ))
 
@@ -312,29 +350,35 @@ private theorem threshold_cover (L : List Interval) (c : ℚ) :
     by_cases h₁ : I.2 < c <;> by_cases h₂ : c < I.1 <;>
       simp [crossingCount, h₁, h₂, not_lt.mp, not_le.mpr] at * <;> omega
 
+theorem threshold_mass_of_list (L : List (Fin n → ℚ × ℚ)) (hpos : 0 < L.length)
+    (x : Fin n) (c : ℚ) :
+    1 - (crossingCount (L.map (fun I => I x)) c : ℚ) /
+        L.length ≤
+      lowerFraction (thresholdEntries L x c) + upperFraction (thresholdEntries L x c) := by
+  have hn : (0 : ℚ) < L.length := by exact_mod_cast hpos
+  have hc := threshold_cover (L.map (fun I => I x)) c
+  have hq : (L.length : ℚ) ≤
+      (L.countP (fun I => decide ((I x).2 < c)) : ℚ) +
+      (L.countP (fun I => decide (c < (I x).1)) : ℚ) +
+      (crossingCount (L.map (fun I => I x)) c : ℚ) := by
+    simpa only [List.length_map, List.countP_map, Function.comp_def, Nat.cast_add] using
+      (show (↑(L.map (fun I => I x)).length : ℚ) ≤
+        ((L.map (fun I => I x)).countP (fun I => decide (I.2 < c)) : ℚ) +
+        ((L.map (fun I => I x)).countP (fun I => decide (c < I.1)) : ℚ) +
+        (crossingCount (L.map (fun I => I x)) c : ℚ) by exact_mod_cast hc)
+  have hd := div_le_div_of_nonneg_right hq hn.le
+  rw [div_self hn.ne', add_div, add_div] at hd
+  simp only [lowerFraction, upperFraction, thresholdEntries, List.countP_map,
+    List.length_map, Function.comp_def, separated, reverseSeparated]
+  linarith
+
 theorem threshold_mass (D : System (Fin n) ℚ) (S : ℕ) (hS : 0 < S)
     (schedule : List (Fin n)) (x : Fin n) (c : ℚ) :
     1 - (crossingCount ((enclose D S schedule).map (fun I => I x)) c : ℚ) /
         (enclose D S schedule).length ≤
       lowerFraction (thresholdList D S schedule x c) + upperFraction (thresholdList D S schedule x c) := by
-  have hn : (0 : ℚ) < (enclose D S schedule).length := by
-    rw [enclose_length]
-    positivity
-  have hc := threshold_cover ((enclose D S schedule).map (fun I => I x)) c
-  have hq : ((enclose D S schedule).length : ℚ) ≤
-      ((enclose D S schedule).countP (fun I => decide ((I x).2 < c)) : ℚ) +
-      ((enclose D S schedule).countP (fun I => decide (c < (I x).1)) : ℚ) +
-      (crossingCount ((enclose D S schedule).map (fun I => I x)) c : ℚ) := by
-    simpa only [List.length_map, List.countP_map, Function.comp_def, Nat.cast_add] using
-      (show (↑((enclose D S schedule).map (fun I => I x)).length : ℚ) ≤
-        (((enclose D S schedule).map (fun I => I x)).countP (fun I => decide (I.2 < c)) : ℚ) +
-        (((enclose D S schedule).map (fun I => I x)).countP (fun I => decide (c < I.1)) : ℚ) +
-        (crossingCount ((enclose D S schedule).map (fun I => I x)) c : ℚ) by exact_mod_cast hc)
-  have hd := div_le_div_of_nonneg_right hq hn.le
-  rw [div_self hn.ne', add_div, add_div] at hd
-  simp only [lowerFraction, upperFraction, thresholdList, List.countP_map,
-    List.length_map, Function.comp_def, separated, reverseSeparated]
-  linarith
+  exact threshold_mass_of_list (enclose D S schedule)
+    (by rw [enclose_length]; exact pow_pos hS _) x c
 
 /-- Every fixed-threshold test succeeds when its free coordinate is wide. -/
 theorem threshold_succeeds (D : System (Fin n) ℚ)

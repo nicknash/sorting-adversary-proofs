@@ -117,6 +117,15 @@ theorem attempt_refine_label (M : Memory n) (k : ℕ) (hk : 0 < k)
       (ArbitraryLabels.pathHeight k) hk q.right x d c h).1
   | anchors d e => simp [attempt, hr] at h
 
+/-- A failed comparison can only move one of the two labels it was asked about. -/
+class ChoiceLabels (rules : Choices n) : Prop where
+  refinesQuery (M : Memory n) (k : ℕ) (hk : 0 < k) (q : Query n) (x : Fin n) (c : ℚ)
+    (h : rules.select M k q = .refine x c) : x = q.left ∨ x = q.right
+
+instance (n : ℕ) : ChoiceLabels (referenceChoices n) := ⟨attempt_refine_label⟩
+
+variable [rules : Choices n] [labels : ChoiceLabels rules]
+
 theorem selectLoop_supportedBy (k : ℕ) (hk : 0 < k) (q : Query n)
     (A : Finset (Fin n)) (hq : q.left ∈ A ∧ q.right ∈ A)
     (fuel : ℕ) (M : Memory n) (hM : M.SupportedBy A)
@@ -125,13 +134,13 @@ theorem selectLoop_supportedBy (k : ℕ) (hk : 0 < k) (q : Query n)
   induction fuel generalizing M r with
   | zero => simp [selectLoop] at h
   | succ fuel ih =>
-    cases ha : attempt M k q with
+    cases ha : rules.select M k q with
     | answer a =>
       simp only [selectLoop, ha, Option.some.injEq] at h
       cases h
       exact ⟨hM, by simp⟩
     | refine x c =>
-      have hx : x ∈ A := (attempt_refine_label M k hk q x c ha).elim
+      have hx : x ∈ A := (labels.refinesQuery M k hk q x c ha).elim
         (fun hx => hx ▸ hq.1) (fun hx => hx ▸ hq.2)
       have hM' := applyMove_supportedBy M A hM (makeMove M x c) hx
       cases hs : selectLoop k q fuel (applyMove M (makeMove M x c)) with

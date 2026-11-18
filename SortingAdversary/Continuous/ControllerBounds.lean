@@ -133,7 +133,7 @@ def Traced (k : ℕ) (M : Memory n) : Prop :=
 
 theorem initial_traced (k n : ℕ) : Traced k (initial n) := ⟨[], rfl, trivial⟩
 
-theorem Traced.compare {k : ℕ} {M : Memory n} (hM : Traced k M)
+theorem Traced.compare [Choices n] {k : ℕ} {M : Memory n} (hM : Traced k M)
     (q : Query n) (r : Result n) (h : compare k M q = some r)
     (hv : ∀ F, M.Represents F → TraceAccounting.Valid k F r.actions) : Traced k r.memory := by
   obtain ⟨actions, hactions, hvalid⟩ := hM

@@ -65,6 +65,83 @@ import SortingAdversary.Continuous.OperandBounds
 import SortingAdversary.Continuous.OrderRegion
 import SortingAdversary.Continuous.Packing
 import SortingAdversary.Continuous.ParameterBounds
+import SortingAdversary.Continuous.PolylogActive
+import SortingAdversary.Continuous.PolylogAddressOrder
+import SortingAdversary.Continuous.PolylogAdversary
+import SortingAdversary.Continuous.PolylogAligned
+import SortingAdversary.Continuous.PolylogAllocation
+import SortingAdversary.Continuous.PolylogAnchor
+import SortingAdversary.Continuous.PolylogAnchorWrite
+import SortingAdversary.Continuous.PolylogBits
+import SortingAdversary.Continuous.PolylogBlockAnchor
+import SortingAdversary.Continuous.PolylogCacheReads
+import SortingAdversary.Continuous.PolylogCached
+import SortingAdversary.Continuous.PolylogCertificateProfile
+import SortingAdversary.Continuous.PolylogCheckProof
+import SortingAdversary.Continuous.PolylogCompare
+import SortingAdversary.Continuous.PolylogCompareBudget
+import SortingAdversary.Continuous.PolylogCompareComplexity
+import SortingAdversary.Continuous.PolylogCompareLoops
+import SortingAdversary.Continuous.PolylogCompareProofs
+import SortingAdversary.Continuous.PolylogCompareShape
+import SortingAdversary.Continuous.PolylogCompareSteps
+import SortingAdversary.Continuous.PolylogCompareWork
+import SortingAdversary.Continuous.PolylogDictionary
+import SortingAdversary.Continuous.PolylogEfficient
+import SortingAdversary.Continuous.PolylogEmbed
+import SortingAdversary.Continuous.PolylogEnclosure
+import SortingAdversary.Continuous.PolylogEnclosureWork
+import SortingAdversary.Continuous.PolylogExecution
+import SortingAdversary.Continuous.PolylogFreeze
+import SortingAdversary.Continuous.PolylogFrozenQuery
+import SortingAdversary.Continuous.PolylogGraph
+import SortingAdversary.Continuous.PolylogHeapKeys
+import SortingAdversary.Continuous.PolylogHierarchy
+import SortingAdversary.Continuous.PolylogKernelProfile
+import SortingAdversary.Continuous.PolylogLocalBudget
+import SortingAdversary.Continuous.PolylogLocalProfile
+import SortingAdversary.Continuous.PolylogMachine
+import SortingAdversary.Continuous.PolylogMemory
+import SortingAdversary.Continuous.PolylogMint
+import SortingAdversary.Continuous.PolylogMoveProof
+import SortingAdversary.Continuous.PolylogMutation
+import SortingAdversary.Continuous.PolylogMutationProfile
+import SortingAdversary.Continuous.PolylogNeighborhood
+import SortingAdversary.Continuous.PolylogNeighborhoodBudget
+import SortingAdversary.Continuous.PolylogOperands
+import SortingAdversary.Continuous.PolylogOracle
+import SortingAdversary.Continuous.PolylogOracleWork
+import SortingAdversary.Continuous.PolylogPrecision
+import SortingAdversary.Continuous.PolylogPrefix
+import SortingAdversary.Continuous.PolylogPrefixProfile
+import SortingAdversary.Continuous.PolylogPrepared
+import SortingAdversary.Continuous.PolylogPreparedDefs
+import SortingAdversary.Continuous.PolylogProfileCompare
+import SortingAdversary.Continuous.PolylogRAM
+import SortingAdversary.Continuous.PolylogRawAnchor
+import SortingAdversary.Continuous.PolylogRawBits
+import SortingAdversary.Continuous.PolylogRecordProof
+import SortingAdversary.Continuous.PolylogRepair
+import SortingAdversary.Continuous.PolylogResources
+import SortingAdversary.Continuous.PolylogRouting
+import SortingAdversary.Continuous.PolylogRows
+import SortingAdversary.Continuous.PolylogSchedule
+import SortingAdversary.Continuous.PolylogSelection
+import SortingAdversary.Continuous.PolylogSpace
+import SortingAdversary.Continuous.PolylogStartup
+import SortingAdversary.Continuous.PolylogStorage
+import SortingAdversary.Continuous.PolylogSweepProfile
+import SortingAdversary.Continuous.PolylogSweepScan
+import SortingAdversary.Continuous.PolylogTestWork
+import SortingAdversary.Continuous.PolylogTrieAllocation
+import SortingAdversary.Continuous.PolylogTrieCharges
+import SortingAdversary.Continuous.PolylogWallTables
+import SortingAdversary.Continuous.PolylogWalls
+import SortingAdversary.Continuous.PolylogWordBudget
+import SortingAdversary.Continuous.PolylogWordCompare
+import SortingAdversary.Continuous.PolylogWordProgram
+import SortingAdversary.Continuous.PolylogWordWork
+import SortingAdversary.Continuous.PolylogWordWriter
 import SortingAdversary.Continuous.Precision
 import SortingAdversary.Continuous.ProjectionDensity
 import SortingAdversary.Continuous.QueriedCompression
@@ -160,5 +237,14 @@ elab "#audit_continuous_axioms" : command => do
 #print axioms SortingAdversary.Continuous.UniformMachineWork.strategy_eq
 #print axioms SortingAdversary.Continuous.UniformMachineWork.per_query_polynomial
 #print axioms SortingAdversary.Continuous.UniformEfficient.asymptoticallyOptimal_and_polynomial
+
+#print axioms SortingAdversary.Continuous.PolylogAdversary.asymptoticallyOptimal
+
+#print axioms SortingAdversary.Continuous.PolylogEfficient.asymptoticallyOptimal_and_polylogarithmic
+#print axioms SortingAdversary.Continuous.PolylogStartup.build_work
+#print axioms SortingAdversary.Continuous.PolylogCompare.compare_aligned
+
+#print axioms SortingAdversary.Continuous.PolylogRAM.asymptoticallyOptimal_and_polylogarithmic
+#print axioms SortingAdversary.Continuous.PolylogRAM.preFreezeWork_bound
 
 #audit_continuous_axioms

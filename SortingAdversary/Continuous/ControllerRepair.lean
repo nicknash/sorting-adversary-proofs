@@ -25,12 +25,14 @@ def realMoves (ms : List (Move n)) : List (Fin n × ℝ) :=
     (realMoves ms).map Prod.fst = ms.map Move.item := by
   simp [realMoves, List.map_map, Function.comp_def]
 
+variable [rules : Choices n] [laws : ChoiceLaws rules]
+
 theorem pathBatch_admissible (k : ℕ) (hk : 64 ≤ k) (M : Memory n)
     (hM : Admissible k M) (xs : List (Fin n)) :
     Admissible k (pathBatch k M xs).1 := by
   induction xs generalizing M with
   | nil => exact hM
-  | cons x xs ih => exact ih _ (anchor_move_spec M k hk hM x).2.2.2.1
+  | cons x xs ih => exact ih _ (laws.repair M k hk hM x).2.2.2.1
 
 theorem pathBatch_steps (k : ℕ) (hk : 64 ≤ k) (M : Memory n)
     (hM : Admissible k M) (xs : List (Fin n)) :
@@ -39,9 +41,9 @@ theorem pathBatch_steps (k : ℕ) (hk : 64 ≤ k) (M : Memory n)
   induction xs generalizing M with
   | nil => exact .nil _
   | cons x xs ih =>
-    let c := ArbitraryLabels.chooseAnchor M.tree.system k x
+    let c := rules.anchor M k x
     let m := makeMove M x c
-    have hs := anchor_move_spec M k hk hM x
+    have hs := laws.repair M k hk hM x
     have ht := ih (Controller.applyMove M m) hs.2.2.2.1
     have hc : M.tree.toReal.system.lower x < (m.anchor.coordinate : ℝ) ∧
         (m.anchor.coordinate : ℝ) < M.tree.toReal.system.upper x := by
@@ -57,9 +59,9 @@ theorem pathBatch_tariffs (k : ℕ) (hk : 64 ≤ k) (M : Memory n)
   induction xs generalizing M with
   | nil => simp [pathBatch, gainRecords]
   | cons x xs ih =>
-    let c := ArbitraryLabels.chooseAnchor M.tree.system k x
+    let c := rules.anchor M k x
     let m := makeMove M x c
-    have hs := anchor_move_spec M k hk hM x
+    have hs := laws.repair M k hk hM x
     intro r hr
     change r ∈ (m.anchor, m.gain M.tree.toReal) ::
       gainRecords (m.apply M.tree.toReal) (pathBatch k (Controller.applyMove M m) xs).2 at hr
@@ -175,9 +177,9 @@ theorem repair_recorded_ready (k : ℕ) (hk : 64 ≤ k) (M : Memory n)
       have hout : Ready k N := ⟨hN.toGeometric, hdegree, hheight⟩
       simpa only [repair, hp, hd, N] using hout
     | some x =>
-      let c := ArbitraryLabels.chooseAnchor N.tree.system k x
+      let c := rules.anchor N k x
       let m := makeMove N x c
-      have hs := anchor_move_spec N k hk hN x
+      have hs := laws.repair N k hk hN x
       have hc : N.tree.toReal.system.lower x < (m.anchor.coordinate : ℝ) ∧
           (m.anchor.coordinate : ℝ) < N.tree.toReal.system.upper x := by
         rw [show m.anchor.coordinate = c from hs.1]

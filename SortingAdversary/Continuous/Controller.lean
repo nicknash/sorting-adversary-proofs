@@ -75,16 +75,36 @@ def attempt (M : Memory n) (k : ℕ) (q : Query n) : LocalSelection.Result n :=
   | .rightFree c => reverseResult (ArbitraryLabels.selectThreshold M.tree.system k q.right c)
   | .anchors c d => .answer (if c < d then .less else .greater)
 
+/-- The two local decisions used by the selection and repair loops. The
+reference instance uses the exact enclosure. A second instance can use
+outward-rounded walls while sharing the same controller and counting proofs. -/
+class Choices (n : ℕ) where
+  select : Memory n → ℕ → Query n → LocalSelection.Result n
+  anchor : Memory n → ℕ → Fin n → ℚ
+
+@[reducible] instance referenceChoices (n : ℕ) : Choices n where
+  select := attempt
+  anchor M k x := ArbitraryLabels.chooseAnchor M.tree.system k x
+
+@[simp] theorem reference_select (M : Memory n) (k : ℕ) (q : Query n) :
+    (referenceChoices n).select M k q = attempt M k q := rfl
+
+@[simp] theorem reference_anchor (M : Memory n) (k : ℕ) (x : Fin n) :
+    (referenceChoices n).anchor M k x = ArbitraryLabels.chooseAnchor M.tree.system k x := rfl
+
 structure Result (n : ℕ) where
   memory : Memory n
   answer : Answer
   actions : List (Action n)
 
+section
+variable [rules : Choices n]
+
 /-- Fuel counts selection attempts, including the successful final test. -/
 def selectLoop (k : ℕ) (q : Query n) : ℕ → Memory n → Option (Result n)
   | 0, _ => none
   | fuel + 1, M =>
-    match attempt M k q with
+    match rules.select M k q with
     | .answer a => some ⟨M, a, []⟩
     | .refine x c =>
       let m := makeMove M x c
@@ -96,7 +116,7 @@ vertices have been removed from the parent graph. -/
 def pathBatch (k : ℕ) : Memory n → List (Fin n) → Memory n × List (Move n)
   | M, [] => (M, [])
   | M, x :: xs =>
-    let m := makeMove M x (ArbitraryLabels.chooseAnchor M.tree.system k x)
+    let m := makeMove M x (rules.anchor M k x)
     let r := pathBatch k (applyMove M m) xs
     (r.1, m :: r.2)
 
@@ -114,7 +134,7 @@ def repair (k : ℕ) (M : Memory n) : Memory n × List (Action n) :=
     match degreeChoice M k with
     | none => (M, [])
     | some x =>
-      let m := makeMove M x (ArbitraryLabels.chooseAnchor M.tree.system k x)
+      let m := makeMove M x (rules.anchor M k x)
       (applyMove M m, [.degree m])
 
 def compare (k : ℕ) (M : Memory n) (q : Query n) : Option (Result n) :=
@@ -124,6 +144,8 @@ def compare (k : ℕ) (M : Memory n) (q : Query n) : Option (Result n) :=
     let answered := applyAction r.memory (.answer q r.answer order)
     let repaired := repair k answered
     ⟨repaired.1, r.answer, r.actions ++ [.answer q r.answer order] ++ repaired.2⟩
+
+end
 
 def horizon (n : ℕ) : ℕ := n * Nat.clog 2 n
 
@@ -176,6 +198,9 @@ def strategy (k : ℕ) : Strategy n := fun past q => (step k (replay k past) q).
     replay k (o :: past) = (step k (replay k past) o.query).2 := by
   simp [replay, List.foldl_append]
 
+section
+variable [Choices n]
+
 theorem pathBatch_labels (k : ℕ) (M : Memory n) (xs : List (Fin n)) :
     ((pathBatch k M xs).2.map Move.item) = xs := by
   induction xs generalizing M with
@@ -187,6 +212,8 @@ theorem pathBatch_apply (k : ℕ) (M : Memory n) (xs : List (Fin n)) :
   induction xs generalizing M with
   | nil => rfl
   | cons x xs ih => exact ih _
+
+end
 
 theorem degreeChoice_some (M : Memory n) (k : ℕ) (x : Fin n)
     (h : degreeChoice M k = some x) : (neighbors M.tree.system.edge x).card = k :=
