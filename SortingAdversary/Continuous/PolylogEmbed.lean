@@ -1,4 +1,5 @@
 import SortingAdversary.Continuous.PolylogBlockAnchor
+import SortingAdversary.Continuous.PolylogRawBits
 
 /-!
 # Embedding a short numerator into the canonical block heap
@@ -79,11 +80,11 @@ private def emit (v : H.Valid) (cache : Cached S H cap) (hc : h ≤ cap) :
     let prev := emit v cache hc l (off+1) (z/2)
     if e : z%2 = 1 then
       let p := atBit h off
-      let t := addUnitAddr prev.valid (cache.lift prev.growth) p hc prev.cell
+      let t := PolylogRawBits.addWrite prev.valid (cache.lift prev.growth) p hc prev.cell
       ⟨retag (t.out.after prev.growth) (by simp [digits, e, p]),
         prev.work + (10*h+2) + (h+1)^2 + 4, by
           change t.out.heap.next ≤ _
-          have h₁ := (addUnitAddr_growth prev.valid (cache.lift prev.growth) p hc prev.cell).1
+          have h₁ := PolylogRawBits.addWrite_growth prev.valid (cache.lift prev.growth) p hc prev.cell
           change t.out.heap.next ≤ prev.heap.next + 2*h at h₁
           have h₂ := prev.allocated; omega⟩
     else

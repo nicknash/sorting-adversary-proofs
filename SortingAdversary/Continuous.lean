@@ -1,7 +1,7 @@
 import SortingAdversary.Continuous.UniformAdversary
 import SortingAdversary.Continuous.ControllerResources
 import SortingAdversary.Continuous.UniformEfficient
-import SortingAdversary.Continuous.PolylogAdversary
+import SortingAdversary.Continuous.PolylogEfficient
 import SortingAdversary.Continuous.LayerAdversary
 import SortingAdversary.Continuous.ApproximateCounting
 import SortingAdversary.Continuous.Examples

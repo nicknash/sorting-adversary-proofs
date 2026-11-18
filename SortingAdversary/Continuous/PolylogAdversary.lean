@@ -39,6 +39,12 @@ theorem policy_valid (n : ℕ) : (policy n).Valid where
     simpa only [policy, hr, Option.getD_some] using And.intro hinv (compare_history k M q r hr)
   parents_correct := by simp [policy]
 
+theorem compare_ready {n k : ℕ} (hk : 64 ≤ k) {M : Memory n}
+    (ready : Ready k M) (q : Query n) :
+    Ready k ((policy n).compare k M q).memory := by
+  obtain ⟨r, hr, hrdy, _⟩ := compare_total_spec k hk M ready q
+  simpa only [policy, hr, Option.getD_some] using hrdy
+
 abbrev extra : Expr := PolylogRepair.repairRecipe
 
 /-- A single fixed stage recipe for all input sizes. -/

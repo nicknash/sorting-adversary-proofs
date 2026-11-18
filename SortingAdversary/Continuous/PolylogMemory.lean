@@ -44,6 +44,7 @@ structure Memory.Represents (m : Memory n t b) (D : ℕ) (nodes : List (List ℕ
   zero_value : m.decode D m.zero = 0
   one_value : m.decode D m.one = 1
   paths_nonneg : ∀ x c, c ∈ M.tree.location x → 0 ≤ c
+  paths_bounded : ∀ x c, c ∈ M.tree.location x → c ≤ 1
 
 def Memory.withHeap (m : Memory n t b) (H : Heap) (v : H.Valid) (e : H.Extends m.heap) :
     Memory n t b :=
@@ -56,7 +57,7 @@ theorem Memory.storage_lift {m : Memory n t b} {D : ℕ} {nodes : List (List ℕ
   let m' := m.withHeap H v e
   have persist (i : ℕ) (hi : 0 ≤ m.decode D i) : m'.decode D i = m.decode D i :=
     PolylogAddressOrder.persistent m.valid v e hi
-  refine ⟨⟨hm.spatial.graph, ⟨?_, ?_⟩, hm.spatial.directory, ?_⟩, ?_, ?_, hm.paths_nonneg⟩
+  refine ⟨⟨hm.spatial.graph, ⟨?_, ?_⟩, hm.spatial.directory, ?_⟩, ?_, ?_, hm.paths_nonneg, hm.paths_bounded⟩
   · intro y
     exact (persist (m.spatial.walls.lower.get y.val).value (by rw [hm.spatial.walls.1]; exact (geom.rationalBounds y).1)).trans
       (hm.spatial.walls.1 y)
@@ -99,7 +100,7 @@ theorem initialize_represents (n t b D : ℕ) (hD : D < 2^b) :
     obtain ⟨a,ha,hv⟩ := PolylogEmbed.embedAddr_represents D 0 1 base.valid base.cache
       (le_refl b) hD (Nat.zero_le _) (by decide)
     exact (PolylogAddressOrder.decode_of_rep w.valid ha).trans (by simpa using hv)
-  refine ⟨PolylogStorage.initial_represents n t z w.cell.addr _ hzero hone, hzero, hone, ?_⟩
-  simp [Controller.initial, TreeState.initial]
+  refine ⟨PolylogStorage.initial_represents n t z w.cell.addr _ hzero hone, hzero, hone, ?_, ?_⟩ <;>
+    simp [Controller.initial, TreeState.initial]
 
 end SortingAdversary.Continuous.PolylogCompare

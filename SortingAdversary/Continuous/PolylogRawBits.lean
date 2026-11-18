@@ -142,4 +142,23 @@ theorem advance_eq (v : H.Valid) (cache : Cached S H cap) (p : Position h)
     change (addUnit (cache.lift t.growth).lookup t.heap p t.cell.addr).1 = _
     rw [addUnit_eq t.valid]; rfl
 
+/-- Typed specification with entirely raw runtime data. The value argument
+of `Cell` is used only for proving the interpretation of the returned handle. -/
+def addWrite (v : H.Valid) (cache : Cached S H cap) (p : Position h) (hc : h ≤ cap)
+    {a : S.Ref h} (c : Cell S H a) : AddWrite S H (PolylogBits.addUnit S (uniformSpec S) p a) :=
+  let r := addUnit cache.lookup H p c.addr
+  let z := addUnitAddr v cache p hc c
+  have eq : r = (erase z.out, z.carry) := addUnit_eq v cache p hc c
+  have valid : r.1.heap.Valid := by rw [eq]; exact z.out.valid
+  have growth : r.1.heap.Extends H := by rw [eq]; exact z.out.growth
+  have rep : Represents S r.1.heap r.1.addr (PolylogBits.addUnit S (uniformSpec S) p a).result := by
+    rw [eq]; exact z.out.cell.rep
+  ⟨⟨r.1.heap, valid, growth, ⟨r.1.addr, rep⟩⟩, r.2, by rw [eq]; exact z.correct⟩
+
+theorem addWrite_growth (v : H.Valid) (cache : Cached S H cap) (p : Position h) (hc : h ≤ cap)
+    {a : S.Ref h} (c : Cell S H a) : (addWrite v cache p hc c).out.heap.next ≤ H.next+2*h := by
+  change (addUnit cache.lookup H p c.addr).1.heap.next ≤ _
+  rw [addUnit_eq v cache p hc c]
+  exact (addUnitAddr_growth v cache p hc c).1
+
 end SortingAdversary.Continuous.PolylogRawBits

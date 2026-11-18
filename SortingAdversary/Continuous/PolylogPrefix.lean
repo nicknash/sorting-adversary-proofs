@@ -135,9 +135,9 @@ theorem tailClear_iff {S : Store} {H : Heap} {h cap addr : ℕ} {a : S.Ref h}
   | @node j addr l r a b fetch rl rr il ir =>
     have hj : j ≤ cap := by omega
     by_cases hi : i < 2^j
-    · simp only [tailClear, atBit, hi, if_true, truncate, S.split_join, Heap.children, fetch,
+    · simp only [tailClear, atBit, Nat.shiftLeft_eq, one_mul, hi, if_true, truncate, S.split_join, Heap.children, fetch,
         Option.getD_some, join_eq_iff, true_and, ir hj]
-    · simp only [tailClear, atBit, hi, if_false, truncate, S.split_join, Heap.children, fetch,
+    · simp only [tailClear, atBit, Nat.shiftLeft_eq, one_mul, hi, if_false, truncate, S.split_join, Heap.children, fetch,
         Option.getD_some, Bool.and_eq_true, decide_eq_true_eq, join_eq_iff, il hj]
       exact and_congr_right (fun _ => (rr.same_iff v (cache.spec hj false)).trans eq_comm)
 

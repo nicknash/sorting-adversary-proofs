@@ -1,25 +1,35 @@
 # The polylogarithmic sorting adversary
 
 The source is *An optimal sorting adversary in polylogarithmic time per
-comparison*, 18 November 2026. Its uniform adversary uses rounded finite
-enclosures, a binary-prefix fallback anchor and an order computed locally
-after the active horizon.
+comparison* (18 November 2026). The online machine receives two labels and
+returns an answer and an updated memory. It reads short outward-rounded
+enclosures, writes exact anchors into a shared dyadic block heap and
+freezes its memory after the active horizon. The frozen machine can
+answer arbitrarily many further queries.
 
-## What Lean proves
+## Main theorems
 
-`PolylogAdversary.asymptoticallyOptimal` proves the leading-one lower bound for
-these specific choices against every correct comparison sorter.
-`PolylogAdversary.consistent` and `execute_eq_run` give transcript consistency
-and agreement with the stateful execution. The proof instantiates the
-continuous controller's comparison and repair invariants with new geometric
-certificates. It permits the rounded answers to differ from those of the
-original exact-enclosure controller.
+In [PolylogEfficient.lean](../SortingAdversary/Continuous/PolylogEfficient.lean),
+`consistent` proves that the stored machine's answers admit a single
+ranking on each run. `asymptoticallyOptimal` proves that every correct
+comparison sorter needs at least $(1-o(1))n\log_2 n$ comparisons against
+this deterministic strategy. `execute_eq_run` connects a run from the
+initial memory to the repository's decision-tree specification.
 
-`PolylogAdversary.active_work` bounds the work of a stored active query by
-`(logCap n + 7) * (2*b + 3) + 5` given a bound `b` for the individual
-component calls visited by that query. A closed word-RAM time and space
-bound requires a stored implementation satisfying all of those obligations
-on every reachable state. The semantic comparison theorem has no such
-hypothesis.
+| Part of the argument | Lean entry point |
+| --- | --- |
+| Probability guarantees after rounding the two sets of walls in opposite directions | [PolylogEnclosure](../SortingAdversary/Continuous/PolylogEnclosure.lean) |
+| Exact dyadic prefix search and persistent allocation | [PolylogRawAnchor](../SortingAdversary/Continuous/PolylogRawAnchor.lean) and [PolylogMint](../SortingAdversary/Continuous/PolylogMint.lean) |
+| Agreement of one stored comparison, including graph repair, with the rounded geometric controller | [PolylogCompare.compare_aligned](../SortingAdversary/Continuous/PolylogCompareProofs.lean) |
+| Countdown, cached stage constants and transition to the frozen order | [PolylogExecution](../SortingAdversary/Continuous/PolylogExecution.lean) |
+| Frozen queries, including balanced-dictionary lookups | [PolylogFrozenQuery.scheduled_work](../SortingAdversary/Continuous/PolylogFrozenQuery.lean) |
+| Fixed table height and bounds on heap and hierarchy addresses | [PolylogResources](../SortingAdversary/Continuous/PolylogResources.lean) |
 
-All modules belong to the continuous all-declaration axiom audit.
+The frozen query takes at most `72000 * (logCap n + 1)^2` charged
+operations under the proved representation and capacity invariants.
+Here `logCap n` is the floor of the base-two logarithm of `n + 1`.
+The end-to-end worst-case active work estimate is being assembled from
+the component bounds. The sorting lower bound and state refinement are
+unconditional.
+
+All these modules belong to the continuous all-declaration axiom audit.
