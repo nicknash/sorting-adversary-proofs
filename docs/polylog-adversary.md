@@ -9,21 +9,21 @@ answer arbitrarily many further queries.
 
 ## Main theorems
 
-[PolylogEfficient.asymptoticallyOptimal_and_polylogarithmic](../SortingAdversary/Continuous/PolylogEfficient.lean)
+[PolylogRAM.asymptoticallyOptimal_and_polylogarithmic](../SortingAdversary/Continuous/PolylogRAM.lean)
 proves both guarantees for the same deterministic online machine. For every
 positive `ε` and all sufficiently large `n`, every correct comparison
 sorter performs at least $(1-\varepsilon)n\log_2 n$ comparisons against
-the machine. After **any** history, the next query costs at most
-`20,000,003 L⁹` counted operations, where `L = floor(log₂(n + 1)) + 1`.
-This is a worst-case bound per query, including a query that triggers a
-path repair or enters the frozen phase.
+the machine. After **any** history, the next comparison costs at most
+`(10²⁰ + 3) L¹⁰` in the word and bit cost model, where
+`L = floor(log₂(n + 1)) + 1`. This is a worst-case bound per query,
+including the query that triggers a path repair or enters the frozen phase.
 
 | Guarantee | Theorem |
 | --- | --- |
-| A single ranking realizes all responses along each finite run | `PolylogEfficient.consistent` |
-| Execution from measured startup agrees with the strategy used in the sorting theorem | `PolylogEfficient.run_eq` |
+| A single ranking realizes all responses along each finite run | `PolylogRAM.asymptoticallyOptimal_and_polylogarithmic` (consistency is part of `Optimal.AsymptoticallyOptimal`) |
+| Execution from measured startup agrees with the strategy used in the sorting theorem | `PolylogRAM.run_eq` |
 | Linear startup, including rejected stages and construction of the exact initial memory | `PolylogStartup.build_work` |
-| At most `8,210 (n + 1) L⁴` logical storage entries after any history | `PolylogEfficient.stored_entries` |
+| At most `8,210 (n + 1) L⁴` logical storage entries after any history | `PolylogRAM.stored_entries` |
 | Cumulative allocation of persistent trie and adjacency-list cells, including superseded versions | `PolylogEfficient.allocated_storage_cells` |
 
 ## Proof map
@@ -34,6 +34,7 @@ path repair or enters the frozen phase.
 | Exact dyadic prefix search and persistent allocation | [PolylogRawAnchor](../SortingAdversary/Continuous/PolylogRawAnchor.lean) and [PolylogMint](../SortingAdversary/Continuous/PolylogMint.lean) |
 | Agreement of one stored comparison, including graph repair, with the rounded geometric controller | [PolylogCompare.compare_aligned](../SortingAdversary/Continuous/PolylogCompareProofs.lean) |
 | Countdown, cached stage constants and transition to the frozen order | [PolylogExecution](../SortingAdversary/Continuous/PolylogExecution.lean) |
+| Agreement and cost of the single-pass, fully priced active comparison | [PolylogWordProgram](../SortingAdversary/Continuous/PolylogWordProgram.lean) and [PolylogWordCompare.active_work](../SortingAdversary/Continuous/PolylogWordBudget.lean) |
 | Frozen queries, including balanced-dictionary lookups | [PolylogFrozenQuery.scheduled_work](../SortingAdversary/Continuous/PolylogFrozenQuery.lean) |
 | Fixed table height and bounds on heap and hierarchy addresses | [PolylogResources](../SortingAdversary/Continuous/PolylogResources.lean) |
 
@@ -44,16 +45,30 @@ certificate and its constants are conservative.
 
 ## Cost model and verification
 
-The query bound uses the repository's `PrimitiveWork.Result` model. Its
-operations include local rational arithmetic, block accesses, row scans
-and updates to persistent tables. [PolylogOperands](../SortingAdversary/Continuous/PolylogOperands.lean)
-bounds the numerators, denominators and intermediate cross products used by
-the rounded local enclosures. [PolylogDictionary](../SortingAdversary/Continuous/PolylogDictionary.lean)
-bounds comparisons in the balanced interning dictionaries.
-[PolylogTrieCharges](../SortingAdversary/Continuous/PolylogTrieCharges.lean)
-counts persistent trie and adjacency-list cells allocated before freezing.
-The theorem concerns this formal cost model. Exact byte counts, Lean's
-allocator and native instruction timings lie outside it.
+The stored controller also has a bound of `20,000,003 L⁹` in the
+repository's coarser arithmetic and block-operation model.
+[PolylogEfficient](../SortingAdversary/Continuous/PolylogEfficient.lean)
+
+The word-priced controller counts balanced-dictionary key comparisons and
+local rebalances along the paths taken, including probes that discard their
+temporary heaps. It prices rational comparisons, normalization, the seven
+operations in an affine digit and the final certificate sort. Its cached
+stage constants and persistent table indices fit logarithmically many bits.
+The model counts operations on words with logarithmically many bits and
+uses a conservative schoolbook bit charge for short rational arithmetic.
+Native Lean execution time, allocator bytes and garbage-collection pauses
+are outside the model.
+[Dictionary paths](../SortingAdversary/Continuous/PolylogWordWork.lean) ·
+[Key widths](../SortingAdversary/Continuous/PolylogHeapKeys.lean) ·
+[Rational operands](../SortingAdversary/Continuous/PolylogOperands.lean) ·
+[Priced enclosures](../SortingAdversary/Continuous/PolylogKernelProfile.lean)
+
+The space theorems bound live entries and the cumulative number of
+persistent trie and adjacency-list cells. The latter count includes
+superseded versions. The frozen phase retains the same stored memory. In addition,
+`PolylogRAM.preFreezeWork_bound` bounds all work before freezing by
+`(10²⁰ + 3) n L¹¹`, independently of the length of the frozen suffix.
+[Allocation proof](../SortingAdversary/Continuous/PolylogTrieCharges.lean)
 
 The source checks, build, independent kernel replay and axiom audit can be
 run with the same commands as CI.

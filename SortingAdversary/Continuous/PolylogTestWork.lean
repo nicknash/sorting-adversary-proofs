@@ -13,7 +13,7 @@ open EnclosureWork FiniteAveraging Optimal Certificates
 open Optimal.PrimitiveWork (Result)
 variable {n h m : ℕ}
 
-private def Short (F : ℕ) (q : ℚ) := OnDyadicGrid F q ∧ 0 ≤ q ∧ q ≤ 2
+def Short (F : ℕ) (q : ℚ) := OnDyadicGrid F q ∧ 0 ≤ q ∧ q ≤ 2
 
 private theorem leading_lt (H : Heap) (h addr D len : ℕ) :
     (readLeading H h addr D len).1 < 2^len := by
@@ -23,7 +23,7 @@ private theorem leading_lt (H : Heap) (h addr D len : ℕ) :
     simp only [readLeading, pow_succ]
     cases (readBit H h (D-l) addr).1 <;> simp <;> omega
 
-private theorem read_short (H : Heap) (zero : ℕ → ℕ) (h D F addr : ℕ) :
+theorem read_short (H : Heap) (zero : ℕ → ℕ) (h D F addr : ℕ) :
     Short F (read H zero h addr D F).value.1 ∧ Short F (read H zero h addr D F).value.2 := by
   let a := (readLeading H h addr D (F+1)).1
   have b := leading_lt H h addr D (F+1)
@@ -55,7 +55,7 @@ private theorem steps_range (E : System (Fin m) ℚ) (S : ℕ) (ts : List (Fin m
     (fun i => by simpa using (hu i).2) S ts Y (fun _ => 2) (fun i => by simpa using (hy i).2) x
   simpa only [exactFixed,add_zero] using And.intro lo hi
 
-private theorem steps_short (E : StoredSystem m) (F s : ℕ) (ts : List (Fin m × Fin (2^s)))
+theorem steps_short (E : StoredSystem m) (F s : ℕ) (ts : List (Fin m × Fin (2^s)))
     (Y : Vector ℚ m) (hl : ∀ i, Short F (E.system.lower i)) (hu : ∀ i, Short F (E.system.upper i))
     (hy : ∀ i, Short F (values Y i)) (i : Fin m) :
     Short (F+ts.length*s) (values (EnclosureWork.fullSteps E (2^s) ts Y).value i) := by
@@ -63,6 +63,42 @@ private theorem steps_short (E : StoredSystem m) (F s : ℕ) (ts : List (Fin m �
   exact ⟨fullSteps_onDyadicGrid E.system F s ts (values Y) (fun x => (hl x).1)
     (fun x => (hu x).1) (fun x => (hy x).1) i,
     steps_range _ _ _ _ (fun x => (hl x).2) (fun x => (hu x).2) (fun x => (hy x).2) i⟩
+
+theorem Short.fits {F : ℕ} {q : ℚ} (hq : Short F q) : OperandBounds.Fits (F+2) q := by
+  have hd : q.den ≤ 2^F := Nat.le_of_dvd (by positivity) (onDyadicGrid_den_dvd hq.1)
+  have hq' := hq.2.2
+  rw [← Rat.num_div_den q, div_le_iff₀ (by exact_mod_cast q.den_pos : (0:ℚ) < q.den)] at hq'
+  have hz : q.num ≤ 2*(q.den:ℤ) := by exact_mod_cast hq'
+  have hn : q.num.natAbs ≤ 2*q.den := by
+    exact_mod_cast (show (q.num.natAbs:ℤ) ≤ 2*(q.den:ℤ) by
+      simpa only [Int.natCast_natAbs,abs_of_nonneg (Rat.num_nonneg.mpr hq.2.1)] using hz)
+  have lim : q.num.natAbs ≤ 2^(F+1) := by rw [pow_succ]; omega
+  have := Nat.size_le_size lim
+  have := Nat.size_le_size hd
+  simp only [Nat.size_pow] at *
+  exact ⟨by omega,by omega⟩
+
+theorem tables_short (H : Heap) (zero : ℕ → ℕ) (height D F : ℕ)
+    (lo hi : Vector ℕ m) (edges : SparseClosure.Table m) :
+    let t := PolylogPrefix.tables H zero height D F lo hi edges
+    (∀ i, Short F (t.value.1.system.lower i)) ∧ (∀ i, Short F (t.value.1.system.upper i)) ∧
+    (∀ i, Short F (t.value.2.system.lower i)) ∧ (∀ i, Short F (t.value.2.system.upper i)) := by
+  exact ⟨fun i => by simpa [PolylogPrefix.tables,StoredSystem.system] using (read_short H zero height D F lo[i]).1,
+    fun i => by simpa [PolylogPrefix.tables,StoredSystem.system] using (read_short H zero height D F hi[i]).1,
+    fun i => by simpa [PolylogPrefix.tables,StoredSystem.system] using (read_short H zero height D F lo[i]).2,
+    fun i => by simpa [PolylogPrefix.tables,StoredSystem.system] using (read_short H zero height D F hi[i]).2⟩
+
+theorem evaluated_short (L U : StoredSystem m) (F s : ℕ) (ts : List (Fin m))
+    (ll : ∀ i, Short F (L.system.lower i)) (lu : ∀ i, Short F (L.system.upper i))
+    (ul : ∀ i, Short F (U.system.lower i)) (uu : ∀ i, Short F (U.system.upper i))
+    {v : Vector ℚ m × Vector ℚ m} (hv : v ∈ (evaluate L U (2^s) ts).value) (i : Fin m) :
+    Short (F+ts.length*s) (coords v i).1 ∧ Short (F+ts.length*s) (coords v i).2 := by
+  simp only [evaluate,PrimitiveWork.map_value,List.mem_map] at hv
+  obtain ⟨w,_,rfl⟩ := hv
+  have lo := steps_short L F s (w.assign ts).value L.lower ll lu ll i
+  have hi := steps_short U F s (w.assign ts).value U.upper ul uu uu i
+  rw [Word.assign_length] at lo hi
+  exact ⟨lo,hi⟩
 
 private theorem round_work (J : Interval) (F : ℕ) (hl : J.1 < J.2) (hu : J.2 - J.1 < 4)
     (hg : OnDyadicGrid F J.1 ∧ OnDyadicGrid F J.2) : (RoundingWork.roundUp J).work ≤ 6*F+28 := by
@@ -151,7 +187,7 @@ def kernelBound (h level B : ℕ) := 2*(7*B+4)+2*B*(4*h+3)+3+
 
 def stageBound (h level B : ℕ) := (8*h+2*B+10)*(20000*(B+1)^7) + kernelBound h level B
 
-private theorem index_work (p : Prepared n m) (x : Fin n) (f : Fin m → Result (Option α)) (b : ℕ)
+theorem index_work (p : Prepared n m) (x : Fin n) (f : Fin m → Result (Option α)) (b : ℕ)
     (hf : ∀ i, (f i).work ≤ b) : (withIndex p x f).work ≤ 7*m+4+b := by
   have cap := queryIndex_work p.embedding x
   simp only [withIndex]
@@ -160,7 +196,7 @@ private theorem index_work (p : Prepared n m) (x : Fin n) (f : Fin m → Result 
   · change (queryIndex p.embedding x).work+0+2 ≤ _
     omega
 
-private theorem walls_work (w : PolylogWallTables.Walls ℕ h) (p : Prepared n m)
+theorem walls_work (w : PolylogWallTables.Walls ℕ h) (p : Prepared n m)
     (f : Vector ℕ m → Vector ℕ m → Result α) (b : ℕ) (hf : ∀ lo hi, (f lo hi).work ≤ b) :
     (withWalls w p f).work ≤ 2*m*(4*h+3)+3+b := by
   have aw := addresses_work w p.embedding
@@ -262,7 +298,7 @@ variable (extra : CappedArithmetic.Expr) (hk : 64 ≤ parameter extra n)
   {g : Graph n h} (sh : Shape g (parameter extra n))
 
 include hk in
-private theorem admitted_caps (A : System (Fin n) ℚ) (Q : Finset (Fin n)) (hQ : Q.card ≤ 2)
+theorem admitted_caps (A : System (Fin n) ℚ) (Q : Finset (Fin n)) (hQ : Q.card ≤ 2)
     (degree : ∀ x, (GraphBalls.neighbors A.edge x).card ≤ parameter extra n) :
     let k := parameter extra n
     let H := ArbitraryLabels.pathHeight k
@@ -294,12 +330,12 @@ private theorem admitted_caps (A : System (Fin n) ℚ) (Q : Finset (Fin n)) (hQ 
 
 set_option maxHeartbeats 800000 in
 include hk sh in
-private theorem run_stage (level : ℕ) (roots : List (Fin n)) (nr : roots.length ≤ 2)
+theorem run_stage_priced (K : ℕ) (roots : List (Fin n)) (nr : roots.length ≤ 2)
     (f : ∀ {m}, Prepared n m → Result (Option α))
     (hf : ∀ {m} (p : Prepared n m),
       Caps (Params.stage (parameter extra n)) m p.schedule.length (Parameters.logCap n) →
-      (f p).work ≤ kernelBound h level (Parameters.logCap n)) :
-    (run g (parameter extra n) roots f).work ≤ stageBound h level (Parameters.logCap n) := by
+      (f p).work ≤ K) :
+    (run g (parameter extra n) roots f).work ≤ (8*h+2*Parameters.logCap n+10)*(20000*(Parameters.logCap n+1)^7)+K := by
   let B := Parameters.logCap n
   let k := parameter extra n
   have kp : 0 < k := by dsimp [k]; omega
@@ -348,14 +384,14 @@ include hk sh
 
 theorem pair_work (x y : Fin n) :
     (pair g w heap zero level D (parameter extra n) x y).work ≤ stageBound h level (Parameters.logCap n) :=
-  run_stage extra hk sh level [x,y] (by simp) _ (fun p c => pairAt_work w heap zero level D _ p _ c x y)
+  run_stage_priced extra hk sh (kernelBound h level (Parameters.logCap n)) [x,y] (by simp) _ (fun p c => pairAt_work w heap zero level D _ p _ c x y)
 
 theorem threshold_work (x : Fin n) (addr : ℕ) :
     (threshold g w heap zero level D (parameter extra n) x addr).work ≤ stageBound h level (Parameters.logCap n) :=
-  run_stage extra hk sh level [x] (by simp) _ (fun p c => thresholdAt_work w heap zero level D _ p _ c x addr)
+  run_stage_priced extra hk sh (kernelBound h level (Parameters.logCap n)) [x] (by simp) _ (fun p c => thresholdAt_work w heap zero level D _ p _ c x addr)
 
 theorem central_work (x : Fin n) :
     (central g w heap zero level D (parameter extra n) x).work ≤ stageBound h level (Parameters.logCap n) :=
-  run_stage extra hk sh level [x] (by simp) _ (fun p c => centralAt_work w heap zero level D _ p _ c x)
+  run_stage_priced extra hk sh (kernelBound h level (Parameters.logCap n)) [x] (by simp) _ (fun p c => centralAt_work w heap zero level D _ p _ c x)
 
 end SortingAdversary.Continuous.PolylogTestWork

@@ -118,7 +118,7 @@ local notation "verts" => Neighborhood.labels D k H (Nat.lt_of_lt_of_le (by deci
   (half_pos (widthThreshold_pos ..)) Q
 
 include hk in
-private theorem stage_scalars : k ≤ cap ∧ 2^s ≤ cap := by
+theorem stage_scalars : k ≤ cap ∧ 2^s ≤ cap := by
   have h := CappedStageScan.stage_need (PolylogSchedule.recipe extra) n (PolylogSchedule.active_stage hk)
   change max (max _ (UniformStages.Recipe.budget.need (PolylogSchedule.stage extra n))) _ ≤ _ at h
   have ha := UniformStages.admitted_scalar_bounds _ _ (max_le_iff.mp (max_le_iff.mp h).1).2
@@ -391,7 +391,7 @@ theorem digitProfile_value (S : ℕ) (j : Fin S) (y l u : ℚ) :
   simp only [digitProfile, subProfile_value, addProfile_value, mulProfile_value, divProfile_value,
     FiniteAveraging.digit]
 
-private theorem digitProfile_bits (S B : ℕ) (hb : 1 ≤ B) (j : Fin S) (y l u : ℚ)
+theorem digitProfile_bits (S B : ℕ) (hb : 1 ≤ B) (j : Fin S) (y l u : ℚ)
     (hf : ∀ q ∈ digitOperands S j y l u, Fits B q) :
     (digitProfile S j y l u).bitWork ≤ 7 * 128 * (B+1)^3 := by
   simp only [digitOperands, List.forall_mem_cons] at hf

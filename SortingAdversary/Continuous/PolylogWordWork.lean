@@ -541,4 +541,75 @@ theorem prefixReadTrace_bound (H : Heap) (zero : ℕ → ℕ) (h addr D F : ℕ)
   have := b.2.2.2
   omega
 
+def Trace.ReadOnly : Trace → Prop
+  | .done => True
+  | .read _ xs => xs.ReadOnly
+  | .join _ _ => False
+  | .temporary x y => x.ReadOnly ∧ y.ReadOnly
+
+theorem Trace.ReadOnly.append {xs ys : Trace} (first : xs.ReadOnly) (second : ys.ReadOnly) :
+    (xs.append ys).ReadOnly := by
+  induction xs with
+  | done => exact second
+  | read _ _ ih => exact ih first
+  | join => exact False.elim first
+  | temporary _ _ _ ih => exact ⟨first.1,ih first.2⟩
+
+theorem Trace.read_bound {xs : Trace} (ro : xs.ReadOnly) (H : Heap) (valid : H.Valid)
+    {T : ℕ} (pos : 0 < T) (fits : H.next < 2^T) :
+    (xs.run H).work ≤ (3*T+1)*xs.visits := by
+  induction xs with
+  | done => exact Nat.zero_le _
+  | read i xs ih =>
+    have f := fetch_fit H valid pos fits i
+    have t := ih ro
+    simp only [run,visits,Nat.mul_succ]
+    omega
+  | join => exact False.elim ro
+  | temporary _ _ ip ix => exact (Nat.add_le_add (ip ro.1) (ix ro.2)).trans_eq (Nat.mul_add ..).symm
+
+theorem compareTrace_readOnly (H : Heap) (h i j : ℕ) : (compareTrace H h i j).ReadOnly := by
+  induction h generalizing i j with
+  | zero => trivial
+  | succ h ih => simp only [compareTrace,Trace.ReadOnly]; split <;> exact ih _ _
+
+theorem checkedLessTrace_readOnly (H : Heap) (h i j : ℕ) : (checkedLessTrace H h i j).ReadOnly := by
+  simp only [checkedLessTrace,Trace.ReadOnly]
+  split
+  · exact compareTrace_readOnly ..
+  · trivial
+
+theorem bitTrace_readOnly (H : Heap) (h i addr : ℕ) : (bitTrace H h i addr).ReadOnly := by
+  induction h generalizing i addr with
+  | zero => trivial
+  | succ h ih => simp only [bitTrace,Trace.ReadOnly]; split <;> exact ih _ _
+
+theorem leadingTrace_readOnly (H : Heap) (h addr D F : ℕ) : (leadingTrace H h addr D F).ReadOnly := by
+  induction F with
+  | zero => trivial
+  | succ f ih => exact ih.append (bitTrace_readOnly ..)
+
+theorem prefixReadTrace_readOnly (H : Heap) (h addr D F : ℕ) : (prefixReadTrace H h addr D F).ReadOnly :=
+  (leadingTrace_readOnly ..).append (bitTrace_readOnly ..)
+
+/-- This conversion uses the original scalar charge of exactly this read
+and has no premise on its precision or number of visits. -/
+theorem prefixRead_dictionary (H : Heap) (valid : H.Valid) {T : ℕ} (pos : 0 < T)
+    (fits : H.next < 2^T) (zero : ℕ → ℕ) (h addr D F : ℕ) :
+    ((prefixReadTrace H h addr D F).run H).work ≤ (3*T+1)*(PolylogPrefix.read H zero h addr D F).work :=
+  (Trace.read_bound (prefixReadTrace_readOnly ..) H valid pos fits).trans
+    (Nat.mul_le_mul_left _ (prefixReadTrace_bound H zero h addr D F).2)
+
+theorem compare_dictionary (H : Heap) (valid : H.Valid) {T : ℕ} (pos : 0 < T)
+    (fits : H.next < 2^T) (h i j : ℕ) :
+    ((compareTrace H h i j).run H).work ≤ (3*T+1)*(H.lessAddr h i j).2 :=
+  (Trace.read_bound (compareTrace_readOnly ..) H valid pos fits).trans
+    (Nat.mul_le_mul_left _ (compareTrace_bound ..).2)
+
+theorem checkedLess_dictionary (H : Heap) (valid : H.Valid) {T : ℕ} (pos : 0 < T)
+    (fits : H.next < 2^T) (h i j : ℕ) :
+    ((checkedLessTrace H h i j).run H).work ≤ (3*T+1)*(PolylogAddressOrder.less H h i j).work :=
+  (Trace.read_bound (checkedLessTrace_readOnly ..) H valid pos fits).trans
+    (Nat.mul_le_mul_left _ (checkedLessTrace_bound ..).2)
+
 end SortingAdversary.Continuous.PolylogWordWork

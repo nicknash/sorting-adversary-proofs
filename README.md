@@ -9,10 +9,11 @@ lower bound against every correct sorter, and polynomial initialization and
 per-query cost in an explicit arithmetic cost model. The combined theorem is in
 [Continuous/UniformEfficient.lean](SortingAdversary/Continuous/UniformEfficient.lean).
 
-The [18 November stored adversary](SortingAdversary/Continuous/PolylogEfficient.lean)
+The [18 November stored adversary](SortingAdversary/Continuous/PolylogRAM.lean)
 uses outward-rounded enclosures, exact dyadic blocks and a frozen order.
 Lean proves the leading-one comparison bound and a worst-case polylogarithmic
-query bound for the same stateful implementation in the counted-operation model.
+query bound for the same stateful implementation, including dictionary and
+rational-arithmetic costs.
 The [theorem map](docs/polylog-adversary.md) lists its implementation and cost results.
 
 The earlier recursive colour and curvature adversary formalizations are also

@@ -68,7 +68,7 @@ theorem repairMove_eq (D k : ℕ) (m : Memory n t b) (x : Fin n) :
 
 private theorem stage_k (k : ℕ) : (Params.stage k).k = k := rfl
 
-private theorem select_eq (D k : ℕ) (q : Query n) (f : ℕ) (m : Memory n t b) :
+theorem select_eq (D k : ℕ) (q : Query n) (f : ℕ) (m : Memory n t b) :
     select D (.stage k) q f m = PolylogCompare.select D k q f m := by
   induction f generalizing m with
   | zero => rfl
@@ -76,7 +76,7 @@ private theorem select_eq (D k : ℕ) (q : Query n) (f : ℕ) (m : Memory n t b)
     simp only [select, PolylogCompare.select, check_eq, ih, stage_k]
     cases (PolylogCompare.check D k m q).value <;> rfl
 
-private theorem repairList_eq (D k : ℕ) (xs : List (Fin n)) (m : Memory n t b) :
+theorem repairList_eq (D k : ℕ) (xs : List (Fin n)) (m : Memory n t b) :
     repairList D (.stage k) xs m = PolylogCompare.repairList D k xs m := by
   induction xs generalizing m with
   | nil => rfl
