@@ -9,12 +9,24 @@ answer arbitrarily many further queries.
 
 ## Main theorems
 
-In [PolylogEfficient.lean](../SortingAdversary/Continuous/PolylogEfficient.lean),
-`consistent` proves that the stored machine's answers admit a single
-ranking on each run. `asymptoticallyOptimal` proves that every correct
-comparison sorter needs at least $(1-o(1))n\log_2 n$ comparisons against
-this deterministic strategy. `execute_eq_run` connects a run from the
-initial memory to the repository's decision-tree specification.
+[PolylogEfficient.asymptoticallyOptimal_and_polylogarithmic](../SortingAdversary/Continuous/PolylogEfficient.lean)
+proves both guarantees for the same deterministic online machine. For every
+positive `ε` and all sufficiently large `n`, every correct comparison
+sorter performs at least $(1-\varepsilon)n\log_2 n$ comparisons against
+the machine. After **any** history, the next query costs at most
+`20,000,003 L⁹` counted operations, where `L = floor(log₂(n + 1)) + 1`.
+This is a worst-case bound per query, including a query that triggers a
+path repair or enters the frozen phase.
+
+| Guarantee | Theorem |
+| --- | --- |
+| A single ranking realizes all responses along each finite run | `PolylogEfficient.consistent` |
+| Execution from measured startup agrees with the strategy used in the sorting theorem | `PolylogEfficient.run_eq` |
+| Linear startup, including rejected stages and construction of the exact initial memory | `PolylogStartup.build_work` |
+| At most `8,210 (n + 1) L⁴` logical storage entries after any history | `PolylogEfficient.stored_entries` |
+| Cumulative allocation of persistent trie and adjacency-list cells, including superseded versions | `PolylogEfficient.allocated_storage_cells` |
+
+## Proof map
 
 | Part of the argument | Lean entry point |
 | --- | --- |
@@ -25,11 +37,31 @@ initial memory to the repository's decision-tree specification.
 | Frozen queries, including balanced-dictionary lookups | [PolylogFrozenQuery.scheduled_work](../SortingAdversary/Continuous/PolylogFrozenQuery.lean) |
 | Fixed table height and bounds on heap and hierarchy addresses | [PolylogResources](../SortingAdversary/Continuous/PolylogResources.lean) |
 
-The frozen query takes at most `72000 * (logCap n + 1)^2` charged
-operations under the proved representation and capacity invariants.
-Here `logCap n` is the floor of the base-two logarithm of `n + 1`.
-The end-to-end worst-case active work estimate is being assembled from
-the component bounds. The sorting lower bound and state refinement are
-unconditional.
+The schedule admits a stage only when its local enumeration and repair
+budgets fit the logarithmic cap. Before the first admitted stage, the
+machine answers in label order. The polynomial bound is an asymptotic
+certificate and its constants are conservative.
 
-All these modules belong to the continuous all-declaration axiom audit.
+## Cost model and verification
+
+The query bound uses the repository's `PrimitiveWork.Result` model. Its
+operations include local rational arithmetic, block accesses, row scans
+and updates to persistent tables. [PolylogOperands](../SortingAdversary/Continuous/PolylogOperands.lean)
+bounds the numerators, denominators and intermediate cross products used by
+the rounded local enclosures. [PolylogDictionary](../SortingAdversary/Continuous/PolylogDictionary.lean)
+bounds comparisons in the balanced interning dictionaries.
+[PolylogTrieCharges](../SortingAdversary/Continuous/PolylogTrieCharges.lean)
+counts persistent trie and adjacency-list cells allocated before freezing.
+The theorem concerns this formal cost model. Exact byte counts, Lean's
+allocator and native instruction timings lie outside it.
+
+The source checks, build, independent kernel replay and axiom audit can be
+run with the same commands as CI.
+
+```sh
+./scripts/check-trusted-no-sorry.sh
+./scripts/check-continuous-audit-imports.sh
+lake build SortingAdversary
+LEAN_NUM_THREADS=1 lake env leanchecker SortingAdversary
+lake env lean SortingAdversary/Continuous/Audit.lean
+```

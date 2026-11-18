@@ -15,12 +15,12 @@ open PolylogRawBits (Output)
 
 variable {S : Store} {H : Heap} {h cap : ℕ}
 
-private def probe (table : PolylogRawBits.Table) (H : Heap) {h} (p : Position h)
+def probe (table : PolylogRawBits.Table) (H : Heap) {h} (p : Position h)
     (l r : ℕ) : Bool :=
   let t := PolylogRawBits.addUnit table H p l
   !t.2 && !(t.1.heap.lessAddr h r t.1.addr).1
 
-private def run (table : PolylogRawBits.Table) (H : Heap) (h D F l r : ℕ) : Output :=
+def run (table : PolylogRawBits.Table) (H : Heap) (h D F l r : ℕ) : Output :=
   let search := PolylogAnchor.bisect (fun s => probe table H (placeFor h D (min s F)) l r)
     (Nat.log 2 F+1) 0 F
   let p := placeFor h D (search.1 + 2)

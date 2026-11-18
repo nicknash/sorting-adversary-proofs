@@ -74,10 +74,12 @@ import SortingAdversary.Continuous.PolylogAnchor
 import SortingAdversary.Continuous.PolylogAnchorWrite
 import SortingAdversary.Continuous.PolylogBits
 import SortingAdversary.Continuous.PolylogBlockAnchor
+import SortingAdversary.Continuous.PolylogCacheReads
 import SortingAdversary.Continuous.PolylogCached
 import SortingAdversary.Continuous.PolylogCheckProof
 import SortingAdversary.Continuous.PolylogCompare
 import SortingAdversary.Continuous.PolylogCompareBudget
+import SortingAdversary.Continuous.PolylogCompareComplexity
 import SortingAdversary.Continuous.PolylogCompareLoops
 import SortingAdversary.Continuous.PolylogCompareProofs
 import SortingAdversary.Continuous.PolylogCompareShape
@@ -101,6 +103,7 @@ import SortingAdversary.Continuous.PolylogMoveProof
 import SortingAdversary.Continuous.PolylogMutation
 import SortingAdversary.Continuous.PolylogNeighborhood
 import SortingAdversary.Continuous.PolylogNeighborhoodBudget
+import SortingAdversary.Continuous.PolylogOperands
 import SortingAdversary.Continuous.PolylogOracle
 import SortingAdversary.Continuous.PolylogOracleWork
 import SortingAdversary.Continuous.PolylogPrecision
@@ -117,9 +120,14 @@ import SortingAdversary.Continuous.PolylogRows
 import SortingAdversary.Continuous.PolylogSchedule
 import SortingAdversary.Continuous.PolylogSelection
 import SortingAdversary.Continuous.PolylogSpace
+import SortingAdversary.Continuous.PolylogStartup
 import SortingAdversary.Continuous.PolylogStorage
+import SortingAdversary.Continuous.PolylogTestWork
+import SortingAdversary.Continuous.PolylogTrieAllocation
+import SortingAdversary.Continuous.PolylogTrieCharges
 import SortingAdversary.Continuous.PolylogWallTables
 import SortingAdversary.Continuous.PolylogWalls
+import SortingAdversary.Continuous.PolylogWordWork
 import SortingAdversary.Continuous.Precision
 import SortingAdversary.Continuous.ProjectionDensity
 import SortingAdversary.Continuous.QueriedCompression
@@ -218,7 +226,8 @@ elab "#audit_continuous_axioms" : command => do
 
 #print axioms SortingAdversary.Continuous.PolylogAdversary.asymptoticallyOptimal
 
-#print axioms SortingAdversary.Continuous.PolylogEfficient.asymptoticallyOptimal
+#print axioms SortingAdversary.Continuous.PolylogEfficient.asymptoticallyOptimal_and_polylogarithmic
+#print axioms SortingAdversary.Continuous.PolylogStartup.build_work
 #print axioms SortingAdversary.Continuous.PolylogCompare.compare_aligned
 
 #audit_continuous_axioms

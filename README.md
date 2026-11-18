@@ -11,7 +11,8 @@ per-query cost in an explicit arithmetic cost model. The combined theorem is in
 
 The [18 November stored adversary](SortingAdversary/Continuous/PolylogEfficient.lean)
 uses outward-rounded enclosures, exact dyadic blocks and a frozen order.
-Lean proves the same leading-one comparison bound for its stateful execution.
+Lean proves the leading-one comparison bound and a worst-case polylogarithmic
+query bound for the same stateful implementation in the counted-operation model.
 The [theorem map](docs/polylog-adversary.md) lists its implementation and cost results.
 
 The earlier recursive colour and curvature adversary formalizations are also

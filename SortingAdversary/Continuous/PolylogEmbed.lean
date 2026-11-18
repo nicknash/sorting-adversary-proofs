@@ -73,7 +73,7 @@ private theorem digits_value (S : Store) (h l off z : ℕ) (hz : z < 2^l)
 private def retag {a b : S.Ref h} (w : Write S H a) (e : a = b) : Write S H b :=
   ⟨w.heap, w.valid, w.growth, ⟨w.cell.addr, e ▸ w.cell.rep⟩⟩
 
-private def emit (v : H.Valid) (cache : Cached S H cap) (hc : h ≤ cap) :
+def emit (v : H.Valid) (cache : Cached S H cap) (hc : h ≤ cap) :
     (l off z : ℕ) → Counted S H (digits S h l off z)
   | 0, _, _ => ⟨.unchanged v (cache.cell hc false), 1, Nat.le_succ _⟩
   | l+1, off, z =>
