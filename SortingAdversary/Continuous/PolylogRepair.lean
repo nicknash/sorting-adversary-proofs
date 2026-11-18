@@ -1,6 +1,8 @@
 import SortingAdversary.Continuous.PolylogGraph
 import SortingAdversary.Continuous.GraphScanWork
 import SortingAdversary.Continuous.OneArcRepair
+import SortingAdversary.Continuous.PolylogRows
+import SortingAdversary.Continuous.ControllerInvariant
 
 /-!
 # Finding a sparse repair after a single insertion
@@ -311,5 +313,108 @@ def repairRecipe : Expr :=
 
 theorem repairRecipe_value (j : ℕ) : repairRecipe.value j =
     repairBound (UniformStages.degree j) (ArbitraryLabels.pathHeight (UniformStages.degree j)) := rfl
+
+
+variable {b : ℕ}
+
+def prev (g : PolylogRows.Graph n b) (x : Fin n) := (g.preds.get x.val).value
+def nextRow (g : PolylogRows.Graph n b) (x : Fin n) := (g.succs.get x.val).value
+def adjacent (g : PolylogRows.Graph n b) (x : Fin n) := prev g x ++ nextRow g x
+
+theorem adjacent_mem (g : PolylogRows.Graph n b) {E : Fin n → Fin n → Bool}
+    (valid : g.Valid E) (hl : ∀ x, E x x = false) (x y : Fin n) :
+    y ∈ adjacent g x ↔ y ∈ neighbors E x := by
+  simp only [adjacent,prev,nextRow,List.mem_append,valid.1,valid.2,GraphPaths.mem_outgoing,mem_neighbors]
+  constructor
+  · intro h
+    exact ⟨fun e => by subst y; simp [hl] at h,h.symm⟩
+  · exact fun h => h.2.symm
+
+theorem adjacent_length (g : PolylogRows.Graph n b) {E : Fin n → Fin n → Bool}
+    (valid : g.Valid E) (rank : Fin n → ℕ) (hr : ∀ x y, E x y = true → rank x < rank y) (x : Fin n) :
+    (adjacent g x).length = (neighbors E x).card := by
+  have hn : (adjacent g x).Nodup := by
+    simp only [adjacent,prev,nextRow,valid.1,valid.2,List.nodup_append]
+    refine ⟨(List.nodup_finRange n).filter _,(List.nodup_finRange n).filter _,?_⟩
+    intro y hp z hs hyz
+    subst z
+    exact (hr y x ((GraphPaths.mem_outgoing (fun a b => E b a) x y).mp hp)).asymm
+      (hr x y ((GraphPaths.mem_outgoing E x y).mp hs))
+  have h : (adjacent g x).toFinset = neighbors E x := by
+    ext y
+    rw [List.mem_toFinset,adjacent_mem g valid (fun z => Bool.eq_false_iff.mpr (fun e => (hr z z e).false))]
+  rw [← List.toFinset_card_of_nodup hn,h]
+
+def reserved (E : Fin n → Fin n → Bool) (k : ℕ) : List (Fin n) :=
+  match GraphPaths.firstPath E (2^k) with
+  | some path => path
+  | none => ((List.finRange n).find? (fun x => decide ((neighbors E x).card = k))).toList
+
+/-- A unit charged by the row-oracle path/degree routines covers one row
+access. Scaling pays for the actual tries (four operations per level) and
+for copying the predecessor list when the undirected row is requested. -/
+def choose (g : PolylogRows.Graph n b) (k : ℕ) (event : Option (Fin n × Fin n)) :
+    PrimitiveWork.Result (List (Fin n)) :=
+  match event with
+  | none => ⟨[],1⟩
+  | some (u,v) =>
+    let p := firstPath (prev g) (nextRow g) (ArbitraryLabels.pathHeight k) (2^k-1) u
+    let cost := 8*b+k+8
+    match p.value with
+    | some xs => ⟨xs,(p.work+1)*cost+2⟩
+    | none =>
+      let z := degreeChoice (adjacent g) k u v
+      ⟨z.value.toList,(p.work+z.work+1)*cost+2⟩
+
+theorem choose_value (g : PolylogRows.Graph n b) (k : ℕ) (event : Option (Fin n × Fin n))
+    (M N : Controller.Memory n) (hM : Controller.Ready k M) (hN : Controller.Admissible k N)
+    (valid : g.Valid N.tree.system.edge) (eq : N.tree.system.edge = match event with
+      | none => M.tree.system.edge | some (u,v) => addRow M.tree.system.edge u v) :
+    (choose g k event).value = reserved N.tree.system.edge k := by
+  have hi : 0 < 2^k := by positivity
+  cases event with
+  | none =>
+    have hp := (firstPath_none_iff_heightBelow M.tree.system.edge (2^k) hM.noLoop).mpr hM.height
+    have hd : (List.finRange n).find? (fun x => decide ((neighbors M.tree.system.edge x).card = k)) = none := by
+      apply List.find?_eq_none.mpr
+      intro x _
+      simp [(hM.degree x).ne]
+    simp [choose,reserved,eq,hp,hd]
+  | some uv =>
+    obtain ⟨u,v⟩ := uv
+    obtain ⟨rank,hr,hR⟩ := hN.rank
+    have eh : 2^k-1+1 = 2^k := by omega
+    have hp := firstPath_value N.tree.system.edge (nextRow g) valid.1 M.tree.system.edge u v eq (prev g) rank
+      (fun x y => by simp only [prev,valid.2,GraphPaths.mem_outgoing]) hr (ArbitraryLabels.pathHeight k) (2^k-1) (fun z => by have := hR z; omega)
+      (eh ▸ hM.height)
+    rw [eh] at hp
+    have hd := degreeChoice_value M.tree.system.edge k u v (adjacent g)
+      (fun x => by simpa only [← eq] using adjacent_length g valid rank hr x) hM.degree
+    change N.tree.system.edge = addRow M.tree.system.edge u v at eq
+    rw [← eq] at hd
+    simp only [choose,reserved,hp,hd]
+    split <;> rfl
+
+theorem choose_work (g : PolylogRows.Graph n b) (k : ℕ) (event : Option (Fin n × Fin n))
+    (N : Controller.Memory n) (hN : Controller.Admissible k N) (valid : g.Valid N.tree.system.edge) :
+    (choose g k event).work ≤ (repairBound k (ArbitraryLabels.pathHeight k)+1)*(8*b+k+8)+2 := by
+  cases event with
+  | none => simp [choose]
+  | some uv =>
+    obtain ⟨u,v⟩ := uv
+    obtain ⟨rank,hr,hR⟩ := hN.rank
+    have len (x) := adjacent_length g valid rank hr x
+    have hd (x) := (len x).trans_le (hN.degree x)
+    have predBound (x) : (prev g x).length ≤ k := by
+      have h := hd x
+      simp only [adjacent,List.length_append] at h
+      omega
+    have hp := firstPath_work N.tree.system.edge (nextRow g) valid.1 (prev g) k (ArbitraryLabels.pathHeight k)
+      (2^k-1) u hN.noLoop hN.degree predBound
+    have hz := degreeChoice_work (adjacent g) k u v k hd
+    have hh : 2^k ≤ ArbitraryLabels.pathHeight k := Nat.pow_le_pow_right (by decide) (Nat.le_succ k)
+    have bound := pathCost_closed k (ArbitraryLabels.pathHeight k) (2^k-1) (by omega)
+    simp only [choose]
+    split <;> apply Nat.add_le_add_right <;> apply Nat.mul_le_mul_right <;> omega
 
 end SortingAdversary.Continuous.PolylogRepair

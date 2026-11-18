@@ -106,6 +106,33 @@ theorem height_ext (a b : Fin n → List (Fin n))
       rw [← ih]
       exact predecessorsMax_ge _ _ _ ((mem x y).mpr hy)
 
+/-- Access-cost variant for a persistent table of predecessor lists. -/
+def heightFrom (read : Fin n → Result (List (Fin n))) : ℕ → Fin n → Result ℕ
+  | 0, _ => ⟨0, 1⟩
+  | h+1, x =>
+    let row := read x
+    let a := predecessorsMax (heightFrom read h) row.value
+    ⟨a.value, row.work + a.work + 1⟩
+
+theorem heightFrom_value (read : Fin n → Result (List (Fin n))) (H : ℕ) (x : Fin n) :
+    (heightFrom read H x).value = (height (fun y => (read y).value) H x).value := by
+  induction H generalizing x with
+  | zero => rfl
+  | succ H ih => exact predecessorsMax_congr _ _ _ fun y _ => ih y
+
+theorem heightFrom_work (read : Fin n → Result (List (Fin n))) (d C : ℕ)
+    (deg : ∀ x, (read x).value.length ≤ d) (cost : ∀ x, (read x).work ≤ C) (H : ℕ) (x : Fin n) :
+    (heightFrom read H x).work ≤ heightBudget d H * (C+1) := by
+  induction H generalizing x with
+  | zero => simp [heightFrom, heightBudget]
+  | succ H ih =>
+    have h := (predecessorsMax_le_work (heightFrom read H) (read x).value
+      (heightBudget d H * (C+1)) (fun y _ => ih y)).trans
+      (Nat.add_le_add_right (Nat.mul_le_mul_right _ (deg x)) 1)
+    change (read x).work + _ + 1 ≤ (d*(heightBudget d H + 4) + 2)*(C+1)
+    apply (Nat.add_le_add_right (Nat.add_le_add (cost x) h) 1).trans
+    nlinarith
+
 private theorem height_stable (parents : Fin n → List (Fin n)) (r : Fin n → ℕ)
     (hr : ∀ x y, x ∈ parents y → r x < r y) (h : ℕ) (x : Fin n) (hx : r x ≤ h) :
     (height parents (h + 1) x).value = (height parents h x).value := by
