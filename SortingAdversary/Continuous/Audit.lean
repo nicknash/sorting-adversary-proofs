@@ -65,6 +65,16 @@ import SortingAdversary.Continuous.OperandBounds
 import SortingAdversary.Continuous.OrderRegion
 import SortingAdversary.Continuous.Packing
 import SortingAdversary.Continuous.ParameterBounds
+import SortingAdversary.Continuous.PolylogAdversary
+import SortingAdversary.Continuous.PolylogAnchor
+import SortingAdversary.Continuous.PolylogEnclosure
+import SortingAdversary.Continuous.PolylogFreeze
+import SortingAdversary.Continuous.PolylogGraph
+import SortingAdversary.Continuous.PolylogMachine
+import SortingAdversary.Continuous.PolylogOracle
+import SortingAdversary.Continuous.PolylogRepair
+import SortingAdversary.Continuous.PolylogSchedule
+import SortingAdversary.Continuous.PolylogSelection
 import SortingAdversary.Continuous.Precision
 import SortingAdversary.Continuous.ProjectionDensity
 import SortingAdversary.Continuous.QueriedCompression
@@ -160,5 +170,7 @@ elab "#audit_continuous_axioms" : command => do
 #print axioms SortingAdversary.Continuous.UniformMachineWork.strategy_eq
 #print axioms SortingAdversary.Continuous.UniformMachineWork.per_query_polynomial
 #print axioms SortingAdversary.Continuous.UniformEfficient.asymptoticallyOptimal_and_polynomial
+
+#print axioms SortingAdversary.Continuous.PolylogAdversary.asymptoticallyOptimal
 
 #audit_continuous_axioms

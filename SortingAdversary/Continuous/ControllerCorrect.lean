@@ -17,13 +17,16 @@ open FiniteAveraging OrderRegion TreeState TraceAccounting
 
 variable {n : ℕ}
 
+section
+variable [rules : Choices n] [laws : ChoiceLaws rules]
+
 theorem compare_total_spec (k : ℕ) (hk : 64 ≤ k) (M : Memory n)
     (hM : Ready k M) (q : Query n) :
     ∃ r : Result n, compare k M q = some r ∧ Ready k r.memory ∧
       ∀ F, M.Represents F → Valid k F r.actions := by
   obtain ⟨s, hs⟩ := selectLoop_total k hk q M hM
   obtain ⟨hready, hans, hvalid⟩ := selectLoop_spec k hk q 3 M hM s hs
-  have hprob := attempt_answer_probability s.memory k (by omega) hready.toGeometric q s.answer hans
+  have hprob := laws.answer s.memory k (by omega) hready.toGeometric q s.answer hans
   have hrecord : Geometric (recorded s.memory q s.answer) :=
     hready.toGeometric.recorded hk q s.answer hprob.1 hprob.2
   have hrepair := repair_recorded_ready k hk s.memory hready q s.answer hrecord
@@ -51,6 +54,8 @@ theorem compare_total_spec (k : ℕ) (hk : 64 ≤ k) (M : Memory n)
     apply valid_append F (s.actions ++ [a]) (repair k N).2
     · exact valid_append F s.actions [a] (hvalid F hF) ⟨hva, trivial⟩
     · simpa only [TraceAccounting.run, List.foldl_append, List.foldl_cons, List.foldl_nil] using hvr
+
+end
 
 /-- The comparison guarantee is proved for the actual program, for every
 input size and every parameter in the paper's range. -/

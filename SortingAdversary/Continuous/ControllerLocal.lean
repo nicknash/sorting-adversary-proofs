@@ -155,22 +155,6 @@ theorem attempt_refine_spec (M : Memory n) (k : ℕ) (hk : 64 ≤ k)
   rw [makeMove_anchor M z v c hc]
   exact ⟨hz, hc, hl, hu, hg, ht⟩
 
-theorem attempt_refine_admissible (M : Memory n) (k : ℕ) (hk : 64 ≤ k)
-    (hM : Admissible k M) (q : Query n) (z : Fin n) (v : ℚ)
-    (h : attempt M k q = .refine z v) :
-    Admissible k (Controller.applyMove M (makeMove M z v)) := by
-  obtain ⟨_, hc, hl, hu, _, _⟩ := attempt_refine_spec M k hk hM q z v h
-  apply hM.applyMove (makeMove M z v) _ (makeMove_order M z v)
-  simpa only [makeMove_item, hc] using And.intro hl hu
-
-theorem attempt_refine_ready (M : Memory n) (k : ℕ) (hk : 64 ≤ k)
-    (hM : Ready k M) (q : Query n) (z : Fin n) (v : ℚ)
-    (h : attempt M k q = .refine z v) :
-    Ready k (Controller.applyMove M (makeMove M z v)) := by
-  obtain ⟨_, hc, hl, hu, _, _⟩ := attempt_refine_spec M k hk hM.admissible q z v h
-  apply hM.applyMove (makeMove M z v) _ (makeMove_order M z v)
-  simpa only [makeMove_item, hc] using And.intro hl hu
-
 theorem makeMove_gain (M : Memory n) (hM : Geometric M) (x : Fin n) (v : ℚ)
     (hc : (makeMove M x v).anchor.coordinate = v)
     (hin : M.tree.system.lower x < v ∧ v < M.tree.system.upper x)
@@ -187,26 +171,6 @@ theorem makeMove_gain (M : Memory n) (hM : Geometric M) (x : Fin n) (v : ℚ)
   have hg := (makeMove M x v).gain_eq_log_density_of_positive M.tree.toReal
     (hM.noLoop _) hinside (nodeVolume_pos _ hM.positive) hV'
   simpa only [makeMove_item, hc, State.toReal] using hg
-
-theorem attempt_refine_gain (M : Memory n) (k : ℕ) (hk : 64 ≤ k)
-    (hM : Admissible k M) (q : Query n) (z : Fin n) (v : ℚ)
-    (h : attempt M k q = .refine z v) :
-    (k : ℝ) < (makeMove M z v).gain M.tree.toReal ∧
-      stopMass k * (makeMove M z v).anchor.1 - 4 < (makeMove M z v).gain M.tree.toReal := by
-  obtain ⟨_, hc, hl, hu, hg, ht⟩ := attempt_refine_spec M k hk hM q z v h
-  rw [makeMove_gain M hM.toGeometric z v hc ⟨hl, hu⟩
-    (attempt_refine_admissible M k hk hM q z v h).toGeometric]
-  exact ⟨hg, ht⟩
-
-theorem attempt_refine_valid (M : Memory n) (k : ℕ) (hk : 64 ≤ k)
-    (hM : Admissible k M) (q : Query n) (z : Fin n) (v : ℚ)
-    (h : attempt M k q = .refine z v) (F : Frame n) (hF : M.Represents F) :
-    (Action.selection (makeMove M z v)).Valid k F := by
-  change (k : ℝ) < (makeMove M z v).gain F.state ∧
-    stopMass k * (makeMove M z v).anchor.1 - 4 ≤ (makeMove M z v).gain F.state
-  rw [← hF.1]
-  have hg := attempt_refine_gain M k hk hM q z v h
-  exact ⟨hg.1, hg.2.le⟩
 
 /-- Repair anchors use the same actual decoder and preserve admissibility;
 their tariff is stated directly in terms of the concrete move's volume gain. -/
@@ -233,18 +197,83 @@ theorem anchor_move_spec (M : Memory n) (k : ℕ) (hk : 64 ≤ k)
   rw [makeMove_gain M hgeom x v hcoord hinside hnew.toGeometric, hanchor]
   simpa only [hc] using ht
 
+/-- Local geometric estimates required by the controller at the states it visits. -/
+class ChoiceLaws (rules : Choices n) : Prop where
+  answer (M : Memory n) (k : ℕ) (hk : 0 < k)
+      (hM : Geometric M) (q : Query n) (a : Answer) (h : rules.select M k q = .answer a) :
+      (route (M.tree.toReal.location q.left) (M.tree.toReal.location q.right)).AnchorAnswer a ∧
+        answerRetained k ≤ (uniformMeasure M.tree.system.toReal).real
+          {X | (route (M.tree.toReal.location q.left) (M.tree.toReal.location q.right)).Holds
+            (X q.left) (X q.right) a}
+  refine (M : Memory n) (k : ℕ) (hk : 64 ≤ k)
+      (hM : Admissible k M) (q : Query n) (z : Fin n) (v : ℚ)
+      (h : rules.select M k q = .refine z v) :
+      (z = q.left ∨ z = q.right) ∧ (makeMove M z v).anchor.coordinate = v ∧
+        M.tree.system.lower z < v ∧ v < M.tree.system.upper z ∧
+        (k : ℝ) < log2 (density M.tree.system.toReal z (v : ℝ)) ∧
+        stopMass k * (makeMove M z v).anchor.1 - 4 <
+          log2 (density M.tree.system.toReal z (v : ℝ))
+  repair (M : Memory n) (k : ℕ) (hk : 64 ≤ k)
+      (hM : Admissible k M) (x : Fin n) :
+      let v := rules.anchor M k x
+      let m := makeMove M x v
+      m.anchor.coordinate = v ∧ M.tree.system.lower x < v ∧ v < M.tree.system.upper x ∧
+        Admissible k (Controller.applyMove M m) ∧
+        stopMass k * m.anchor.1 - 4 < m.gain M.tree.toReal
+
+instance (n : ℕ) : ChoiceLaws (referenceChoices n) :=
+  ⟨attempt_answer_probability, attempt_refine_spec, anchor_move_spec⟩
+
+variable [rules : Choices n] [laws : ChoiceLaws rules]
+
+theorem attempt_refine_admissible (M : Memory n) (k : ℕ) (hk : 64 ≤ k)
+    (hM : Admissible k M) (q : Query n) (z : Fin n) (v : ℚ)
+    (h : rules.select M k q = .refine z v) :
+    Admissible k (Controller.applyMove M (makeMove M z v)) := by
+  obtain ⟨_, hc, hl, hu, _, _⟩ := laws.refine M k hk hM q z v h
+  apply hM.applyMove (makeMove M z v) _ (makeMove_order M z v)
+  simpa only [makeMove_item, hc] using And.intro hl hu
+
+theorem attempt_refine_ready (M : Memory n) (k : ℕ) (hk : 64 ≤ k)
+    (hM : Ready k M) (q : Query n) (z : Fin n) (v : ℚ)
+    (h : rules.select M k q = .refine z v) :
+    Ready k (Controller.applyMove M (makeMove M z v)) := by
+  obtain ⟨_, hc, hl, hu, _, _⟩ := laws.refine M k hk hM.admissible q z v h
+  apply hM.applyMove (makeMove M z v) _ (makeMove_order M z v)
+  simpa only [makeMove_item, hc] using And.intro hl hu
+
+theorem attempt_refine_gain (M : Memory n) (k : ℕ) (hk : 64 ≤ k)
+    (hM : Admissible k M) (q : Query n) (z : Fin n) (v : ℚ)
+    (h : rules.select M k q = .refine z v) :
+    (k : ℝ) < (makeMove M z v).gain M.tree.toReal ∧
+      stopMass k * (makeMove M z v).anchor.1 - 4 < (makeMove M z v).gain M.tree.toReal := by
+  obtain ⟨_, hc, hl, hu, hg, ht⟩ := laws.refine M k hk hM q z v h
+  rw [makeMove_gain M hM.toGeometric z v hc ⟨hl, hu⟩
+    (attempt_refine_admissible M k hk hM q z v h).toGeometric]
+  exact ⟨hg, ht⟩
+
+theorem attempt_refine_valid (M : Memory n) (k : ℕ) (hk : 64 ≤ k)
+    (hM : Admissible k M) (q : Query n) (z : Fin n) (v : ℚ)
+    (h : rules.select M k q = .refine z v) (F : Frame n) (hF : M.Represents F) :
+    (Action.selection (makeMove M z v)).Valid k F := by
+  change (k : ℝ) < (makeMove M z v).gain F.state ∧
+    stopMass k * (makeMove M z v).anchor.1 - 4 ≤ (makeMove M z v).gain F.state
+  rw [← hF.1]
+  have hg := attempt_refine_gain M k hk hM q z v h
+  exact ⟨hg.1, hg.2.le⟩
+
 theorem anchor_move_ready (M : Memory n) (k : ℕ) (hk : 64 ≤ k)
     (hM : Ready k M) (x : Fin n) :
-    Ready k (Controller.applyMove M (makeMove M x (ArbitraryLabels.chooseAnchor M.tree.system k x))) := by
-  have hs := anchor_move_spec M k hk hM.admissible x
+    Ready k (Controller.applyMove M (makeMove M x (rules.anchor M k x))) := by
+  have hs := laws.repair M k hk hM.admissible x
   apply hM.applyMove _ _ (makeMove_order M x _)
   simpa only [makeMove_item, hs.1] using And.intro hs.2.1 hs.2.2.1
 
 theorem anchor_move_valid_degree (M : Memory n) (k : ℕ) (hk : 64 ≤ k)
     (hM : Admissible k M) (x : Fin n) (F : Frame n) (hF : M.Represents F)
     (hd : k ≤ (ArcBudget.incident M.tree.system.toReal x).card) :
-    (Action.degree (makeMove M x (ArbitraryLabels.chooseAnchor M.tree.system k x))).Valid k F := by
-  have hs := anchor_move_spec M k hk hM x
+    (Action.degree (makeMove M x (rules.anchor M k x))).Valid k F := by
+  have hs := laws.repair M k hk hM x
   change (stopMass k * (makeMove M x _).anchor.1 - 4 ≤ (makeMove M x _).gain F.state) ∧ _
   rw [← hF.1]
   exact ⟨hs.2.2.2.2.le, hd⟩

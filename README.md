@@ -9,6 +9,11 @@ lower bound against every correct sorter, and polynomial initialization and
 per-query cost in an explicit arithmetic cost model. The combined theorem is in
 [Continuous/UniformEfficient.lean](SortingAdversary/Continuous/UniformEfficient.lean).
 
+The [18 November rounded controller](SortingAdversary/Continuous/PolylogAdversary.lean)
+also has a checked leading-one comparison bound. The
+[theorem map](docs/polylog-adversary.md) describes the verified runtime components
+and the remaining word-RAM proof obligations.
+
 The earlier recursive colour and curvature adversary formalizations are also
 retained.
 

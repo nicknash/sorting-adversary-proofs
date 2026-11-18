@@ -55,7 +55,7 @@ theorem selection_budget (hC : CallBounds R p f qmax b) (q : Query n)
     have hs : Sized (R.memory s) p f qmax :=
       ⟨hg.mono (by omega), by omega, hh⟩
     refine ⟨hC.attempt s hM.admissible hs q, ?_⟩
-    rw [R.attempt_value]
+    rw [R.attempt_value, reference_select]
     cases ha : Controller.attempt (R.memory s) k q with
     | answer a => trivial
     | refine x c =>
@@ -168,14 +168,14 @@ theorem selection_refinements_lt (q : Query n) (fuel : ℕ) (M : Controller.Memo
   | succ fuel ih =>
     cases ha : Controller.attempt M k q with
     | answer a =>
-      simp only [Controller.selectLoop, ha, Option.some.injEq] at h
+      simp only [Controller.selectLoop, reference_select, ha, Option.some.injEq] at h
       cases h
       exact Nat.zero_lt_succ fuel
     | refine x c =>
       cases ht : Controller.selectLoop k q fuel (Controller.applyMove M (makeMove M x c)) with
       | none => simp [Controller.selectLoop, ha, ht] at h
       | some t =>
-        simp only [Controller.selectLoop, ha, ht, Option.map_some, Option.some.injEq] at h
+        simp only [Controller.selectLoop, reference_select, ha, ht, Option.map_some, Option.some.injEq] at h
         cases h
         have hb := ih _ t ht
         simp only [refinementCount_cons, actionRefinements]

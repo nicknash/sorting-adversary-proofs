@@ -107,6 +107,9 @@ theorem runActions_toFrame (M : Memory n) (L : AccountingLog) (actions : List (A
 @[simp] theorem runActions_append (M : Memory n) (as bs : List (Action n)) :
     runActions M (as ++ bs) = runActions (runActions M as) bs := List.foldl_append
 
+section
+variable [rules : Choices n]
+
 /-- The selection loop records every recursive refinement and no answer
 mutation; its returned memory is precisely the execution of that list. -/
 theorem selectLoop_memory (k : ℕ) (q : Query n) (fuel : ℕ) (M : Memory n)
@@ -115,7 +118,7 @@ theorem selectLoop_memory (k : ℕ) (q : Query n) (fuel : ℕ) (M : Memory n)
   induction fuel generalizing M r with
   | zero => simp [selectLoop] at h
   | succ fuel ih =>
-    cases ha : attempt M k q with
+    cases ha : rules.select M k q with
     | answer a =>
       simp only [selectLoop, ha, Option.some.injEq] at h
       cases h
@@ -133,7 +136,7 @@ theorem selectLoop_history (k : ℕ) (q : Query n) (fuel : ℕ) (M : Memory n)
   induction fuel generalizing M r with
   | zero => simp [selectLoop] at h
   | succ fuel ih =>
-    cases ha : attempt M k q with
+    cases ha : rules.select M k q with
     | answer a =>
       simp only [selectLoop, ha, Option.some.injEq] at h
       cases h
@@ -187,6 +190,8 @@ theorem compare_represents (k : ℕ) (M : Memory n) (F : Frame n)
     r.memory.Represents (TraceAccounting.run F r.actions) := by
   rw [compare_memory k M q r h]
   exact runActions_represents M F hF r.actions
+
+end
 
 theorem runActions_paths_match (M : Memory n) (L : AccountingLog)
     (hp : TraceAccounting.PathsMatch (M.toFrame L)) (actions : List (Action n)) :

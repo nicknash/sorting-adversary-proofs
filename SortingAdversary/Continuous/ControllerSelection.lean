@@ -13,7 +13,7 @@ namespace SortingAdversary.Continuous.Controller
 
 open FiniteAveraging OrderRegion TreeState TraceAccounting
 
-variable {n : ℕ}
+variable {n : ℕ} [rules : Choices n] [laws : ChoiceLaws rules]
 
 theorem selectLoop_none_trace (k : ℕ) (hk : 64 ≤ k) (q : Query n)
     (fuel : ℕ) (M : Memory n) (hM : Ready k M)
@@ -24,7 +24,7 @@ theorem selectLoop_none_trace (k : ℕ) (hk : 64 ≤ k) (q : Query n)
   induction fuel generalizing M with
   | zero => exact ⟨M.tree.toReal, [], .nil _, rfl, by simp⟩
   | succ fuel ih =>
-    cases ha : attempt M k q with
+    cases ha : rules.select M k q with
     | answer a => simp [selectLoop, ha] at h
     | refine x c =>
       let m := makeMove M x c
@@ -32,7 +32,7 @@ theorem selectLoop_none_trace (k : ℕ) (hk : 64 ≤ k) (q : Query n)
         simpa only [selectLoop, ha, Option.map_eq_none_iff, m] using h
       have hnext := attempt_refine_ready M k hk hM q x c ha
       obtain ⟨s', moves, htrace, hlen, hquery⟩ := ih (Controller.applyMove M m) hnext hs
-      obtain ⟨hx, hc, hl, hu, hg, _⟩ := attempt_refine_spec M k hk hM.admissible q x c ha
+      obtain ⟨hx, hc, hl, hu, hg, _⟩ := laws.refine M k hk hM.admissible q x c ha
       have hstate : (Controller.applyMove M m).tree.toReal =
           TreeState.normalize (refineAt M.tree.toReal x (c : ℝ)) m.order := by
         rw [applyMove_tree]
@@ -69,12 +69,12 @@ every emitted selection action meets the accounting obligation. -/
 theorem selectLoop_spec (k : ℕ) (hk : 64 ≤ k) (q : Query n)
     (fuel : ℕ) (M : Memory n) (hM : Ready k M) (r : Result n)
     (h : selectLoop k q fuel M = some r) :
-    Ready k r.memory ∧ attempt r.memory k q = .answer r.answer ∧
+    Ready k r.memory ∧ rules.select r.memory k q = .answer r.answer ∧
       ∀ F : Frame n, M.Represents F → Valid k F r.actions := by
   induction fuel generalizing M r with
   | zero => simp [selectLoop] at h
   | succ fuel ih =>
-    cases ha : attempt M k q with
+    cases ha : rules.select M k q with
     | answer a =>
       simp only [selectLoop, ha, Option.some.injEq] at h
       cases h

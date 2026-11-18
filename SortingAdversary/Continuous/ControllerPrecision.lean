@@ -190,7 +190,7 @@ theorem pathBatch_onGrid (M : Memory n) (F k : ℕ) (hk : 64 ≤ k)
     have hnew := (anchor_move_spec M k hk hM x).2.2.2.1
     have hg := anchor_move_onGrid M F k hk hM hgrid x
     have ht := ih _ _ hnew hg
-    simpa only [pathBatch, List.length_cons, mul_add, mul_one, Nat.add_assoc,
+    simpa only [pathBatch, reference_anchor, List.length_cons, mul_add, mul_one, Nat.add_assoc,
       Nat.add_comm (Nat.log 2 (enumerationBudget k (by omega))),
       Nat.add_left_comm (Nat.log 2 (enumerationBudget k (by omega)))] using ht
 
@@ -204,11 +204,11 @@ theorem selectLoop_onGrid (k : ℕ) (hk : 64 ≤ k) (q : Query n) (fuel : ℕ)
   | succ fuel ih =>
     cases ha : attempt M k q with
     | answer a =>
-      simp only [selectLoop, ha, Option.some.injEq] at h
+      simp only [selectLoop, reference_select, ha, Option.some.injEq] at h
       subst r
       simpa only [refinementCount_nil, mul_zero, add_zero] using And.intro hM hgrid
     | refine x c =>
-      simp only [selectLoop, ha] at h
+      simp only [selectLoop, reference_select, ha] at h
       cases ht : selectLoop k q fuel (applyMove M (makeMove M x c)) with
       | none => simp only [ht, Option.map_none] at h; contradiction
       | some r' =>
@@ -238,7 +238,7 @@ theorem repair_onGrid (M : Memory n) (F k : ℕ) (hk : 64 ≤ k)
       have hn := (anchor_move_spec M k hk hM x).2.2.2.1
       have hg := anchor_move_onGrid M F k hk hM hgrid x
       simpa only [repair, hp, hd, refinementCount_cons, actionRefinements, refinementCount_nil,
-        Nat.add_zero, mul_one] using And.intro hn hg
+        reference_anchor, Nat.add_zero, mul_one] using And.intro hn hg
 
 /-- Every completed call increases precision by at most one budget increment
 per actual refinement in its emitted trace. -/

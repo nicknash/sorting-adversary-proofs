@@ -23,7 +23,7 @@ open PrimitiveWork
 
 variable {n k : ℕ}
 
-structure Routines (n k : ℕ) where
+structure Routines (n k : ℕ) [rules : Controller.Choices n] where
   State : Type
   memory : State → Controller.Memory n
   attempt : State → Query n → PrimitiveWork.Result (LocalSelection.Result n)
@@ -32,15 +32,15 @@ structure Routines (n k : ℕ) where
   record : State → Query n → Answer → PrimitiveWork.Result State
   firstPath : State → PrimitiveWork.Result (Option (List (Fin n)))
   degreeChoice : State → PrimitiveWork.Result (Option (Fin n))
-  attempt_value : ∀ s q, (attempt s q).value = Controller.attempt (memory s) k q
-  anchor_value : ∀ s x, (anchor s x).value = ArbitraryLabels.chooseAnchor (memory s).tree.system k x
+  attempt_value : ∀ s q, (attempt s q).value = rules.select (memory s) k q
+  anchor_value : ∀ s x, (anchor s x).value = rules.anchor (memory s) k x
   refine_value : ∀ s x c, memory (refine s x c).value =
     Controller.applyMove (memory s) (Controller.makeMove (memory s) x c)
   record_value : ∀ s q a, memory (record s q a).value = Controller.recorded (memory s) q a
   firstPath_value : ∀ s, (firstPath s).value = GraphPaths.firstPath (memory s).tree.system.edge (2 ^ k)
   degreeChoice_value : ∀ s, (degreeChoice s).value = Controller.degreeChoice (memory s) k
 
-variable (R : Routines n k)
+variable [rules : Controller.Choices n] (R : Routines n k)
 
 def resultView (r : Controller.Result n) : Controller.Memory n × Answer := (r.memory, r.answer)
 
@@ -63,7 +63,7 @@ theorem selectLoop_value (q : Query n) (fuel : ℕ) (s : R.State) :
   induction fuel generalizing s with
   | zero => rfl
   | succ fuel ih =>
-    cases ha : Controller.attempt (R.memory s) k q with
+    cases ha : rules.select (R.memory s) k q with
     | answer a => simp only [selectLoop, R.attempt_value, ha, Controller.selectLoop, Option.map_some,
         storedView, resultView]
     | refine x c =>
@@ -200,15 +200,15 @@ def RepairBudget (b : ℕ) (s : R.State) : Prop :=
       | some x => (R.anchor s x).work ≤ b ∧
         (R.refine s x (R.anchor s x).value).work ≤ b
 
-theorem repair_work (b : ℕ) (s : R.State) (h : RepairBudget R b s) :
-    (repair R s).work ≤ (n + 2) * (2 * b + 3) + 1 := by
+private theorem repair_work_with (b L : ℕ) (s : R.State) (hlen : ∀ xs, (R.firstPath s).value = some xs → xs.length ≤ L) (h : RepairBudget R b s) :
+    (repair R s).work ≤ (L + 2) * (2 * b + 3) + 1 := by
   have hp := h.1
   cases hpath : (R.firstPath s).value with
   | some xs =>
     have hs : xs.length ≤ n ∧ PathBudget R b s xs := by
       simpa only [RepairBudget, hpath] using h.2
     have hb := pathBatch_work R b s xs hs.2
-    have hm := Nat.mul_le_mul_right (2 * b + 3) hs.1
+    have hm := Nat.mul_le_mul_right (2 * b + 3) (hlen xs hpath)
     simp only [repair, hpath]
     nlinarith
   | none =>
@@ -226,14 +226,33 @@ theorem repair_work (b : ℕ) (s : R.State) (h : RepairBudget R b s) :
       simp only [repair, hpath, hdegree]
       nlinarith
 
+theorem repair_work (b : ℕ) (s : R.State) (h : RepairBudget R b s) :
+    (repair R s).work ≤ (n + 2) * (2 * b + 3) + 1 := by
+  apply repair_work_with R b n s _ h
+  intro xs hp
+  have hs : xs.length ≤ n ∧ PathBudget R b s xs := by
+    simpa only [RepairBudget, hp] using h.2
+  exact hs.1
+
+/-- A path repair has exactly the stage threshold many vertices. This
+bound uses the actual path returned by the graph search. -/
+theorem repair_work_height (b : ℕ) (s : R.State) (h : RepairBudget R b s) :
+    (repair R s).work ≤ (2 ^ k + 2) * (2 * b + 3) + 1 := by
+  apply repair_work_with R b (2 ^ k) s _ h
+  intro xs hp
+  rw [R.firstPath_value] at hp
+  exact (GraphPaths.firstPath_some _ _ _ hp).1.le
+
 def CompareBudget (b : ℕ) (s : R.State) (q : Query n) : Prop :=
   SelectionBudget R q b 3 s ∧
     match (selectLoop R q 3 s).value with
     | none => True
     | some (t, a) => (R.record t q a).work ≤ b ∧ RepairBudget R b (R.record t q a).value
 
-theorem compare_work (b : ℕ) (s : R.State) (q : Query n) (h : CompareBudget R b s q) :
-    (compare R s q).work ≤ (n + 7) * (2 * b + 3) + 5 := by
+private theorem compare_work_with (L : ℕ) (b : ℕ) (s : R.State) (q : Query n) (h : CompareBudget R b s q)
+    (hrepair : ∀ z : R.State, RepairBudget R b z →
+      (repair R z).work ≤ (L + 2) * (2 * b + 3) + 1) :
+    (compare R s q).work ≤ (L + 7) * (2 * b + 3) + 5 := by
   have hsel := selectLoop_work R q b 3 s h.1
   cases hs : (selectLoop R q 3 s).value with
   | none =>
@@ -243,8 +262,18 @@ theorem compare_work (b : ℕ) (s : R.State) (q : Query n) (h : CompareBudget R 
     obtain ⟨t, a⟩ := z
     have ha : (R.record t q a).work ≤ b ∧ RepairBudget R b (R.record t q a).value := by
       simpa only [hs] using h.2
-    have hr := repair_work R b (R.record t q a).value ha.2
+    have hr := hrepair (R.record t q a).value ha.2
     simp only [compare, hs]
     nlinarith
+
+theorem compare_work (b : ℕ) (s : R.State) (q : Query n) (h : CompareBudget R b s q) :
+    (compare R s q).work ≤ (n + 7) * (2 * b + 3) + 5 :=
+  compare_work_with R n b s q h (repair_work R b)
+
+/-- If every component call costs at most `b`, the overhead of the entire
+active query depends on the local path threshold, independently of `n`. -/
+theorem compare_work_height (b : ℕ) (s : R.State) (q : Query n) (h : CompareBudget R b s q) :
+    (compare R s q).work ≤ (2 ^ k + 7) * (2 * b + 3) + 5 :=
+  compare_work_with R (2 ^ k) b s q h (repair_work_height R b)
 
 end SortingAdversary.Continuous.ControllerWork
