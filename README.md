@@ -1,5 +1,9 @@
 # Sorting adversaries in Lean
 
+Note: Astra 6.2 has since found a poly-logarithmic, deterministic, optimal adversary, see [this supplementary (fully AI written) note](supplementary/polylog_sorting_adversary.pdf) and [formalization](SortingAdversary/Continuous/PolylogRAM.lean).
+
+The note's [LaTeX source](supplementary/polylog_sorting_adversary.tex) is also available.
+
 **[Read the human-friendly paper (PDF)](for-humans/output/pdf/paper.pdf)** · [Hexagon Math](https://hexagonmath.org/2611.00196v2)
 
 The paper's continuous adversary is formalized in Lean 4 under

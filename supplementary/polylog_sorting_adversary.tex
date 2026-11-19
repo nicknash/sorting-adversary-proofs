@@ -1,0 +1,234 @@
+% LaTeX transcription of the original AI-written research note, 18 November 2026.
+% The original PDF is preserved unchanged alongside this file.
+% The original .tex was not available in the linked chat or Library; this
+% compilable transcription was prepared on 19 November 2026 from that PDF.
+% Build: pdflatex polylog_sorting_adversary.tex (run twice for links).
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=26mm,top=22mm,bottom=22mm]{geometry}
+\usepackage{amsmath,amssymb,microtype}
+\usepackage[hidelinks]{hyperref}
+\hypersetup{
+  pdftitle={An optimal sorting adversary in polylogarithmic time per comparison},
+  pdfsubject={A word-RAM refinement of the order-restriction DAG adversary}
+}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\begin{document}
+\begin{center}
+{\large\bfseries An optimal sorting adversary in polylogarithmic\\
+time per comparison\par}
+\vspace{6pt}
+Research note\quad 18 November 2026
+\end{center}
+\vspace{6pt}
+
+\textbf{Theorem.} On a deterministic word RAM with $\Theta(\log n)$-bit words,
+one uniform online adversary for $n$ distinct labels answers every comparison in
+$O((\log n)^C)$ worst-case time for an absolute constant $C$. Every correct
+comparison sorter uses at least $(1-o(1))n\log_2 n$ comparisons against it.
+Initialization uses $O(n)$ time, and the space bound is $n\,\mathrm{polylog}\,n$ words.
+
+The starting point is Nash's order-restriction DAG adversary [1], version 2.
+Its local calculations for fixed accuracy inspect a bounded number of vertices,
+but their inputs can have many fractional bits. Two observations yield the
+stronger time bound. An absolute approximation suffices for the probability
+certificates. When a certificate fails, the only new number required is a point
+well inside an interval with exact endpoints. That point can be constructed by
+copying a binary prefix and adding a small multiple of a power of two.
+
+\section{What the comparison proof requires}
+All logarithms are binary. Fix $k\ge64$ and put $H=2^k$ and
+$\eta=1/(100k)$. Each node of the adversary's tree stores a DAG of free labels
+and an interval $(\ell_x,r_x)$ for every free label $x$. A feasible assignment
+chooses a point in each interval, increasing along each arc. The intervals are
+canonical, meaning that their endpoints are the infimum and supremum attainable
+by the coordinate. A child at position $c$ represents a block of labels. A
+refinement fixes $x$ at $c$ in the parent, deletes its coordinate there, and gives
+it a fresh unconstrained coordinate in that child. Let $f_x$ denote the marginal
+density of $x$ for a uniform feasible assignment in the parent.
+
+The proof of Lemma 3.6 and Theorem 3.7 of [1] works for any deterministic choices
+satisfying the following three estimates.
+\begin{itemize}
+\item A certified answer retains at least $1/2-\eta$ of the current node volume.
+\item A refinement requested by \textsc{Select} has $\log f_x(c)>k$.
+\item Every refinement, including a repair, selects an interior dyadic $c$.
+In reduced form $c=(2i+1)/2^{m+1}$, it satisfies
+$\log f_x(c)\ge(1-1/k)m-4$.
+\end{itemize}
+We keep the path and degree repair rules of [1]. Under these hypotheses, if $T_q$
+is the number of total orders consistent with the first $q$ answers, that proof gives
+\begin{equation}
+\log T_q\ge\log(n!)-(1+\delta_k)q,\qquad \delta_k=O(\log k/k).
+\end{equation}
+In particular, allowed choices can change which answer the adversary returns.
+The proof uses the three inequalities and the legality of interior refinements.
+
+\newpage
+\section{Short inputs suffice for the local certificates}
+Theorem B.1 of [1] supplies a finite list of intervals enclosing each queried
+coordinate. A uniform entry can be coupled with a uniform feasible point so that
+the point lies inside its intervals. Except for an $\alpha$ fraction of entries,
+the intervals have width at most $\delta$. The tolerances $\alpha,\delta>0$ used
+in Appendix D of [1] depend only on $k$. The number of local vertices, digit
+assignments and arithmetic steps also depends only on $k$.
+
+Run the enclosure with width tolerance $\delta/2$ and the same $\alpha$. Fix a
+dyadic grid of mesh $u\le\delta/4$. In the lower computation round every input
+down to this grid, including both interval walls at every vertex and the initial
+positions. In the upper computation round every input up. Carry out all
+subsequent updates exactly, with the original digit sequence for each list entry.
+
+To check the effect on one trajectory, each update takes maxima and minima and
+then a convex combination. These operations are monotone and nonexpansive for
+the maximum norm, jointly in the state and the stored walls. By induction, each
+computed lower endpoint lies between the original lower endpoint minus $u$ and
+the original endpoint. The upper endpoint increases by at most $u$. Thus the
+wider intervals still enclose the same feasible point under the original
+coupling, and every formerly good entry has width at most $\delta/2+2u\le\delta$.
+Both conclusions of Theorem B.1 hold at the tolerances required in Appendix D.
+For a comparison against an existing anchor, the resulting short endpoints can
+be compared with that exact anchor.
+
+The resulting list can therefore be used in the original mass tests. A
+successful comparison certifies its retained volume. A successful central-interval
+test supplies a short-dyadic interval $J$ with mass at least $1/4$ in $J$ and on
+each side of it. Applying the original rounding rule in $J$ gives
+$\log f_x(c)\ge m-4$ by Lemmas A.6 and E.1 of [1]. All temporary arithmetic in
+the sweeps and in this successful anchor calculation has bit length bounded by a
+computable function of $k$.
+
+\section{An exact anchor when certification fails}
+Put $B=(k+1)^{2H+1}$, the bound on the number of coordinates comparable with one
+free coordinate. A failed test implies that the chosen coordinate's canonical
+width $W=r-\ell$ satisfies $W<2^{-2kB}$, by Lemma D.1 of [1]. Write
+$L=\log(1/W)$. Throughout the middle half of $(\ell,r)$ the density bound (18)
+of [1] gives
+\[
+\log f_x(c)\ge L-2B>(1-1/k)L,\qquad L-2B>k.
+\]
+Choose the largest power of two $h\le W/4$, and define
+\begin{equation}
+c=h\lfloor\ell/h\rfloor+3h.
+\end{equation}
+Since $4h\le W<8h$, we have $2h<c-\ell\le3h$, which puts $c$ in the middle
+half. Since $c$ is a multiple of $h$ and $W<8h$, its reduced denominator
+exponent satisfies $m<L+2$. This yields $\log f_x(c)\ge(1-1/k)m-4$, as required.
+All three estimates on page 1 follow with the original constants. The formula
+requires only the scale of the width, a prefix of the lower endpoint and two
+power-of-two additions.
+
+\newpage
+\section{Working with long dyadics}
+Before the horizon $Q=n\lceil\log n\rceil$, every query moves at most two queried
+labels before the answer. A moved label has density one in its fresh coordinate
+and cannot be selected again during that loop. After the answer, the single
+repair moves at most $H$ labels (Algorithm 7 of [1]). Let $A(k)$ bound the
+precision of anchors from successful central tests. If the stored endpoints
+have at most $M$ fractional bits, then $W\ge2^{-M}$, so (2) uses at most $M+2$
+bits. A sufficient common capacity for the number of fractional bits is therefore
+\[
+D=A(k)+2(Q+1)(H+2)+8.
+\]
+We shall choose $A(k),H\le\log n$ for all sufficiently large $n$. In particular,
+$D$ is polynomial in $n$, though a single endpoint can be much longer than one word.
+
+Represent a binary number, including a constant number of integer bits, by a
+persistent complete binary tree on its bit positions. Pad its capacity to a
+power of two. Equal blocks at a given height share one identifier. A
+deterministic balanced search tree maps each triple (height, left identifier,
+right identifier) to its unique identifier. Store one all-zero and one all-one
+block of each height. Thus the initial tree uses $O(\log D)$ records. New
+numbers reuse every unaltered subtree. The following operations touch
+$O(\log D)$ blocks each, with a dictionary lookup for every new block.
+\begin{itemize}
+\item Compare two numbers by descending to the first unequal bit, skipping
+equal child identifiers.
+\item Truncate after a specified bit by clearing a suffix. To add one unit at
+a specified bit, locate the rightmost preceding zero at or before that bit,
+set it, and clear the intervening run of ones. Uniform blocks allow the search
+and both range updates in logarithmic time.
+\end{itemize}
+Find the least $s\ge0$ for which $\ell+2^{-s}\le r$ by binary search on bit
+positions. Then $h=2^{-(s+2)}$ has the defining property in (2). Truncate $\ell$
+to this grid and add $3h$ using two power-of-two additions. This costs
+$O(\log D)$ tree operations. For rounding up, a comparison with the truncated
+value detects a nonzero tail. Reading the bounded prefix for a local sweep,
+or embedding a short computed endpoint for exact comparison, costs a computable
+function of $k$ times a power of $\log D$. Throughout, equality of identifiers
+is exact.
+
+\section{Graph maintenance in worst-case time}
+Between calls the node DAGs have degree below $k$ and directed paths of fewer
+than $H$ vertices. Immediately after an arc insertion the bounds are $k$ and
+fewer than $2H$. Thus all the ancestors and descendants of a changed vertex
+occupy a set of size bounded in terms of $k$. Inserting $a\to b$ propagates
+$\ell_a$ only to $b$ and its descendants and $r_b$ only to $a$ and its ancestors.
+A one-sided interval bound propagates in one direction. Fixing $x$ at $c$
+changes only the upper bounds of its predecessors and the lower bounds of its
+successors, by formula (14) of [1]. All these changes use exact comparisons
+between endpoints.
+
+\newpage
+Every newly forbidden path must contain the inserted arc, and only its
+endpoints can newly attain degree $k$. Searching the two cones of that arc
+finds a path for repair, including the lexicographically first one if required.
+The at most $H$ moves in such a repair take bounded local graph work per move
+for fixed $k$. The graph visited by the enclosure has bounded undirected
+radius and bounded degree as functions of $k$, and can be collected from
+adjacency lists.
+
+Store each label's current tree node. The hierarchy grows by leaf additions.
+Pointers to ancestors at power-of-two distances support insertion of a node,
+lowest-common-ancestor queries, and finding the first child below that ancestor
+in $O(\log N)$ operations for $N$ tree nodes. This locates the node at which a
+comparison is resolved. Each parent's children can be stored in a balanced
+dictionary of exact dyadic anchors. There are at most $1+(H+2)Q$ tree nodes
+before the horizon.
+
+\paragraph{After the horizon.}
+Freeze the state at $Q$ and use the following fixed order. At each node place
+an anchor at its own value and each free item $x$ immediately to the right of
+$\ell_x$. Break ties among items with equal lower bounds by the length of the
+longest directed path ending at $x$, then by label. A finite node admits a
+sufficiently small positive perturbation realizing these choices. Use ordered
+offsets smaller than any positive gap between distinct endpoints or anchors.
+Every item is below its upper bound; on an arc, the lower bounds are
+nondecreasing and the path length increases. Thus these local orders give a
+represented global order, which respects every previous comparison. A query in
+the frozen state needs only the lowest common ancestor and the predecessor
+cones of at most two items. Switching modes requires one flag and works even
+if comparisons continue indefinitely.
+
+\paragraph{One uniform algorithm.}
+For fixed $k$, the foregoing implementation has worst-case query time
+$F(k)(\log n)^c$ for a fixed $c$ and a computable $F$. Here $F$ includes
+arithmetic on short endpoints, all finite enumerations and graph searches,
+the repair batch, and bounds for $A(k)$ and $H$. All loops involving the local
+parameters have computable bounds from the construction. The variable-length
+operations use a fixed number of nested logarithmic searches. The interning
+dictionary gets at most a polynomial in $n$ many entries when $F(k)\le\log n$,
+since each of $Q$ calls creates at most $F(k)(\log D)^{O(1)}$ blocks,
+independently of dictionary lookup time. Its identifiers and addresses therefore
+fit in $O(\log n)$ bits.
+
+To choose $k$, simulate for $\lfloor\log n\rfloor$ steps a fixed program emitting
+successive complete parameter tuples and upper bounds $F(64),F(65),\ldots$.
+Use the largest completed stage with $F(k)\le\log n$. Every fixed stage
+eventually qualifies, so $k(n)\to\infty$. Use the label order for the finitely
+many sizes with no qualifying stage. Initialization can create the $n$ isolated
+label records in linear time. The per-query time is now polylogarithmic, and
+space through the horizon is $n\,\mathrm{polylog}\,n$. A sorter stopping before
+$Q$ has $T_q=1$, so (1) forces $q\ge\log(n!)/(1+\delta_{k(n)})$. A sorter
+reaching $Q$ already meets the claimed bound. This proves the theorem.
+\hfill$\square$
+
+The convergence of the coefficient is governed by the cost of the finite
+enumeration as a function of $k$. The implementation above gives an asymptotic
+existence result.
+
+\vfill
+{\small\textbf{Reference.} [1] Nicholas Nash, \emph{An Optimal Deterministic
+Adversary for Sorting}, version 2, November 2026.
+\href{https://hexagonmath.org/2611.00196v2}{hexagon:2611.00196v2}.}
+\end{document}
